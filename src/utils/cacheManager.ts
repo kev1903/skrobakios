@@ -4,7 +4,7 @@
  */
 
 // App version - increment this when you want to force cache refresh
-export const APP_VERSION = '2.0.0';
+export const APP_VERSION = '2.0.1';
 const VERSION_KEY = 'app_version';
 
 /**
@@ -58,6 +58,7 @@ export const clearAllCaches = async () => {
 export const checkAndUpdateVersion = async () => {
   const storedVersion = localStorage.getItem(VERSION_KEY);
   
+  // First check local version
   if (storedVersion !== APP_VERSION) {
     console.log(`🔄 Version changed: ${storedVersion} → ${APP_VERSION}`);
     console.log('Clearing caches for new version...');
@@ -65,10 +66,41 @@ export const checkAndUpdateVersion = async () => {
     await clearAllCaches();
     localStorage.setItem(VERSION_KEY, APP_VERSION);
     
-    return { updated: true, oldVersion: storedVersion, newVersion: APP_VERSION };
+    return { updated: true, oldVersion: storedVersion, newVersion: APP_VERSION, forceUpdate: false };
   }
   
-  return { updated: false, version: APP_VERSION };
+  // Then check server version
+  const hasServerUpdate = await checkForUpdates();
+  if (hasServerUpdate) {
+    try {
+      const response = await fetch(`/version.json?t=${Date.now()}`, {
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const serverVersion = data.version;
+        const forceUpdate = data.forceUpdate || false;
+        
+        console.log(`🔄 Server version available: ${APP_VERSION} → ${serverVersion}`);
+        
+        return { 
+          updated: true, 
+          oldVersion: APP_VERSION, 
+          newVersion: serverVersion,
+          forceUpdate
+        };
+      }
+    } catch (error) {
+      console.log('Error fetching server version:', error);
+    }
+  }
+  
+  return { updated: false, version: APP_VERSION, forceUpdate: false };
 };
 
 /**

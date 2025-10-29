@@ -9,35 +9,74 @@ import { checkAndUpdateVersion, forceReload, APP_VERSION } from '@/utils/cacheMa
  */
 export const UpdateNotification = () => {
   const [showUpdate, setShowUpdate] = useState(false);
-  const [updateInfo, setUpdateInfo] = useState<{ oldVersion: string | null; newVersion: string } | null>(null);
+  const [updateInfo, setUpdateInfo] = useState<{ oldVersion: string | null; newVersion: string; forceUpdate: boolean } | null>(null);
+  const [countdown, setCountdown] = useState(10);
+  const [isCountingDown, setIsCountingDown] = useState(false);
 
   useEffect(() => {
     const checkVersion = async () => {
       const result = await checkAndUpdateVersion();
       
       if (result.updated) {
-        setUpdateInfo({
+        const info = {
           oldVersion: result.oldVersion || null,
-          newVersion: result.newVersion
-        });
+          newVersion: result.newVersion,
+          forceUpdate: result.forceUpdate || false
+        };
+        setUpdateInfo(info);
         setShowUpdate(true);
+        
+        // If force update, start countdown immediately
+        if (info.forceUpdate) {
+          setIsCountingDown(true);
+        }
       }
     };
 
     checkVersion();
 
-    // Check for updates every 5 minutes
-    const interval = setInterval(checkVersion, 5 * 60 * 1000);
+    // Check for updates every 2 minutes
+    const interval = setInterval(checkVersion, 2 * 60 * 1000);
     
     return () => clearInterval(interval);
   }, []);
+
+  // Countdown effect
+  useEffect(() => {
+    if (!isCountingDown) return;
+
+    if (countdown <= 0) {
+      forceReload();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown, isCountingDown]);
 
   const handleUpdate = () => {
     forceReload();
   };
 
-  const handleDismiss = () => {
+  const handlePostpone = () => {
+    if (updateInfo?.forceUpdate) {
+      // Can't postpone force updates
+      return;
+    }
     setShowUpdate(false);
+    setIsCountingDown(false);
+    setCountdown(10);
+  };
+
+  const handleUpdateLater = () => {
+    if (updateInfo?.forceUpdate) {
+      // Can't postpone force updates
+      return;
+    }
+    setIsCountingDown(true);
   };
 
   if (!showUpdate) return null;
@@ -52,10 +91,15 @@ export const UpdateNotification = () => {
           
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-white mb-1">
-              Update Available
+              {updateInfo?.forceUpdate ? 'Critical Update Required' : 'Update Available'}
             </h3>
             <p className="text-xs text-white/90">
-              A new version is available. Please refresh to get the latest features and fixes.
+              {isCountingDown 
+                ? `Updating in ${countdown} seconds...`
+                : updateInfo?.forceUpdate
+                  ? 'A critical update is required. The app will update automatically.'
+                  : 'A new version is available with the latest features and fixes.'
+              }
             </p>
             {updateInfo?.oldVersion && (
               <p className="text-xs text-white/70 mt-1">
@@ -65,21 +109,45 @@ export const UpdateNotification = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <Button
-              onClick={handleUpdate}
-              size="sm"
-              className="bg-white text-luxury-gold hover:bg-white/90 shadow-md"
-            >
-              Update Now
-            </Button>
-            <Button
-              onClick={handleDismiss}
-              size="sm"
-              variant="ghost"
-              className="text-white hover:bg-white/10"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            {!isCountingDown ? (
+              <>
+                <Button
+                  onClick={handleUpdate}
+                  size="sm"
+                  className="bg-white text-luxury-gold hover:bg-white/90 shadow-md"
+                >
+                  Update Now
+                </Button>
+                {!updateInfo?.forceUpdate && (
+                  <>
+                    <Button
+                      onClick={handleUpdateLater}
+                      size="sm"
+                      variant="ghost"
+                      className="text-white hover:bg-white/10"
+                    >
+                      Later
+                    </Button>
+                    <Button
+                      onClick={handlePostpone}
+                      size="sm"
+                      variant="ghost"
+                      className="text-white hover:bg-white/10"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+              </>
+            ) : (
+              <Button
+                onClick={handleUpdate}
+                size="sm"
+                className="bg-white text-luxury-gold hover:bg-white/90 shadow-md"
+              >
+                Update Now ({countdown}s)
+              </Button>
+            )}
           </div>
         </div>
       </Card>

@@ -1,5 +1,6 @@
 {
-  "version": "2.0.0",
+  "version": "2.0.1",
   "buildDate": "2025-01-29",
-  "description": "Service worker removed, cache management improved"
+  "description": "Automatic updates for all users",
+  "forceUpdate": false
 }
