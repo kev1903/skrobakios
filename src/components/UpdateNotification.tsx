@@ -65,8 +65,8 @@ export const UpdateNotification = () => {
 
     checkVersion();
 
-    // Check for updates every 2 minutes
-    const interval = setInterval(checkVersion, 2 * 60 * 1000);
+    // Check for updates every 24 hours
+    const interval = setInterval(checkVersion, 24 * 60 * 60 * 1000);
     
     return () => clearInterval(interval);
   }, []);
