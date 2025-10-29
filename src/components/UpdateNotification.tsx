@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { checkAndUpdateVersion, forceReload, APP_VERSION } from '@/utils/cacheManager';
 import { registerServiceWorker, updateServiceWorker } from '@/utils/serviceWorkerManager';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * UpdateNotification - Shows a banner when app needs to be updated
+ * Only visible after authentication
  */
 export const UpdateNotification = () => {
   const [showUpdate, setShowUpdate] = useState(false);
@@ -14,6 +16,23 @@ export const UpdateNotification = () => {
   const [countdown, setCountdown] = useState(10);
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Register service worker on mount
   useEffect(() => {
@@ -114,10 +133,10 @@ export const UpdateNotification = () => {
     setIsCountingDown(true);
   };
 
-  if (!showUpdate) return null;
+  if (!showUpdate || !isAuthenticated) return null;
 
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md px-4">
+    <div className="fixed bottom-6 right-6 z-[9999] w-full max-w-md">
       <Card className="bg-luxury-gold/95 backdrop-blur-xl border-white/20 shadow-elegant">
         <div className="p-4 flex items-center gap-4">
           <div className="flex-shrink-0">
