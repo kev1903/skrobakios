@@ -77,7 +77,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
             },
             startDate: data.start_date || undefined,
             endDate: data.end_date || undefined,
-            dueDate: data.due_date ? new Date(data.due_date).toLocaleDateString() : '',
+            dueDate: data.due_date || '',
             status: (data.status || 'Not Started') as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
             progress: data.progress || 0,
             description: data.description || '',
@@ -136,7 +136,6 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
   const handleSave = async () => {
     if (editedTask && hasUnsavedChanges) {
       try {
-        console.log('Saving task with description:', editedTask.description);
         await updateTask(editedTask.id, editedTask);
         setHasUnsavedChanges(false);
         toast({
@@ -164,13 +163,10 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
   const handleTaskUpdate = (updates: Partial<Task>) => {
     if (editedTask) {
-      console.log('Task update received:', updates);
-      const updatedTask = {
+      setEditedTask({
         ...editedTask,
         ...updates
-      };
-      console.log('Updated task description:', updatedTask.description);
-      setEditedTask(updatedTask);
+      });
       setHasUnsavedChanges(true);
     }
   };

@@ -211,10 +211,7 @@ export const taskService = {
     if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
     if (updates.status !== undefined) dbUpdates.status = updates.status;
     if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
-    if (updates.description !== undefined) {
-      console.log('Description being saved:', updates.description);
-      dbUpdates.description = updates.description;
-    }
+    if (updates.description !== undefined) dbUpdates.description = updates.description;
     if (updates.duration !== undefined) {
       dbUpdates.duration = updates.duration;
       dbUpdates.estimated_duration = updates.duration;
@@ -348,6 +345,12 @@ export const taskService = {
   },
 
   async logTaskActivity(taskId: string, updates: Partial<Task>, userProfile: any): Promise<void> {
+    // Skip logging if no userProfile
+    if (!userProfile) {
+      console.log('Skipping activity log - no user profile available');
+      return;
+    }
+    
     const activityPromises = [];
     const userName = `${userProfile.firstName} ${userProfile.lastName}`.trim() || 'Anonymous User';
     const userAvatar = userProfile.avatarUrl || '';
