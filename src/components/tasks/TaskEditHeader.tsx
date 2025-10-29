@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Check, Timer, Paperclip, MessageSquare, Link, Maximize2, Trash2, Save, Edit2, X } from 'lucide-react';
+import { Check, Timer, Paperclip, MessageSquare, Link, Maximize2, Trash2, Save, Edit2, X, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -25,6 +25,7 @@ interface TaskEditHeaderProps {
   onTaskNameChange?: (newName: string) => void;
   onSave?: () => void;
   onClose?: () => void;
+  onBack?: () => void;
 }
 
 interface EditableTaskNameProps {
@@ -82,7 +83,7 @@ const EditableTaskName = ({ taskName, onTaskNameChange }: EditableTaskNameProps)
   );
 };
 
-export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChange, onSave, onClose }: TaskEditHeaderProps) => {
+export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChange, onSave, onClose, onBack }: TaskEditHeaderProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
 
@@ -110,6 +111,19 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
     <>
       {/* Streamlined Header */}
       <div className="p-4">
+        {/* Back to Tasks Button */}
+        {onBack && (
+          <Button
+            onClick={onBack}
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-2 mb-4 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Tasks
+          </Button>
+        )}
+        
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <Button

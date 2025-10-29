@@ -46,8 +46,22 @@ export const TaskEditContent = ({
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
         <div className="flex-shrink-0 border-b border-border bg-white">
           <div className="flex items-center justify-between px-6 py-4">
-            {/* Left: Task Name */}
+            {/* Left: Back Button & Task Name */}
             <div className="flex items-center gap-4">
+              {!isDialog && (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={onBack} 
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Tasks
+                  </Button>
+                  <div className="h-4 w-px bg-border/50" />
+                </>
+              )}
               {isDialog && (
                 <>
                   <Button 
