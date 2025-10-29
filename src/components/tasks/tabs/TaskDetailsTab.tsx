@@ -284,12 +284,12 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
         </div>
       </div>
 
-      {/* Scope of Works & Subtasks - Two Column Layout */}
+      {/* Task Description & Subtasks - Two Column Layout */}
       <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 divide-x divide-border/30">
-          {/* Left Column - Scope of Works */}
+          {/* Left Column - Task Description */}
           <div className="pr-6">
-            <h3 className="text-base font-semibold mb-4 text-foreground">Scope of Works</h3>
+            <h3 className="text-base font-semibold mb-4 text-foreground">Task Description</h3>
             <Textarea
               value={task.description || ''}
               onChange={(e) => onUpdate({ description: e.target.value })}
