@@ -1,6 +1,6 @@
 {
-  "version": "2.0.1",
+  "version": "2.0.2",
   "buildDate": "2025-01-29",
-  "description": "Automatic updates for all users",
+  "description": "Service worker for proactive cache management",
   "forceUpdate": false
 }

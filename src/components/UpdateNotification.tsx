@@ -3,6 +3,7 @@ import { RefreshCw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { checkAndUpdateVersion, forceReload, APP_VERSION } from '@/utils/cacheManager';
+import { registerServiceWorker, updateServiceWorker } from '@/utils/serviceWorkerManager';
 
 /**
  * UpdateNotification - Shows a banner when app needs to be updated
@@ -12,6 +13,35 @@ export const UpdateNotification = () => {
   const [updateInfo, setUpdateInfo] = useState<{ oldVersion: string | null; newVersion: string; forceUpdate: boolean } | null>(null);
   const [countdown, setCountdown] = useState(10);
   const [isCountingDown, setIsCountingDown] = useState(false);
+  const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
+
+  // Register service worker on mount
+  useEffect(() => {
+    registerServiceWorker().then(reg => {
+      if (reg) {
+        setSwRegistration(reg);
+      }
+    });
+
+    // Listen for service worker updates
+    const handleSWUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log('Service worker update detected');
+      setSwRegistration(customEvent.detail.registration);
+      setShowUpdate(true);
+      setUpdateInfo({
+        oldVersion: APP_VERSION,
+        newVersion: 'latest',
+        forceUpdate: false
+      });
+    };
+
+    window.addEventListener('swUpdateAvailable', handleSWUpdate);
+
+    return () => {
+      window.removeEventListener('swUpdateAvailable', handleSWUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     const checkVersion = async () => {
@@ -57,8 +87,13 @@ export const UpdateNotification = () => {
     return () => clearTimeout(timer);
   }, [countdown, isCountingDown]);
 
-  const handleUpdate = () => {
-    forceReload();
+  const handleUpdate = async () => {
+    // If we have a service worker waiting, activate it
+    if (swRegistration?.waiting) {
+      await updateServiceWorker(swRegistration);
+    } else {
+      forceReload();
+    }
   };
 
   const handlePostpone = () => {
