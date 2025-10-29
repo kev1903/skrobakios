@@ -1635,58 +1635,128 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           {/* Tabs Container - Full Width */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
             <div className="flex-shrink-0 border-b border-border bg-white">
-              <div className="flex items-center justify-between px-6 py-4">
+              <div className={`flex items-center ${
+                screenSize === 'mobile' || screenSize === 'mobile-small' 
+                  ? 'flex-col gap-3 px-3 py-3' 
+                  : screenSize === 'tablet'
+                  ? 'flex-col gap-3 px-4 py-3'
+                  : 'justify-between px-6 py-4'
+              }`}>
                 {/* Tabs in Header */}
-                <TabsList className="grid w-fit grid-cols-3">
-                  <TabsTrigger value="scope" className="flex items-center gap-2">
-                    <NotebookPen className="w-4 h-4" />
-                    Scope
-                  </TabsTrigger>
-                  <TabsTrigger value="time" className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Time
-                  </TabsTrigger>
-                  <TabsTrigger value="cost" className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    Cost
-                  </TabsTrigger>
-                </TabsList>
+                <div className={`flex items-center ${
+                  screenSize === 'mobile' || screenSize === 'mobile-small' 
+                    ? 'w-full justify-between' 
+                    : screenSize === 'tablet'
+                    ? 'w-full justify-between'
+                    : ''
+                }`}>
+                  <TabsList className={`grid ${
+                    screenSize === 'mobile' || screenSize === 'mobile-small'
+                      ? 'grid-cols-3 flex-1'
+                      : 'w-fit grid-cols-3'
+                  }`}>
+                    <TabsTrigger 
+                      value="scope" 
+                      className={`flex items-center gap-2 ${
+                        screenSize === 'mobile' || screenSize === 'mobile-small' ? 'text-xs px-2' : ''
+                      }`}
+                    >
+                      <NotebookPen className={screenSize === 'mobile' || screenSize === 'mobile-small' ? 'w-3 h-3' : 'w-4 h-4'} />
+                      {screenSize !== 'mobile-small' && 'Scope'}
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="time" 
+                      className={`flex items-center gap-2 ${
+                        screenSize === 'mobile' || screenSize === 'mobile-small' ? 'text-xs px-2' : ''
+                      }`}
+                    >
+                      <Clock className={screenSize === 'mobile' || screenSize === 'mobile-small' ? 'w-3 h-3' : 'w-4 h-4'} />
+                      {screenSize !== 'mobile-small' && 'Time'}
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="cost" 
+                      className={`flex items-center gap-2 ${
+                        screenSize === 'mobile' || screenSize === 'mobile-small' ? 'text-xs px-2' : ''
+                      }`}
+                    >
+                      <DollarSign className={screenSize === 'mobile' || screenSize === 'mobile-small' ? 'w-3 h-3' : 'w-4 h-4'} />
+                      {screenSize !== 'mobile-small' && 'Cost'}
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  {/* Settings button visible on mobile/tablet */}
+                  {(screenSize === 'mobile' || screenSize === 'mobile-small' || screenSize === 'tablet') && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="ml-2">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={collapseAll}>
+                          <ChevronsUp className="w-4 h-4 mr-2" />
+                          Collapse All
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={expandAll}>
+                          <ChevronsDown className="w-4 h-4 mr-2" />
+                          Expand All
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        {activeTab === 'time' && (
+                          <DropdownMenuItem onClick={() => {}}>
+                            Critical Path
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => {}}>
+                          Baseline
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {}}>
+                          <Settings className="w-4 h-4 mr-2" />
+                          Settings
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
                 
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-between gap-6 flex-1">
-                    {/* Tab-specific buttons section */}
-                    <div className="flex items-center gap-2">
-                      {activeTab === 'time' && (
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" onClick={() => {}} title="Critical Path">
-                            <span className="text-xs font-medium">Critical Path</span>
-                          </Button>
-                        </div>
-                      )}
-                      {activeTab === 'cost' && (
-                        <div className="flex items-center gap-2">
-                          {/* Cost-specific buttons can go here */}
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Common buttons section */}
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={collapseAll} title="Collapse All">
-                        <ChevronsUp className="w-4 h-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={expandAll} title="Expand All">
-                        <ChevronsDown className="w-4 h-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => {}} title="Baseline">
-                        <span className="text-xs font-medium">Baseline</span>
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => {}} title="Settings">
-                        <Settings className="w-4 h-4" />
-                      </Button>
+                {/* Desktop buttons - only show on desktop */}
+                {screenSize === 'desktop' && (
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between gap-6 flex-1">
+                      {/* Tab-specific buttons section */}
+                      <div className="flex items-center gap-2">
+                        {activeTab === 'time' && (
+                          <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" onClick={() => {}} title="Critical Path">
+                              <span className="text-xs font-medium">Critical Path</span>
+                            </Button>
+                          </div>
+                        )}
+                        {activeTab === 'cost' && (
+                          <div className="flex items-center gap-2">
+                            {/* Cost-specific buttons can go here */}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Common buttons section */}
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={collapseAll} title="Collapse All">
+                          <ChevronsUp className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={expandAll} title="Expand All">
+                          <ChevronsDown className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => {}} title="Baseline">
+                          <span className="text-xs font-medium">Baseline</span>
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => {}} title="Settings">
+                          <Settings className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 

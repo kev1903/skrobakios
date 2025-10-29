@@ -2,6 +2,13 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { 
   Plus, 
   Indent, 
@@ -9,9 +16,11 @@ import {
   Bold, 
   Italic, 
   Underline,
-  Type
+  Type,
+  MoreHorizontal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useScreenSize } from '@/hooks/use-mobile';
 
 interface WBSToolbarProps {
   onAddRow?: () => void;
@@ -46,24 +55,31 @@ export const WBSToolbar = ({
   currentFormatting = {}
 }: WBSToolbarProps) => {
   const hasSelection = selectedItems.length > 0;
+  const screenSize = useScreenSize();
+  const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
+  const isTablet = screenSize === 'tablet';
 
   return (
-    <div className="h-12 bg-white border-b border-gray-200 px-4 flex items-center gap-2">
+    <div className={`h-12 bg-white border-b border-gray-200 flex items-center gap-2 ${
+      isMobile ? 'px-2' : 'px-4'
+    }`}>
       {/* Row Management */}
       <div className="flex items-center gap-1">
         <Button
           variant="outline"
           size="sm"
           onClick={onAddRow}
-          className="h-8 px-3 hover:bg-primary/10 hover:border-primary/20 transition-all duration-200"
+          className={`h-8 hover:bg-primary/10 hover:border-primary/20 transition-all duration-200 ${
+            isMobile ? 'px-2' : 'px-3'
+          }`}
           title="Add new row"
         >
           <Plus className="w-4 h-4 mr-1" />
-          Row
+          {!isMobile && 'Row'}
         </Button>
       </div>
 
-      <Separator orientation="vertical" className="h-6" />
+      {!isMobile && <Separator orientation="vertical" className="h-6" />}
 
       {/* Indentation Controls */}
       <div className="flex items-center gap-1">
@@ -95,91 +111,134 @@ export const WBSToolbar = ({
         </Button>
       </div>
 
-      <Separator orientation="vertical" className="h-6" />
+      {/* Desktop/Tablet: Show all formatting options */}
+      {!isMobile && (
+        <>
+          <Separator orientation="vertical" className="h-6" />
 
-      {/* Text Formatting */}
-      <div className="flex items-center gap-1">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onBold}
-          disabled={!hasSelection}
-          className={cn(
-            "h-8 w-8 p-0 transition-all duration-200",
-            currentFormatting.bold 
-              ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-              : "hover:bg-primary/10 hover:border-primary/20",
-            !hasSelection && "opacity-40"
-          )}
-          title="Bold (Ctrl+B)"
-        >
-          <Bold className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onItalic}
-          disabled={!hasSelection}
-          className={cn(
-            "h-8 w-8 p-0 transition-all duration-200",
-            currentFormatting.italic 
-              ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-              : "hover:bg-primary/10 hover:border-primary/20",
-            !hasSelection && "opacity-40"
-          )}
-          title="Italic (Ctrl+I)"
-        >
-          <Italic className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onUnderline}
-          disabled={!hasSelection}
-          className={cn(
-            "h-8 w-8 p-0 transition-all duration-200",
-            currentFormatting.underline 
-              ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-              : "hover:bg-primary/10 hover:border-primary/20",
-            !hasSelection && "opacity-40"
-          )}
-          title="Underline (Ctrl+U)"
-        >
-          <Underline className="w-4 h-4" />
-        </Button>
-      </div>
+          {/* Text Formatting */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onBold}
+              disabled={!hasSelection}
+              className={cn(
+                "h-8 w-8 p-0 transition-all duration-200",
+                currentFormatting.bold 
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                  : "hover:bg-primary/10 hover:border-primary/20",
+                !hasSelection && "opacity-40"
+              )}
+              title="Bold (Ctrl+B)"
+            >
+              <Bold className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onItalic}
+              disabled={!hasSelection}
+              className={cn(
+                "h-8 w-8 p-0 transition-all duration-200",
+                currentFormatting.italic 
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                  : "hover:bg-primary/10 hover:border-primary/20",
+                !hasSelection && "opacity-40"
+              )}
+              title="Italic (Ctrl+I)"
+            >
+              <Italic className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onUnderline}
+              disabled={!hasSelection}
+              className={cn(
+                "h-8 w-8 p-0 transition-all duration-200",
+                currentFormatting.underline 
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                  : "hover:bg-primary/10 hover:border-primary/20",
+                !hasSelection && "opacity-40"
+              )}
+              title="Underline (Ctrl+U)"
+            >
+              <Underline className="w-4 h-4" />
+            </Button>
+          </div>
 
-      <Separator orientation="vertical" className="h-6" />
+          <Separator orientation="vertical" className="h-6" />
 
-      {/* Font Size */}
-      <div className="flex items-center gap-2">
-        <Type className="w-4 h-4 text-muted-foreground" />
-        <Select
-          value={currentFormatting.fontSize || "12"}
-          onValueChange={onFontSizeChange}
-          disabled={!hasSelection}
-        >
-          <SelectTrigger className={cn(
-            "h-8 w-16 text-xs",
-            !hasSelection && "opacity-40"
-          )}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="10">10px</SelectItem>
-            <SelectItem value="11">11px</SelectItem>
-            <SelectItem value="12">12px</SelectItem>
-            <SelectItem value="14">14px</SelectItem>
-            <SelectItem value="16">16px</SelectItem>
-            <SelectItem value="18">18px</SelectItem>
-            <SelectItem value="20">20px</SelectItem>
-            <SelectItem value="24">24px</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+          {/* Font Size */}
+          <div className="flex items-center gap-2">
+            <Type className="w-4 h-4 text-muted-foreground" />
+            <Select
+              value={currentFormatting.fontSize || "12"}
+              onValueChange={onFontSizeChange}
+              disabled={!hasSelection}
+            >
+              <SelectTrigger className={cn(
+                "h-8 w-16 text-xs",
+                !hasSelection && "opacity-40"
+              )}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10px</SelectItem>
+                <SelectItem value="11">11px</SelectItem>
+                <SelectItem value="12">12px</SelectItem>
+                <SelectItem value="14">14px</SelectItem>
+                <SelectItem value="16">16px</SelectItem>
+                <SelectItem value="18">18px</SelectItem>
+                <SelectItem value="20">20px</SelectItem>
+                <SelectItem value="24">24px</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
+
+      {/* Mobile: Dropdown menu for text formatting */}
+      {isMobile && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!hasSelection}
+              className={cn(
+                "h-8 w-8 p-0",
+                !hasSelection && "opacity-40"
+              )}
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onBold} disabled={!hasSelection}>
+              <Bold className="w-4 h-4 mr-2" />
+              Bold
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onItalic} disabled={!hasSelection}>
+              <Italic className="w-4 h-4 mr-2" />
+              Italic
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onUnderline} disabled={!hasSelection}>
+              <Underline className="w-4 h-4 mr-2" />
+              Underline
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem disabled={!hasSelection}>
+              <Type className="w-4 h-4 mr-2" />
+              Font Size: {currentFormatting.fontSize || '12'}px
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       {/* Selection Info */}
-      {hasSelection && (
+      {hasSelection && !isMobile && (
         <>
           <Separator orientation="vertical" className="h-6 ml-auto" />
           <div className="text-xs text-muted-foreground">
