@@ -211,7 +211,10 @@ export const taskService = {
     if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
     if (updates.status !== undefined) dbUpdates.status = updates.status;
     if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
-    if (updates.description !== undefined) dbUpdates.description = updates.description;
+    if (updates.description !== undefined) {
+      console.log('Description being saved:', updates.description);
+      dbUpdates.description = updates.description;
+    }
     if (updates.duration !== undefined) {
       dbUpdates.duration = updates.duration;
       dbUpdates.estimated_duration = updates.duration;

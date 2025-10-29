@@ -136,9 +136,15 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
   const handleSave = async () => {
     if (editedTask && hasUnsavedChanges) {
       try {
-        updateTask(editedTask.id, editedTask);
+        console.log('Saving task with description:', editedTask.description);
+        await updateTask(editedTask.id, editedTask);
         setHasUnsavedChanges(false);
+        toast({
+          title: "Changes saved",
+          description: "Your task has been updated successfully.",
+        });
       } catch (error) {
+        console.error('Error saving task:', error);
         toast({
           title: "Error saving task",
           description: "There was an error saving your changes. Please try again.",
@@ -158,10 +164,13 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
   const handleTaskUpdate = (updates: Partial<Task>) => {
     if (editedTask) {
-      setEditedTask({
+      console.log('Task update received:', updates);
+      const updatedTask = {
         ...editedTask,
         ...updates
-      });
+      };
+      console.log('Updated task description:', updatedTask.description);
+      setEditedTask(updatedTask);
       setHasUnsavedChanges(true);
     }
   };
