@@ -234,18 +234,20 @@ export const ProjectProcurementPage = () => {
         activeSection="procurement"
       />
 
-      {/* Main Content - Fixed positioning to match Project Control */}
-      <div className="fixed left-40 right-0 top-[var(--header-height)] bottom-0 overflow-hidden">
-        <div className="h-full w-full bg-white">
-          <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
+      {/* Main Content - Fixed positioning to match Task Page */}
+      <div className="fixed left-40 right-0 top-[var(--header-height)] bottom-0 overflow-hidden bg-gradient-to-br from-background to-muted/20">
+        <div className="h-full w-full flex flex-col">
+          {/* Header */}
+          <div className="flex-shrink-0 border-b border-border/30 bg-white/80 backdrop-blur-xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
             <div className="px-6 py-4">
               <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold text-foreground">Procurement</h1>
+                <h1 className="text-2xl font-bold text-foreground font-playfair">Procurement</h1>
                 <div className="flex gap-2">
                   <Button 
                     onClick={() => setShowVendorForm(true)}
                     variant="outline"
                     size="sm"
+                    className="rounded-xl backdrop-blur-md hover:scale-[1.02] transition-all duration-200"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Vendor
@@ -253,6 +255,7 @@ export const ProjectProcurementPage = () => {
                   <Button 
                     onClick={() => setShowRFQForm(true)}
                     size="sm"
+                    className="rounded-xl bg-luxury-gold hover:bg-luxury-gold/90 text-white shadow-md hover:scale-[1.02] transition-all duration-200"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Create RFQ
@@ -260,14 +263,34 @@ export const ProjectProcurementPage = () => {
                 </div>
               </div>
 
-              {/* Tabs in Header */}
+              {/* Luxury Navigation Tabs */}
               <div className="mt-4">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="inline-flex h-9 items-center justify-center rounded-md bg-gray-100 p-1">
-                    <TabsTrigger value="matrix" className="px-3 py-1.5">Quote Matrix</TabsTrigger>
-                    <TabsTrigger value="rfq" className="px-3 py-1.5">RFQ</TabsTrigger>
-                    <TabsTrigger value="approvals" className="px-3 py-1.5">Approvals</TabsTrigger>
-                    <TabsTrigger value="commitments" className="px-3 py-1.5">Commitments</TabsTrigger>
+                  <TabsList className="inline-flex items-center gap-1 bg-white/80 border border-border/30 rounded-xl p-1 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+                    <TabsTrigger 
+                      value="matrix" 
+                      className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
+                    >
+                      Quote Matrix
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="rfq" 
+                      className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
+                    >
+                      RFQ
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="approvals" 
+                      className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
+                    >
+                      Approvals
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="commitments" 
+                      className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
+                    >
+                      Commitments
+                    </TabsTrigger>
                   </TabsList>
 
                 </Tabs>
@@ -275,8 +298,8 @@ export const ProjectProcurementPage = () => {
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className="h-[calc(100%-180px)] overflow-y-auto">
+          {/* Content Area with Glass Morphism */}
+          <div className="flex-1 overflow-y-auto">
             <div className="p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsContent value="matrix" className="mt-0">
