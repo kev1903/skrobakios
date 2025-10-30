@@ -169,12 +169,12 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">Commitments Register</h2>
+        <h2 className="text-2xl font-bold text-foreground font-playfair">Commitments Register</h2>
         <div className="flex gap-2">
-          <Badge variant="outline">
+          <Badge variant="outline" className="rounded-full px-3 py-1">
             {filteredCommitments.length} of {commitments.length} commitments
           </Badge>
-          <Badge variant="outline" className="bg-green-100 text-green-800">
+          <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-300 rounded-full px-3 py-1">
             Total Value: {formatCurrency(getTotalCommittedValue())}
           </Badge>
         </div>
@@ -187,14 +187,14 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
           const StatusIcon = status.icon;
           
           return (
-            <Card key={status.key} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
+            <Card key={status.key} className="bg-white/80 backdrop-blur-xl border-border/30 rounded-2xl shadow-glass hover:shadow-glass-hover hover:scale-[1.02] transition-all duration-200">
+              <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-2">
                   <StatusIcon className="w-4 h-4" />
                   <span className="text-2xl font-bold">{count}</span>
                 </div>
-                <p className="text-sm text-muted-foreground">{status.label}</p>
-                <Badge variant="secondary" className={`${status.color} mt-2`}>
+                <p className="text-sm text-muted-foreground font-medium">{status.label}</p>
+                <Badge variant="secondary" className={`${status.color} mt-2 rounded-full`}>
                   {status.key}
                 </Badge>
               </CardContent>
@@ -204,7 +204,7 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-xl border-border/30 rounded-2xl shadow-glass">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -213,14 +213,14 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
                 placeholder="Search commitments, vendors, or work packages..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 rounded-lg bg-white/80 backdrop-blur-md border-border/30"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
+              <SelectTrigger className="w-full md:w-[180px] rounded-lg bg-white/80 backdrop-blur-md border-border/30">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-border/30 rounded-xl shadow-glass">
                 <SelectItem value="all">All Statuses</SelectItem>
                 {COMMITMENT_STATUSES.map(status => (
                   <SelectItem key={status.key} value={status.key}>
@@ -230,10 +230,10 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
               </SelectContent>
             </Select>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
+              <SelectTrigger className="w-full md:w-[180px] rounded-lg bg-white/80 backdrop-blur-md border-border/30">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-border/30 rounded-xl shadow-glass">
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="PO">Purchase Orders</SelectItem>
                 <SelectItem value="Subcontract">Subcontracts</SelectItem>
@@ -244,9 +244,9 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
       </Card>
 
       {/* Commitments Table */}
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-xl border-border/30 rounded-2xl shadow-glass hover:shadow-glass-hover transition-all duration-300">
         <CardHeader>
-          <CardTitle>All Commitments</CardTitle>
+          <CardTitle className="font-playfair">All Commitments</CardTitle>
         </CardHeader>
         <CardContent>
           {filteredCommitments.length === 0 ? (
@@ -358,11 +358,11 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
                         <TableCell className="text-center">
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button size="sm" variant="outline">
+                              <Button size="sm" variant="outline" className="rounded-lg hover:scale-[1.02] transition-all duration-200">
                                 Manage
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
+                            <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-xl border-border/30 rounded-2xl shadow-glass">
                               <DialogHeader>
                                 <DialogTitle>Manage Commitment</DialogTitle>
                               </DialogHeader>
@@ -398,6 +398,7 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
                                         variant={commitment.commitment_status === status.key ? "default" : "outline"}
                                         onClick={() => handleStatusUpdate(commitment.id, status.key)}
                                         disabled={commitment.commitment_status === status.key}
+                                        className="rounded-lg hover:scale-[1.02] transition-all duration-200"
                                       >
                                         <status.icon className="w-4 h-4 mr-1" />
                                         {status.label}

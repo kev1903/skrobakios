@@ -215,22 +215,22 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ projectId, rfqs })
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">Approval Queue</h2>
+        <h2 className="text-2xl font-bold text-foreground font-playfair">Approval Queue</h2>
         <div className="flex gap-2">
-          <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+          <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 rounded-full px-3 py-1">
             {pendingApprovals.length} Pending
           </Badge>
-          <Badge variant="outline">
+          <Badge variant="outline" className="rounded-full px-3 py-1">
             {completedApprovals.length} Completed
           </Badge>
         </div>
       </div>
 
       {/* Pending Approvals */}
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-xl border-border/30 rounded-2xl shadow-glass hover:shadow-glass-hover transition-all duration-300">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-yellow-600" />
+          <CardTitle className="flex items-center gap-2 font-playfair">
+            <Clock className="w-5 h-5 text-amber-600" />
             Pending Approvals ({pendingApprovals.length})
           </CardTitle>
         </CardHeader>
@@ -283,15 +283,16 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ projectId, rfqs })
                       </TableCell>
                       <TableCell className="text-center">
                         <Dialog>
-                          <DialogTrigger asChild>
+                           <DialogTrigger asChild>
                             <Button 
                               size="sm" 
                               onClick={() => setSelectedApproval(approval)}
+                              className="bg-luxury-gold hover:bg-luxury-gold/90 text-white rounded-lg hover:scale-[1.02] transition-all duration-200"
                             >
                               Review
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
+                          <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-xl border-border/30 rounded-2xl shadow-glass">
                             <DialogHeader>
                               <DialogTitle>Quote Approval Review</DialogTitle>
                             </DialogHeader>
@@ -338,7 +339,7 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ projectId, rfqs })
                                   <Button
                                     onClick={() => handleApproval(selectedApproval.id, 'Approved')}
                                     disabled={submitting}
-                                    className="flex-1 bg-green-600 hover:bg-green-700"
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 rounded-xl hover:scale-[1.02] transition-all duration-200"
                                   >
                                     <CheckCircle className="w-4 h-4 mr-2" />
                                     Approve Quote
@@ -347,7 +348,7 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ projectId, rfqs })
                                     variant="destructive"
                                     onClick={() => handleApproval(selectedApproval.id, 'Rejected')}
                                     disabled={submitting}
-                                    className="flex-1"
+                                    className="flex-1 rounded-xl hover:scale-[1.02] transition-all duration-200"
                                   >
                                     <XCircle className="w-4 h-4 mr-2" />
                                     Reject Quote
@@ -369,9 +370,9 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ projectId, rfqs })
 
       {/* Recent Approvals */}
       {completedApprovals.length > 0 && (
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-xl border-border/30 rounded-2xl shadow-glass hover:shadow-glass-hover transition-all duration-300">
           <CardHeader>
-            <CardTitle>Recent Approval Decisions</CardTitle>
+            <CardTitle className="font-playfair">Recent Approval Decisions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">

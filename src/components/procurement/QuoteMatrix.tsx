@@ -232,29 +232,29 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl overflow-hidden shadow-glass hover:shadow-glass-hover transition-all duration-300">
         <div className="overflow-x-auto">
           {/* Table Header */}
-          <div className="bg-gray-50 border-b border-gray-200">
-            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] py-2">
-              <div className="px-2 text-left font-semibold text-[10px] uppercase tracking-wider text-slate-600">WBS</div>
-              <div className="px-4 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">ACTIVITY</div>
-              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 1</div>
-              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 2</div>
-              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 3</div>
-              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 4</div>
-              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 5</div>
-              <div className="text-center px-2 border-l border-gray-200 bg-green-50 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Committed</div>
+          <div className="bg-muted/30 border-b border-border/30">
+            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] py-3">
+              <div className="px-2 text-left font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">WBS</div>
+              <div className="px-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">ACTIVITY</div>
+              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 1</div>
+              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 2</div>
+              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 3</div>
+              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 4</div>
+              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 5</div>
+              <div className="text-center px-2 border-l border-border/30 bg-emerald-50/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Committed</div>
             </div>
           </div>
 
           {/* Table Body */}
-          <div className="bg-white divide-y divide-gray-100">
+          <div className="bg-white/50 divide-y divide-border/30">
             {wbsMatrix.map((row, index) => (
               <div 
                 key={row.wbsId} 
-                className={`grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] hover:bg-gray-50 transition-colors ${
-                  row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
+                className={`grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] hover:bg-accent/30 transition-all duration-200 ${
+                  row.level > 0 ? 'bg-accent/20' : 'bg-white/50'
                 }`}
               >
                 <div className="flex items-center py-2 px-2">
@@ -281,15 +281,15 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     <span className="text-xs text-muted-foreground font-medium">{row.wbsId}</span>
                   </div>
                 </div>
-                <div className="flex items-center py-2 px-4 border-l border-gray-200">
-                  <span className="text-xs text-muted-foreground font-medium truncate">{row.title}</span>
+                <div className="flex items-center py-4 px-4 border-l border-border/30">
+                  <span className="text-sm text-foreground font-medium truncate">{row.title}</span>
                 </div>
                 {[0, 1, 2, 3, 4].map((contractorIndex) => {
                   const contractor = row.contractors[contractorIndex];
-                  const isBlueColumn = contractorIndex % 2 === 0;
+                  const isAccentColumn = contractorIndex % 2 === 0;
                   const isElementRow = !row.hasChildren;
                   return (
-                    <div key={contractorIndex} className={`text-center text-xs font-medium text-muted-foreground px-2 py-2 h-full border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'} relative flex items-center justify-center`}>
+                    <div key={contractorIndex} className={`text-center text-sm font-medium text-foreground px-2 py-4 h-full border-l border-border/30 ${isAccentColumn ? 'bg-accent/10 hover:bg-accent/20' : 'hover:bg-muted/50'} relative flex items-center justify-center transition-all duration-200`}>
                       <div className="flex items-center justify-center space-x-2">
                         <span>{contractor?.quote ? formatCurrency(contractor.quote) : ''}</span>
                         {isElementRow && (
@@ -298,22 +298,22 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                             size="sm"
                             type="button"
                             aria-label="Create quote"
-                            className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex items-center justify-center"
+                            className="h-8 w-8 p-0 rounded-full text-luxury-gold hover:text-white hover:bg-luxury-gold hover:scale-[1.02] flex items-center justify-center transition-all duration-200"
                             onClick={() => handleCreateQuote(row, contractor)}
                           >
-                            <span className="text-sm font-bold">+</span>
+                            <span className="text-base font-bold">+</span>
                           </Button>
                         )}
                       </div>
                     </div>
                   );
                 })}
-                <div className="px-2 py-2 h-full border-l border-gray-200 bg-green-50/30">
+                <div className="px-2 py-4 h-full border-l border-border/30 bg-emerald-50/20">
                   <Select>
-                    <SelectTrigger className="w-full h-7 text-xs bg-white border-green-200">
+                    <SelectTrigger className="w-full h-8 text-sm bg-white/80 backdrop-blur-md border-emerald-200 rounded-lg hover:scale-[1.02] transition-all duration-200">
                       <SelectValue placeholder="Select quote..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                    <SelectContent className="bg-white/95 backdrop-blur-xl border border-border/30 shadow-glass z-50 rounded-xl">
                       {row.contractors.map((contractor, idx) => (
                         <SelectItem 
                           key={contractor.contractorId} 
