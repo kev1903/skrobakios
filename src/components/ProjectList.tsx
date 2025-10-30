@@ -29,7 +29,12 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   const [projects, setProjects] = useState<Project[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [statusFilters, setStatusFilters] = useState<string[]>(['running', 'completed', 'pending']);
+  
+  // Load saved filters from localStorage or use default
+  const [statusFilters, setStatusFilters] = useState<string[]>(() => {
+    const savedFilters = localStorage.getItem('projectListStatusFilters');
+    return savedFilters ? JSON.parse(savedFilters) : ['running', 'completed', 'pending'];
+  });
   const { getProjects, loading } = useProjects();
   const { sortField, sortDirection, handleSort: handleSortPersistent, loading: sortLoading } = useSortPreferences('projects', 'name' as SortField);
   const { toast } = useToast();
@@ -39,6 +44,11 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('projectListStatusFilters', JSON.stringify(statusFilters));
+  }, [statusFilters]);
 
   useEffect(() => {
     const fetchProjects = async () => {
