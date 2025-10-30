@@ -487,6 +487,53 @@ div[data-rbd-drag-handle-draggable-id] {
 
 /* Enhanced Animation Keyframes */
 @layer utilities {
+  /* 
+    ================================================
+    LUXURY DESIGN SYSTEM UTILITIES
+    ================================================
+    
+    Glass Morphism:
+    - .glass-card: Frosted glass card with rounded-2xl
+    - .glass-panel: Interactive glass panel with hover
+    - backdrop-blur-xl: 20px blur for all surfaces
+    
+    Interactive Elements:
+    - .hover-scale: Smooth scale on hover (1.05x)
+    - .story-link: Animated underline on hover
+    - .interactive-minimal: Scale + translate + shadow
+    
+    Animations:
+    - animate-fade-in, animate-fade-out: 300ms fade
+    - animate-scale-in, animate-scale-out: 200ms scale
+    - animate-pulse-subtle: Infinite subtle pulse
+    - animate-float: Infinite float (3s)
+    - animate-enter, animate-exit: Combined effects
+    
+    Typography:
+    - font-inter: Body text (default)
+    - font-playfair: Display headings
+    - font-mono: Task IDs, code
+    
+    Colors:
+    - luxury-gold: Primary accent (HSL: 217 91% 60%)
+    - Use semantic tokens only (no direct colors)
+    
+    Spacing:
+    - Card padding: p-6 (24px)
+    - Row padding: px-6 py-4
+    - Grid gaps: gap-4 or gap-6
+    
+    Shadows:
+    - shadow-glass: 0 2px 16px rgba(0,0,0,0.04)
+    - shadow-glass-hover: 0 4px 24px rgba(0,0,0,0.08)
+    
+    Transitions:
+    - duration-200: Quick feedback
+    - duration-300: Smooth transitions
+    - ease-smooth: cubic-bezier(0.4, 0, 0.2, 1)
+    ================================================
+  */
+  
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
@@ -518,6 +565,15 @@ div[data-rbd-drag-handle-draggable-id] {
       opacity: 0.95;
       transform: scale(1.02);
     }
+  }
+
+  /* Interactive Elements */
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  .story-link {
+    @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
   }
 
   .slide-in {
