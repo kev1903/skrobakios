@@ -53,6 +53,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   }, [getProjects]); // Add getProjects dependency
 
   // Calculate project statistics
+  const filteredProjects = projects.filter(project => statusFilters.includes(project.status));
   const projectStats = {
     total: projects.length,
     active: projects.filter(p => p.status === 'running').length,
@@ -240,8 +241,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                           htmlFor="status-pending"
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-2"
                         >
-                          <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                          Pending
+                          <AlertTriangle className="h-4 w-4 text-orange-600" />
+                          On Hold
                         </label>
                       </div>
                     </div>
@@ -306,10 +307,10 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             <CardContent className={isMobile ? "p-2" : "p-3"}>
               <div className={`flex items-center ${isMobile ? 'flex-col text-center' : 'justify-between'}`}>
                 <div className={`flex items-center ${isMobile ? 'flex-col' : 'gap-2'}`}>
-                  <div className={`${isMobile ? 'text-xl' : 'text-lg'} font-bold text-yellow-600`}>{projectStats.pending}</div>
-                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-slate-500`}>Pending</p>
+                  <div className={`${isMobile ? 'text-xl' : 'text-lg'} font-bold text-orange-600`}>{projectStats.pending}</div>
+                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-slate-500`}>On Hold</p>
                 </div>
-                {!isMobile && <AlertTriangle className="h-4 w-4 text-yellow-600" />}
+                {!isMobile && <AlertTriangle className="h-4 w-4 text-orange-600" />}
               </div>
             </CardContent>
           </Card>
