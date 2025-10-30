@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Task } from '@/components/tasks/TaskContext';
-import { ArrowLeft, Trash2, Save, FileText, Upload, MessageSquare, CheckSquare, DollarSign, Sparkles, Check, X } from 'lucide-react';
+import { ArrowLeft, Trash2, Save, FileText, Upload, MessageSquare, CheckSquare, DollarSign, Sparkles, Check, X, Paperclip } from 'lucide-react';
 import { TaskDetailsTab } from '@/components/tasks/tabs/TaskDetailsTab';
 import { TaskSubmittalsTab } from '@/components/tasks/tabs/TaskSubmittalsTab';
 import { TaskReviewsTab } from '@/components/tasks/tabs/TaskReviewsTab';
 import { TaskQATab } from '@/components/tasks/tabs/TaskQATab';
 import { TaskCostsTab } from '@/components/tasks/tabs/TaskCostsTab';
 import { TaskAISummaryTab } from '@/components/tasks/tabs/TaskAISummaryTab';
+import { TaskAttachmentPreview } from '@/components/tasks/TaskAttachmentPreview';
 import { UserPermissionsContext } from '@/contexts/UserPermissionsContext';
 
 interface TaskEditContentProps {
@@ -153,6 +154,13 @@ export const TaskEditContent = ({
                 <span>Costs</span>
               </TabsTrigger>
               <TabsTrigger 
+                value="attachments" 
+                className="flex items-center gap-2 text-xs"
+              >
+                <Paperclip className="w-3.5 h-3.5" />
+                <span>Attachments</span>
+              </TabsTrigger>
+              <TabsTrigger 
                 value="summary" 
                 className="flex items-center gap-2 text-xs"
               >
@@ -188,6 +196,10 @@ export const TaskEditContent = ({
 
             <TabsContent value="costs" className="mt-0">
               <TaskCostsTab taskId={task.id} />
+            </TabsContent>
+
+            <TabsContent value="attachments" className="mt-0">
+              <TaskAttachmentPreview taskId={task.id} />
             </TabsContent>
 
             <TabsContent value="summary" className="mt-0">
