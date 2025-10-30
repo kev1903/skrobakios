@@ -272,6 +272,8 @@ div[data-rbd-drag-handle-draggable-id] {
     background: var(--gradient-cream-bg);
     min-height: 100vh;
     min-height: 100dvh; /* Dynamic viewport height for mobile */
+    height: 100vh;
+    height: 100dvh;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
@@ -280,7 +282,13 @@ div[data-rbd-drag-handle-draggable-id] {
     /* Mobile-specific optimizations */
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
-    overflow-x: hidden;
+    overflow: hidden;
+  }
+  
+  html {
+    overflow: hidden;
+    height: 100vh;
+    height: 100dvh;
   }
 
   body::before {
