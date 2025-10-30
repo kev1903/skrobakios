@@ -15,12 +15,21 @@ import { ProjectLoadingState } from "./projects/ProjectLoadingState";
 import { ProjectEmptyState } from "./projects/ProjectEmptyState";
 import { MobileProjectList } from "./projects/MobileProjectList";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [statusFilters, setStatusFilters] = useState<string[]>(['running', 'completed', 'pending']);
   const { getProjects, loading } = useProjects();
   const { sortField, sortDirection, handleSort: handleSortPersistent, loading: sortLoading } = useSortPreferences('projects', 'name' as SortField);
   const { toast } = useToast();
@@ -56,7 +65,11 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   };
 
   const getSortedProjects = () => {
-    return [...projects].sort((a, b) => {
+    // First filter by status
+    const filtered = projects.filter(project => statusFilters.includes(project.status));
+    
+    // Then sort
+    return [...filtered].sort((a, b) => {
       let aValue = a[sortField];
       let bValue = b[sortField];
 
@@ -73,6 +86,14 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
       if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
+  };
+
+  const handleStatusFilterChange = (status: string, checked: boolean) => {
+    if (checked) {
+      setStatusFilters(prev => [...prev, status]);
+    } else {
+      setStatusFilters(prev => prev.filter(s => s !== status));
+    }
   };
 
   const handleSelectAll = (checked: boolean) => {
@@ -165,10 +186,67 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             
             {!isMobile && (
               <>
-                <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filters
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filters
+                      {statusFilters.length < 3 && (
+                        <Badge variant="secondary" className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                          {statusFilters.length}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-xl border-white/20 z-50">
+                    <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <div className="p-2 space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="status-running"
+                          checked={statusFilters.includes('running')}
+                          onCheckedChange={(checked) => handleStatusFilterChange('running', checked as boolean)}
+                        />
+                        <label
+                          htmlFor="status-running"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-2"
+                        >
+                          <Clock className="h-4 w-4 text-orange-600" />
+                          In Progress
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="status-completed"
+                          checked={statusFilters.includes('completed')}
+                          onCheckedChange={(checked) => handleStatusFilterChange('completed', checked as boolean)}
+                        />
+                        <label
+                          htmlFor="status-completed"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-2"
+                        >
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          Completed
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="status-pending"
+                          checked={statusFilters.includes('pending')}
+                          onCheckedChange={(checked) => handleStatusFilterChange('pending', checked as boolean)}
+                        />
+                        <label
+                          htmlFor="status-pending"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-2"
+                        >
+                          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                          Pending
+                        </label>
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">
                   <Download className="h-4 w-4 mr-2" />
                   Export
