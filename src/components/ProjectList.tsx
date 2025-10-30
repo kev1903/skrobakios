@@ -133,7 +133,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   }
 
   return (
-    <div className="h-full bg-gradient-to-br from-slate-50 to-slate-100 relative">
+    <div className="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 relative">
       {/* Solid background instead of dot grid */}
       
       <div className={`relative z-10 ${isMobile ? 'p-4' : 'p-6'} space-y-${isMobile ? '4' : '6'}`}>
