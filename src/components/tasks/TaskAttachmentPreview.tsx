@@ -119,7 +119,14 @@ export const TaskAttachmentPreview = ({ taskId }: TaskAttachmentPreviewProps) =>
   }
 
   if (attachments.length === 0) {
-    return null;
+    return (
+      <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <h3 className="text-base font-semibold mb-4 text-foreground">Attachments</h3>
+        <div className="text-sm text-muted-foreground">
+          No attachments found. Upload attachments using the Submittals tab.
+        </div>
+      </div>
+    );
   }
 
   return (
