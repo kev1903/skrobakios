@@ -171,10 +171,10 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground font-playfair">Commitments Register</h2>
         <div className="flex gap-2">
-          <Badge variant="outline" className="rounded-full px-3 py-1">
+                          <Badge variant="outline" className="rounded-full px-3 py-1 text-xs font-medium">
             {filteredCommitments.length} of {commitments.length} commitments
           </Badge>
-          <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-300 rounded-full px-3 py-1">
+          <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-300 rounded-full px-3 py-1 text-xs font-medium">
             Total Value: {formatCurrency(getTotalCommittedValue())}
           </Badge>
         </div>
@@ -264,16 +264,16 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Commitment #</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Vendor</TableHead>
-                    <TableHead>RFQ / Work Package</TableHead>
-                    <TableHead className="text-right">Value (Inc GST)</TableHead>
-                    <TableHead>Period</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-center">Actions</TableHead>
+                  <TableRow className="bg-muted/30 border-b border-border/30 hover:bg-muted/30 h-11">
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Commitment #</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Type</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Vendor</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">RFQ / Work Package</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-right px-6 py-4">Value (Inc GST)</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Period</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Status</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Created</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-center px-6 py-4">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -281,10 +281,10 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
                     const statusInfo = getStatusInfo(commitment.commitment_status);
                     
                     return (
-                      <TableRow key={commitment.id}>
-                        <TableCell>
+                      <TableRow key={commitment.id} className="h-14 hover:bg-accent/30 transition-all duration-200 border-b border-border/30">
+                        <TableCell className="px-6 py-4">
                           <div>
-                            <div className="font-mono font-medium">
+                            <div className="font-mono font-medium text-sm">
                               {commitment.commitment_number}
                             </div>
                             {commitment.quote?.quote_ref && (
@@ -294,30 +294,30 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
+                        <TableCell className="px-6 py-4">
+                          <Badge variant="outline" className="rounded-full text-xs">
                             {commitment.type}
                           </Badge>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-6 py-4">
                           <div>
-                            <div className="font-medium">{commitment.vendor?.name}</div>
+                            <div className="font-medium text-sm">{commitment.vendor?.name}</div>
                             <div className="text-sm text-muted-foreground">
                               {commitment.vendor?.trade_category}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-6 py-4">
                           <div>
-                            <div className="font-medium">{commitment.rfq?.rfq_number}</div>
+                            <div className="font-medium text-sm">{commitment.rfq?.rfq_number}</div>
                             <div className="text-sm text-muted-foreground">
                               {commitment.rfq?.work_package}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="px-6 py-4 text-right">
                           <div className="font-mono">
-                            <div className="font-bold">
+                            <div className="font-semibold text-sm">
                               {commitment.value_inc_gst ? 
                                 formatCurrency(commitment.value_inc_gst) : 
                                 'N/A'
@@ -330,8 +330,8 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm">
+                        <TableCell className="px-6 py-4">
+                          <div className="flex items-center gap-2 text-sm">
                             <Calendar className="w-4 h-4 text-muted-foreground" />
                             <div>
                               {commitment.start_date ? 
@@ -339,23 +339,23 @@ export const CommitmentsRegister: React.FC<CommitmentsRegisterProps> = ({ projec
                                 'Not set'
                               }
                               {commitment.end_date && (
-                                <div className="text-muted-foreground">
+                                <div className="text-muted-foreground text-xs">
                                   to {new Date(commitment.end_date).toLocaleDateString()}
                                 </div>
                               )}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={statusInfo.color}>
+                        <TableCell className="px-6 py-4">
+                          <Badge variant="outline" className={`${statusInfo.color} rounded-full text-xs font-medium`}>
                             <statusInfo.icon className="w-3 h-3 mr-1" />
                             {commitment.commitment_status}
                           </Badge>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-6 py-4 text-sm">
                           {new Date(commitment.created_at).toLocaleDateString()}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="px-6 py-4 text-center">
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button size="sm" variant="outline" className="rounded-lg hover:scale-[1.02] transition-all duration-200">

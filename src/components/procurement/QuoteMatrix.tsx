@@ -235,16 +235,16 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
       <div className="bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl overflow-hidden shadow-glass hover:shadow-glass-hover transition-all duration-300">
         <div className="overflow-x-auto">
           {/* Table Header */}
-          <div className="bg-muted/30 border-b border-border/30">
-            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] py-3">
-              <div className="px-2 text-left font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">WBS</div>
-              <div className="px-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">ACTIVITY</div>
-              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 1</div>
-              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 2</div>
-              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 3</div>
-              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 4</div>
-              <div className="text-center px-2 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 5</div>
-              <div className="text-center px-2 border-l border-border/30 bg-emerald-50/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Committed</div>
+          <div className="bg-muted/30 border-b border-border/30 h-11">
+            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] h-full items-center">
+              <div className="px-6 py-4 text-left font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">WBS</div>
+              <div className="px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">ACTIVITY</div>
+              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 1</div>
+              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 2</div>
+              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 3</div>
+              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 4</div>
+              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 5</div>
+              <div className="text-center px-6 py-4 border-l border-border/30 bg-emerald-50/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Committed</div>
             </div>
           </div>
 
@@ -253,11 +253,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
             {wbsMatrix.map((row, index) => (
               <div 
                 key={row.wbsId} 
-                className={`grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] hover:bg-accent/30 transition-all duration-200 ${
+                className={`grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] h-14 hover:bg-accent/30 transition-all duration-200 ${
                   row.level > 0 ? 'bg-accent/20' : 'bg-white/50'
                 }`}
               >
-                <div className="flex items-center py-2 px-2">
+                <div className="flex items-center px-6 py-4">
                   <div 
                     className="flex items-center gap-2" 
                     style={{ paddingLeft: `${row.level * 16}px` }}
@@ -267,21 +267,21 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleExpanded(row.itemId)}
-                        className="h-5 w-5 p-0 hover:bg-gray-200 flex-shrink-0"
+                        className="h-6 w-6 p-0 rounded-full hover:bg-accent/50 flex-shrink-0 transition-all duration-200"
                       >
                         {row.isExpanded ? (
-                          <ChevronDown className="w-3 h-3" />
+                          <ChevronDown className="w-4 h-4" />
                         ) : (
-                          <ChevronRight className="w-3 h-3" />
+                          <ChevronRight className="w-4 h-4" />
                         )}
                       </Button>
                     ) : (
-                      <div className="w-5" />
+                      <div className="w-6" />
                     )}
-                    <span className="text-xs text-muted-foreground font-medium">{row.wbsId}</span>
+                    <span className="text-xs text-muted-foreground font-mono font-medium">{row.wbsId}</span>
                   </div>
                 </div>
-                <div className="flex items-center py-4 px-4 border-l border-border/30">
+                <div className="flex items-center px-6 py-4 border-l border-border/30">
                   <span className="text-sm text-foreground font-medium truncate">{row.title}</span>
                 </div>
                 {[0, 1, 2, 3, 4].map((contractorIndex) => {
@@ -289,8 +289,8 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                   const isAccentColumn = contractorIndex % 2 === 0;
                   const isElementRow = !row.hasChildren;
                   return (
-                    <div key={contractorIndex} className={`text-center text-sm font-medium text-foreground px-2 py-4 h-full border-l border-border/30 ${isAccentColumn ? 'bg-accent/10 hover:bg-accent/20' : 'hover:bg-muted/50'} relative flex items-center justify-center transition-all duration-200`}>
-                      <div className="flex items-center justify-center space-x-2">
+                    <div key={contractorIndex} className={`text-center text-sm font-semibold text-foreground px-6 py-4 h-full border-l border-border/30 ${isAccentColumn ? 'bg-accent/10 hover:bg-accent/20' : 'hover:bg-muted/50'} relative flex items-center justify-center transition-all duration-200`}>
+                      <div className="flex items-center justify-center gap-2">
                         <span>{contractor?.quote ? formatCurrency(contractor.quote) : ''}</span>
                         {isElementRow && (
                           <Button
@@ -298,7 +298,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                             size="sm"
                             type="button"
                             aria-label="Create quote"
-                            className="h-8 w-8 p-0 rounded-full text-luxury-gold hover:text-white hover:bg-luxury-gold hover:scale-[1.02] flex items-center justify-center transition-all duration-200"
+                            className="h-8 w-8 p-0 rounded-full text-luxury-gold hover:text-white hover:bg-luxury-gold/90 hover:scale-[1.02] flex items-center justify-center transition-all duration-200 shadow-sm"
                             onClick={() => handleCreateQuote(row, contractor)}
                           >
                             <span className="text-base font-bold">+</span>
@@ -308,7 +308,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     </div>
                   );
                 })}
-                <div className="px-2 py-4 h-full border-l border-border/30 bg-emerald-50/20">
+                <div className="px-6 py-4 h-full border-l border-border/30 bg-emerald-50/20">
                   <Select>
                     <SelectTrigger className="w-full h-8 text-sm bg-white/80 backdrop-blur-md border-emerald-200 rounded-lg hover:scale-[1.02] transition-all duration-200">
                       <SelectValue placeholder="Select quote..." />

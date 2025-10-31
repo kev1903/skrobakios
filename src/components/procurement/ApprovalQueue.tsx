@@ -217,10 +217,10 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ projectId, rfqs })
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground font-playfair">Approval Queue</h2>
         <div className="flex gap-2">
-          <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 rounded-full px-3 py-1">
+          <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 rounded-full px-3 py-1 text-xs font-medium">
             {pendingApprovals.length} Pending
           </Badge>
-          <Badge variant="outline" className="rounded-full px-3 py-1">
+          <Badge variant="outline" className="rounded-full px-3 py-1 text-xs font-medium">
             {completedApprovals.length} Completed
           </Badge>
         </div>
@@ -245,43 +245,43 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ projectId, rfqs })
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>RFQ</TableHead>
-                    <TableHead>Work Package</TableHead>
-                    <TableHead>Vendor</TableHead>
-                    <TableHead className="text-right">Recommended Value</TableHead>
-                    <TableHead>Submitted</TableHead>
-                    <TableHead className="text-center">Actions</TableHead>
+                  <TableRow className="bg-muted/30 border-b border-border/30 hover:bg-muted/30 h-11">
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">RFQ</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Work Package</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Vendor</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-right px-6 py-4">Recommended Value</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Submitted</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-center px-6 py-4">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pendingApprovals.map((approval) => (
-                    <TableRow key={approval.id}>
-                      <TableCell>
+                    <TableRow key={approval.id} className="h-14 hover:bg-accent/30 transition-all duration-200 border-b border-border/30">
+                      <TableCell className="px-6 py-4">
                         <div>
-                          <div className="font-medium">{approval.rfq?.rfq_number}</div>
-                          <Badge variant="secondary" className="mt-1">
+                          <div className="font-medium text-sm">{approval.rfq?.rfq_number}</div>
+                          <Badge variant="secondary" className="mt-1 rounded-full text-xs">
                             {approval.rfq?.trade_category}
                           </Badge>
                         </div>
                       </TableCell>
-                      <TableCell>{approval.rfq?.work_package}</TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="px-6 py-4 text-sm">{approval.rfq?.work_package}</TableCell>
+                      <TableCell className="px-6 py-4 font-medium text-sm">
                         {approval.quote?.vendor?.name}
                       </TableCell>
-                      <TableCell className="text-right font-mono">
+                      <TableCell className="px-6 py-4 text-right font-mono font-semibold text-sm">
                         {approval.quote?.quote_amount_inc_gst ? 
                           formatCurrency(approval.quote.quote_amount_inc_gst) : 
                           'N/A'
                         }
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          {new Date(approval.created_at).toLocaleDateString()}
+                          <span className="text-sm">{new Date(approval.created_at).toLocaleDateString()}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="px-6 py-4 text-center">
                         <Dialog>
                            <DialogTrigger asChild>
                             <Button 
@@ -378,30 +378,30 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ projectId, rfqs })
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>RFQ</TableHead>
-                    <TableHead>Vendor</TableHead>
-                    <TableHead className="text-right">Value</TableHead>
-                    <TableHead>Decision</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Notes</TableHead>
+                  <TableRow className="bg-muted/30 border-b border-border/30 hover:bg-muted/30 h-11">
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">RFQ</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Vendor</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-right px-6 py-4">Value</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Decision</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Date</TableHead>
+                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4">Notes</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {completedApprovals.slice(0, 10).map((approval) => (
-                    <TableRow key={approval.id}>
-                      <TableCell>
+                    <TableRow key={approval.id} className="h-14 hover:bg-accent/30 transition-all duration-200 border-b border-border/30">
+                      <TableCell className="px-6 py-4">
                         <div>
-                          <div className="font-medium">{approval.rfq?.rfq_number}</div>
+                          <div className="font-medium text-sm">{approval.rfq?.rfq_number}</div>
                           <div className="text-sm text-muted-foreground">
                             {approval.rfq?.work_package}
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="px-6 py-4 font-medium text-sm">
                         {approval.quote?.vendor?.name}
                       </TableCell>
-                      <TableCell className="text-right font-mono">
+                      <TableCell className="px-6 py-4 text-right font-mono font-semibold text-sm">
                         {approval.approved_value ? 
                           formatCurrency(approval.approved_value) : 
                           approval.quote?.quote_amount_inc_gst ? 
@@ -409,20 +409,20 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ projectId, rfqs })
                             'N/A'
                         }
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={getStatusColor(approval.approval_status)}>
+                      <TableCell className="px-6 py-4">
+                        <Badge variant="outline" className={`${getStatusColor(approval.approval_status)} rounded-full text-xs font-medium`}>
                           {getStatusIcon(approval.approval_status)}
                           <span className="ml-1">{approval.approval_status}</span>
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-6 py-4 text-sm">
                         {approval.approval_date ? 
                           new Date(approval.approval_date).toLocaleDateString() : 
                           'N/A'
                         }
                       </TableCell>
-                      <TableCell>
-                        <div className="max-w-xs truncate" title={approval.justification_notes || ''}>
+                      <TableCell className="px-6 py-4">
+                        <div className="max-w-xs truncate text-sm" title={approval.justification_notes || ''}>
                           {approval.justification_notes || 'No notes'}
                         </div>
                       </TableCell>
