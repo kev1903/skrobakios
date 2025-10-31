@@ -480,11 +480,6 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                           </TableCell>
                           <TableCell className="px-4 py-2 align-middle" colSpan={2}>
                             <div className="flex items-center gap-2.5 pl-2">
-                              <div className="w-7 h-7 rounded-full bg-luxury-gold/10 border border-luxury-gold/30 flex items-center justify-center flex-shrink-0">
-                                <span className="text-xs font-bold text-luxury-gold">
-                                  {invitation.supplierName?.charAt(0) || 'V'}
-                                </span>
-                              </div>
                               <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <span className="text-sm font-medium text-foreground truncate">
                                   {invitation.supplierName}
