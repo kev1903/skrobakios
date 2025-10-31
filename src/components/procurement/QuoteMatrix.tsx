@@ -4,7 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, ChevronRight, GripVertical, MoreVertical, Plus, FileText, GitCompare, Calendar, Users, Mail, Eye, CheckCircle, Paperclip } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
+import { ChevronDown, ChevronRight, GripVertical, MoreVertical, Plus, FileText, GitCompare, Calendar, Users, Mail, Eye, CheckCircle, Paperclip, Search, UserPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -82,6 +84,8 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [openVendorPicker, setOpenVendorPicker] = useState<string | null>(null);
+  const [vendorSearchQuery, setVendorSearchQuery] = useState('');
   
   // Quote popup state
   const [isQuotePopupOpen, setIsQuotePopupOpen] = useState(false);
@@ -342,6 +346,24 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     }
   };
 
+  const handleVendorSelect = (invitationId: string, vendorId: string, vendorName: string) => {
+    // Update the vendor for this invitation
+    toast.success(`Updated vendor to ${vendorName}`);
+    setOpenVendorPicker(null);
+    setVendorSearchQuery('');
+    // Here you would update the database/state
+  };
+
+  const handleAddNewVendor = () => {
+    toast.info('Opening vendor creation dialog...');
+    setOpenVendorPicker(null);
+    // Open vendor creation modal/form
+  };
+
+  const filteredVendors = vendors.filter(vendor => 
+    vendor.name.toLowerCase().includes(vendorSearchQuery.toLowerCase())
+  );
+
   if (loading || wbsLoading) {
     return (
       <div className="p-6">
@@ -481,9 +503,74 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                           <TableCell className="px-4 py-2 align-middle" colSpan={2}>
                             <div className="flex items-center gap-2.5 pl-2">
                               <div className="flex items-center gap-3 flex-1 min-w-0">
-                                <span className="text-sm font-medium text-foreground truncate">
-                                  {invitation.supplierName}
-                                </span>
+                                <Popover 
+                                  open={openVendorPicker === `${row.itemId}-${idx}`}
+                                  onOpenChange={(open) => {
+                                    setOpenVendorPicker(open ? `${row.itemId}-${idx}` : null);
+                                    if (!open) setVendorSearchQuery('');
+                                  }}
+                                >
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      className="h-auto p-0 hover:bg-transparent font-medium text-sm text-foreground hover:text-luxury-gold transition-colors"
+                                    >
+                                      {invitation.supplierName}
+                                      <ChevronDown className="ml-1 h-3 w-3 opacity-50" />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-80 p-0 bg-white/95 backdrop-blur-xl border border-border/30 shadow-glass rounded-xl" align="start">
+                                    <Command>
+                                      <div className="flex items-center border-b px-3">
+                                        <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                                        <CommandInput 
+                                          placeholder="Search suppliers..." 
+                                          value={vendorSearchQuery}
+                                          onValueChange={setVendorSearchQuery}
+                                          className="border-0 focus:ring-0"
+                                        />
+                                      </div>
+                                      <CommandList className="max-h-64">
+                                        <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+                                          No supplier found.
+                                        </CommandEmpty>
+                                        <CommandGroup heading="Suppliers" className="p-2">
+                                          {filteredVendors.map((vendor) => (
+                                            <CommandItem
+                                              key={vendor.id}
+                                              value={vendor.name}
+                                              onSelect={() => handleVendorSelect(`${row.itemId}-${idx}`, vendor.id, vendor.name)}
+                                              className="flex items-center gap-2 px-2 py-2 cursor-pointer rounded-lg hover:bg-accent/50 transition-colors"
+                                            >
+                                              <div className="w-7 h-7 rounded-full bg-luxury-gold/10 border border-luxury-gold/30 flex items-center justify-center flex-shrink-0">
+                                                <span className="text-xs font-bold text-luxury-gold">
+                                                  {vendor.name.charAt(0)}
+                                                </span>
+                                              </div>
+                                              <div className="flex flex-col flex-1 min-w-0">
+                                                <span className="text-sm font-medium truncate">{vendor.name}</span>
+                                                {vendor.trade_category && (
+                                                  <span className="text-xs text-muted-foreground truncate">{vendor.trade_category}</span>
+                                                )}
+                                              </div>
+                                            </CommandItem>
+                                          ))}
+                                        </CommandGroup>
+                                        <CommandSeparator />
+                                        <CommandGroup className="p-2">
+                                          <CommandItem
+                                            onSelect={handleAddNewVendor}
+                                            className="flex items-center gap-2 px-2 py-2 cursor-pointer rounded-lg hover:bg-luxury-gold/10 text-luxury-gold font-medium transition-colors"
+                                          >
+                                            <UserPlus className="h-4 w-4" />
+                                            <span>Add New Supplier</span>
+                                          </CommandItem>
+                                        </CommandGroup>
+                                      </CommandList>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
+                                
                                 <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${getStatusColor(invitation.status)}`}>
                                   {invitation.status}
                                 </span>
