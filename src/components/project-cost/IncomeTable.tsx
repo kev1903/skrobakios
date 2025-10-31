@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, Trash2, ChevronRight, ChevronDown, FileText, Edit, Send, Paperclip, AlertCircle } from 'lucide-react';
+import { Eye, Trash2, FileText, Edit, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -108,10 +108,7 @@ export const IncomeTable = ({
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set());
   const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
-  const [editingMilestone, setEditingMilestone] = useState<string | null>(null);
-  const [editMilestoneValue, setEditMilestoneValue] = useState('');
   const { toast } = useToast();
 
   // Calculate totals
@@ -121,51 +118,6 @@ export const IncomeTable = ({
     const outstanding = totalBilled - totalPaid;
     return { totalBilled, totalPaid, outstanding };
   }, [invoices]);
-
-  // Group invoices by milestone
-  const groupedInvoices = useMemo(() => {
-    const groups = new Map<string, Invoice[]>();
-    
-    invoices.forEach(invoice => {
-      const milestoneKey = invoice.milestone_stage 
-        ? `${invoice.milestone_sequence || 0}-${invoice.milestone_stage}`
-        : 'no-milestone';
-      
-      if (!groups.has(milestoneKey)) {
-        groups.set(milestoneKey, []);
-      }
-      groups.get(milestoneKey)!.push(invoice);
-    });
-
-    return Array.from(groups.entries()).map(([key, invs]) => ({
-      key,
-      milestone: invs[0].milestone_stage || 'No Milestone',
-      sequence: invs[0].milestone_sequence || 0,
-      invoices: invs,
-      total: invs.reduce((sum, inv) => sum + inv.total, 0),
-      paid: invs.reduce((sum, inv) => sum + inv.paid_to_date, 0),
-    })).sort((a, b) => b.sequence - a.sequence);
-  }, [invoices]);
-
-  // Auto-expand all milestone groups when data changes
-  React.useEffect(() => {
-    if (groupedInvoices.length > 0) {
-      const allKeys = new Set(groupedInvoices.map(g => g.key));
-      setExpandedMilestones(allKeys);
-    }
-  }, [groupedInvoices]);
-
-  const toggleMilestone = (key: string) => {
-    setExpandedMilestones(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(key)) {
-        newSet.delete(key);
-      } else {
-        newSet.add(key);
-      }
-      return newSet;
-    });
-  };
 
   const isOverdue = (dueDate: string, status: string) => {
     if (status === 'paid') return false;
@@ -320,60 +272,6 @@ export const IncomeTable = ({
     }
   };
 
-  const handleEditMilestone = (groupKey: string, currentName: string) => {
-    setEditingMilestone(groupKey);
-    setEditMilestoneValue(currentName);
-  };
-
-  const handleSaveMilestone = async (groupKey: string, invoiceIds: string[]) => {
-    if (!editMilestoneValue.trim()) {
-      toast({
-        title: "Error",
-        description: "Milestone name cannot be empty.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // Update all invoices in this milestone group
-      const { error } = await supabase
-        .from('invoices')
-        .update({ milestone_stage: editMilestoneValue.trim() })
-        .in('id', invoiceIds);
-
-      if (error) {
-        console.error('Error updating milestone:', error);
-        toast({
-          title: "Error",
-          description: "Failed to update milestone name.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Milestone name updated successfully.",
-      });
-
-      setEditingMilestone(null);
-      setEditMilestoneValue('');
-      loadInvoices();
-    } catch (error) {
-      console.error('Error updating milestone:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update milestone name.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCancelEditMilestone = () => {
-    setEditingMilestone(null);
-    setEditMilestoneValue('');
-  };
 
   useEffect(() => {
     loadInvoices();
@@ -414,103 +312,51 @@ export const IncomeTable = ({
   return (
     <TooltipProvider>
       <div className="space-y-0">
-        <div className="border border-border/60 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm shadow-sm">
+        <div className="bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl overflow-hidden shadow-glass">
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/40 border-b border-border/60 hover:bg-muted/40">
-                <TableHead className="w-8 h-9 py-2 px-2"></TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Invoice #</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Issue Date</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Due Date</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider text-right h-9 py-2 px-4">Amount Billed</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider text-right h-9 py-2 px-4">Amount Paid</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Status</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Progress</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Contract</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider text-center h-9 py-2 px-4">Actions</TableHead>
+              <TableRow className="bg-muted/30 border-b border-border/30 hover:bg-muted/30 h-11">
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider px-6 py-4">Invoice #</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider px-6 py-4">Milestone</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider px-6 py-4">Issue Date</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider px-6 py-4">Due Date</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider text-right px-6 py-4">Amount Billed</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider text-right px-6 py-4">Amount Paid</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider px-6 py-4">Status</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider px-6 py-4">Progress</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider px-6 py-4">Contract</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider text-center px-6 py-4">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {groupedInvoices.map((group) => (
-                <React.Fragment key={group.key}>
-                  {/* Milestone Group Header */}
-                  <TableRow className="bg-gradient-to-r from-muted/60 to-muted/40 hover:from-muted/70 hover:to-muted/50 border-y border-border/50 cursor-pointer transition-all duration-200">
-                    <TableCell colSpan={10} className="py-3.5 px-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div onClick={() => toggleMilestone(group.key)} className="flex items-center hover:bg-muted/50 rounded p-1 transition-colors">
-                            {expandedMilestones.has(group.key) ? (
-                              <ChevronDown className="h-4 w-4 text-foreground" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4 text-foreground" />
-                            )}
-                          </div>
-                          {editingMilestone === group.key ? (
-                            <input
-                              type="text"
-                              value={editMilestoneValue}
-                              onChange={(e) => setEditMilestoneValue(e.target.value)}
-                              onBlur={() => handleSaveMilestone(group.key, group.invoices.map(inv => inv.id))}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  handleSaveMilestone(group.key, group.invoices.map(inv => inv.id));
-                                } else if (e.key === 'Escape') {
-                                  handleCancelEditMilestone();
-                                }
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                              autoFocus
-                              className="font-semibold text-foreground text-sm bg-background border-2 border-primary rounded-md px-3 py-1.5 min-w-[250px] focus:outline-none focus:ring-2 focus:ring-primary/20"
-                            />
-                          ) : (
-                            <span 
-                              className="font-bold text-foreground text-sm hover:text-primary cursor-text transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditMilestone(group.key, group.milestone);
-                              }}
-                            >
-                              {group.sequence > 0 ? `${group.sequence}` : ''} {group.milestone}
-                            </span>
-                          )}
-                          <Badge variant="secondary" className="text-xs font-medium bg-background/80 border border-border/50 text-muted-foreground">
-                            {group.invoices.length} invoice{group.invoices.length !== 1 ? 's' : ''}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-6">
-                          <div className="text-xs text-muted-foreground/80">
-                            Billed: <span className="font-bold text-foreground ml-1.5">{formatCurrency(group.total)}</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground/80">
-                            Paid: <span className="font-bold text-green-600 ml-1.5">{formatCurrency(group.paid)}</span>
-                          </div>
-                          <div className="flex items-center gap-2.5">
-                            <Progress value={(group.paid / group.total) * 100} className="w-28 h-2.5" />
-                            <span className="text-xs font-bold text-foreground min-w-[45px]">
-                              {Math.round((group.paid / group.total) * 100)}%
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-
-                  {/* Invoice Rows */}
-                  {expandedMilestones.has(group.key) && group.invoices.map((invoice, idx) => {
+              {invoices.map((invoice) => {
                     const paymentStatus = getPaymentStatusBadge(invoice.paid_to_date, invoice.total, invoice.status);
                     const overdue = isOverdue(invoice.due_date, invoice.status);
                     const daysOverdue = overdue ? getDaysOverdue(invoice.due_date) : 0;
                     
                     return (
-                      <TableRow key={invoice.id} className="hover:bg-accent/50 transition-all duration-150 group border-b border-border/30 last:border-b-0">
-                        <TableCell className="py-3.5 px-2"></TableCell>
-                        <TableCell className="font-semibold text-sm text-foreground py-3.5 px-4">
+                      <TableRow key={invoice.id} className="h-14 hover:bg-accent/30 transition-all duration-200 group border-b border-border/30 last:border-b-0">
+                        <TableCell className="font-mono text-sm text-foreground px-6 py-4">
                           {invoice.number}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground/90 py-3.5 px-4">
+                        <TableCell className="px-6 py-4">
+                          <span className="text-sm text-muted-foreground">
+                            {invoice.milestone_stage ? (
+                              <>
+                                {invoice.milestone_sequence && invoice.milestone_sequence > 0 && (
+                                  <span className="font-semibold">{invoice.milestone_sequence}. </span>
+                                )}
+                                {invoice.milestone_stage}
+                              </>
+                            ) : (
+                              '-'
+                            )}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground px-6 py-4">
                           {formatDate(invoice.issue_date)}
                         </TableCell>
-                        <TableCell className="py-3.5 px-4">
+                        <TableCell className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             {overdue && (
                               <Tooltip>
@@ -522,45 +368,45 @@ export const IncomeTable = ({
                                 </TooltipContent>
                               </Tooltip>
                             )}
-                            <span className={overdue ? 'text-sm text-red-600 font-semibold' : 'text-sm text-muted-foreground/90'}>
+                            <span className={overdue ? 'text-sm text-red-600 font-semibold' : 'text-sm text-muted-foreground'}>
                               {formatDate(invoice.due_date)}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right text-sm font-bold text-foreground py-3.5 px-4">
+                        <TableCell className="text-right text-sm font-semibold text-foreground px-6 py-4">
                           {formatCurrency(invoice.total)}
                         </TableCell>
-                        <TableCell className="text-right text-sm font-bold py-3.5 px-4">
-                          <span className={invoice.paid_to_date > 0 ? 'text-green-600' : 'text-muted-foreground/70'}>
+                        <TableCell className="text-right text-sm font-semibold px-6 py-4">
+                          <span className={invoice.paid_to_date > 0 ? 'text-emerald-600' : 'text-muted-foreground'}>
                             {formatCurrency(invoice.paid_to_date)}
                           </span>
                         </TableCell>
-                        <TableCell className="py-3.5 px-4">
+                        <TableCell className="px-6 py-4">
                           <Badge 
                             variant={paymentStatus.variant}
-                            className={`text-[11px] px-2.5 py-0.5 ${paymentStatus.className} border`}
+                            className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${paymentStatus.className} border`}
                           >
                             {paymentStatus.label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="py-3.5 px-4">
-                          <div className="flex items-center gap-2.5">
+                        <TableCell className="px-6 py-4">
+                          <div className="flex items-center gap-2">
                             <Progress 
                               value={(invoice.paid_to_date / invoice.total) * 100} 
-                              className="w-24 h-2.5" 
+                              className="w-24 h-2 rounded-full" 
                             />
-                            <span className="text-xs font-bold text-foreground min-w-[38px]">
+                            <span className="text-xs font-semibold text-foreground min-w-[38px]">
                               {Math.round((invoice.paid_to_date / invoice.total) * 100)}%
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="py-3.5 px-4">
+                        <TableCell className="px-6 py-4">
                           {invoice.contract_name ? (
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-7 px-2 hover:bg-blue-500/10 hover:text-blue-600 text-xs rounded-md">
-                                  <FileText className="h-3.5 w-3.5 mr-1.5 text-blue-600" />
-                                  <span className="text-sm text-foreground/90 truncate max-w-[120px] font-medium">{invoice.contract_name}</span>
+                                <Button variant="ghost" size="sm" className="h-8 px-2 hover:bg-luxury-gold/10 hover:text-luxury-gold text-xs rounded-md transition-all duration-200">
+                                  <FileText className="h-4 w-4 mr-1.5 text-luxury-gold" />
+                                  <span className="text-sm text-foreground truncate max-w-[120px] font-medium">{invoice.contract_name}</span>
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent className="bg-popover border-border">
@@ -568,20 +414,20 @@ export const IncomeTable = ({
                               </TooltipContent>
                             </Tooltip>
                           ) : (
-                            <span className="text-sm text-muted-foreground/60">-</span>
+                            <span className="text-sm text-muted-foreground">-</span>
                           )}
                         </TableCell>
-                        <TableCell className="py-3.5 px-4">
+                        <TableCell className="px-6 py-4">
                           <div className="flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-7 w-7 p-0 hover:bg-blue-50 hover:text-blue-600"
+                                  className="h-8 w-8 p-0 rounded-full hover:bg-luxury-gold/10 hover:text-luxury-gold transition-all duration-200"
                                   onClick={() => setViewingInvoice(invoice)}
                                 >
-                                  <Eye className="h-3.5 w-3.5" />
+                                  <Eye className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -594,10 +440,10 @@ export const IncomeTable = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-7 w-7 p-0 hover:bg-green-50 hover:text-green-600"
+                                  className="h-8 w-8 p-0 rounded-full hover:bg-emerald-500/10 hover:text-emerald-600 transition-all duration-200"
                                   onClick={() => navigate(`/invoice/edit/${invoice.id}`)}
                                 >
-                                  <Edit className="h-3.5 w-3.5" />
+                                  <Edit className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -605,40 +451,10 @@ export const IncomeTable = ({
                               </TooltipContent>
                             </Tooltip>
 
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-7 w-7 p-0 hover:bg-purple-50 hover:text-purple-600"
-                                >
-                                  <Send className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Send to Client</p>
-                              </TooltipContent>
-                            </Tooltip>
-
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-7 w-7 p-0 hover:bg-orange-50 hover:text-orange-600"
-                                >
-                                  <Paperclip className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Attach Receipt</p>
-                              </TooltipContent>
-                            </Tooltip>
-
                             <Button
                               variant={invoice.status === 'paid' ? 'default' : 'outline'}
                               size="sm"
-                              className="h-7 px-2 text-xs whitespace-nowrap ml-1"
+                              className="h-8 px-3 text-xs whitespace-nowrap rounded-md transition-all duration-200 hover:scale-[1.02]"
                               onClick={() => handleMarkAsPaid(invoice.id, invoice.total, invoice.status)}
                             >
                               {invoice.status === 'paid' ? '✓ Paid' : 'Mark Paid'}
@@ -649,10 +465,10 @@ export const IncomeTable = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-7 w-7 p-0 hover:bg-red-50 hover:text-red-600"
+                                  className="h-8 w-8 p-0 rounded-full hover:bg-red-500/10 hover:text-red-600 transition-all duration-200"
                                   onClick={() => handleDeleteInvoice(invoice.id)}
                                 >
-                                  <Trash2 className="h-3.5 w-3.5" />
+                                  <Trash2 className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -664,8 +480,6 @@ export const IncomeTable = ({
                       </TableRow>
                     );
                   })}
-                </React.Fragment>
-              ))}
             </TableBody>
           </Table>
         </div>
