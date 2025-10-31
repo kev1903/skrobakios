@@ -198,21 +198,46 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   // Build WBS matrix data
   const buildWBSMatrix = (): WBSRow[] => {
     return visibleWBSItems.map(wbsItem => {
-      const contractors = activeVendors.map(vendor => {
-        // Find RFQ for this WBS item (matching by title or category)
-        const rfq = rfqs.find(r => 
-          r.trade_category.toLowerCase() === wbsItem.title.toLowerCase() ||
-          r.work_package.toLowerCase() === wbsItem.title.toLowerCase()
-        );
-        // Find quote for this RFQ and vendor
-        const quote = rfq ? quotes.find(q => q.rfq_id === rfq.id && q.vendor_id === vendor.id) : null;
-        
-        return {
-          contractorId: vendor.id,
-          contractorName: vendor.name,
-          quote: quote?.quote_amount_inc_gst || null
-        };
-      });
+      // Ensure we always have at least 3 contractor slots
+      const contractors = [];
+      
+      if (activeVendors.length > 0) {
+        // Use actual vendors
+        for (let i = 0; i < Math.max(3, activeVendors.length); i++) {
+          const vendor = activeVendors[i];
+          if (vendor) {
+            // Find RFQ for this WBS item (matching by title or category)
+            const rfq = rfqs.find(r => 
+              r.trade_category.toLowerCase() === wbsItem.title.toLowerCase() ||
+              r.work_package.toLowerCase() === wbsItem.title.toLowerCase()
+            );
+            // Find quote for this RFQ and vendor
+            const quote = rfq ? quotes.find(q => q.rfq_id === rfq.id && q.vendor_id === vendor.id) : null;
+            
+            contractors.push({
+              contractorId: vendor.id,
+              contractorName: vendor.name,
+              quote: quote?.quote_amount_inc_gst || null
+            });
+          } else {
+            // Fill empty slots
+            contractors.push({
+              contractorId: `placeholder-${i}`,
+              contractorName: `Vendor ${i + 1}`,
+              quote: null
+            });
+          }
+        }
+      } else {
+        // No vendors, create 3 placeholder slots
+        for (let i = 0; i < 3; i++) {
+          contractors.push({
+            contractorId: `placeholder-${i}`,
+            contractorName: `Vendor ${i + 1}`,
+            quote: null
+          });
+        }
+      }
 
       return {
         wbsId: wbsItem.wbs_id,
@@ -260,8 +285,8 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
               </TableRow>
             </TableHeader>
             <TableBody>
-              {wbsMatrix.map((row, index) => (
-                <React.Fragment key={row.wbsId}>
+              {wbsMatrix.map((row) => (
+                <React.Fragment key={row.itemId}>
                   {/* Main WBS Row */}
                   <TableRow 
                     className={`h-14 hover:bg-accent/30 transition-all duration-200 border-b border-border/30 ${
@@ -327,11 +352,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                   </TableRow>
 
                   {/* Expanded Detail Rows (3 sub-rows) */}
-                  {row.isExpanded && (
+                  {row.isExpanded && row.contractors && row.contractors.length > 0 && (
                     <>
                       {row.contractors.slice(0, 3).map((contractor, idx) => (
                         <TableRow 
-                          key={`${row.wbsId}-contractor-${idx}`}
+                          key={`${row.itemId}-contractor-${idx}`}
                           className="h-12 bg-accent/5 hover:bg-accent/20 transition-all duration-200 border-b border-border/20"
                         >
                           <TableCell className="px-6 py-3 align-middle">
