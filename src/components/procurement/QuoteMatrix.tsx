@@ -234,106 +234,116 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     <div className="space-y-6">
       <div className="bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl overflow-hidden shadow-glass hover:shadow-glass-hover transition-all duration-300">
         <div className="overflow-x-auto">
-          {/* Table Header */}
-          <div className="bg-muted/30 border-b border-border/30 h-11">
-            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] h-full items-center">
-              <div className="px-6 py-4 text-left font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">WBS</div>
-              <div className="px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">ACTIVITY</div>
-              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 1</div>
-              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 2</div>
-              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 3</div>
-              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 4</div>
-              <div className="text-center px-6 py-4 border-l border-border/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Quote 5</div>
-              <div className="text-center px-6 py-4 border-l border-border/30 bg-emerald-50/30 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Committed</div>
-            </div>
-          </div>
-
-          {/* Table Body */}
-          <div className="bg-white/50 divide-y divide-border/30">
-            {wbsMatrix.map((row, index) => (
-              <div 
-                key={row.wbsId} 
-                className={`grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] h-14 hover:bg-accent/30 transition-all duration-200 ${
-                  row.level > 0 ? 'bg-accent/20' : 'bg-white/50'
-                }`}
-              >
-                <div className="flex items-center px-6 py-4">
-                  <div 
-                    className="flex items-center gap-2" 
-                    style={{ paddingLeft: `${row.level * 16}px` }}
-                  >
-                    {row.hasChildren ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleExpanded(row.itemId)}
-                        className="h-6 w-6 p-0 rounded-full hover:bg-accent/50 flex-shrink-0 transition-all duration-200"
-                      >
-                        {row.isExpanded ? (
-                          <ChevronDown className="w-4 h-4" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4" />
-                        )}
-                      </Button>
-                    ) : (
-                      <div className="w-6" />
-                    )}
-                    <span className="text-xs text-muted-foreground font-mono font-medium">{row.wbsId}</span>
-                  </div>
-                </div>
-                <div className="flex items-center px-6 py-4 border-l border-border/30">
-                  <span className="text-sm text-foreground font-medium truncate">{row.title}</span>
-                </div>
-                {[0, 1, 2, 3, 4].map((contractorIndex) => {
-                  const contractor = row.contractors[contractorIndex];
-                  const isAccentColumn = contractorIndex % 2 === 0;
-                  const isElementRow = !row.hasChildren;
-                  return (
-                    <div key={contractorIndex} className={`text-center text-sm font-semibold text-foreground px-6 py-4 h-full border-l border-border/30 ${isAccentColumn ? 'bg-accent/10 hover:bg-accent/20' : 'hover:bg-muted/50'} relative flex items-center justify-center transition-all duration-200`}>
-                      <div className="flex items-center justify-center gap-2">
-                        <span>{contractor?.quote ? formatCurrency(contractor.quote) : ''}</span>
-                        {isElementRow && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            type="button"
-                            aria-label="Create quote"
-                            className="h-8 w-8 p-0 rounded-full text-luxury-gold hover:text-white hover:bg-luxury-gold/90 hover:scale-[1.02] flex items-center justify-center transition-all duration-200 shadow-sm"
-                            onClick={() => handleCreateQuote(row, contractor)}
-                          >
-                            <span className="text-base font-bold">+</span>
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-                <div className="px-6 py-4 h-full border-l border-border/30 bg-emerald-50/20">
-                  <Select>
-                    <SelectTrigger className="w-full h-8 text-sm bg-white/80 backdrop-blur-md border-emerald-200 rounded-lg hover:scale-[1.02] transition-all duration-200">
-                      <SelectValue placeholder="Select quote..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white/95 backdrop-blur-xl border border-border/30 shadow-glass z-50 rounded-xl">
-                      {row.contractors.map((contractor, idx) => (
-                        <SelectItem 
-                          key={contractor.contractorId} 
-                          value={contractor.contractorId}
-                          className="text-xs"
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/30 border-b border-border/30 hover:bg-muted/30 h-11">
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 w-16">WBS</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 min-w-[250px]">Activity</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 1</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 2</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 3</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 4</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 5</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-40 bg-emerald-50/30">Committed</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {wbsMatrix.map((row, index) => (
+                <TableRow 
+                  key={row.wbsId} 
+                  className={`h-14 hover:bg-accent/30 transition-all duration-200 border-b border-border/30 ${
+                    row.level > 0 ? 'bg-accent/10' : 'bg-white/50'
+                  }`}
+                >
+                  <TableCell className="px-6 py-4 align-middle">
+                    <div 
+                      className="flex items-center gap-2" 
+                      style={{ paddingLeft: `${row.level * 16}px` }}
+                    >
+                      {row.hasChildren ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleExpanded(row.itemId)}
+                          className="h-6 w-6 p-0 rounded-full hover:bg-accent/50 flex-shrink-0 transition-all duration-200"
                         >
-                          <div className="flex justify-between items-center w-full">
-                            <span className="truncate">{contractor.contractorName}</span>
-                            <span className="ml-2 text-muted-foreground">
-                              {contractor.quote ? 'Submitted' : 'Pending'}
+                          {row.isExpanded ? (
+                            <ChevronDown className="w-4 h-4" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4" />
+                          )}
+                        </Button>
+                      ) : (
+                        <div className="w-6" />
+                      )}
+                      <span className="text-xs text-muted-foreground font-mono font-medium">{row.wbsId}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-6 py-4 align-middle">
+                    <span className="text-sm text-foreground font-medium">{row.title}</span>
+                  </TableCell>
+                  {[0, 1, 2, 3, 4].map((contractorIndex) => {
+                    const contractor = row.contractors[contractorIndex];
+                    const isAccentColumn = contractorIndex % 2 === 0;
+                    const isElementRow = !row.hasChildren;
+                    return (
+                      <TableCell 
+                        key={contractorIndex} 
+                        className={`px-6 py-4 align-middle text-center ${
+                          isAccentColumn ? 'bg-accent/5' : ''
+                        }`}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          {contractor?.quote ? (
+                            <span className="text-sm font-semibold text-foreground">
+                              {formatCurrency(contractor.quote)}
                             </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ))}
-          </div>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">-</span>
+                          )}
+                          {isElementRow && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              type="button"
+                              aria-label="Create quote"
+                              className="h-8 w-8 p-0 rounded-full text-luxury-gold hover:text-white hover:bg-luxury-gold/90 hover:scale-[1.02] flex items-center justify-center transition-all duration-200 shadow-sm"
+                              onClick={() => handleCreateQuote(row, contractor)}
+                            >
+                              <span className="text-lg font-bold leading-none">+</span>
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell className="px-6 py-4 align-middle bg-emerald-50/20">
+                    <Select>
+                      <SelectTrigger className="w-full h-9 text-sm bg-white/80 backdrop-blur-md border-emerald-200 rounded-lg hover:scale-[1.02] transition-all duration-200">
+                        <SelectValue placeholder="Select quote..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white/95 backdrop-blur-xl border border-border/30 shadow-glass z-50 rounded-xl">
+                        {row.contractors.map((contractor, idx) => (
+                          <SelectItem 
+                            key={contractor.contractorId} 
+                            value={contractor.contractorId}
+                            className="text-sm"
+                          >
+                            <div className="flex justify-between items-center w-full gap-4">
+                              <span className="truncate">{contractor.contractorName}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {contractor.quote ? formatCurrency(contractor.quote) : 'Pending'}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
 
