@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ChevronDown, ChevronRight, GripVertical, MoreVertical, Plus, FileText, GitCompare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -279,14 +280,35 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                       </span>
                     </TableCell>
                     <TableCell className="px-6 py-4 align-middle text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-3 text-xs text-luxury-gold hover:text-white hover:bg-luxury-gold/90 rounded-lg transition-all duration-200"
-                        onClick={() => handleCreateQuote(row, row.contractors[0])}
-                      >
-                        Add Quote
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-3 text-xs text-luxury-gold hover:text-white hover:bg-luxury-gold/90 rounded-lg transition-all duration-200"
+                          >
+                            Actions
+                            <ChevronDown className="ml-1 h-3 w-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-xl border border-border/30 shadow-glass z-50 rounded-xl w-48">
+                          <DropdownMenuItem 
+                            className="text-sm cursor-pointer hover:bg-accent/50 transition-colors"
+                            onClick={() => handleCreateQuote(row, row.contractors[0])}
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Quote
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-sm cursor-pointer hover:bg-accent/50 transition-colors">
+                            <FileText className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-sm cursor-pointer hover:bg-accent/50 transition-colors">
+                            <GitCompare className="mr-2 h-4 w-4" />
+                            Compare Quotes
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
 
