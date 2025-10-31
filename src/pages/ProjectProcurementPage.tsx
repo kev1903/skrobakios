@@ -250,12 +250,6 @@ export const ProjectProcurementPage = () => {
                     Quote Matrix
                   </TabsTrigger>
                   <TabsTrigger 
-                    value="rfq" 
-                    className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-accent/50"
-                  >
-                    RFQ
-                  </TabsTrigger>
-                  <TabsTrigger 
                     value="approvals" 
                     className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-accent/50"
                   >
@@ -277,14 +271,6 @@ export const ProjectProcurementPage = () => {
             <div className="p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsContent value="matrix" className="mt-0">
-                  <QuoteMatrix 
-                    projectId={resolvedProjectId} 
-                    rfqs={rfqs} 
-                    onRFQUpdate={fetchRFQs}
-                  />
-                </TabsContent>
-
-                <TabsContent value="rfq" className="mt-0">
                   <QuoteMatrix 
                     projectId={resolvedProjectId} 
                     rfqs={rfqs} 
