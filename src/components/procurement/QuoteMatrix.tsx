@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, ChevronRight, GripVertical, MoreVertical, Plus, FileText, GitCompare } from 'lucide-react';
+import { ChevronDown, ChevronRight, GripVertical, MoreVertical, Plus, FileText, GitCompare, Calendar, Users, Mail, Eye, CheckCircle, Paperclip } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -45,6 +45,16 @@ interface Quote {
   vendor?: Vendor;
 }
 
+interface SupplierInvitation {
+  supplierId: string;
+  supplierName: string;
+  status: 'invited' | 'viewed' | 'received';
+  invitedDate?: string;
+  viewedDate?: string;
+  receivedDate?: string;
+  files?: Array<{ name: string; url: string }>;
+}
+
 interface WBSRow {
   wbsId: string;
   title: string;
@@ -52,11 +62,12 @@ interface WBSRow {
   hasChildren: boolean;
   isExpanded: boolean;
   itemId: string;
-  contractors: Array<{
-    contractorId: string;
-    contractorName: string;
-    quote: number | null;
-  }>;
+  rfqNumber?: string;
+  dueDate?: string;
+  suppliersInvited: number;
+  responsesReceived: number;
+  status: string;
+  supplierInvitations: SupplierInvitation[];
 }
 
 interface QuoteMatrixProps {
@@ -198,55 +209,67 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   // Build WBS matrix data
   const buildWBSMatrix = (): WBSRow[] => {
     return visibleWBSItems.map(wbsItem => {
-      // Ensure we always have at least 3 contractor slots
-      const contractors = [];
+      // Find RFQ for this WBS item
+      const rfq = rfqs.find(r => 
+        r.trade_category.toLowerCase() === wbsItem.title.toLowerCase() ||
+        r.work_package.toLowerCase() === wbsItem.title.toLowerCase()
+      );
+
+      // Build supplier invitations (using vendors and quotes)
+      const supplierInvitations: SupplierInvitation[] = [];
       
       if (activeVendors.length > 0) {
-        // Use actual vendors
-        for (let i = 0; i < Math.max(3, activeVendors.length); i++) {
+        for (let i = 0; i < Math.min(3, activeVendors.length); i++) {
           const vendor = activeVendors[i];
-          if (vendor) {
-            // Find RFQ for this WBS item (matching by title or category)
-            const rfq = rfqs.find(r => 
-              r.trade_category.toLowerCase() === wbsItem.title.toLowerCase() ||
-              r.work_package.toLowerCase() === wbsItem.title.toLowerCase()
-            );
-            // Find quote for this RFQ and vendor
-            const quote = rfq ? quotes.find(q => q.rfq_id === rfq.id && q.vendor_id === vendor.id) : null;
-            
-            contractors.push({
-              contractorId: vendor.id,
-              contractorName: vendor.name,
-              quote: quote?.quote_amount_inc_gst || null
-            });
-          } else {
-            // Fill empty slots
-            contractors.push({
-              contractorId: `placeholder-${i}`,
-              contractorName: `Vendor ${i + 1}`,
-              quote: null
-            });
+          const quote = rfq ? quotes.find(q => q.rfq_id === rfq.id && q.vendor_id === vendor.id) : null;
+          
+          // Determine status based on quote
+          let status: 'invited' | 'viewed' | 'received' = 'invited';
+          let receivedDate = undefined;
+          
+          if (quote) {
+            status = 'received';
+            receivedDate = new Date().toISOString(); // Would come from database
           }
+          
+          supplierInvitations.push({
+            supplierId: vendor.id,
+            supplierName: vendor.name,
+            status,
+            invitedDate: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(), // Mock data
+            viewedDate: status !== 'invited' ? new Date(Date.now() - Math.random() * 5 * 24 * 60 * 60 * 1000).toISOString() : undefined,
+            receivedDate,
+            files: quote ? [{ name: 'quote.pdf', url: '#' }] : []
+          });
         }
       } else {
-        // No vendors, create 3 placeholder slots
+        // Create placeholder invitations
         for (let i = 0; i < 3; i++) {
-          contractors.push({
-            contractorId: `placeholder-${i}`,
-            contractorName: `Vendor ${i + 1}`,
-            quote: null
+          supplierInvitations.push({
+            supplierId: `placeholder-${i}`,
+            supplierName: `Vendor ${i + 1}`,
+            status: 'invited',
+            invitedDate: new Date().toISOString(),
+            files: []
           });
         }
       }
 
+      const responsesReceived = supplierInvitations.filter(s => s.status === 'received').length;
+
       return {
         wbsId: wbsItem.wbs_id,
         title: wbsItem.title,
-        contractors,
         level: wbsItem.level,
         hasChildren: wbsItem.children && wbsItem.children.length > 0,
         isExpanded: expandedIds.has(wbsItem.id),
-        itemId: wbsItem.id
+        itemId: wbsItem.id,
+        rfqNumber: rfq?.rfq_number || `RFQ-${wbsItem.wbs_id}`,
+        dueDate: rfq?.due_date,
+        suppliersInvited: supplierInvitations.length,
+        responsesReceived,
+        status: responsesReceived === 0 ? 'pending' : responsesReceived === supplierInvitations.length ? 'completed' : 'in_progress',
+        supplierInvitations
       };
     });
   };
@@ -254,9 +277,54 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   const wbsMatrix = buildWBSMatrix();
 
   // Handle navigation to quote creation page
-  const handleCreateQuote = (wbsItem: WBSRow, contractor: any) => {
-    setSelectedQuoteData({ wbsItem, contractor });
+  const handleCreateQuote = (wbsItem: WBSRow, supplier: SupplierInvitation) => {
+    setSelectedQuoteData({ 
+      wbsItem, 
+      contractor: {
+        contractorId: supplier.supplierId,
+        contractorName: supplier.supplierName
+      }
+    });
     setIsQuotePopupOpen(true);
+  };
+
+  const getStatusBadge = (status: string) => {
+    const styles = {
+      pending: 'bg-amber-100 text-amber-800 border-amber-200',
+      in_progress: 'bg-blue-100 text-blue-800 border-blue-200',
+      completed: 'bg-emerald-100 text-emerald-800 border-emerald-200'
+    };
+    const labels = {
+      pending: 'Pending',
+      in_progress: 'In Progress',
+      completed: 'Completed'
+    };
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status as keyof typeof styles] || styles.pending}`}>
+        {labels[status as keyof typeof labels] || 'Pending'}
+      </span>
+    );
+  };
+
+  const getInvitationStatusIcon = (status: 'invited' | 'viewed' | 'received') => {
+    switch (status) {
+      case 'invited':
+        return <Mail className="w-4 h-4 text-amber-500" />;
+      case 'viewed':
+        return <Eye className="w-4 h-4 text-blue-500" />;
+      case 'received':
+        return <CheckCircle className="w-4 h-4 text-emerald-500" />;
+    }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '—';
+    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const formatTime = (dateString?: string) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
 
   if (loading || wbsLoading) {
@@ -277,17 +345,20 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/30 border-b border-border/30 hover:bg-muted/30 h-11">
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 w-16"></TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 w-32">WBS</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 min-w-[300px]">Activity</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-40">Status</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Actions</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 w-12"></TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 w-28">RFQ #</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 min-w-[250px]">WBS/Activity</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Suppliers Invited</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Due Date</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Responses</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Status</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-28">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {wbsMatrix.map((row) => (
                 <React.Fragment key={row.itemId}>
-                  {/* Main WBS Row */}
+                  {/* Main RFQ Row */}
                   <TableRow 
                     className={`h-14 hover:bg-accent/30 transition-all duration-200 border-b border-border/30 ${
                       row.level > 0 ? 'bg-accent/10' : 'bg-white/50'
@@ -308,15 +379,33 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                       </Button>
                     </TableCell>
                     <TableCell className="px-6 py-4 align-middle">
-                      <span className="text-xs text-muted-foreground font-mono font-medium">{row.wbsId}</span>
+                      <span className="text-xs text-luxury-gold font-mono font-semibold">{row.rfqNumber}</span>
                     </TableCell>
                     <TableCell className="px-6 py-4 align-middle">
-                      <span className="text-sm text-foreground font-medium">{row.title}</span>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground font-mono">{row.wbsId}</span>
+                        <span className="text-sm text-foreground font-medium">{row.title}</span>
+                      </div>
                     </TableCell>
                     <TableCell className="px-6 py-4 align-middle text-center">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
-                        Pending
+                      <div className="flex items-center justify-center gap-2">
+                        <Users className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-semibold text-foreground">{row.suppliersInvited}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 align-middle text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">{formatDate(row.dueDate)}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 align-middle text-center">
+                      <span className="text-sm font-semibold text-foreground">
+                        {row.responsesReceived}/{row.suppliersInvited}
                       </span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 align-middle text-center">
+                      {getStatusBadge(row.status)}
                     </TableCell>
                     <TableCell className="px-6 py-4 align-middle text-center">
                       <DropdownMenu>
@@ -324,77 +413,117 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 px-3 text-xs text-luxury-gold hover:text-white hover:bg-luxury-gold/90 rounded-lg transition-all duration-200"
+                            className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-luxury-gold hover:bg-luxury-gold/10 transition-all duration-200"
                           >
-                            Actions
-                            <ChevronDown className="ml-1 h-3 w-3" />
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-xl border border-border/30 shadow-glass z-50 rounded-xl w-48">
                           <DropdownMenuItem 
                             className="text-sm cursor-pointer hover:bg-accent/50 transition-colors"
-                            onClick={() => handleCreateQuote(row, row.contractors[0])}
+                            onClick={() => handleCreateQuote(row, row.supplierInvitations[0])}
                           >
                             <Plus className="mr-2 h-4 w-4" />
                             Add Quote
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-sm cursor-pointer hover:bg-accent/50 transition-colors">
                             <FileText className="mr-2 h-4 w-4" />
-                            View Details
+                            View RFQ Details
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-sm cursor-pointer hover:bg-accent/50 transition-colors">
                             <GitCompare className="mr-2 h-4 w-4" />
-                            Compare Quotes
+                            Compare Responses
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
 
-                  {/* Expanded Detail Rows (3 sub-rows) */}
-                  {row.isExpanded && row.contractors && row.contractors.length > 0 && (
+                  {/* Expanded Supplier Invitation Rows */}
+                  {row.isExpanded && row.supplierInvitations && row.supplierInvitations.length > 0 && (
                     <>
-                      {row.contractors.slice(0, 3).map((contractor, idx) => (
+                      {row.supplierInvitations.map((invitation, idx) => (
                         <TableRow 
-                          key={`${row.itemId}-contractor-${idx}`}
-                          className="h-12 bg-accent/5 hover:bg-accent/20 transition-all duration-200 border-b border-border/20"
+                          key={`${row.itemId}-supplier-${idx}`}
+                          className="h-16 bg-accent/5 hover:bg-accent/20 transition-all duration-200 border-b border-border/20"
                         >
                           <TableCell className="px-6 py-3 align-middle">
-                            <GripVertical className="w-4 h-4 text-muted-foreground/40" />
-                          </TableCell>
-                          <TableCell className="px-6 py-3 align-middle">
-                            <span className="text-xs text-muted-foreground font-mono">—</span>
-                          </TableCell>
-                          <TableCell className="px-6 py-3 align-middle">
-                            <div className="flex items-center gap-3 pl-8">
-                              <div className="w-8 h-8 rounded-full bg-luxury-gold/10 border border-luxury-gold/30 flex items-center justify-center">
-                                <span className="text-xs font-semibold text-luxury-gold">
-                                  {contractor?.contractorName?.charAt(0) || 'V'}
-                                </span>
-                              </div>
-                              <span className="text-sm text-foreground">
-                                {contractor?.contractorName || `Vendor ${idx + 1}`}
-                              </span>
+                            <div className="pl-2">
+                              {getInvitationStatusIcon(invitation.status)}
                             </div>
                           </TableCell>
-                          <TableCell className="px-6 py-3 align-middle text-center">
-                            {contractor?.quote ? (
-                              <span className="text-sm font-semibold text-foreground">
-                                {formatCurrency(contractor.quote)}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">No quote</span>
+                          <TableCell className="px-6 py-3 align-middle" colSpan={2}>
+                            <div className="flex items-center gap-3 pl-4">
+                              <div className="w-10 h-10 rounded-full bg-luxury-gold/10 border-2 border-luxury-gold/30 flex items-center justify-center">
+                                <span className="text-sm font-bold text-luxury-gold">
+                                  {invitation.supplierName?.charAt(0) || 'V'}
+                                </span>
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-foreground">
+                                  {invitation.supplierName}
+                                </span>
+                                <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                                  <span className="capitalize font-medium">{invitation.status}</span>
+                                  {invitation.files && invitation.files.length > 0 && (
+                                    <span className="flex items-center gap-1">
+                                      <Paperclip className="w-3 h-3" />
+                                      {invitation.files.length} file(s)
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="px-6 py-3 align-middle">
+                            <div className="flex flex-col gap-1 text-xs">
+                              <div className="flex items-center gap-2">
+                                <Mail className="w-3 h-3 text-muted-foreground" />
+                                <span className="text-muted-foreground">Invited:</span>
+                                <span className="font-medium">{formatDate(invitation.invitedDate)}</span>
+                              </div>
+                              {invitation.viewedDate && (
+                                <div className="flex items-center gap-2">
+                                  <Eye className="w-3 h-3 text-muted-foreground" />
+                                  <span className="text-muted-foreground">Viewed:</span>
+                                  <span className="font-medium">{formatDate(invitation.viewedDate)}</span>
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="px-6 py-3 align-middle">
+                            {invitation.receivedDate && (
+                              <div className="flex flex-col gap-1 text-xs">
+                                <span className="font-medium text-emerald-600">{formatDate(invitation.receivedDate)}</span>
+                                <span className="text-muted-foreground">{formatTime(invitation.receivedDate)}</span>
+                              </div>
                             )}
                           </TableCell>
-                          <TableCell className="px-6 py-3 align-middle text-center">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 w-7 p-0 rounded-full text-luxury-gold hover:text-white hover:bg-luxury-gold/90 hover:scale-[1.02] flex items-center justify-center transition-all duration-200"
-                              onClick={() => handleCreateQuote(row, contractor)}
-                            >
-                              <span className="text-base font-bold leading-none">+</span>
-                            </Button>
+                          <TableCell className="px-6 py-3 align-middle text-center" colSpan={3}>
+                            {invitation.files && invitation.files.length > 0 ? (
+                              <div className="flex items-center justify-center gap-2">
+                                {invitation.files.map((file, fileIdx) => (
+                                  <Button
+                                    key={fileIdx}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-7 px-2 text-xs text-luxury-gold hover:text-white hover:bg-luxury-gold/90 rounded-lg transition-all duration-200"
+                                  >
+                                    <Paperclip className="w-3 h-3 mr-1" />
+                                    {file.name}
+                                  </Button>
+                                ))}
+                              </div>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-3 text-xs text-muted-foreground hover:text-luxury-gold hover:bg-accent/50 rounded-lg transition-all duration-200"
+                                onClick={() => handleCreateQuote(row, invitation)}
+                              >
+                                Awaiting Response
+                              </Button>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
