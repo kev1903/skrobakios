@@ -240,29 +240,6 @@ export const ProjectProcurementPage = () => {
           {/* Header */}
           <div className="flex-shrink-0 border-b border-border/30 bg-white/80 backdrop-blur-xl shadow-glass">
             <div className="px-8 py-6">
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-4xl font-bold text-foreground font-playfair">Procurement</h1>
-                <div className="flex gap-3">
-                  <Button 
-                    onClick={() => setShowVendorForm(true)}
-                    variant="outline"
-                    size="default"
-                    className="rounded-xl bg-background/60 backdrop-blur-md border-border/30 hover:bg-accent/50 hover:scale-[1.02] transition-all duration-200 shadow-sm"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Vendor
-                  </Button>
-                  <Button 
-                    onClick={() => setShowRFQForm(true)}
-                    size="default"
-                    className="rounded-xl bg-luxury-gold hover:bg-luxury-gold/90 text-white shadow-md hover:scale-[1.02] transition-all duration-200"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create RFQ
-                  </Button>
-                </div>
-              </div>
-
               {/* Luxury Navigation Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="inline-flex items-center gap-1 bg-white/80 border border-border/30 rounded-xl p-1 shadow-glass">
