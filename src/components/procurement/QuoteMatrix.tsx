@@ -70,10 +70,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => {
-    // Initially expand all top-level items (stages)
-    return new Set<string>();
-  });
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   
   // Quote popup state
   const [isQuotePopupOpen, setIsQuotePopupOpen] = useState(false);
@@ -84,6 +81,23 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   
   // Load WBS items from database
   const { wbsItems, loading: wbsLoading } = useWBS(projectId);
+
+  // Expand all WBS items by default
+  useEffect(() => {
+    const allItemIds = new Set<string>();
+    const collectIds = (items: WBSItem[]) => {
+      items.forEach(item => {
+        if (item.rfq_required === true) {
+          allItemIds.add(item.id);
+        }
+        if (item.children && item.children.length > 0) {
+          collectIds(item.children);
+        }
+      });
+    };
+    collectIds(wbsItems);
+    setExpandedIds(allItemIds);
+  }, [wbsItems]);
 
   useEffect(() => {
     fetchQuotesAndVendors();
