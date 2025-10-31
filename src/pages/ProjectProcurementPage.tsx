@@ -13,7 +13,6 @@ import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { getStatusColor, getStatusText } from '@/components/tasks/utils/taskUtils';
 import { Project } from '@/hooks/useProjects';
 import { QuoteMatrix } from '@/components/procurement/QuoteMatrix';
-import { RFQDashboard } from '@/components/procurement/RFQDashboard';
 import { EvaluationDashboard } from '@/components/procurement/EvaluationDashboard';
 import { ApprovalQueue } from '@/components/procurement/ApprovalQueue';
 import { CommitmentsRegister } from '@/components/procurement/CommitmentsRegister';
@@ -272,8 +271,10 @@ export const ProjectProcurementPage = () => {
             <div className="p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsContent value="matrix" className="mt-0">
-                  <RFQDashboard 
-                    projectId={resolvedProjectId}
+                  <QuoteMatrix 
+                    projectId={resolvedProjectId} 
+                    rfqs={rfqs} 
+                    onRFQUpdate={fetchRFQs}
                   />
                 </TabsContent>
 
