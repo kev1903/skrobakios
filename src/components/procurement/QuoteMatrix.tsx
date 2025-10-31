@@ -237,110 +237,109 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/30 border-b border-border/30 hover:bg-muted/30 h-11">
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 w-16">WBS</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 min-w-[250px]">Activity</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 1</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 2</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 3</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 4</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Quote 5</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-40 bg-emerald-50/30">Committed</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 w-16"></TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 w-32">WBS</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 min-w-[300px]">Activity</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-40">Status</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-6 py-4 text-center w-32">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {wbsMatrix.map((row, index) => (
-                <TableRow 
-                  key={row.wbsId} 
-                  className={`h-14 hover:bg-accent/30 transition-all duration-200 border-b border-border/30 ${
-                    row.level > 0 ? 'bg-accent/10' : 'bg-white/50'
-                  }`}
-                >
-                  <TableCell className="px-6 py-4 align-middle">
-                    <div 
-                      className="flex items-center gap-2" 
-                      style={{ paddingLeft: `${row.level * 16}px` }}
-                    >
-                      {row.hasChildren ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleExpanded(row.itemId)}
-                          className="h-6 w-6 p-0 rounded-full hover:bg-accent/50 flex-shrink-0 transition-all duration-200"
-                        >
-                          {row.isExpanded ? (
-                            <ChevronDown className="w-4 h-4" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4" />
-                          )}
-                        </Button>
-                      ) : (
-                        <div className="w-6" />
-                      )}
-                      <span className="text-xs text-muted-foreground font-mono font-medium">{row.wbsId}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-6 py-4 align-middle">
-                    <span className="text-sm text-foreground font-medium">{row.title}</span>
-                  </TableCell>
-                  {[0, 1, 2, 3, 4].map((contractorIndex) => {
-                    const contractor = row.contractors[contractorIndex];
-                    const isAccentColumn = contractorIndex % 2 === 0;
-                    const isElementRow = !row.hasChildren;
-                    return (
-                      <TableCell 
-                        key={contractorIndex} 
-                        className={`px-6 py-4 align-middle text-center ${
-                          isAccentColumn ? 'bg-accent/5' : ''
-                        }`}
+                <React.Fragment key={row.wbsId}>
+                  {/* Main WBS Row */}
+                  <TableRow 
+                    className={`h-14 hover:bg-accent/30 transition-all duration-200 border-b border-border/30 ${
+                      row.level > 0 ? 'bg-accent/10' : 'bg-white/50'
+                    }`}
+                  >
+                    <TableCell className="px-6 py-4 align-middle">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleExpanded(row.itemId)}
+                        className="h-6 w-6 p-0 rounded-full hover:bg-accent/50 flex-shrink-0 transition-all duration-200"
                       >
-                        <div className="flex items-center justify-center gap-2">
-                          {contractor?.quote ? (
-                            <span className="text-sm font-semibold text-foreground">
-                              {formatCurrency(contractor.quote)}
-                            </span>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">-</span>
-                          )}
-                          {isElementRow && (
+                        {row.isExpanded ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 align-middle">
+                      <span className="text-xs text-muted-foreground font-mono font-medium">{row.wbsId}</span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 align-middle">
+                      <span className="text-sm text-foreground font-medium">{row.title}</span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 align-middle text-center">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+                        Pending
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 align-middle text-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-3 text-xs text-luxury-gold hover:text-white hover:bg-luxury-gold/90 rounded-lg transition-all duration-200"
+                        onClick={() => handleCreateQuote(row, row.contractors[0])}
+                      >
+                        Add Quote
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+
+                  {/* Expanded Detail Rows (3 sub-rows) */}
+                  {row.isExpanded && (
+                    <>
+                      {row.contractors.slice(0, 3).map((contractor, idx) => (
+                        <TableRow 
+                          key={`${row.wbsId}-contractor-${idx}`}
+                          className="h-12 bg-accent/5 hover:bg-accent/20 transition-all duration-200 border-b border-border/20"
+                        >
+                          <TableCell className="px-6 py-3 align-middle">
+                            <GripVertical className="w-4 h-4 text-muted-foreground/40" />
+                          </TableCell>
+                          <TableCell className="px-6 py-3 align-middle">
+                            <span className="text-xs text-muted-foreground font-mono">—</span>
+                          </TableCell>
+                          <TableCell className="px-6 py-3 align-middle">
+                            <div className="flex items-center gap-3 pl-8">
+                              <div className="w-8 h-8 rounded-full bg-luxury-gold/10 border border-luxury-gold/30 flex items-center justify-center">
+                                <span className="text-xs font-semibold text-luxury-gold">
+                                  {contractor?.contractorName?.charAt(0) || 'V'}
+                                </span>
+                              </div>
+                              <span className="text-sm text-foreground">
+                                {contractor?.contractorName || `Vendor ${idx + 1}`}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="px-6 py-3 align-middle text-center">
+                            {contractor?.quote ? (
+                              <span className="text-sm font-semibold text-foreground">
+                                {formatCurrency(contractor.quote)}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">No quote</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="px-6 py-3 align-middle text-center">
                             <Button
                               variant="ghost"
                               size="sm"
-                              type="button"
-                              aria-label="Create quote"
-                              className="h-8 w-8 p-0 rounded-full text-luxury-gold hover:text-white hover:bg-luxury-gold/90 hover:scale-[1.02] flex items-center justify-center transition-all duration-200 shadow-sm"
+                              className="h-7 w-7 p-0 rounded-full text-luxury-gold hover:text-white hover:bg-luxury-gold/90 hover:scale-[1.02] flex items-center justify-center transition-all duration-200"
                               onClick={() => handleCreateQuote(row, contractor)}
                             >
-                              <span className="text-lg font-bold leading-none">+</span>
+                              <span className="text-base font-bold leading-none">+</span>
                             </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    );
-                  })}
-                  <TableCell className="px-6 py-4 align-middle bg-emerald-50/20">
-                    <Select>
-                      <SelectTrigger className="w-full h-9 text-sm bg-white/80 backdrop-blur-md border-emerald-200 rounded-lg hover:scale-[1.02] transition-all duration-200">
-                        <SelectValue placeholder="Select quote..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white/95 backdrop-blur-xl border border-border/30 shadow-glass z-50 rounded-xl">
-                        {row.contractors.map((contractor, idx) => (
-                          <SelectItem 
-                            key={contractor.contractorId} 
-                            value={contractor.contractorId}
-                            className="text-sm"
-                          >
-                            <div className="flex justify-between items-center w-full gap-4">
-                              <span className="truncate">{contractor.contractorName}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {contractor.quote ? formatCurrency(contractor.quote) : 'Pending'}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                </TableRow>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </>
+                  )}
+                </React.Fragment>
               ))}
             </TableBody>
           </Table>
