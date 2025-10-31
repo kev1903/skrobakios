@@ -238,23 +238,23 @@ export const ProjectProcurementPage = () => {
       <div className="fixed left-40 right-0 top-[var(--header-height)] bottom-0 overflow-hidden bg-gradient-to-br from-background to-muted/20">
         <div className="h-full w-full flex flex-col">
           {/* Header */}
-          <div className="flex-shrink-0 border-b border-border/30 bg-white/80 backdrop-blur-xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-            <div className="px-6 py-4">
-              <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold text-foreground font-playfair">Procurement</h1>
-                <div className="flex gap-2">
+          <div className="flex-shrink-0 border-b border-border/30 bg-white/80 backdrop-blur-xl shadow-glass">
+            <div className="px-8 py-6">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-4xl font-bold text-foreground font-playfair">Procurement</h1>
+                <div className="flex gap-3">
                   <Button 
                     onClick={() => setShowVendorForm(true)}
                     variant="outline"
-                    size="sm"
-                    className="rounded-xl backdrop-blur-md hover:scale-[1.02] transition-all duration-200"
+                    size="default"
+                    className="rounded-xl bg-background/60 backdrop-blur-md border-border/30 hover:bg-accent/50 hover:scale-[1.02] transition-all duration-200 shadow-sm"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Vendor
                   </Button>
                   <Button 
                     onClick={() => setShowRFQForm(true)}
-                    size="sm"
+                    size="default"
                     className="rounded-xl bg-luxury-gold hover:bg-luxury-gold/90 text-white shadow-md hover:scale-[1.02] transition-all duration-200"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -264,37 +264,34 @@ export const ProjectProcurementPage = () => {
               </div>
 
               {/* Luxury Navigation Tabs */}
-              <div className="mt-4">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="inline-flex items-center gap-1 bg-white/80 border border-border/30 rounded-xl p-1 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-                    <TabsTrigger 
-                      value="matrix" 
-                      className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
-                    >
-                      Quote Matrix
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="rfq" 
-                      className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
-                    >
-                      RFQ
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="approvals" 
-                      className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
-                    >
-                      Approvals
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="commitments" 
-                      className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
-                    >
-                      Commitments
-                    </TabsTrigger>
-                  </TabsList>
-
-                </Tabs>
-              </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="inline-flex items-center gap-1 bg-white/80 border border-border/30 rounded-xl p-1 shadow-glass">
+                  <TabsTrigger 
+                    value="matrix" 
+                    className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-accent/50"
+                  >
+                    Quote Matrix
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="rfq" 
+                    className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-accent/50"
+                  >
+                    RFQ
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="approvals" 
+                    className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-accent/50"
+                  >
+                    Approvals
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="commitments" 
+                    className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-accent/50"
+                  >
+                    Commitments
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
           </div>
 
