@@ -100,7 +100,6 @@ interface ProjectRole {
 
 const CATEGORY_ICONS = {
   client: Users,
-  trade: Wrench,
   subcontractor: Building2,
   supplier: Truck,
   consultant: Lightbulb,

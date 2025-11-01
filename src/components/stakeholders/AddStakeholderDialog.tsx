@@ -37,7 +37,7 @@ interface AddStakeholderDialogProps {
 
 interface StakeholderFormData {
   display_name: string;
-  category: 'client' | 'trade' | 'subcontractor' | 'supplier' | 'consultant';
+  category: 'client' | 'subcontractor' | 'supplier' | 'consultant';
   trade_industry?: string;
   primary_contact_name?: string;
   primary_email?: string;
@@ -171,7 +171,7 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
     try {
       // Auto-generate tags based on category and trade industry
       const autoTags = [
-        formData.category === 'client' ? 'Client' : 'Trade',
+        formData.category === 'client' ? 'Client' : 'Subcontractor',
         formData.category === 'client' ? 'Customer' : 'Contractor',
         ...(formData.trade_industry ? [formData.trade_industry] : [])
       ];
@@ -256,7 +256,6 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="client">Client</SelectItem>
-                      <SelectItem value="trade">Trade</SelectItem>
                       <SelectItem value="subcontractor">Subcontractor</SelectItem>
                       <SelectItem value="supplier">Supplier</SelectItem>
                       <SelectItem value="consultant">Consultant</SelectItem>
@@ -288,7 +287,7 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
                 </div>
               </div>
 
-              {(formData.category === 'trade' || formData.category === 'subcontractor') && (
+              {formData.category === 'subcontractor' && (
                 <div className="space-y-2">
                   <Label htmlFor="trade_industry">Sub Contractor</Label>
                   <Input
@@ -415,7 +414,6 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="client">Client</SelectItem>
-                            <SelectItem value="trade">Trade</SelectItem>
                             <SelectItem value="subcontractor">Subcontractor</SelectItem>
                             <SelectItem value="supplier">Supplier</SelectItem>
                             <SelectItem value="consultant">Consultant</SelectItem>

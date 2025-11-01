@@ -8065,7 +8065,6 @@ export type Database = {
       payment_method: "bank_transfer" | "check" | "cash" | "card" | "other"
       stakeholder_category:
         | "client"
-        | "trade"
         | "subcontractor"
         | "supplier"
         | "consultant"
@@ -8232,7 +8231,6 @@ export const Constants = {
       payment_method: ["bank_transfer", "check", "cash", "card", "other"],
       stakeholder_category: [
         "client",
-        "trade",
         "subcontractor",
         "supplier",
         "consultant",

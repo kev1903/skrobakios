@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 export interface Stakeholder {
   id: string;
   display_name: string;
-  category: 'client' | 'trade' | 'subcontractor' | 'supplier' | 'consultant';
+  category: 'client' | 'subcontractor' | 'supplier' | 'consultant';
   trade_industry?: string;
   primary_contact_name?: string;
   primary_email?: string;
@@ -19,7 +19,7 @@ export interface Stakeholder {
 
 interface UseStakeholdersOptions {
   companyId?: string;
-  category?: 'client' | 'trade' | 'subcontractor' | 'supplier' | 'consultant';
+  category?: 'client' | 'subcontractor' | 'supplier' | 'consultant';
   status?: ('active' | 'inactive' | 'pending')[];
   enabled?: boolean;
 }

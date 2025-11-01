@@ -46,7 +46,7 @@ import { AddStakeholderDialog } from '@/components/stakeholders/AddStakeholderDi
 interface Stakeholder {
   id: string;
   display_name: string;
-  category: 'client' | 'trade' | 'subcontractor' | 'supplier' | 'consultant';
+  category: 'client' | 'subcontractor' | 'supplier' | 'consultant';
   trade_industry?: string;
   primary_contact_name?: string;
   primary_email?: string;
@@ -64,7 +64,6 @@ interface StakeholdersListProps {
 
 const CATEGORY_ICONS = {
   client: Users,
-  trade: Wrench,
   subcontractor: Building2,
   supplier: Truck,
   consultant: Lightbulb,
@@ -115,7 +114,7 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
         .eq('company_id', currentCompany.id);
 
       if (selectedCategory) {
-        query = query.eq('category', selectedCategory as 'client' | 'trade' | 'subcontractor' | 'supplier' | 'consultant');
+        query = query.eq('category', selectedCategory as 'client' | 'subcontractor' | 'supplier' | 'consultant');
       }
 
       if (statusFilter.length > 0) {
@@ -524,7 +523,7 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
             >
               All Categories
             </DropdownMenuCheckboxItem>
-            {['trade', 'subcontractor', 'supplier', 'consultant'].map((category) => (
+            {['subcontractor', 'supplier', 'consultant'].map((category) => (
               <DropdownMenuCheckboxItem
                 key={category}
                 checked={selectedCategory === category}
