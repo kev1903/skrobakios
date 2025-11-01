@@ -9,6 +9,12 @@ interface BillsPageProps {
 
 export const BillsPage = ({ onNavigate }: BillsPageProps) => {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleBillSaved = () => {
+    setRefreshTrigger(prev => prev + 1);
+    setIsUploadDialogOpen(false);
+  };
 
   return (
     <div className="w-full">
@@ -16,16 +22,13 @@ export const BillsPage = ({ onNavigate }: BillsPageProps) => {
         <BillsHeader 
           onUploadClick={() => setIsUploadDialogOpen(true)}
         />
-        <BillsTable />
+        <BillsTable refreshTrigger={refreshTrigger} />
       </div>
 
       <CompanyBillPDFUploader
         isOpen={isUploadDialogOpen}
         onClose={() => setIsUploadDialogOpen(false)}
-        onSaved={() => {
-          // Refresh bills table data here when implemented
-          console.log('Bill saved, refresh table');
-        }}
+        onSaved={handleBillSaved}
       />
     </div>
   );

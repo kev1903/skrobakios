@@ -295,6 +295,78 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Get user's company_id
+      const { data: memberData, error: memberError } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single();
+
+      if (memberError || !memberData) {
+        throw new Error('No active company found for user');
+      }
+
+      const companyId = memberData.company_id;
+
+      // Get the storage path from uploaded file
+      const fileExt = uploadedFile.name.split('.').pop()?.toLowerCase() || '';
+      const timestamp = Date.now();
+      const sanitizedFileName = uploadedFile.name
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/_{2,}/g, '_')
+        .substring(0, 200);
+      const fileName = `${timestamp}_${sanitizedFileName}`;
+      const storagePath = `${user.id}/company-bills/${fileName}`;
+
+      // Insert bill record
+      const { data: billData, error: billError } = await supabase
+        .from('bills')
+        .insert({
+          company_id: companyId,
+          created_by: user.id,
+          supplier_name: editableData.supplier_name,
+          supplier_email: editableData.supplier_email || null,
+          bill_no: editableData.bill_no,
+          bill_date: editableData.bill_date,
+          due_date: editableData.due_date,
+          reference_number: editableData.reference_number || null,
+          notes: editableData.notes || null,
+          subtotal: editableData.subtotal,
+          tax: editableData.tax,
+          total: editableData.total,
+          status: 'submitted',
+          payment_status: 'unpaid',
+          paid_to_date: 0,
+          storage_path: storagePath,
+          ai_confidence: confidence / 100,
+          ai_summary: editableData.notes || null,
+        })
+        .select()
+        .single();
+
+      if (billError) throw billError;
+
+      // Insert line items if any
+      if (editableData.line_items && editableData.line_items.length > 0) {
+        const lineItems = editableData.line_items.map(item => ({
+          bill_id: billData.id,
+          description: item.description,
+          qty: item.qty,
+          rate: item.rate,
+          amount: item.amount,
+          tax_code: item.tax_code || null,
+        }));
+
+        const { error: lineItemsError } = await supabase
+          .from('bill_line_items')
+          .insert(lineItems);
+
+        if (lineItemsError) {
+          console.error('Error inserting line items:', lineItemsError);
+        }
+      }
+
       toast({
         title: "Bill Saved",
         description: "Company bill has been saved successfully",
