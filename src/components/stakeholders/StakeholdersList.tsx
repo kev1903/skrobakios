@@ -523,7 +523,7 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
             >
               All Categories
             </DropdownMenuCheckboxItem>
-            {['subcontractor', 'supplier', 'consultant'].map((category) => (
+            {['client', 'subcontractor', 'supplier', 'consultant'].map((category) => (
               <DropdownMenuCheckboxItem
                 key={category}
                 checked={selectedCategory === category}
