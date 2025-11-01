@@ -76,6 +76,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [projects, setProjects] = useState<Array<{ id: string; name: string; project_id: string }>>([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -89,10 +90,16 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
 
   const loadProjects = async () => {
     try {
+      setLoadingProjects(true);
+      console.log('Loading projects...');
+      
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        console.log('No user found');
+        return;
+      }
 
-      const { data: memberData } = await supabase
+      const { data: memberData, error: memberError } = await supabase
         .from('company_members')
         .select('company_id')
         .eq('user_id', user.id)
@@ -101,19 +108,38 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         .limit(1)
         .single();
 
-      if (!memberData) return;
+      if (memberError) {
+        console.error('Error fetching company membership:', memberError);
+        return;
+      }
 
-      const { data: projectsData } = await supabase
+      if (!memberData) {
+        console.log('No company membership found');
+        return;
+      }
+
+      console.log('Company ID:', memberData.company_id);
+
+      const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
         .select('id, name, project_id')
         .eq('company_id', memberData.company_id)
         .order('name');
 
+      if (projectsError) {
+        console.error('Error loading projects:', projectsError);
+        return;
+      }
+
+      console.log('Loaded projects:', projectsData?.length || 0);
+      
       if (projectsData) {
         setProjects(projectsData);
       }
     } catch (error) {
       console.error('Error loading projects:', error);
+    } finally {
+      setLoadingProjects(false);
     }
   };
 
@@ -621,30 +647,40 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
                        </Alert>
                      )}
 
-                     <div className="grid grid-cols-2 gap-4">
-                       <div className="space-y-2">
-                         <Label>Project</Label>
-                         <Select
-                           value={editableData.project_id || 'none'}
-                           onValueChange={(value) => setEditableData({
-                             ...editableData, 
-                             project_id: value === 'none' ? null : value,
-                             wbs_activity_id: value === 'none' ? null : editableData.wbs_activity_id // Clear WBS if project cleared
-                           })}
-                         >
-                           <SelectTrigger>
-                             <SelectValue placeholder="Select project..." />
-                           </SelectTrigger>
-                           <SelectContent>
-                             <SelectItem value="none">No Project</SelectItem>
-                             {projects.map(project => (
-                               <SelectItem key={project.id} value={project.id}>
-                                 {project.project_id} - {project.name}
-                               </SelectItem>
-                             ))}
-                           </SelectContent>
-                         </Select>
-                       </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Project</Label>
+                          <Select
+                            value={editableData.project_id || 'none'}
+                            onValueChange={(value) => {
+                              console.log('Project selected:', value);
+                              setEditableData({
+                                ...editableData, 
+                                project_id: value === 'none' ? null : value,
+                                wbs_activity_id: value === 'none' ? null : editableData.wbs_activity_id // Clear WBS if project cleared
+                              });
+                            }}
+                            disabled={loadingProjects}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={loadingProjects ? "Loading projects..." : "Select project..."} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">No Project</SelectItem>
+                              {loadingProjects ? (
+                                <SelectItem value="loading" disabled>Loading projects...</SelectItem>
+                              ) : projects.length === 0 ? (
+                                <SelectItem value="empty" disabled>No projects found</SelectItem>
+                              ) : (
+                                projects.map(project => (
+                                  <SelectItem key={project.id} value={project.id}>
+                                    {project.project_id} - {project.name}
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
                        <div className="space-y-2">
                          <Label>WBS Activity</Label>
