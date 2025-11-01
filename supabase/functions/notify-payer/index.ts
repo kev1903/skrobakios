@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { Resend } from "npm:resend@2.0.0";
+import React from 'npm:react@18.3.1';
+import { renderAsync } from 'npm:@react-email/components@0.0.22';
+import { BillNotificationEmail } from './_templates/bill-notification.tsx';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -21,22 +24,16 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch FIN001 knowledge entry
-    const { data: knowledge, error: knowledgeError } = await supabase
+    // Fetch FIN001 knowledge entry (optional - for reference)
+    const { data: knowledge } = await supabase
       .from("skai_knowledge")
       .select("*")
       .eq("prompt_id", "FIN001")
       .single();
 
-    if (knowledgeError || !knowledge) {
-      console.error("Error fetching FIN001 knowledge:", knowledgeError);
-      return new Response(
-        JSON.stringify({ error: "FIN001 knowledge entry not found" }),
-        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+    if (knowledge) {
+      console.log("FIN001 knowledge found:", knowledge.title);
     }
-
-    console.log("FIN001 knowledge found:", knowledge.title);
 
     // Fetch all unpaid bills
     const { data: bills, error: billsError } = await supabase
@@ -131,51 +128,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Grouped bills for ${Object.keys(billsByPayer).length} payers`);
 
-    // Use Lovable AI to generate email content for each payer
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
-
     const emailResults = [];
 
     for (const [payerEmail, payerBills] of Object.entries(billsByPayer)) {
       console.log(`Processing ${payerBills.length} bills for ${payerEmail}`);
 
-      // Format bills for AI prompt
-      const billsList = payerBills.map((bill: any) => 
-        `- ${bill.invoice_number || 'N/A'}: ${bill.description || 'No description'} - Amount: $${bill.amount || 0} - Due: ${bill.due_date || 'N/A'}`
-      ).join('\n');
-
-      // Call Lovable AI to generate email
-      const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            { 
-              role: "system", 
-              content: `${knowledge.content}\n\nYou are generating an email to notify a payer about their outstanding bills. Be professional and concise.` 
-            },
-            { 
-              role: "user", 
-              content: `Generate an email body for ${payerEmail} about these unpaid bills:\n${billsList}` 
-            },
-          ],
-        }),
-      });
-
-      if (!aiResponse.ok) {
-        console.error(`AI generation failed for ${payerEmail}:`, aiResponse.status);
-        continue;
-      }
-
-      const aiData = await aiResponse.json();
-      const emailBody = aiData.choices?.[0]?.message?.content || "Please review your outstanding bills.";
+      // Render the React Email template
+      const emailHtml = await renderAsync(
+        React.createElement(BillNotificationEmail, {
+          payerEmail,
+          bills: payerBills,
+        })
+      );
 
       // Send email using Resend with CC
       const emailResponse = await resend.emails.send({
@@ -183,7 +147,7 @@ const handler = async (req: Request): Promise<Response> => {
         to: [payerEmail],
         cc: ["accounts@skrobaki.com", "kevin@skrobaki.com"],
         subject: "Outstanding Bills - Payment Required",
-        html: emailBody,
+        html: emailHtml,
       });
 
       console.log(`Email sent to ${payerEmail}:`, emailResponse);
