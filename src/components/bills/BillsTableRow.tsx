@@ -23,11 +23,10 @@ interface Bill {
   dueDate: string;
   vendor: string;
   billNumber: string;
-  category: string;
+  project?: string;
   amount: string;
   overdue: boolean;
   hasWarning: boolean;
-  includedInCashFlow: boolean;
   linkedCashInAccount: string;
   toPay?: string;
 }
@@ -69,12 +68,13 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
       </TableCell>
       <TableCell>{bill.vendor}</TableCell>
       <TableCell className="font-medium">{bill.billNumber}</TableCell>
-      <TableCell>{bill.category}</TableCell>
+      <TableCell>
+        <span className="text-sm text-muted-foreground">
+          {bill.project || '-'}
+        </span>
+      </TableCell>
       <TableCell className="text-right font-medium">
         ${bill.amount}
-      </TableCell>
-      <TableCell className="text-center">
-        <div className="w-3 h-3 bg-red-500 rounded-full mx-auto"></div>
       </TableCell>
       <TableCell className="min-w-[200px]">
         <Select

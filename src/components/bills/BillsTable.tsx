@@ -68,10 +68,17 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
 
       const companyId = memberData[0].company_id;
 
-      // Fetch bills from database
+      // Fetch bills with project information
       const { data, error } = await supabase
         .from('bills')
-        .select('*')
+        .select(`
+          *,
+          projects:project_id (
+            id,
+            name,
+            project_id
+          )
+        `)
         .eq('company_id', companyId)
         .order('due_date', { ascending: true });
 
@@ -91,11 +98,10 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
         dueDate: new Date(bill.due_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }).replace(/ /g, ' '),
         vendor: bill.supplier_name,
         billNumber: bill.bill_no,
-        category: bill.notes?.substring(0, 20) || 'General',
+        project: bill.projects?.name || '-',
         amount: bill.total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","),
         overdue: new Date(bill.due_date) < new Date() && bill.payment_status === 'unpaid',
         hasWarning: new Date(bill.due_date) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) && bill.payment_status === 'unpaid',
-        includedInCashFlow: true,
         linkedCashInAccount: "",
         toPay: bill.to_pay || "",
       }));
@@ -212,7 +218,7 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
         <TableBody>
           {bills.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                 No bills found. Upload your first bill to get started.
               </TableCell>
             </TableRow>
