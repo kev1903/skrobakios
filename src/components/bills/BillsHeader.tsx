@@ -1,12 +1,13 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
 
 interface BillsHeaderProps {
   onNavigate?: (page: string) => void;
+  onUploadClick?: () => void;
 }
 
-export const BillsHeader = ({ onNavigate }: BillsHeaderProps) => {
+export const BillsHeader = ({ onNavigate, onUploadClick }: BillsHeaderProps) => {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between">
@@ -26,8 +27,12 @@ export const BillsHeader = ({ onNavigate }: BillsHeaderProps) => {
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <Button className="flex items-center space-x-2">
-            <span>Create Bill</span>
+          <Button 
+            onClick={onUploadClick}
+            className="flex items-center space-x-2"
+          >
+            <Upload className="w-4 h-4" />
+            <span>Upload Bill</span>
           </Button>
         </div>
       </div>
