@@ -38,17 +38,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("FIN001 knowledge found:", knowledge.title);
 
-    // Fetch all unpaid bills with stakeholder details
+    // Fetch all unpaid bills
     const { data: bills, error: billsError } = await supabase
       .from("bills")
-      .select(`
-        *,
-        stakeholder:to_pay (
-          id,
-          display_name,
-          primary_email
-        )
-      `)
+      .select("*")
       .eq("payment_status", "unpaid")
       .not("to_pay", "is", null);
 
@@ -62,16 +55,52 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Found ${bills?.length || 0} unpaid bills with payers assigned`);
 
+    // Fetch stakeholders for all to_pay IDs
+    const payerIds = [...new Set(bills?.map(b => b.to_pay).filter(Boolean))] as string[];
+    
+    if (payerIds.length === 0) {
+      console.log("No payer IDs found");
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "No bills with assigned payers",
+          results: [] 
+        }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const { data: stakeholders, error: stakeholdersError } = await supabase
+      .from("stakeholders")
+      .select("id, display_name, primary_email")
+      .in("id", payerIds);
+
+    if (stakeholdersError) {
+      console.error("Error fetching stakeholders:", stakeholdersError);
+      return new Response(
+        JSON.stringify({ error: "Failed to fetch stakeholder details" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Create a map of stakeholder ID to email
+    const stakeholderMap = stakeholders?.reduce((acc: Record<string, any>, s) => {
+      acc[s.id] = s;
+      return acc;
+    }, {}) || {};
+
     // Group bills by payer email
     const billsByPayer = bills?.reduce((acc: Record<string, any[]>, bill) => {
-      const payerEmail = bill.stakeholder?.primary_email;
+      const stakeholder = stakeholderMap[bill.to_pay];
+      const payerEmail = stakeholder?.primary_email;
+      
       if (payerEmail) {
         if (!acc[payerEmail]) {
           acc[payerEmail] = [];
         }
         acc[payerEmail].push(bill);
       } else {
-        console.warn(`Bill ${bill.id} has to_pay set but no stakeholder email found`);
+        console.warn(`Bill ${bill.id} has to_pay ${bill.to_pay} but no stakeholder email found`);
       }
       return acc;
     }, {}) || {};
