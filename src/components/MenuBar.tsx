@@ -568,55 +568,57 @@ const barRef = useRef<HTMLDivElement>(null);
               </h1>
             </div>
 
-            {/* Current Project Badge - Modern Style */}
-            {currentProject && (
-              <Popover open={projectSwitcherOpen} onOpenChange={setProjectSwitcherOpen}>
-                <PopoverTrigger asChild>
-                  <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2 hover:bg-slate-100 hover:shadow-sm cursor-pointer transition-all duration-200">
-                    <div className="flex flex-col flex-1">
-                      <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-                        {currentProject.project_id} - {currentProject.name}
-                      </span>
-                    </div>
-                    <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+            {/* Project Selector - Always visible */}
+            <Popover open={projectSwitcherOpen} onOpenChange={setProjectSwitcherOpen}>
+              <PopoverTrigger asChild>
+                <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2 hover:bg-slate-100 hover:shadow-sm cursor-pointer transition-all duration-200">
+                  <div className="flex flex-col flex-1">
+                    <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                      {currentProject ? (
+                        `${currentProject.project_id} - ${currentProject.name}`
+                      ) : (
+                        "Select Project"
+                      )}
+                    </span>
                   </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0 bg-white/95 backdrop-blur-xl border border-border/30 shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-xl" align="start">
-                  <Command>
-                    <CommandInput 
-                      placeholder="Search projects..." 
-                      value={projectSearchQuery}
-                      onValueChange={setProjectSearchQuery}
-                    />
-                    <CommandList>
-                      <CommandEmpty>
-                        {loadingProjects ? "Loading projects..." : "No projects found."}
-                      </CommandEmpty>
-                      <CommandGroup>
-                        {filteredProjects.map((project) => (
-                          <CommandItem
-                            key={project.id}
-                            value={project.id}
-                            onSelect={() => handleProjectSwitch(project)}
-                            className="px-3 py-2 hover:bg-accent/30 rounded-md cursor-pointer"
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4 text-luxury-gold",
-                                currentProject?.id === project.id ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            <span className="text-sm">
-                              {project.project_id} - {project.name}
-                            </span>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            )}
+                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-[400px] p-0 bg-white/95 backdrop-blur-xl border border-border/30 shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-xl z-[12000]" align="start">
+                <Command>
+                  <CommandInput 
+                    placeholder="Search projects..." 
+                    value={projectSearchQuery}
+                    onValueChange={setProjectSearchQuery}
+                  />
+                  <CommandList>
+                    <CommandEmpty>
+                      {loadingProjects ? "Loading projects..." : "No projects found."}
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {filteredProjects.map((project) => (
+                        <CommandItem
+                          key={project.id}
+                          value={project.id}
+                          onSelect={() => handleProjectSwitch(project)}
+                          className="px-3 py-2 hover:bg-accent/30 rounded-md cursor-pointer"
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4 text-luxury-gold",
+                              currentProject?.id === project.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <span className="text-sm">
+                            {project.project_id} - {project.name}
+                          </span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Right side - Navigation icons and actions */}
