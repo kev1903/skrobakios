@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { BillsHeader } from "./bills/BillsHeader";
-import { BillsSummaryCards } from "./bills/BillsSummaryCards";
-import { BillsChart } from "./bills/BillsChart";
-import { BillsWarningBanner } from "./bills/BillsWarningBanner";
 import { BillsTable } from "./bills/BillsTable";
 import { CompanyBillPDFUploader } from "./bills/CompanyBillPDFUploader";
 
@@ -19,9 +16,6 @@ export const BillsPage = ({ onNavigate }: BillsPageProps) => {
         <BillsHeader 
           onUploadClick={() => setIsUploadDialogOpen(true)}
         />
-        <BillsSummaryCards />
-        <BillsChart />
-        <BillsWarningBanner />
         <BillsTable />
       </div>
 
