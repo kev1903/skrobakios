@@ -58,26 +58,10 @@ export const InvoicesHeader = ({
   
   return (
     <div className="space-y-6">
-      {/* Header with breadcrumb */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleBackClick} 
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Finance</span>
-          </Button>
-        </div>
-      </div>
-
       {/* Title and Actions */}
       <div>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <p className="text-sm text-primary mb-1">Sales overview ›</p>
             <h1 className="text-3xl font-bold text-foreground">Invoices</h1>
           </div>
         </div>
