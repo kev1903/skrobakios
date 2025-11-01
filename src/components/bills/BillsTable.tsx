@@ -10,8 +10,10 @@ import { BillsTableControls } from "./BillsTableControls";
 import { BillsTableHeader } from "./BillsTableHeader";
 import { BillsTableRow } from "./BillsTableRow";
 import { BillsTableFooter } from "./BillsTableFooter";
+import { BillsMobileCard } from "./BillsMobileCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useScreenSize } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
 
 interface BillsTableProps {
@@ -24,6 +26,9 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
   const [bills, setBills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const screenSize = useScreenSize();
+  const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
+  const isTablet = screenSize === 'tablet';
 
   useEffect(() => {
     fetchBills();
@@ -229,15 +234,50 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-8 flex items-center justify-center">
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-border/30 p-8 flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-luxury-gold mr-2" />
         <span className="text-sm text-muted-foreground">Loading bills...</span>
       </div>
     );
   }
 
+  // Mobile view
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        <BillsTableControls 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+
+        {bills.length === 0 ? (
+          <div className="bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl p-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              No bills found. Upload your first bill to get started.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {bills.map((bill) => (
+              <BillsMobileCard
+                key={bill.id}
+                bill={bill}
+                isSelected={selectedBills.includes(bill.id)}
+                onSelect={handleSelectBill}
+                onAccountLinkChange={handleAccountLinkChange}
+                onToPayChange={handleToPayChange}
+                onDelete={handleDeleteBill}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop/Tablet view
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
+    <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-border/30 shadow-sm">
       <BillsTableControls 
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
