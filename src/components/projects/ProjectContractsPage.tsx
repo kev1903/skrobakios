@@ -644,80 +644,65 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       if (ownersError) throw ownersError;
 
       if (!allOwners || allOwners.length === 0) {
-        // No owners, check if we need to delete existing stakeholder
+        // No owners, delete all client stakeholders for this project
         const { error: deleteError } = await supabase
           .from('stakeholders')
           .delete()
           .eq('company_id', project.company_id)
           .eq('category', 'client')
-          .like('display_name', `%${project.name}%`);
+          .contains('tags', ['Project Owner']);
         
         return;
       }
 
-      // Combine owner names based on count
-      let displayName = '';
-      let primaryContactName = '';
-      let primaryEmail = '';
-      let primaryPhone = '';
-      let abn = '';
+      // Create individual stakeholder for each owner
+      for (const owner of allOwners) {
+        const displayName = owner.name;
+        const primaryEmail = owner.email || '';
+        const primaryPhone = owner.mobile || owner.work_phone || owner.home_phone || '';
+        const abn = owner.abn || '';
 
-      if (allOwners.length === 1) {
-        displayName = allOwners[0].name;
-        primaryContactName = allOwners[0].name;
-        primaryEmail = allOwners[0].email || '';
-        primaryPhone = allOwners[0].mobile || allOwners[0].work_phone || allOwners[0].home_phone || '';
-        abn = allOwners[0].abn || '';
-      } else {
-        // Combine multiple owners as "Owner 1 and Owner 2"
-        const ownerNames = allOwners.map((owner, idx) => `Owner ${idx + 1}`).join(' and ');
-        displayName = ownerNames;
-        primaryContactName = allOwners[0].name; // Use first owner as primary
-        primaryEmail = allOwners[0].email || '';
-        primaryPhone = allOwners[0].mobile || allOwners[0].work_phone || allOwners[0].home_phone || '';
-        abn = allOwners[0].abn || '';
+        // Check if stakeholder already exists for this owner
+        const { data: existingStakeholder } = await supabase
+          .from('stakeholders')
+          .select('id')
+          .eq('company_id', project.company_id)
+          .eq('category', 'client')
+          .ilike('display_name', displayName)
+          .maybeSingle();
+
+        const stakeholderData = {
+          company_id: project.company_id,
+          display_name: displayName,
+          category: 'client' as const,
+          primary_contact_name: displayName,
+          primary_email: primaryEmail,
+          primary_phone: primaryPhone,
+          abn: abn,
+          status: 'active' as const,
+          compliance_status: 'valid' as const,
+          tags: ['Client', 'Project Owner'],
+        };
+
+        if (existingStakeholder) {
+          // Update existing stakeholder
+          const { error: updateError } = await supabase
+            .from('stakeholders')
+            .update(stakeholderData)
+            .eq('id', existingStakeholder.id);
+
+          if (updateError) throw updateError;
+        } else {
+          // Create new stakeholder
+          const { error: insertError } = await supabase
+            .from('stakeholders')
+            .insert(stakeholderData);
+
+          if (insertError) throw insertError;
+        }
       }
 
-      // Check if stakeholder already exists for this project
-      const { data: existingStakeholder } = await supabase
-        .from('stakeholders')
-        .select('id')
-        .eq('company_id', project.company_id)
-        .eq('category', 'client')
-        .ilike('display_name', displayName)
-        .maybeSingle();
-
-      const stakeholderData = {
-        company_id: project.company_id,
-        display_name: displayName,
-        category: 'client' as const,
-        primary_contact_name: primaryContactName,
-        primary_email: primaryEmail,
-        primary_phone: primaryPhone,
-        abn: abn,
-        status: 'active' as const,
-        compliance_status: 'valid' as const,
-        tags: ['Client', 'Project Owner'],
-      };
-
-      if (existingStakeholder) {
-        // Update existing stakeholder
-        const { error: updateError } = await supabase
-          .from('stakeholders')
-          .update(stakeholderData)
-          .eq('id', existingStakeholder.id);
-
-        if (updateError) throw updateError;
-      } else {
-        // Create new stakeholder
-        const { error: insertError } = await supabase
-          .from('stakeholders')
-          .insert(stakeholderData);
-
-        if (insertError) throw insertError;
-      }
-
-      console.log('Synced owners to stakeholder as client');
+      console.log('Synced owners to stakeholders as individual clients');
     } catch (error) {
       console.error('Error syncing owners to stakeholder:', error);
       // Don't show error toast as this is a background operation
