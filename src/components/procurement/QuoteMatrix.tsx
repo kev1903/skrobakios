@@ -100,13 +100,17 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   // Load WBS items from database
   const { wbsItems, loading: wbsLoading } = useWBS(projectId);
   
-  // Load suppliers from stakeholders database
-  const { stakeholders: suppliers, loading: suppliersLoading } = useStakeholders({
+  // Load stakeholders from database (subcontractors, suppliers, and consultants)
+  const { stakeholders: allStakeholders, loading: suppliersLoading } = useStakeholders({
     companyId: currentCompany?.id,
-    category: 'supplier',
     status: ['active'],
     enabled: !!currentCompany?.id,
   });
+
+  // Filter to only include subcontractor, supplier, and consultant (exclude client and trade)
+  const suppliers = allStakeholders.filter(
+    stakeholder => ['subcontractor', 'supplier', 'consultant'].includes(stakeholder.category)
+  );
 
   // Expand all WBS items by default
   useEffect(() => {
@@ -366,11 +370,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   };
 
   const handleAddNewVendor = () => {
-    // Navigate to stakeholders page to add a new supplier
+    // Navigate to stakeholders page to add a new stakeholder
     if (onNavigate) {
-      onNavigate('stakeholders', { category: 'supplier' });
+      onNavigate('stakeholders');
     } else {
-      toast.info('Please add suppliers via the Stakeholders page');
+      toast.info('Please add stakeholders via the Stakeholders page');
     }
     setOpenVendorPicker(null);
   };
@@ -402,7 +406,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3 w-10"></TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3 w-24">RFQ #</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3 min-w-[200px]">WBS/Activity</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3 text-center w-24">Suppliers</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3 text-center w-24">Stakeholders</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3 text-center w-28">Due Date</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3 text-center w-24">Responses</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3 text-center w-28">Status</TableHead>
@@ -541,7 +545,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                                       <div className="flex items-center border-b px-3">
                                         <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                                         <CommandInput 
-                                          placeholder="Search suppliers..." 
+                                          placeholder="Search stakeholders..." 
                                           value={vendorSearchQuery}
                                           onValueChange={setVendorSearchQuery}
                                           className="border-0 focus:ring-0"
@@ -550,11 +554,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                                       <CommandList className="max-h-64">
                                         {suppliersLoading ? (
                                           <div className="py-6 text-center text-sm text-muted-foreground">
-                                            Loading suppliers...
+                                            Loading stakeholders...
                                           </div>
                                         ) : suppliers.length === 0 ? (
                                           <div className="py-6 px-4 text-center">
-                                            <p className="text-sm text-muted-foreground mb-3">No suppliers in database yet.</p>
+                                            <p className="text-sm text-muted-foreground mb-3">No stakeholders in database yet.</p>
                                             <Button
                                               variant="outline"
                                               size="sm"
@@ -562,12 +566,12 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                                               className="gap-2"
                                             >
                                               <UserPlus className="h-4 w-4" />
-                                              Add Supplier
+                                              Add Stakeholder
                                             </Button>
                                           </div>
                                         ) : filteredSuppliers.length === 0 ? (
                                           <div className="py-6 px-4 text-center">
-                                            <p className="text-sm text-muted-foreground mb-3">No suppliers match "{vendorSearchQuery}"</p>
+                                            <p className="text-sm text-muted-foreground mb-3">No stakeholders match "{vendorSearchQuery}"</p>
                                             <Button
                                               variant="outline"
                                               size="sm"
@@ -575,12 +579,12 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                                               className="gap-2"
                                             >
                                               <UserPlus className="h-4 w-4" />
-                                              Add New Supplier
+                                              Add New Stakeholder
                                             </Button>
                                           </div>
                                         ) : (
                                           <>
-                                            <CommandGroup heading="Suppliers" className="p-2">
+                                            <CommandGroup heading="Stakeholders" className="p-2">
                                               {filteredSuppliers.map((supplier) => (
                                                 <CommandItem
                                                   key={supplier.id}
@@ -612,7 +616,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                                                 className="flex items-center gap-2 px-2 py-2 cursor-pointer rounded-lg hover:bg-luxury-gold/10 text-luxury-gold font-medium transition-colors"
                                               >
                                                 <UserPlus className="h-4 w-4" />
-                                                <span>Add New Supplier</span>
+                                                <span>Add New Stakeholder</span>
                                               </CommandItem>
                                             </CommandGroup>
                                           </>
