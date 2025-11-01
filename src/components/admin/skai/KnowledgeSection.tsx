@@ -218,6 +218,14 @@ export const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
           </DialogHeader>
           {selectedEntry && (
             <div className="space-y-4">
+              {selectedEntry.prompt_id && (
+                <div className="bg-muted/50 p-3 rounded-lg">
+                  <span className="font-semibold">Prompt Knowledge ID: </span>
+                  <code className="font-mono text-sm bg-background px-2 py-1 rounded">
+                    {selectedEntry.prompt_id}
+                  </code>
+                </div>
+              )}
               {selectedEntry.category && (
                 <div>
                   <span className="font-semibold">Category: </span>
