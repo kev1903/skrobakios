@@ -2224,6 +2224,7 @@ export type Database = {
         Row: {
           account_id: string | null
           allocated_amount: number | null
+          company_id: string | null
           created_at: string
           id: string
           invoice_id: string
@@ -2235,6 +2236,7 @@ export type Database = {
         Insert: {
           account_id?: string | null
           allocated_amount?: number | null
+          company_id?: string | null
           created_at?: string
           id?: string
           invoice_id: string
@@ -2246,6 +2248,7 @@ export type Database = {
         Update: {
           account_id?: string | null
           allocated_amount?: number | null
+          company_id?: string | null
           created_at?: string
           id?: string
           invoice_id?: string
@@ -2254,7 +2257,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoice_allocations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoice_items: {
         Row: {
@@ -6971,6 +6982,7 @@ export type Database = {
       xero_invoices: {
         Row: {
           amount_due: number | null
+          company_id: string | null
           contact_name: string | null
           created_at: string
           currency_code: string | null
@@ -6991,6 +7003,7 @@ export type Database = {
         }
         Insert: {
           amount_due?: number | null
+          company_id?: string | null
           contact_name?: string | null
           created_at?: string
           currency_code?: string | null
@@ -7011,6 +7024,7 @@ export type Database = {
         }
         Update: {
           amount_due?: number | null
+          company_id?: string | null
           contact_name?: string | null
           created_at?: string
           currency_code?: string | null
@@ -7029,7 +7043,15 @@ export type Database = {
           user_id?: string
           xero_invoice_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "xero_invoices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       xero_oauth_states: {
         Row: {

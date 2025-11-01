@@ -61,9 +61,46 @@ export const InvoicesTable = () => {
   const fetchInvoices = async () => {
     try {
       setLoading(true);
+      
+      // Get user's company_id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data: memberData, error: memberError } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      console.log('Invoices table - company lookup:', { memberData, memberError, userId: user.id });
+
+      if (memberError) {
+        console.error('Error fetching company membership:', memberError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch company information",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (!memberData || memberData.length === 0) {
+        console.warn('No active company membership found');
+        setLoading(false);
+        return;
+      }
+
+      const companyId = memberData[0].company_id;
+
       const { data, error } = await supabase
         .from('xero_invoices')
         .select('*')
+        .eq('company_id', companyId)
         .eq('type', 'ACCREC') // Filter for accounts receivable invoices only
         .order('created_at', { ascending: false });
 
@@ -92,9 +129,24 @@ export const InvoicesTable = () => {
 
   const fetchAllocatedInvoices = async () => {
     try {
+      // Get user's company_id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: memberData } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (!memberData || memberData.length === 0) return;
+      const companyId = memberData[0].company_id;
+
       const { data, error } = await supabase
         .from('invoice_allocations')
-        .select('invoice_id');
+        .select('invoice_id')
+        .eq('company_id', companyId);
 
       if (error) {
         console.error('Error fetching allocated invoices:', error);
