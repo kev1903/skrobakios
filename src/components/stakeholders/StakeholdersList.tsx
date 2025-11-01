@@ -212,7 +212,7 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
       const headers = [
         'Display Name',
         'Category', 
-        'Trade/Industry',
+        'Sub Contractor',
         'Status',
         'Compliance Status',
         'Tags'

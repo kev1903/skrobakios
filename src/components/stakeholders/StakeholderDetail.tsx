@@ -313,7 +313,7 @@ export const StakeholderDetail: React.FC<StakeholderDetailProps> = ({
                   <p className="capitalize">{stakeholder.category}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Trade/Industry</label>
+                  <label className="text-sm font-medium text-muted-foreground">Sub Contractor</label>
                   <p>{stakeholder.trade_industry || '-'}</p>
                 </div>
                 <div>

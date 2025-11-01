@@ -290,7 +290,7 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
 
               {(formData.category === 'trade' || formData.category === 'subcontractor') && (
                 <div className="space-y-2">
-                  <Label htmlFor="trade_industry">Industry/Specialization</Label>
+                  <Label htmlFor="trade_industry">Sub Contractor</Label>
                   <Input
                     id="trade_industry"
                     value={formData.trade_industry || ''}
