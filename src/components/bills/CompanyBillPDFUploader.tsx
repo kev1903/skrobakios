@@ -238,6 +238,18 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Get company_id for context
+      const { data: memberData } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      const companyId = memberData?.company_id;
+
       const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
       const sanitizedFileName = file.name
         .replace(/[^a-zA-Z0-9._-]/g, '_')
@@ -279,8 +291,11 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         signed_url: fullSignedUrl,
         filename: sanitizedFileName,
         filesize: file.size,
-        storage_path: uploadData.path
+        storage_path: uploadData.path,
+        company_id: companyId // Pass company_id for project/WBS matching
       };
+      
+      console.log('📤 Sending to edge function with company_id:', companyId);
       
       const processingData = await invokeEdge('process-invoice', requestBody);
 
