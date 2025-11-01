@@ -212,27 +212,28 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       
       setExtractedData(extraction);
       
-      const confidenceScore = extraction.confidence || 
-        (extraction.supplier_name && extraction.bill_no && extraction.total ? 85 : 60);
+      const confidenceScore = extraction.ai_confidence 
+        ? Math.round(extraction.ai_confidence * 100)
+        : (extraction.supplier && extraction.invoice_number && extraction.total ? 85 : 60);
       setConfidence(confidenceScore);
 
       const formattedData: ExtractedBillData = {
-        supplier_name: extraction.supplier_name || '',
+        supplier_name: extraction.supplier || '',
         supplier_email: extraction.supplier_email || '',
-        bill_no: extraction.bill_no || '',
+        bill_no: extraction.invoice_number || '',
         due_date: extraction.due_date || '',
-        bill_date: extraction.bill_date || '',
+        bill_date: extraction.invoice_date || '',
         reference_number: extraction.reference_number || '',
-        notes: extraction.notes || '',
-        subtotal: parseFloat(extraction.subtotal) || 0,
-        tax: parseFloat(extraction.tax) || 0,
-        total: parseFloat(extraction.total) || 0,
+        notes: extraction.ai_summary || '',
+        subtotal: parseFloat(extraction.subtotal || '0') || 0,
+        tax: parseFloat(extraction.tax || '0') || 0,
+        total: parseFloat(extraction.total || '0') || 0,
         line_items: Array.isArray(extraction.line_items) 
           ? extraction.line_items.map((item: any) => ({
               description: item.description || '',
-              qty: parseFloat(item.qty) || 0,
-              rate: parseFloat(item.rate) || 0,
-              amount: parseFloat(item.amount) || 0,
+              qty: parseFloat(item.qty || '0') || 0,
+              rate: parseFloat(item.rate || '0') || 0,
+              amount: parseFloat(item.amount || '0') || 0,
               tax_code: item.tax_code || 'NONE'
             }))
           : []
