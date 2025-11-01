@@ -5009,6 +5009,7 @@ export type Database = {
           last_processed_at: string | null
           metadata: Json | null
           processing_status: string | null
+          prompt_id: string | null
           source_ids: Json | null
           tags: string[] | null
           title: string
@@ -5028,6 +5029,7 @@ export type Database = {
           last_processed_at?: string | null
           metadata?: Json | null
           processing_status?: string | null
+          prompt_id?: string | null
           source_ids?: Json | null
           tags?: string[] | null
           title: string
@@ -5047,6 +5049,7 @@ export type Database = {
           last_processed_at?: string | null
           metadata?: Json | null
           processing_status?: string | null
+          prompt_id?: string | null
           source_ids?: Json | null
           tags?: string[] | null
           title?: string

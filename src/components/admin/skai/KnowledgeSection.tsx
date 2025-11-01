@@ -13,6 +13,7 @@ type KnowledgeType = 'business' | 'industry' | 'project';
 interface KnowledgeEntry {
   id: string;
   title: string;
+  prompt_id?: string;
   content: string;
   category?: string;
   tags: string[];

@@ -7,6 +7,7 @@ import { Edit, Trash2, Eye } from "lucide-react";
 interface KnowledgeEntry {
   id: string;
   title: string;
+  prompt_id?: string;
   content: string;
   category?: string;
   tags: string[];
@@ -43,9 +44,16 @@ export const KnowledgeList: React.FC<KnowledgeListProps> = ({
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <CardTitle className="text-lg">{entry.title}</CardTitle>
+                <div className="flex items-center gap-3 mb-2">
+                  <CardTitle className="text-lg">{entry.title}</CardTitle>
+                  {entry.prompt_id && (
+                    <Badge variant="secondary" className="font-mono text-xs">
+                      ID: {entry.prompt_id}
+                    </Badge>
+                  )}
+                </div>
                 {entry.category && (
-                  <Badge variant="outline" className="mt-2">
+                  <Badge variant="outline" className="mt-1">
                     {entry.category}
                   </Badge>
                 )}
