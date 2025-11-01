@@ -68,32 +68,50 @@ export class WBSService {
 
   // Create a new WBS item
   static async createWBSItem(itemData: WBSItemInput & { sort_order?: number }): Promise<any> {
+    console.log('🔍 WBSService.createWBSItem called with:', itemData);
+    
+    // Validate required fields
+    if (!itemData.company_id) {
+      throw new Error('company_id is required');
+    }
+    if (!itemData.project_id) {
+      throw new Error('project_id is required');
+    }
+    if (!itemData.wbs_id) {
+      throw new Error('wbs_id is required');
+    }
+    if (itemData.title === undefined || itemData.title === null) {
+      throw new Error('title is required');
+    }
+    
     const insertData = {
       company_id: itemData.company_id,
       project_id: itemData.project_id,
       parent_id: itemData.parent_id || null,
       wbs_id: itemData.wbs_id,
-      title: itemData.title,
-      description: itemData.description,
-      assigned_to: itemData.assigned_to,
-      start_date: itemData.start_date,
-      end_date: itemData.end_date,
-      duration: itemData.duration,
-      budgeted_cost: itemData.budgeted_cost,
-      actual_cost: itemData.actual_cost,
-      progress: itemData.progress,
-      status: itemData.status,
-      health: itemData.health,
-      progress_status: itemData.progress_status,
-      at_risk: itemData.at_risk,
-      level: itemData.level,
-      category: itemData.category,
-      priority: itemData.priority,
+      title: itemData.title || '', // Ensure title is never null
+      description: itemData.description || '',
+      assigned_to: itemData.assigned_to || null,
+      start_date: itemData.start_date || null,
+      end_date: itemData.end_date || null,
+      duration: itemData.duration ?? 0,
+      budgeted_cost: itemData.budgeted_cost ?? 0,
+      actual_cost: itemData.actual_cost ?? 0,
+      progress: itemData.progress ?? 0,
+      status: itemData.status || 'Not Started',
+      health: itemData.health || 'Good',
+      progress_status: itemData.progress_status || 'On Track',
+      at_risk: itemData.at_risk ?? false,
+      level: itemData.level ?? 0,
+      category: itemData.category || null,
+      priority: itemData.priority || 'Medium',
       is_expanded: itemData.is_expanded !== undefined ? Boolean(itemData.is_expanded) : true,
       predecessors: (itemData.predecessors || []) as any,
-      linked_tasks: itemData.linked_tasks,
-      sort_order: itemData.sort_order
+      linked_tasks: itemData.linked_tasks || [],
+      sort_order: itemData.sort_order ?? null
     };
+
+    console.log('📝 Inserting WBS item with data:', insertData);
 
     const { data, error } = await supabase
       .from('wbs_items')
@@ -101,7 +119,12 @@ export class WBSService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Supabase insert error:', error);
+      throw new Error(`Database error: ${error.message}`);
+    }
+    
+    console.log('✅ WBS item created successfully:', data);
     return data;
   }
 

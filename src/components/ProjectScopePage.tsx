@@ -37,6 +37,7 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { renumberAllWBSItems, buildHierarchy } from '@/utils/wbsUtils';
 import { WBSService } from '@/services/wbsService';
 import { useWBS, WBSItem } from '@/hooks/useWBS';
+import { WBSItemInput } from '@/types/wbs';
 import { SimpleTeamAssignment } from '@/components/tasks/enhanced/SimpleTeamAssignment';
 import { DocumentChatBar } from '@/components/project/DocumentChatBar';
 
@@ -712,20 +713,30 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       case 'insert-below':
         // Insert a new row as a sibling below the selected item at the same level
         try {
+          if (!item) {
+            throw new Error('Item not found');
+          }
+
+          if (!currentCompany?.id) {
+            throw new Error('Company ID not found');
+          }
+          
           // Get all items in flat structure to find correct position
           const allFlatItems = flatWBSItems;
           const currentItemIndex = allFlatItems.findIndex(i => i.id === itemId);
           
           if (currentItemIndex === -1) {
-            throw new Error('Item not found');
+            throw new Error('Item not found in flat list');
           }
           
+          console.log('🔵 Insert below item:', { itemId, item, currentItemIndex, level: item.level });
+          
           // Get the selected item's sort_order or created_at
-          const currentSortOrder = (item as any).sort_order || currentItemIndex;
+          const currentSortOrder = (item as any).sort_order ?? currentItemIndex;
           
           // Find the next item (any item that comes after this one in the flat list)
           const nextItem = allFlatItems[currentItemIndex + 1];
-          const nextSortOrder = nextItem ? ((nextItem as any).sort_order || currentItemIndex + 1) : currentSortOrder + 1;
+          const nextSortOrder = nextItem ? ((nextItem as any).sort_order ?? currentItemIndex + 1) : currentSortOrder + 1;
           
           // Calculate sort_order to be between current and next
           const newSortOrder = (currentSortOrder + nextSortOrder) / 2;
@@ -735,43 +746,63 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           if (item.level === 0) {
             // Root level: find max root WBS ID and add 1
             const rootItems = flatWBSItems.filter(i => i.level === 0);
-            const maxRootNum = Math.max(...rootItems.map(i => parseInt(i.wbs_id?.split('.')[0] || '0')), 0);
+            const maxRootNum = Math.max(...rootItems.map(i => {
+              const firstPart = i.wbs_id?.split('.')[0];
+              return parseInt(firstPart || '0');
+            }), 0);
             newWbsId = `${maxRootNum + 1}`;
+            console.log('🔵 Generated root WBS ID:', newWbsId, 'from max:', maxRootNum);
           } else {
             // Child level: find max sibling WBS ID and add 1
             const siblings = flatWBSItems.filter(i => 
               i.parent_id === item.parent_id && i.level === item.level
             );
-            const wbsPrefix = item.wbs_id.split('.').slice(0, -1).join('.');
+            
+            if (!item.wbs_id) {
+              throw new Error('Parent item has no WBS ID');
+            }
+            
+            const wbsParts = item.wbs_id.split('.');
+            const wbsPrefix = wbsParts.slice(0, -1).join('.');
             const maxSiblingNum = Math.max(...siblings.map(i => {
               const lastPart = i.wbs_id?.split('.').pop();
               return parseInt(lastPart || '0');
             }), 0);
-            newWbsId = `${wbsPrefix}.${maxSiblingNum + 1}`;
+            newWbsId = wbsPrefix ? `${wbsPrefix}.${maxSiblingNum + 1}` : `${maxSiblingNum + 1}`;
+            console.log('🔵 Generated child WBS ID:', newWbsId, 'from prefix:', wbsPrefix, 'max sibling:', maxSiblingNum);
           }
           
-          // Create the new sibling item with proper sort_order
-          await createWBSItem({
+          const newItemData: WBSItemInput = {
             company_id: currentCompany.id,
             project_id: project.id,
-            parent_id: item.parent_id,
+            parent_id: item.parent_id || null,
             title: '',
+            description: '',
             level: item.level,
             wbs_id: newWbsId,
             is_expanded: true,
             linked_tasks: [],
-            sort_order: newSortOrder,
-          } as any);
+          };
+
+          console.log('🔵 Creating new WBS item with data:', newItemData);
           
-          toast({
-            title: "Row Inserted",
-            description: "New row added below selected item",
-          });
+          const result = await createWBSItem(newItemData);
+          
+          if (result) {
+            console.log('✅ Successfully created WBS item:', result.id);
+            toast({
+              title: "Row Inserted",
+              description: "New row added below selected item",
+            });
+          } else {
+            throw new Error('Failed to create WBS item - no result returned');
+          }
         } catch (error) {
-          console.error('Error inserting row below:', error);
+          console.error('❌ Error inserting row below:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Failed to insert row';
           toast({
             title: "Error",
-            description: "Failed to insert row. Please try again.",
+            description: errorMessage,
             variant: "destructive",
           });
         }
