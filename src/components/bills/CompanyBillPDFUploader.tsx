@@ -314,6 +314,19 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
           : []
       };
 
+      console.log('=== EXTRACTED DATA ===');
+      console.log('Project ID from AI:', extraction.project_id);
+      console.log('WBS Activity ID from AI:', extraction.wbs_activity_id);
+      console.log('Project Match Reason:', extraction.project_match_reason);
+      console.log('Available projects:', projects.length);
+      console.log('Projects:', projects);
+
+      // Validate that project_id matches an actual project
+      if (extraction.project_id) {
+        const projectExists = projects.find(p => p.id === extraction.project_id);
+        console.log('Project exists in list?', !!projectExists, projectExists);
+      }
+
       setEditableData(formattedData);
       setUploadProgress(100);
       setExtracting(false);

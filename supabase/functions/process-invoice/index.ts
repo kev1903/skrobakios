@@ -204,9 +204,22 @@ serve(async (req) => {
         if (projectsRes.ok) {
           const projects = await projectsRes.json();
           if (projects.length > 0) {
+            console.log('=== PROJECTS CONTEXT FOR AI ===');
+            console.log('Number of projects:', projects.length);
+            projects.forEach((p: any) => {
+              console.log(`Project: ${p.name} | UUID: ${p.id} | Code: ${p.project_id}`);
+            });
+            
             projectsContext = '\n\n=== AVAILABLE PROJECTS TO MATCH ===\n' + 
-              'Look for ANY keywords from these project names in the invoice content (partial matches are OK):\n' +
-              projects.map((p: any) => `- UUID: ${p.id}\n  Code: ${p.project_id}\n  Name: ${p.name}\n  Keywords to look for: ${p.name.toLowerCase()}, ${p.project_id.toLowerCase()}`).join('\n\n');
+              'CRITICAL: You MUST return the exact UUID from below. DO NOT generate fake placeholder UUIDs!\n' +
+              'Look for ANY keywords from these project names in the invoice content (partial matches are OK):\n\n' +
+              projects.map((p: any) => 
+                `PROJECT:\n` +
+                `  UUID (RETURN THIS EXACT STRING): ${p.id}\n` +
+                `  Project Code: ${p.project_id}\n` +
+                `  Project Name: ${p.name}\n` +
+                `  Keywords to search: ${p.name.toLowerCase()}, ${p.project_id.toLowerCase()}\n`
+              ).join('\n');
             console.log(`Found ${projects.length} projects for context`);
           }
         }
