@@ -106,40 +106,45 @@ export const FinanceDashboard = () => {
 
   return (
     <div className="w-full bg-background">
-      <div className="p-8 space-y-8">
+      <div className="p-8 space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Financial Dashboard</h1>
-          <p className="text-muted-foreground">Company financial overview and key metrics</p>
+        <div className="mb-6">
+          <h1 className="text-3xl font-playfair font-bold text-foreground mb-2">Financial Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Company financial overview and key metrics</p>
         </div>
 
         {/* Alerts */}
         <FinanceAlerts />
 
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {overviewCards.map((card) => {
             const Icon = card.icon;
             return (
-              <Card key={card.title} className="border-border/50 bg-card/50 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+              <Card 
+                key={card.title} 
+                className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-200 hover:scale-[1.02]"
+              >
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 p-6">
+                  <CardTitle className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                     {card.title}
                   </CardTitle>
-                  <Icon className={`h-4 w-4 ${card.color}`} />
+                  <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center">
+                    <Icon className={`h-5 w-5 ${card.color}`} />
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground">{card.value}</div>
-                  <div className="flex items-center mt-1">
+                <CardContent className="p-6 pt-0">
+                  <div className="text-3xl font-bold font-playfair text-foreground mb-2">{card.value}</div>
+                  <div className="flex items-center">
                     {card.trend === "up" ? (
-                      <TrendingUp className="h-3 w-3 text-success mr-1" />
+                      <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
                     ) : (
-                      <TrendingDown className="h-3 w-3 text-destructive mr-1" />
+                      <TrendingDown className="h-4 w-4 text-rose-500 mr-1" />
                     )}
-                    <p className={`text-xs ${card.trend === "up" ? "text-success" : "text-destructive"}`}>
+                    <p className={`text-sm font-medium ${card.trend === "up" ? "text-emerald-500" : "text-rose-500"}`}>
                       {card.change}
                     </p>
-                    <p className="text-xs text-muted-foreground ml-2">{card.description}</p>
+                    <p className="text-sm text-muted-foreground ml-2">{card.description}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -151,33 +156,36 @@ export const FinanceDashboard = () => {
         <CashFlowSection />
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Recent Activity */}
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Activity className="w-5 h-5 text-primary" />
+          <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+            <CardHeader className="p-6">
+              <CardTitle className="flex items-center space-x-2 text-lg font-playfair">
+                <Activity className="w-5 h-5 text-luxury-gold" />
                 <span>Recent Activity</span>
               </CardTitle>
-              <CardDescription>Latest financial transactions</CardDescription>
+              <CardDescription className="text-sm">Latest financial transactions</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="p-6 pt-0">
+              <div className="space-y-3">
                 {recentActivity.map((activity, index) => {
                   const Icon = activity.icon;
                   return (
-                    <div key={index} className="flex items-start justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                    <div 
+                      key={index} 
+                      className="flex items-start justify-between p-4 rounded-xl bg-accent/20 hover:bg-accent/30 transition-all duration-200 hover:scale-[1.01]"
+                    >
                       <div className="flex items-start space-x-3">
-                        <div className={`p-2 rounded-full bg-background ${activity.color}`}>
+                        <div className={`p-2.5 rounded-full bg-white shadow-sm ${activity.color}`}>
                           <Icon className="h-4 w-4" />
                         </div>
                         <div>
                           <p className="text-sm font-medium text-foreground">{activity.title}</p>
-                          <p className="text-xs text-muted-foreground">{activity.project}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{activity.project}</p>
                           <p className="text-xs text-muted-foreground mt-1">{activity.date}</p>
                         </div>
                       </div>
-                      <p className={`text-sm font-semibold ${activity.color}`}>{activity.amount}</p>
+                      <p className={`text-sm font-semibold font-mono ${activity.color}`}>{activity.amount}</p>
                     </div>
                   );
                 })}
@@ -186,34 +194,36 @@ export const FinanceDashboard = () => {
           </Card>
 
           {/* Financial Metrics */}
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <PieChart className="w-5 h-5 text-primary" />
+          <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+            <CardHeader className="p-6">
+              <CardTitle className="flex items-center space-x-2 text-lg font-playfair">
+                <PieChart className="w-5 h-5 text-luxury-gold" />
                 <span>Key Financial Metrics</span>
               </CardTitle>
-              <CardDescription>Business health indicators</CardDescription>
+              <CardDescription className="text-sm">Business health indicators</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="p-6 pt-0">
+              <div className="space-y-3">
                 {financialMetrics.map((metric) => {
                   const Icon = metric.icon;
                   const statusColors = {
-                    healthy: "text-success",
-                    strong: "text-primary",
-                    improving: "text-warning",
-                    critical: "text-destructive"
+                    healthy: "text-emerald-500",
+                    strong: "text-luxury-gold",
+                    improving: "text-amber-500",
+                    critical: "text-rose-500"
                   };
                   
                   return (
-                    <div key={metric.label} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div key={metric.label} className="flex items-center justify-between p-4 rounded-xl bg-accent/20">
                       <div className="flex items-center space-x-3">
-                        <Icon className="h-5 w-5 text-muted-foreground" />
+                        <div className="h-10 w-10 rounded-full bg-white shadow-sm flex items-center justify-center">
+                          <Icon className="h-5 w-5 text-muted-foreground" />
+                        </div>
                         <span className="text-sm font-medium text-foreground">{metric.label}</span>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-foreground">{metric.value}</p>
-                        <p className={`text-xs capitalize ${statusColors[metric.status as keyof typeof statusColors]}`}>
+                        <p className="text-xl font-bold font-playfair text-foreground">{metric.value}</p>
+                        <p className={`text-xs font-medium capitalize ${statusColors[metric.status as keyof typeof statusColors]}`}>
                           {metric.status}
                         </p>
                       </div>

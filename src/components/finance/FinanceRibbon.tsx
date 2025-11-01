@@ -36,30 +36,30 @@ export const FinanceRibbon = ({ activeTab, onTabChange, onBack }: FinanceRibbonP
   ];
 
   return (
-    <div className="w-64 h-full bg-card/50 backdrop-blur-xl border-r border-border/50 flex flex-col flex-shrink-0">
+    <div className="w-80 h-full bg-white/80 backdrop-blur-xl border-r border-border/30 flex flex-col flex-shrink-0">
       {/* Header */}
-      <div className="p-6 border-b border-border/50">
-        <div className="flex items-center justify-between mb-4">
+      <div className="p-6 border-b border-border/30">
+        <div className="flex items-center justify-between mb-6">
           {onBack && (
             <Button
               variant="ghost"
               size="icon"
               onClick={onBack}
-              className="h-8 w-8"
+              className="h-10 w-10 rounded-full hover:scale-[1.02] transition-all duration-200 hover:bg-accent/50"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
           )}
           <div className="flex-1 text-center">
-            <h2 className="text-lg font-semibold text-foreground">Finance</h2>
+            <h2 className="text-xl font-playfair font-bold text-foreground">Finance</h2>
           </div>
         </div>
       </div>
 
       {/* Navigation Items */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-1">
-        <div className="mb-4">
-          <p className="text-xs font-medium text-muted-foreground mb-2 px-3">FINANCIAL MODULES</p>
+      <div className="flex-1 overflow-y-auto p-6 space-y-1">
+        <div className="mb-6">
+          <p className="text-[11px] font-semibold text-muted-foreground mb-3 px-3 uppercase tracking-wider">Financial Modules</p>
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -67,14 +67,23 @@ export const FinanceRibbon = ({ activeTab, onTabChange, onBack }: FinanceRibbonP
             return (
               <Button
                 key={item.id}
-                variant={isActive ? "secondary" : "ghost"}
-                className="w-full justify-start mb-1 h-10"
+                variant="ghost"
+                className={`w-full justify-start mb-1 h-14 px-6 py-4 rounded-2xl transition-all duration-200 ${
+                  isActive 
+                    ? 'bg-luxury-gold text-white shadow-md hover:shadow-lg hover:scale-[1.02]' 
+                    : 'hover:bg-accent/30 hover:scale-[1.01]'
+                }`}
                 onClick={() => onTabChange(item.id)}
               >
-                <Icon className="mr-3 h-4 w-4" />
-                <span className="flex-1 text-left">{item.label}</span>
+                <Icon className="mr-3 h-5 w-5" />
+                <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
                 {item.badge && (
-                  <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
+                  <Badge 
+                    variant="secondary" 
+                    className={`ml-2 h-6 px-2.5 text-xs rounded-full font-medium ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-muted/50'
+                    }`}
+                  >
                     {item.badge}
                   </Badge>
                 )}
@@ -83,8 +92,8 @@ export const FinanceRibbon = ({ activeTab, onTabChange, onBack }: FinanceRibbonP
           })}
         </div>
 
-        <div className="pt-4 border-t border-border/50">
-          <p className="text-xs font-medium text-muted-foreground mb-2 px-3">SETTINGS</p>
+        <div className="pt-6 border-t border-border/30">
+          <p className="text-[11px] font-semibold text-muted-foreground mb-3 px-3 uppercase tracking-wider">Settings</p>
           {supportItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -92,12 +101,16 @@ export const FinanceRibbon = ({ activeTab, onTabChange, onBack }: FinanceRibbonP
             return (
               <Button
                 key={item.id}
-                variant={isActive ? "secondary" : "ghost"}
-                className="w-full justify-start mb-1 h-10"
+                variant="ghost"
+                className={`w-full justify-start mb-1 h-14 px-6 py-4 rounded-2xl transition-all duration-200 ${
+                  isActive 
+                    ? 'bg-luxury-gold text-white shadow-md hover:shadow-lg hover:scale-[1.02]' 
+                    : 'hover:bg-accent/30 hover:scale-[1.01]'
+                }`}
                 onClick={() => onTabChange(item.id)}
               >
-                <Icon className="mr-3 h-4 w-4" />
-                <span className="flex-1 text-left">{item.label}</span>
+                <Icon className="mr-3 h-5 w-5" />
+                <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
               </Button>
             );
           })}
