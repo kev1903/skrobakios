@@ -14,7 +14,7 @@ export const ReceivablesSection = () => {
   return (
     <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
       <CardHeader className="p-6">
-        <CardTitle className="flex items-center space-x-2 text-lg font-playfair">
+        <CardTitle className="flex items-center space-x-2 text-lg font-bold">
           <FileText className="w-5 h-5 text-luxury-gold" />
           <span>Accounts Receivable Aging</span>
         </CardTitle>
@@ -41,7 +41,7 @@ export const ReceivablesSection = () => {
         <Separator className="my-4" />
         <div className="flex justify-between items-center">
           <span className="font-medium text-foreground">Total Outstanding</span>
-          <span className="text-xl font-bold font-playfair text-foreground">$170,000</span>
+          <span className="text-xl font-bold text-foreground">$170,000</span>
         </div>
         <div className="text-sm text-muted-foreground mt-1">Average DSO: 42 days</div>
       </CardContent>

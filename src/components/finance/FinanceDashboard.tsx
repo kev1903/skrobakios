@@ -109,7 +109,7 @@ export const FinanceDashboard = () => {
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-4xl font-playfair font-bold text-foreground mb-2">Financial Dashboard</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Financial Dashboard</h1>
           <p className="text-sm font-inter text-muted-foreground">Company financial overview and key metrics</p>
         </div>
 
@@ -134,7 +134,7 @@ export const FinanceDashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="p-6 pt-0">
-                  <div className="text-3xl font-bold font-playfair text-foreground mb-2">{card.value}</div>
+                  <div className="text-3xl font-bold text-foreground mb-2">{card.value}</div>
                   <div className="flex items-center">
                     {card.trend === "up" ? (
                       <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
@@ -160,7 +160,7 @@ export const FinanceDashboard = () => {
           {/* Recent Activity */}
           <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
             <CardHeader className="p-6">
-              <CardTitle className="flex items-center space-x-2 text-lg font-playfair">
+              <CardTitle className="flex items-center space-x-2 text-lg font-bold">
                 <Activity className="w-5 h-5 text-luxury-gold" />
                 <span>Recent Activity</span>
               </CardTitle>
@@ -196,7 +196,7 @@ export const FinanceDashboard = () => {
           {/* Financial Metrics */}
           <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
             <CardHeader className="p-6">
-              <CardTitle className="flex items-center space-x-2 text-lg font-playfair">
+              <CardTitle className="flex items-center space-x-2 text-lg font-bold">
                 <PieChart className="w-5 h-5 text-luxury-gold" />
                 <span>Key Financial Metrics</span>
               </CardTitle>
@@ -222,7 +222,7 @@ export const FinanceDashboard = () => {
                         <span className="text-sm font-medium text-foreground">{metric.label}</span>
                       </div>
                       <div className="text-right">
-                        <p className="text-xl font-bold font-playfair text-foreground">{metric.value}</p>
+                        <p className="text-xl font-bold text-foreground">{metric.value}</p>
                         <p className={`text-xs font-medium capitalize ${statusColors[metric.status as keyof typeof statusColors]}`}>
                           {metric.status}
                         </p>

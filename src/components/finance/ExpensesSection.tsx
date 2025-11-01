@@ -14,7 +14,7 @@ export const ExpensesSection = () => {
   return (
     <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
       <CardHeader className="p-6">
-        <CardTitle className="flex items-center space-x-2 text-lg font-playfair">
+        <CardTitle className="flex items-center space-x-2 text-lg font-bold">
           <CreditCard className="w-5 h-5 text-luxury-gold" />
           <span>Expenses vs Budget</span>
         </CardTitle>

@@ -51,7 +51,7 @@ export const CashFlowSection = () => {
             <DollarSign className="h-5 w-5 text-luxury-gold" />
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="text-3xl font-bold font-playfair text-foreground mb-2">$485,000</div>
+            <div className="text-3xl font-bold text-foreground mb-2">$485,000</div>
             <div className="flex items-center text-sm text-emerald-500 font-medium">
               <ArrowUp className="h-4 w-4 mr-1" />
               <span>5.2% from last week</span>
@@ -65,7 +65,7 @@ export const CashFlowSection = () => {
             <TrendingUp className="h-5 w-5 text-emerald-500" />
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="text-3xl font-bold font-playfair text-foreground mb-2">$59,000</div>
+            <div className="text-3xl font-bold text-foreground mb-2">$59,000</div>
             <div className="flex items-center text-sm text-emerald-500 font-medium">
               <ArrowUp className="h-4 w-4 mr-1" />
               <span>Positive trend</span>
@@ -79,7 +79,7 @@ export const CashFlowSection = () => {
             <Activity className="h-5 w-5 text-violet-500" />
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="text-3xl font-bold font-playfair text-foreground mb-2">$125K/mo</div>
+            <div className="text-3xl font-bold text-foreground mb-2">$125K/mo</div>
             <div className="flex items-center text-sm text-amber-500 font-medium">
               <ArrowUp className="h-4 w-4 mr-1" />
               <span>8% increase</span>
@@ -93,7 +93,7 @@ export const CashFlowSection = () => {
             <Clock className="h-5 w-5 text-rose-500" />
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="text-3xl font-bold font-playfair text-foreground mb-2">3.9 months</div>
+            <div className="text-3xl font-bold text-foreground mb-2">3.9 months</div>
             <div className="flex items-center text-sm text-rose-500 font-medium">
               <ArrowDown className="h-4 w-4 mr-1" />
               <span>Critical level</span>
@@ -104,7 +104,7 @@ export const CashFlowSection = () => {
 
       <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] mt-6">
         <CardHeader className="p-6">
-          <CardTitle className="text-lg font-playfair">Weekly Cash Flow Analysis</CardTitle>
+          <CardTitle className="text-lg font-bold">Weekly Cash Flow Analysis</CardTitle>
           <CardDescription className="text-sm">Cash inflow, outflow, and net position</CardDescription>
         </CardHeader>
         <CardContent className="p-6 pt-0">

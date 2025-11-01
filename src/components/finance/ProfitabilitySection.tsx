@@ -15,7 +15,7 @@ export const ProfitabilitySection = () => {
             <CardTitle className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Revenue (YTD)</CardTitle>
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="text-3xl font-bold font-playfair text-foreground mb-1">$8.2M</div>
+            <div className="text-3xl font-bold text-foreground mb-1">$8.2M</div>
             <div className="text-sm text-emerald-500 font-medium">+18.5% vs last year</div>
           </CardContent>
         </Card>
@@ -25,7 +25,7 @@ export const ProfitabilitySection = () => {
             <CardTitle className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Gross Profit</CardTitle>
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="text-3xl font-bold font-playfair text-foreground mb-1">$2.1M</div>
+            <div className="text-3xl font-bold text-foreground mb-1">$2.1M</div>
             <div className="text-sm text-muted-foreground">25.6% margin</div>
           </CardContent>
         </Card>
@@ -35,7 +35,7 @@ export const ProfitabilitySection = () => {
             <CardTitle className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Net Profit</CardTitle>
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="text-3xl font-bold font-playfair text-foreground mb-1">$820K</div>
+            <div className="text-3xl font-bold text-foreground mb-1">$820K</div>
             <div className="text-sm text-muted-foreground">10.0% margin</div>
           </CardContent>
         </Card>
@@ -45,7 +45,7 @@ export const ProfitabilitySection = () => {
             <CardTitle className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">EBITDA</CardTitle>
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="text-3xl font-bold font-playfair text-foreground mb-1">$1.15M</div>
+            <div className="text-3xl font-bold text-foreground mb-1">$1.15M</div>
             <div className="text-sm text-muted-foreground">14.0% margin</div>
           </CardContent>
         </Card>
@@ -55,7 +55,7 @@ export const ProfitabilitySection = () => {
             <CardTitle className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">ROI</CardTitle>
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="text-3xl font-bold font-playfair text-foreground mb-1">18.2%</div>
+            <div className="text-3xl font-bold text-foreground mb-1">18.2%</div>
             <div className="text-sm text-emerald-500 font-medium">Above target</div>
           </CardContent>
         </Card>

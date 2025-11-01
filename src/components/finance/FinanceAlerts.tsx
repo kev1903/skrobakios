@@ -5,9 +5,9 @@ import { AlertTriangle, Clock, TrendingDown, Target } from "lucide-react";
 export const FinanceAlerts = () => {
   return (
     <div className="mb-6">
-      <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+        <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
         <CardHeader className="pb-4 p-6 bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-rose-500/10">
-          <CardTitle className="flex items-center space-x-2 text-foreground text-lg font-playfair">
+          <CardTitle className="flex items-center space-x-2 text-foreground text-lg font-bold">
             <div className="h-10 w-10 rounded-full bg-rose-500/10 flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-rose-600" />
             </div>
