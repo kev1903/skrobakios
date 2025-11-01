@@ -91,11 +91,35 @@ export const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
           description: "Knowledge entry updated successfully"
         });
       } else {
+        // Generate auto prompt_id for new entries
+        const prefix = type === 'business' ? 'BUS' : type === 'industry' ? 'IND' : 'PRJ';
+        
+        // Get the highest number for this prefix
+        const { data: existingEntries } = await supabase
+          .from('skai_knowledge')
+          .select('prompt_id')
+          .eq('knowledge_type', type)
+          .like('prompt_id', `${prefix}-%`)
+          .order('prompt_id', { ascending: false })
+          .limit(1);
+
+        let nextNumber = 1;
+        if (existingEntries && existingEntries.length > 0 && existingEntries[0].prompt_id) {
+          const lastId = existingEntries[0].prompt_id;
+          const match = lastId.match(/-(\d+)$/);
+          if (match) {
+            nextNumber = parseInt(match[1]) + 1;
+          }
+        }
+
+        const autoPromptId = `${prefix}-${String(nextNumber).padStart(3, '0')}`;
+
         // Create new
         const { error } = await supabase
           .from('skai_knowledge')
           .insert({
             ...formData,
+            prompt_id: autoPromptId,
             knowledge_type: type,
             company_id: null,
             created_by: (await supabase.auth.getUser()).data.user?.id
@@ -105,7 +129,7 @@ export const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
         
         toast({
           title: "Success",
-          description: "Knowledge entry created successfully"
+          description: `Knowledge entry created with ID: ${autoPromptId}`
         });
       }
 

@@ -9,7 +9,6 @@ import { X } from "lucide-react";
 
 interface KnowledgeFormData {
   title: string;
-  prompt_id: string;
   content: string;
   category: string;
   tags: string[];
@@ -31,7 +30,6 @@ export const KnowledgeForm: React.FC<KnowledgeFormProps> = ({
   const { register, handleSubmit, setValue, watch } = useForm<KnowledgeFormData>({
     defaultValues: {
       title: initialData?.title || '',
-      prompt_id: initialData?.prompt_id || '',
       content: initialData?.content || '',
       category: initialData?.category || '',
       tags: initialData?.tags || []
@@ -61,19 +59,6 @@ export const KnowledgeForm: React.FC<KnowledgeFormProps> = ({
           {...register('title', { required: true })}
           placeholder="Enter knowledge title"
         />
-      </div>
-
-      <div>
-        <Label htmlFor="prompt_id">Prompt Knowledge ID</Label>
-        <Input
-          id="prompt_id"
-          {...register('prompt_id')}
-          placeholder="e.g., FIN-001, SAFETY-POLICY-01"
-          className="font-mono"
-        />
-        <p className="text-xs text-muted-foreground mt-1">
-          Use this ID to reference this knowledge in your AI prompts
-        </p>
       </div>
 
       <div>
