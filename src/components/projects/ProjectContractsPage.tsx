@@ -621,6 +621,11 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
       if (error) throw error;
       setOwners(data || []);
+      
+      // Auto-sync existing owners to stakeholders if they exist
+      if (data && data.length > 0) {
+        await syncOwnersToStakeholder();
+      }
     } catch (error) {
       console.error('Error loading owners:', error);
       toast.error('Failed to load owners');
