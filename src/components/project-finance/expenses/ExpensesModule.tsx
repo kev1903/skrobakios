@@ -12,7 +12,7 @@ import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 import { BillEditDialog } from './BillEditDialog';
 import { BillDetailsDialog } from './BillDetailsDialog';
-import { UserEmailCombobox } from '@/components/bills/UserEmailCombobox';
+import { StakeholderCombobox } from '@/components/bills/StakeholderCombobox';
 import { WBSActivitySelect } from './WBSActivitySelect';
 
 interface Bill {
@@ -672,7 +672,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                  </td>
                  <td className="p-2">
                    <div className="w-48">
-                     <UserEmailCombobox
+                     <StakeholderCombobox
                        value={bill.to_pay || ""}
                        onValueChange={(value) => handleToPayChange(bill.id, value)}
                      />
