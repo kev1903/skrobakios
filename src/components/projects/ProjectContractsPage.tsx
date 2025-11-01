@@ -627,6 +627,98 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     }
   };
 
+  const syncOwnersToStakeholder = async () => {
+    try {
+      // Get all owners for this project
+      const { data: allOwners, error: ownersError } = await supabase
+        .from('project_owners')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: true });
+
+      if (ownersError) throw ownersError;
+
+      if (!allOwners || allOwners.length === 0) {
+        // No owners, check if we need to delete existing stakeholder
+        const { error: deleteError } = await supabase
+          .from('stakeholders')
+          .delete()
+          .eq('company_id', project.company_id)
+          .eq('category', 'client')
+          .like('display_name', `%${project.name}%`);
+        
+        return;
+      }
+
+      // Combine owner names based on count
+      let displayName = '';
+      let primaryContactName = '';
+      let primaryEmail = '';
+      let primaryPhone = '';
+      let abn = '';
+
+      if (allOwners.length === 1) {
+        displayName = allOwners[0].name;
+        primaryContactName = allOwners[0].name;
+        primaryEmail = allOwners[0].email || '';
+        primaryPhone = allOwners[0].mobile || allOwners[0].work_phone || allOwners[0].home_phone || '';
+        abn = allOwners[0].abn || '';
+      } else {
+        // Combine multiple owners as "Owner 1 and Owner 2"
+        const ownerNames = allOwners.map((owner, idx) => `Owner ${idx + 1}`).join(' and ');
+        displayName = ownerNames;
+        primaryContactName = allOwners[0].name; // Use first owner as primary
+        primaryEmail = allOwners[0].email || '';
+        primaryPhone = allOwners[0].mobile || allOwners[0].work_phone || allOwners[0].home_phone || '';
+        abn = allOwners[0].abn || '';
+      }
+
+      // Check if stakeholder already exists for this project
+      const { data: existingStakeholder } = await supabase
+        .from('stakeholders')
+        .select('id')
+        .eq('company_id', project.company_id)
+        .eq('category', 'client')
+        .ilike('display_name', displayName)
+        .maybeSingle();
+
+      const stakeholderData = {
+        company_id: project.company_id,
+        display_name: displayName,
+        category: 'client' as const,
+        primary_contact_name: primaryContactName,
+        primary_email: primaryEmail,
+        primary_phone: primaryPhone,
+        abn: abn,
+        status: 'active' as const,
+        compliance_status: 'valid' as const,
+        tags: ['Client', 'Project Owner'],
+      };
+
+      if (existingStakeholder) {
+        // Update existing stakeholder
+        const { error: updateError } = await supabase
+          .from('stakeholders')
+          .update(stakeholderData)
+          .eq('id', existingStakeholder.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Create new stakeholder
+        const { error: insertError } = await supabase
+          .from('stakeholders')
+          .insert(stakeholderData);
+
+        if (insertError) throw insertError;
+      }
+
+      console.log('Synced owners to stakeholder as client');
+    } catch (error) {
+      console.error('Error syncing owners to stakeholder:', error);
+      // Don't show error toast as this is a background operation
+    }
+  };
+
   const handleSaveOwner = async () => {
     if (!editingOwner) return;
 
@@ -676,6 +768,9 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         toast.success('Owner added successfully');
       }
 
+      // Sync to stakeholders
+      await syncOwnersToStakeholder();
+      
       loadOwners();
       setShowOwnerDialog(false);
       setEditingOwner(null);
@@ -697,6 +792,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       if (error) throw error;
       
       toast.success('Owner deleted successfully');
+      
+      // Sync to stakeholders after deletion
+      await syncOwnersToStakeholder();
+      
       loadOwners();
     } catch (error) {
       console.error('Error deleting owner:', error);
