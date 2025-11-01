@@ -353,15 +353,53 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         description: "Re-running AI extraction on invoice..."
       });
 
+      // Extract storage path from the URL
+      const urlParts = attachment.url.split('/');
+      const bucketIndex = urlParts.findIndex(part => part === 'bills');
+      if (bucketIndex === -1) {
+        throw new Error('Invalid attachment URL');
+      }
+      const storagePath = urlParts.slice(bucketIndex + 1).join('/');
+
+      // Get signed URL and file metadata
+      const { data: signedUrlData, error: urlError } = await supabase
+        .storage
+        .from('bills')
+        .createSignedUrl(storagePath, 3600);
+
+      if (urlError || !signedUrlData) {
+        throw new Error('Failed to get signed URL for file');
+      }
+
+      // Get file size from storage
+      const { data: fileData, error: fileError } = await supabase
+        .storage
+        .from('bills')
+        .list(storagePath.split('/').slice(0, -1).join('/'), {
+          search: attachment.name
+        });
+
+      if (fileError || !fileData || fileData.length === 0) {
+        throw new Error('Failed to get file metadata');
+      }
+
+      const fileSize = fileData[0].metadata?.size || 0;
+
+      // Call process-invoice with correct parameters
       const { data, error } = await supabase.functions.invoke('process-invoice', {
         body: {
-          fileUrl: attachment.url,
-          fileName: attachment.name,
-          projectId: projectId
+          signed_url: signedUrlData.signedUrl,
+          filename: attachment.name,
+          filesize: fileSize,
+          storage_path: storagePath
         }
       });
 
       if (error) throw error;
+
+      if (!data?.ok) {
+        throw new Error(data?.error || 'Failed to process invoice');
+      }
 
       toast({
         title: "Success",
