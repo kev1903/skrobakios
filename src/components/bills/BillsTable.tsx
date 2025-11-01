@@ -40,23 +40,39 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
         return;
       }
 
-      const { data: memberData } = await supabase
+      const { data: memberData, error: memberError } = await supabase
         .from('company_members')
         .select('company_id')
         .eq('user_id', user.id)
         .eq('status', 'active')
-        .single();
+        .order('created_at', { ascending: false });
 
-      if (!memberData) {
+      console.log('Bills table - company lookup:', { memberData, memberError, userId: user.id });
+
+      if (memberError) {
+        console.error('Error fetching company membership:', memberError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch company information",
+          variant: "destructive",
+        });
         setLoading(false);
         return;
       }
+
+      if (!memberData || memberData.length === 0) {
+        console.warn('No active company membership found');
+        setLoading(false);
+        return;
+      }
+
+      const companyId = memberData[0].company_id;
 
       // Fetch bills from database
       const { data, error } = await supabase
         .from('bills')
         .select('*')
-        .eq('company_id', memberData.company_id)
+        .eq('company_id', companyId)
         .order('due_date', { ascending: true });
 
       if (error) {
