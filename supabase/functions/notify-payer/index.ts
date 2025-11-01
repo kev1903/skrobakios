@@ -38,11 +38,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("FIN001 knowledge found:", knowledge.title);
 
-    // Fetch all unpaid bills
+    // Fetch all unpaid bills with stakeholder details
     const { data: bills, error: billsError } = await supabase
       .from("bills")
-      .select("*")
-      .eq("status", "unpaid");
+      .select(`
+        *,
+        stakeholder:to_pay (
+          id,
+          display_name,
+          primary_email
+        )
+      `)
+      .eq("payment_status", "unpaid")
+      .not("to_pay", "is", null);
 
     if (billsError) {
       console.error("Error fetching bills:", billsError);
@@ -52,13 +60,18 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Group bills by payer email (to_pay field)
+    console.log(`Found ${bills?.length || 0} unpaid bills with payers assigned`);
+
+    // Group bills by payer email
     const billsByPayer = bills?.reduce((acc: Record<string, any[]>, bill) => {
-      if (bill.to_pay) {
-        if (!acc[bill.to_pay]) {
-          acc[bill.to_pay] = [];
+      const payerEmail = bill.stakeholder?.primary_email;
+      if (payerEmail) {
+        if (!acc[payerEmail]) {
+          acc[payerEmail] = [];
         }
-        acc[bill.to_pay].push(bill);
+        acc[payerEmail].push(bill);
+      } else {
+        console.warn(`Bill ${bill.id} has to_pay set but no stakeholder email found`);
       }
       return acc;
     }, {}) || {};
