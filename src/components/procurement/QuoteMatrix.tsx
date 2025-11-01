@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 import { useWBS } from '@/hooks/useWBS';
 import { WBSItem } from '@/types/wbs';
 import { QuotePopup } from './QuotePopup';
+import { useStakeholders, Stakeholder } from '@/hooks/useStakeholders';
+import { useCompany } from '@/contexts/CompanyContext';
 
 interface RFQ {
   id: string;
@@ -80,6 +82,7 @@ interface QuoteMatrixProps {
 }
 
 export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQUpdate, onNavigate }) => {
+  const { currentCompany } = useCompany();
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,6 +99,14 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   
   // Load WBS items from database
   const { wbsItems, loading: wbsLoading } = useWBS(projectId);
+  
+  // Load suppliers from stakeholders database
+  const { stakeholders: suppliers, loading: suppliersLoading } = useStakeholders({
+    companyId: currentCompany?.id,
+    category: 'supplier',
+    status: ['active'],
+    enabled: !!currentCompany?.id,
+  });
 
   // Expand all WBS items by default
   useEffect(() => {
@@ -355,16 +366,22 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   };
 
   const handleAddNewVendor = () => {
-    toast.info('Opening vendor creation dialog...');
+    // Navigate to stakeholders page to add a new supplier
+    if (onNavigate) {
+      onNavigate('stakeholders', { category: 'supplier' });
+    } else {
+      toast.info('Please add suppliers via the Stakeholders page');
+    }
     setOpenVendorPicker(null);
-    // Open vendor creation modal/form
   };
 
-  const filteredVendors = vendors.filter(vendor => 
-    vendor.name.toLowerCase().includes(vendorSearchQuery.toLowerCase())
+  // Filter suppliers from stakeholders database
+  const filteredSuppliers = suppliers.filter(supplier => 
+    supplier.display_name.toLowerCase().includes(vendorSearchQuery.toLowerCase()) ||
+    supplier.primary_contact_name?.toLowerCase().includes(vendorSearchQuery.toLowerCase())
   );
 
-  if (loading || wbsLoading) {
+  if (loading || wbsLoading || suppliersLoading) {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
@@ -535,22 +552,25 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                                           No supplier found.
                                         </CommandEmpty>
                                         <CommandGroup heading="Suppliers" className="p-2">
-                                          {filteredVendors.map((vendor) => (
+                                          {filteredSuppliers.map((supplier) => (
                                             <CommandItem
-                                              key={vendor.id}
-                                              value={vendor.name}
-                                              onSelect={() => handleVendorSelect(`${row.itemId}-${idx}`, vendor.id, vendor.name)}
+                                              key={supplier.id}
+                                              value={supplier.display_name}
+                                              onSelect={() => handleVendorSelect(`${row.itemId}-${idx}`, supplier.id, supplier.display_name)}
                                               className="flex items-center gap-2 px-2 py-2 cursor-pointer rounded-lg hover:bg-accent/50 transition-colors"
                                             >
                                               <div className="w-7 h-7 rounded-full bg-luxury-gold/10 border border-luxury-gold/30 flex items-center justify-center flex-shrink-0">
                                                 <span className="text-xs font-bold text-luxury-gold">
-                                                  {vendor.name.charAt(0)}
+                                                  {supplier.display_name.charAt(0)}
                                                 </span>
                                               </div>
                                               <div className="flex flex-col flex-1 min-w-0">
-                                                <span className="text-sm font-medium truncate">{vendor.name}</span>
-                                                {vendor.trade_category && (
-                                                  <span className="text-xs text-muted-foreground truncate">{vendor.trade_category}</span>
+                                                <span className="text-sm font-medium truncate">{supplier.display_name}</span>
+                                                {supplier.trade_industry && (
+                                                  <span className="text-xs text-muted-foreground truncate">{supplier.trade_industry}</span>
+                                                )}
+                                                {supplier.primary_contact_name && (
+                                                  <span className="text-xs text-muted-foreground truncate">Contact: {supplier.primary_contact_name}</span>
                                                 )}
                                               </div>
                                             </CommandItem>
