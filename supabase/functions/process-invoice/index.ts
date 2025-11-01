@@ -224,8 +224,8 @@ serve(async (req) => {
           }
         }
         
-        // Fetch WBS items
-        const wbsRes = await fetch(`${SUPABASE_URL}/rest/v1/wbs_items?company_id=eq.${company_id}&select=id,wbs_id,title,description,category`, {
+        // Fetch WBS items with project associations
+        const wbsRes = await fetch(`${SUPABASE_URL}/rest/v1/wbs_items?company_id=eq.${company_id}&select=id,wbs_id,title,description,category,project_id`, {
           headers: {
             'apikey': SUPABASE_SERVICE_ROLE_KEY,
             'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
@@ -235,10 +235,26 @@ serve(async (req) => {
         if (wbsRes.ok) {
           const wbsItems = await wbsRes.json();
           if (wbsItems.length > 0) {
+            console.log('=== WBS ACTIVITIES CONTEXT FOR AI ===');
+            console.log('Number of WBS activities:', wbsItems.length);
+            wbsItems.slice(0, 5).forEach((w: any) => {
+              console.log(`WBS: ${w.title} | UUID: ${w.id} | Code: ${w.wbs_id} | Project: ${w.project_id}`);
+            });
+            
             wbsContext = '\n\n=== AVAILABLE WBS ACTIVITIES TO MATCH ===\n' + 
-              'Look for keywords in the invoice that match these WBS activities:\n' +
-              wbsItems.map((w: any) => `- UUID: ${w.id}\n  WBS Code: ${w.wbs_id}\n  Title: ${w.title}\n  Category: ${w.category || 'N/A'}${w.description ? '\n  Description: ' + w.description.substring(0, 150) : ''}`).slice(0, 30).join('\n\n');
-            console.log(`Found ${wbsItems.length} WBS items for context (showing first 30)`);
+              'CRITICAL: You MUST return the exact WBS UUID from below. DO NOT generate fake placeholder UUIDs!\n' +
+              'IMPORTANT: Only assign WBS activities that belong to the SAME project you matched above.\n' +
+              'Look for keywords in the invoice line items, descriptions, or notes that match these WBS activities:\n\n' +
+              wbsItems.map((w: any) => 
+                `WBS ACTIVITY:\n` +
+                `  UUID (RETURN THIS EXACT STRING): ${w.id}\n` +
+                `  WBS Code: ${w.wbs_id}\n` +
+                `  Title: ${w.title}\n` +
+                `  Category: ${w.category || 'N/A'}\n` +
+                `  Belongs to Project ID: ${w.project_id}\n` +
+                `  Keywords to search: ${w.title.toLowerCase()}, ${w.wbs_id.toLowerCase()}${w.description ? ', ' + w.description.substring(0, 100).toLowerCase() : ''}\n`
+              ).slice(0, 50).join('\n');
+            console.log(`Found ${wbsItems.length} WBS items for context (showing first 50)`);
           }
         }
       } catch (contextError) {
@@ -314,6 +330,8 @@ EXTRACTION RULES:
 5. LINE ITEMS: Each item with description, quantity, rate, amount
 
 PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
+
+**STEP 1 - PROJECT MATCHING:**
 - **CAREFULLY SCAN** the entire invoice text for project names, keywords, or codes
 - Look in: customer names, reference numbers, addresses, notes, line item descriptions, any text field
 - **KEYWORD MATCHING**: Search for partial matches of project names (e.g., if project is "Skrobaki Construction", look for "Skrobaki" anywhere)
@@ -322,8 +340,15 @@ PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
 - **ADDRESS MATCHING**: If invoice mentions an address, check if it matches any project address or name
 - **CASE INSENSITIVE**: Ignore case differences (e.g., "skrobaki" matches "Skrobaki")
 - If you find ANY keyword match, assign that project (don't require 70% confidence - even 40% is enough if there's a keyword match)
-- For WBS: only assign if there's a strong match to the WBS title or description
-- Explain your reasoning clearly in the match_reason field
+- Explain your reasoning clearly in the project_match_reason field
+
+**STEP 2 - WBS ACTIVITY MATCHING (AFTER PROJECT IS MATCHED):**
+- **CRITICAL**: Only select WBS activities that have "Belongs to Project ID" matching the project_id you selected in Step 1
+- Look at invoice line items, descriptions, materials, work types to match WBS activities
+- Match keywords: e.g., "landscaping" → WBS for landscaping work, "concrete" → WBS for concrete work
+- **STRONG MATCH REQUIRED**: Only assign WBS if there's a clear match to the WBS title/description/category
+- If no clear WBS match exists for the matched project, return null for wbs_activity_id
+- Explain your reasoning clearly in the wbs_match_reason field
 
 **CRITICAL UUID RETURN RULE:**
 - ALWAYS return the exact UUID string from the list (e.g., "f8b3c4d5-1234-5678-90ab-cdef12345678")
@@ -355,6 +380,8 @@ Be precise with data extraction. Set high confidence (0.9+) only if all fields a
       const systemPrompt = `You are SkAi, an expert at extracting invoice data from images and intelligently assigning to projects and WBS activities. Analyze the image and extract all fields accurately, then match to the most relevant project and WBS activity.
 
 PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
+
+**STEP 1 - PROJECT MATCHING:**
 - **CAREFULLY SCAN** the entire invoice image for project names, keywords, or codes
 - Look in: customer names, reference numbers, addresses, notes, line item descriptions, any visible text
 - **KEYWORD MATCHING**: Search for partial matches of project names (e.g., if project is "Skrobaki Construction", look for "Skrobaki" anywhere)
@@ -363,8 +390,15 @@ PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
 - **ADDRESS MATCHING**: If invoice mentions an address, check if it matches any project address or name
 - **CASE INSENSITIVE**: Ignore case differences (e.g., "skrobaki" matches "Skrobaki")
 - If you find ANY keyword match, assign that project (don't require 70% confidence - even 40% is enough if there's a keyword match)
-- For WBS: only assign if there's a strong match to the WBS title or description
-- Explain your reasoning clearly in the match_reason field
+- Explain your reasoning clearly in the project_match_reason field
+
+**STEP 2 - WBS ACTIVITY MATCHING (AFTER PROJECT IS MATCHED):**
+- **CRITICAL**: Only select WBS activities that have "Belongs to Project ID" matching the project_id you selected in Step 1
+- Look at invoice line items, descriptions, materials, work types to match WBS activities
+- Match keywords: e.g., "landscaping" → WBS for landscaping work, "concrete" → WBS for concrete work
+- **STRONG MATCH REQUIRED**: Only assign WBS if there's a clear match to the WBS title/description/category
+- If no clear WBS match exists for the matched project, return null for wbs_activity_id
+- Explain your reasoning clearly in the wbs_match_reason field
 
 **CRITICAL UUID RETURN RULE:**
 - ALWAYS return the exact UUID string from the list (e.g., "f8b3c4d5-1234-5678-90ab-cdef12345678")
