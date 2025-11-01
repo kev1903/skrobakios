@@ -548,44 +548,75 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                                         />
                                       </div>
                                       <CommandList className="max-h-64">
-                                        <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
-                                          No supplier found.
-                                        </CommandEmpty>
-                                        <CommandGroup heading="Suppliers" className="p-2">
-                                          {filteredSuppliers.map((supplier) => (
-                                            <CommandItem
-                                              key={supplier.id}
-                                              value={supplier.display_name}
-                                              onSelect={() => handleVendorSelect(`${row.itemId}-${idx}`, supplier.id, supplier.display_name)}
-                                              className="flex items-center gap-2 px-2 py-2 cursor-pointer rounded-lg hover:bg-accent/50 transition-colors"
+                                        {suppliersLoading ? (
+                                          <div className="py-6 text-center text-sm text-muted-foreground">
+                                            Loading suppliers...
+                                          </div>
+                                        ) : suppliers.length === 0 ? (
+                                          <div className="py-6 px-4 text-center">
+                                            <p className="text-sm text-muted-foreground mb-3">No suppliers in database yet.</p>
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={handleAddNewVendor}
+                                              className="gap-2"
                                             >
-                                              <div className="w-7 h-7 rounded-full bg-luxury-gold/10 border border-luxury-gold/30 flex items-center justify-center flex-shrink-0">
-                                                <span className="text-xs font-bold text-luxury-gold">
-                                                  {supplier.display_name.charAt(0)}
-                                                </span>
-                                              </div>
-                                              <div className="flex flex-col flex-1 min-w-0">
-                                                <span className="text-sm font-medium truncate">{supplier.display_name}</span>
-                                                {supplier.trade_industry && (
-                                                  <span className="text-xs text-muted-foreground truncate">{supplier.trade_industry}</span>
-                                                )}
-                                                {supplier.primary_contact_name && (
-                                                  <span className="text-xs text-muted-foreground truncate">Contact: {supplier.primary_contact_name}</span>
-                                                )}
-                                              </div>
-                                            </CommandItem>
-                                          ))}
-                                        </CommandGroup>
-                                        <CommandSeparator />
-                                        <CommandGroup className="p-2">
-                                          <CommandItem
-                                            onSelect={handleAddNewVendor}
-                                            className="flex items-center gap-2 px-2 py-2 cursor-pointer rounded-lg hover:bg-luxury-gold/10 text-luxury-gold font-medium transition-colors"
-                                          >
-                                            <UserPlus className="h-4 w-4" />
-                                            <span>Add New Supplier</span>
-                                          </CommandItem>
-                                        </CommandGroup>
+                                              <UserPlus className="h-4 w-4" />
+                                              Add Supplier
+                                            </Button>
+                                          </div>
+                                        ) : filteredSuppliers.length === 0 ? (
+                                          <div className="py-6 px-4 text-center">
+                                            <p className="text-sm text-muted-foreground mb-3">No suppliers match "{vendorSearchQuery}"</p>
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={handleAddNewVendor}
+                                              className="gap-2"
+                                            >
+                                              <UserPlus className="h-4 w-4" />
+                                              Add New Supplier
+                                            </Button>
+                                          </div>
+                                        ) : (
+                                          <>
+                                            <CommandGroup heading="Suppliers" className="p-2">
+                                              {filteredSuppliers.map((supplier) => (
+                                                <CommandItem
+                                                  key={supplier.id}
+                                                  value={supplier.display_name}
+                                                  onSelect={() => handleVendorSelect(`${row.itemId}-${idx}`, supplier.id, supplier.display_name)}
+                                                  className="flex items-center gap-2 px-2 py-2 cursor-pointer rounded-lg hover:bg-accent/50 transition-colors"
+                                                >
+                                                  <div className="w-7 h-7 rounded-full bg-luxury-gold/10 border border-luxury-gold/30 flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-xs font-bold text-luxury-gold">
+                                                      {supplier.display_name.charAt(0)}
+                                                    </span>
+                                                  </div>
+                                                  <div className="flex flex-col flex-1 min-w-0">
+                                                    <span className="text-sm font-medium truncate">{supplier.display_name}</span>
+                                                    {supplier.trade_industry && (
+                                                      <span className="text-xs text-muted-foreground truncate">{supplier.trade_industry}</span>
+                                                    )}
+                                                    {supplier.primary_contact_name && (
+                                                      <span className="text-xs text-muted-foreground truncate">Contact: {supplier.primary_contact_name}</span>
+                                                    )}
+                                                  </div>
+                                                </CommandItem>
+                                              ))}
+                                            </CommandGroup>
+                                            <CommandSeparator />
+                                            <CommandGroup className="p-2">
+                                              <CommandItem
+                                                onSelect={handleAddNewVendor}
+                                                className="flex items-center gap-2 px-2 py-2 cursor-pointer rounded-lg hover:bg-luxury-gold/10 text-luxury-gold font-medium transition-colors"
+                                              >
+                                                <UserPlus className="h-4 w-4" />
+                                                <span>Add New Supplier</span>
+                                              </CommandItem>
+                                            </CommandGroup>
+                                          </>
+                                        )}
                                       </CommandList>
                                     </Command>
                                   </PopoverContent>
