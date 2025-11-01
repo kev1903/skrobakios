@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Send, X } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Message {
   id: string;
@@ -22,6 +23,7 @@ export const AiChatBar = () => {
   const [isDragging, setIsDragging] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -270,21 +272,21 @@ export const AiChatBar = () => {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className={`fixed ${isMobile ? 'bottom-4 right-4' : 'bottom-6 right-6'} z-50`}>
         <Button
           onClick={handleOpen}
           size="lg"
-          className="rounded-full w-14 h-14 shadow-lg hover:scale-105 transition-transform bg-primary hover:bg-primary/90"
+          className={`rounded-full ${isMobile ? 'w-12 h-12' : 'w-14 h-14'} shadow-lg hover:scale-105 transition-transform bg-primary hover:bg-primary/90`}
           aria-label="Open SkAi Chat"
         >
-          <MessageCircle className="w-6 h-6" />
+          <MessageCircle className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} />
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 bg-background border border-border rounded-xl shadow-2xl transition-all duration-300 w-80 h-96">
+    <div className={`fixed ${isMobile ? 'inset-x-4 bottom-4 top-20' : 'bottom-6 right-6 w-80 h-96'} z-50 bg-background border border-border rounded-xl shadow-2xl transition-all duration-300`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 rounded-t-xl">
         <div className="flex items-center space-x-2">

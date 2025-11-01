@@ -17,8 +17,12 @@ import { ReceivablesSection } from "./ReceivablesSection";
 import { ExpensesSection } from "./ExpensesSection";
 import { FinancialRatiosSection } from "./FinancialRatiosSection";
 import { ComplianceSection } from "./ComplianceSection";
+import { useScreenSize } from "@/hooks/use-mobile";
 
 export const FinanceDashboard = () => {
+  const screenSize = useScreenSize();
+  const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
+  
   const overviewCards = [
     {
       title: "Total Revenue",
@@ -106,10 +110,12 @@ export const FinanceDashboard = () => {
 
   return (
     <div className="w-full">
-      <div className="p-6 space-y-6">
+      <div className={`${isMobile ? 'p-4 space-y-4' : 'p-6 space-y-6'}`}>
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Financial Dashboard</h1>
+        <div className={isMobile ? 'mb-4' : 'mb-6'}>
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-4xl'} font-bold text-foreground mb-2`}>
+            Financial Dashboard
+          </h1>
           <p className="text-sm font-inter text-muted-foreground">Company financial overview and key metrics</p>
         </div>
 
@@ -117,7 +123,7 @@ export const FinanceDashboard = () => {
         <FinanceAlerts />
 
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 lg:grid-cols-4 gap-6'}`}>
           {overviewCards.map((card) => {
             const Icon = card.icon;
             return (
@@ -125,7 +131,7 @@ export const FinanceDashboard = () => {
                 key={card.title} 
                 className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-200 hover:scale-[1.02]"
               >
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 p-6">
+                <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-3 ${isMobile ? 'p-4' : 'p-6'}`}>
                   <CardTitle className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                     {card.title}
                   </CardTitle>
@@ -133,8 +139,8 @@ export const FinanceDashboard = () => {
                     <Icon className={`h-5 w-5 ${card.color}`} />
                   </div>
                 </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <div className="text-3xl font-bold text-foreground mb-2">{card.value}</div>
+                <CardContent className={`${isMobile ? 'p-4' : 'p-6'} pt-0`}>
+                  <div className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-foreground mb-2`}>{card.value}</div>
                   <div className="flex items-center">
                     {card.trend === "up" ? (
                       <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
@@ -156,7 +162,7 @@ export const FinanceDashboard = () => {
         <CashFlowSection />
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'lg:grid-cols-2 gap-6'}`}>
           {/* Recent Activity */}
           <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
             <CardHeader className="p-6">
@@ -239,7 +245,7 @@ export const FinanceDashboard = () => {
         <ProfitabilitySection />
 
         {/* Three Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'lg:grid-cols-3 gap-6'}`}>
           <ReceivablesSection />
           <ExpensesSection />
           <FinancialRatiosSection />

@@ -9,6 +9,11 @@ import { IncomePage } from "./IncomePage";
 import { ExpensePage } from "./ExpensePage";
 import { ExpenseSettingsPage } from "./ExpenseSettingsPage";
 import { AiChatBar } from "./AiChatBar";
+import { useScreenSize } from "@/hooks/use-mobile";
+import { MobileLayout, MobileContent } from "./MobileLayout";
+import { Button } from "./ui/button";
+import { ArrowLeft, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 
 interface FinancePageProps {
   onNavigate?: (page: string) => void;
@@ -16,9 +21,14 @@ interface FinancePageProps {
 
 export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const screenSize = useScreenSize();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    setMobileMenuOpen(false); // Close mobile menu after selection
   };
 
   const handleBack = () => {
@@ -61,6 +71,52 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
         return <FinanceDashboard />;
     }
   };
+
+  if (isMobile) {
+    return (
+      <MobileLayout fullHeight className="bg-gradient-to-br from-background to-muted/20">
+        {/* Mobile Header */}
+        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/50">
+          <div className="flex items-center justify-between p-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBack}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back</span>
+            </Button>
+            
+            <h1 className="text-lg font-semibold">Finance</h1>
+            
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 p-0">
+                <FinanceRibbon 
+                  activeTab={activeTab}
+                  onTabChange={handleTabChange}
+                  onBack={handleBack}
+                />
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+
+        {/* Mobile Content */}
+        <MobileContent withPadding={false}>
+          {renderContent()}
+        </MobileContent>
+
+        {/* AI Chat Bar - Mobile positioned */}
+        <AiChatBar />
+      </MobileLayout>
+    );
+  }
 
   return (
     <div className="fixed top-[var(--header-height)] left-0 right-0 bottom-0 flex">
