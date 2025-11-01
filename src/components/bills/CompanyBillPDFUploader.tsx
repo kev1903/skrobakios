@@ -81,6 +81,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  // Load projects immediately when dialog opens
   useEffect(() => {
     if (isOpen) {
       resetState();
@@ -91,12 +92,12 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   const loadProjects = async () => {
     try {
       setLoadingProjects(true);
-      console.log('Loading projects...');
+      console.log('🔄 Loading projects for dropdown...');
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.log('No user found');
-        return;
+        console.error('❌ No user found');
+        return [];
       }
 
       const { data: memberData, error: memberError } = await supabase
@@ -109,16 +110,16 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         .single();
 
       if (memberError) {
-        console.error('Error fetching company membership:', memberError);
-        return;
+        console.error('❌ Error fetching company membership:', memberError);
+        return [];
       }
 
       if (!memberData) {
-        console.log('No company membership found');
-        return;
+        console.error('❌ No company membership found');
+        return [];
       }
 
-      console.log('Company ID:', memberData.company_id);
+      console.log('✅ Company ID:', memberData.company_id);
 
       const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
@@ -127,17 +128,20 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         .order('name');
 
       if (projectsError) {
-        console.error('Error loading projects:', projectsError);
-        return;
+        console.error('❌ Error loading projects:', projectsError);
+        return [];
       }
 
-      console.log('Loaded projects:', projectsData?.length || 0);
+      console.log('✅ Loaded projects:', projectsData?.length || 0, projectsData);
       
       if (projectsData) {
         setProjects(projectsData);
+        return projectsData;
       }
+      return [];
     } catch (error) {
-      console.error('Error loading projects:', error);
+      console.error('❌ Error loading projects:', error);
+      return [];
     } finally {
       setLoadingProjects(false);
     }
@@ -208,7 +212,14 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
     const previewUrl = URL.createObjectURL(file);
     setFilePreviewUrl(previewUrl);
     
-    await handleUploadAndExtract(file);
+    // Ensure projects are loaded before extraction
+    let currentProjects = projects;
+    if (currentProjects.length === 0) {
+      console.log('⏳ Projects not loaded yet, loading now...');
+      currentProjects = await loadProjects();
+    }
+    
+    await handleUploadAndExtract(file, currentProjects);
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,7 +228,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
     }
   };
 
-  const handleUploadAndExtract = async (file: File) => {
+  const handleUploadAndExtract = async (file: File, availableProjects: typeof projects) => {
     setUploading(true);
     setExtractedData(null);
     setError(null);
@@ -318,13 +329,19 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       console.log('Project ID from AI:', extraction.project_id);
       console.log('WBS Activity ID from AI:', extraction.wbs_activity_id);
       console.log('Project Match Reason:', extraction.project_match_reason);
-      console.log('Available projects:', projects.length);
-      console.log('Projects:', projects);
+      console.log('Available projects in state:', projects.length);
+      console.log('Available projects passed:', availableProjects.length);
 
-      // Validate that project_id matches an actual project
+      // Validate that project_id matches an actual project from the passed list
       if (extraction.project_id) {
-        const projectExists = projects.find(p => p.id === extraction.project_id);
-        console.log('Project exists in list?', !!projectExists, projectExists);
+        const projectExists = availableProjects.find(p => p.id === extraction.project_id);
+        console.log('✅ Project exists in list?', !!projectExists);
+        if (projectExists) {
+          console.log('✅ Matched project:', projectExists);
+        } else {
+          console.log('❌ Project ID not found in available projects');
+          console.log('Available project IDs:', availableProjects.map(p => p.id));
+        }
       }
 
       setEditableData(formattedData);
