@@ -37,19 +37,18 @@ export const FinanceRibbon = ({ activeTab, onTabChange, onBack }: FinanceRibbonP
 
   return (
     <div className="w-80 h-full bg-background border-r border-border/30 flex flex-col flex-shrink-0">
-      {/* Header */}
-      <div className="p-6 border-b border-border/30 flex items-center gap-3">
+      {/* Header - Back Button */}
+      <div className="p-4 border-b border-border/30">
         {onBack && (
           <Button
             variant="ghost"
-            size="icon"
             onClick={onBack}
-            className="h-8 w-8 rounded-md hover:bg-accent/50"
+            className="w-full justify-start gap-2 px-3 py-2 h-auto text-sm font-medium hover:bg-accent/30 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
+            <span>Finance</span>
           </Button>
         )}
-        <h2 className="text-xl font-playfair font-bold text-foreground">Finance</h2>
       </div>
 
       {/* Navigation Items */}
