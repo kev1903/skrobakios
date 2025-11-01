@@ -146,7 +146,8 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
     console.log(`Bill ${billId} linked to account: ${accountId}`);
   };
 
-  const handleToPayChange = (billId: string, toPay: string) => {
+  const handleToPayChange = async (billId: string, toPay: string) => {
+    // Update local state immediately for responsive UI
     setBills(prevBills =>
       prevBills.map(bill =>
         bill.id === billId
@@ -154,7 +155,40 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
           : bill
       )
     );
-    console.log(`Bill ${billId} to pay assigned to: ${toPay}`);
+
+    // Save to database
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ to_pay: toPay })
+        .eq('id', billId);
+
+      if (error) {
+        console.error('Error updating payer:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update payer allocation",
+          variant: "destructive",
+        });
+        // Revert local state on error
+        fetchBills();
+        return;
+      }
+
+      console.log(`Bill ${billId} payer saved to database: ${toPay}`);
+      toast({
+        title: "Payer Updated",
+        description: "Bill payer has been saved successfully",
+      });
+    } catch (err) {
+      console.error('Update error:', err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+      fetchBills();
+    }
   };
 
   const handleDeleteBill = async (billId: string) => {
