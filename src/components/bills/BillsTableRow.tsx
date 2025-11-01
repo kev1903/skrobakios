@@ -9,7 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertTriangle, MoreHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AlertTriangle, MoreHorizontal, Trash2 } from "lucide-react";
 import { UserEmailCombobox } from "./UserEmailCombobox";
 
 interface Bill {
@@ -32,6 +38,7 @@ interface BillsTableRowProps {
   onSelect: (billId: string, checked: boolean) => void;
   onAccountLinkChange: (billId: string, accountId: string) => void;
   onToPayChange: (billId: string, toPay: string) => void;
+  onDelete: (billId: string) => void;
 }
 
 const cashInAccounts = [
@@ -41,7 +48,7 @@ const cashInAccounts = [
   { id: "returns-revenue", name: "Returns & Revenue" },
 ];
 
-export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange, onToPayChange }: BillsTableRowProps) => {
+export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange, onToPayChange, onDelete }: BillsTableRowProps) => {
   return (
     <TableRow key={bill.id}>
       <TableCell>
@@ -94,9 +101,22 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
         />
       </TableCell>
       <TableCell>
-        <Button variant="ghost" size="sm">
-          <MoreHorizontal className="w-4 h-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem 
+              className="text-destructive focus:text-destructive"
+              onClick={() => onDelete(bill.id)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </TableCell>
     </TableRow>
   );

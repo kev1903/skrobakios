@@ -107,6 +107,12 @@ export const BillsTable = () => {
     console.log(`Bill ${billId} to pay assigned to: ${toPay}`);
   };
 
+  const handleDeleteBill = (billId: string) => {
+    setBills(prevBills => prevBills.filter(bill => bill.id !== billId));
+    setSelectedBills(prevSelected => prevSelected.filter(id => id !== billId));
+    console.log(`Bill ${billId} deleted`);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border">
       <BillsTableControls 
@@ -129,6 +135,7 @@ export const BillsTable = () => {
               onSelect={handleSelectBill}
               onAccountLinkChange={handleAccountLinkChange}
               onToPayChange={handleToPayChange}
+              onDelete={handleDeleteBill}
             />
           ))}
         </TableBody>
