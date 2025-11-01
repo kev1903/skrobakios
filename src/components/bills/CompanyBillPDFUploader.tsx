@@ -14,10 +14,19 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { invokeEdge } from '@/lib/invokeEdge';
-import { Loader2, Upload, FileText, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight, Clipboard } from 'lucide-react';
+import { Loader2, Upload, FileText, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight, Clipboard, Info } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { WBSActivitySelect } from '@/components/project-finance/expenses/WBSActivitySelect';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -39,6 +48,10 @@ interface ExtractedBillData {
   subtotal: number;
   tax: number;
   total: number;
+  project_id?: string | null;
+  wbs_activity_id?: string | null;
+  project_match_reason?: string;
+  wbs_match_reason?: string;
   line_items: Array<{
     description: string;
     qty: number;
@@ -62,6 +75,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [projects, setProjects] = useState<Array<{ id: string; name: string; project_id: string }>>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -69,8 +83,39 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   useEffect(() => {
     if (isOpen) {
       resetState();
+      loadProjects();
     }
   }, [isOpen]);
+
+  const loadProjects = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: memberData } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!memberData) return;
+
+      const { data: projectsData } = await supabase
+        .from('projects')
+        .select('id, name, project_id')
+        .eq('company_id', memberData.company_id)
+        .order('name');
+
+      if (projectsData) {
+        setProjects(projectsData);
+      }
+    } catch (error) {
+      console.error('Error loading projects:', error);
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -228,6 +273,10 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         subtotal: parseFloat(extraction.subtotal || '0') || 0,
         tax: parseFloat(extraction.tax || '0') || 0,
         total: parseFloat(extraction.total || '0') || 0,
+        project_id: extraction.project_id || null,
+        wbs_activity_id: extraction.wbs_activity_id || null,
+        project_match_reason: extraction.project_match_reason || '',
+        wbs_match_reason: extraction.wbs_match_reason || '',
         line_items: Array.isArray(extraction.line_items) 
           ? extraction.line_items.map((item: any) => ({
               description: item.description || '',
@@ -533,35 +582,106 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
                         onChange={(e) => setEditableData({...editableData, reference_number: e.target.value})}
                       />
                     </div>
-                  </div>
+                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Bill Date</Label>
-                      <Input
-                        type="date"
-                        value={editableData.bill_date}
-                        onChange={(e) => setEditableData({...editableData, bill_date: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Due Date</Label>
-                      <Input
-                        type="date"
-                        value={editableData.due_date}
-                        onChange={(e) => setEditableData({...editableData, due_date: e.target.value})}
-                      />
-                    </div>
-                  </div>
+                   <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                       <Label>Bill Date</Label>
+                       <Input
+                         type="date"
+                         value={editableData.bill_date}
+                         onChange={(e) => setEditableData({...editableData, bill_date: e.target.value})}
+                       />
+                     </div>
+                     <div className="space-y-2">
+                       <Label>Due Date</Label>
+                       <Input
+                         type="date"
+                         value={editableData.due_date}
+                         onChange={(e) => setEditableData({...editableData, due_date: e.target.value})}
+                       />
+                     </div>
+                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Notes</Label>
-                    <Textarea
-                      value={editableData.notes}
-                      onChange={(e) => setEditableData({...editableData, notes: e.target.value})}
-                      rows={3}
-                    />
-                  </div>
+                   {/* Project & WBS Assignment */}
+                   <div className="space-y-4 p-4 bg-muted/30 rounded-xl border border-border/30">
+                     <div className="flex items-center gap-2">
+                       <Label className="text-sm font-semibold">SkAi Assignment</Label>
+                       {(editableData.project_match_reason || editableData.wbs_match_reason) && (
+                         <Info className="w-4 h-4 text-muted-foreground" />
+                       )}
+                     </div>
+                     
+                     {editableData.project_match_reason && (
+                       <Alert className="bg-blue-50 border-blue-200">
+                         <Info className="h-4 w-4 text-blue-600" />
+                         <AlertDescription className="text-xs text-blue-900">
+                           <strong>Project Match:</strong> {editableData.project_match_reason}
+                         </AlertDescription>
+                       </Alert>
+                     )}
+
+                     <div className="grid grid-cols-2 gap-4">
+                       <div className="space-y-2">
+                         <Label>Project</Label>
+                         <Select
+                           value={editableData.project_id || 'none'}
+                           onValueChange={(value) => setEditableData({
+                             ...editableData, 
+                             project_id: value === 'none' ? null : value,
+                             wbs_activity_id: value === 'none' ? null : editableData.wbs_activity_id // Clear WBS if project cleared
+                           })}
+                         >
+                           <SelectTrigger>
+                             <SelectValue placeholder="Select project..." />
+                           </SelectTrigger>
+                           <SelectContent>
+                             <SelectItem value="none">No Project</SelectItem>
+                             {projects.map(project => (
+                               <SelectItem key={project.id} value={project.id}>
+                                 {project.project_id} - {project.name}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                       </div>
+
+                       <div className="space-y-2">
+                         <Label>WBS Activity</Label>
+                         {editableData.project_id ? (
+                           <WBSActivitySelect
+                             projectId={editableData.project_id}
+                             value={editableData.wbs_activity_id || null}
+                             onValueChange={(value) => setEditableData({...editableData, wbs_activity_id: value})}
+                           />
+                         ) : (
+                           <Select disabled>
+                             <SelectTrigger>
+                               <SelectValue placeholder="Select project first..." />
+                             </SelectTrigger>
+                           </Select>
+                         )}
+                       </div>
+                     </div>
+
+                     {editableData.wbs_match_reason && (
+                       <Alert className="bg-blue-50 border-blue-200">
+                         <Info className="h-4 w-4 text-blue-600" />
+                         <AlertDescription className="text-xs text-blue-900">
+                           <strong>WBS Match:</strong> {editableData.wbs_match_reason}
+                         </AlertDescription>
+                       </Alert>
+                     )}
+                   </div>
+
+                   <div className="space-y-2">
+                     <Label>Notes</Label>
+                     <Textarea
+                       value={editableData.notes}
+                       onChange={(e) => setEditableData({...editableData, notes: e.target.value})}
+                       rows={3}
+                     />
+                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">

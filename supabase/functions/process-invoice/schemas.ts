@@ -30,7 +30,11 @@ export const ProcessInvoiceRequestSchema = z.object({
     .refine(
       (path) => !path.includes('..') && !path.includes('//'),
       { message: 'Invalid storage path' }
-    )
+    ),
+  
+  company_id: z.string()
+    .uuid({ message: 'Invalid company ID format' })
+    .optional()
 });
 
 export type ProcessInvoiceRequest = z.infer<typeof ProcessInvoiceRequestSchema>;

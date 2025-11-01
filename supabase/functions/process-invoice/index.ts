@@ -15,7 +15,7 @@ console.log('process-invoice edge function loaded');
 // Invoice extraction schema for structured output
 const InvoiceSchema = {
   name: "extract_invoice_data",
-  description: "Extract structured invoice/bill data from text",
+  description: "Extract structured invoice/bill data from text and intelligently assign to project and WBS activity",
   parameters: {
     type: "object",
     properties: {
@@ -28,6 +28,10 @@ const InvoiceSchema = {
       subtotal: { type: "string", description: "Subtotal amount before tax (numeric value)" },
       tax: { type: "string", description: "Tax/GST amount (numeric value)" },
       total: { type: "string", description: "Total amount including tax (numeric value)" },
+      project_id: { type: "string", description: "UUID of the matching project from available projects, or null if no clear match" },
+      wbs_activity_id: { type: "string", description: "UUID of the matching WBS activity from available WBS items, or null if no clear match" },
+      project_match_reason: { type: "string", description: "Brief explanation of why this project was selected" },
+      wbs_match_reason: { type: "string", description: "Brief explanation of why this WBS activity was selected" },
       line_items: {
         type: "array",
         description: "Individual line items from the invoice",
@@ -133,6 +137,9 @@ serve(async (req) => {
 
   try {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
@@ -171,10 +178,59 @@ serve(async (req) => {
     }
 
     const { signed_url, filename, filesize, storage_path }: ProcessInvoiceRequest = validation.data!;
+    const company_id = (body as any).company_id; // Optional company_id for project/WBS context
 
     console.log('=== Processing invoice ===');
     console.log('Filename:', filename);
     console.log('Filesize:', filesize);
+    console.log('Company ID:', company_id);
+
+    // Fetch available projects and WBS items for context (if company_id provided)
+    let projectsContext = '';
+    let wbsContext = '';
+    
+    if (company_id && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        console.log('=== Fetching projects and WBS context ===');
+        
+        // Fetch projects
+        const projectsRes = await fetch(`${SUPABASE_URL}/rest/v1/projects?company_id=eq.${company_id}&select=id,name,project_id`, {
+          headers: {
+            'apikey': SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+          }
+        });
+        
+        if (projectsRes.ok) {
+          const projects = await projectsRes.json();
+          if (projects.length > 0) {
+            projectsContext = '\n\nAVAILABLE PROJECTS TO MATCH:\n' + 
+              projects.map((p: any) => `- ID: ${p.id}, Code: ${p.project_id}, Name: ${p.name}`).join('\n');
+            console.log(`Found ${projects.length} projects for context`);
+          }
+        }
+        
+        // Fetch WBS items
+        const wbsRes = await fetch(`${SUPABASE_URL}/rest/v1/wbs_items?company_id=eq.${company_id}&select=id,wbs_id,title,description,category`, {
+          headers: {
+            'apikey': SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+          }
+        });
+        
+        if (wbsRes.ok) {
+          const wbsItems = await wbsRes.json();
+          if (wbsItems.length > 0) {
+            wbsContext = '\n\nAVAILABLE WBS ACTIVITIES TO MATCH:\n' + 
+              wbsItems.map((w: any) => `- ID: ${w.id}, WBS: ${w.wbs_id}, Title: ${w.title}, Category: ${w.category || 'N/A'}${w.description ? ', Desc: ' + w.description.substring(0, 100) : ''}`).slice(0, 50).join('\n');
+            console.log(`Found ${wbsItems.length} WBS items for context (showing first 50)`);
+          }
+        }
+      } catch (contextError) {
+        console.error('Error fetching context:', contextError);
+        // Continue without context - not critical
+      }
+    }
 
     // Detect file type
     const fileType = getFileType(filename);
@@ -233,10 +289,7 @@ serve(async (req) => {
     
     if (fileType === 'pdf') {
       // For PDFs with extracted text
-      aiMessages = [
-        {
-          role: 'system',
-          content: `You are an expert invoice data extraction system. Extract structured data from the invoice text provided.
+      const systemPrompt = `You are SkAi, an expert invoice data extraction and intelligent project assignment system. Extract structured data from the invoice text and intelligently assign it to the most relevant project and WBS activity.
 
 EXTRACTION RULES:
 1. SUPPLIER: Full company name (look for "Pty Ltd", "LLC", "Inc", etc.)
@@ -245,27 +298,53 @@ EXTRACTION RULES:
 4. AMOUNTS: Numeric values only for Total, Subtotal, Tax/GST
 5. LINE ITEMS: Each item with description, quantity, rate, amount
 
-Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.`
+PROJECT & WBS ASSIGNMENT:
+- Analyze the invoice content (supplier, line items, descriptions, reference numbers)
+- Match to the MOST RELEVANT project from the available projects list
+- Match to the MOST RELEVANT WBS activity from the available WBS activities list
+- Look for keywords, project codes, activity descriptions that match
+- If NO CLEAR MATCH exists (confidence < 70%), return null for that field
+- Provide a brief reason for your match selection
+- WBS assignment is OPTIONAL - only assign if there's a strong match
+
+Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.${projectsContext}${wbsContext}`;
+
+      aiMessages = [
+        {
+          role: 'system',
+          content: systemPrompt
         },
         {
           role: 'user',
-          content: `Extract invoice data from this text:\n\n${documentContent}`
+          content: `Extract invoice data and assign to project/WBS from this text:\n\n${documentContent}`
         }
       ];
     } else {
       // For images with vision
       const [_, mimeType, base64Data] = documentContent.split(':');
+      
+      const systemPrompt = `You are SkAi, an expert at extracting invoice data from images and intelligently assigning to projects and WBS activities. Analyze the image and extract all fields accurately, then match to the most relevant project and WBS activity.
+
+PROJECT & WBS ASSIGNMENT:
+- Analyze the invoice content (supplier, line items, descriptions, reference numbers)
+- Match to the MOST RELEVANT project from the available projects list
+- Match to the MOST RELEVANT WBS activity from the available WBS activities list
+- Look for keywords, project codes, activity descriptions that match
+- If NO CLEAR MATCH exists (confidence < 70%), return null for that field
+- Provide a brief reason for your match selection
+- WBS assignment is OPTIONAL - only assign if there's a strong match${projectsContext}${wbsContext}`;
+
       aiMessages = [
         {
           role: 'system',
-          content: 'You are an expert at extracting invoice data from images. Analyze the image and extract all fields accurately.'
+          content: systemPrompt
         },
         {
           role: 'user',
           content: [
             {
               type: 'text',
-              text: 'Extract all invoice data from this image including supplier, invoice number, dates, amounts, and line items.'
+              text: 'Extract all invoice data from this image including supplier, invoice number, dates, amounts, line items. Also intelligently assign to the most relevant project and WBS activity from the available lists.'
             },
             {
               type: 'image_url',
@@ -331,6 +410,8 @@ Be precise with data extraction. Set high confidence (0.9+) only if all fields a
     console.log('Supplier:', extractedData.supplier);
     console.log('Invoice #:', extractedData.invoice_number);
     console.log('Total:', extractedData.total);
+    console.log('Project ID:', extractedData.project_id || 'Not assigned');
+    console.log('WBS Activity ID:', extractedData.wbs_activity_id || 'Not assigned');
     console.log('Confidence:', (extractedData.ai_confidence * 100).toFixed(0) + '%');
 
     return new Response(
