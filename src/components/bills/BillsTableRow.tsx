@@ -71,14 +71,14 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
       </TableCell>
       <TableCell className="min-w-[200px]">
         <Select
-          value={bill.linkedCashInAccount}
-          onValueChange={(value) => onAccountLinkChange(bill.id, value)}
+          value={bill.linkedCashInAccount || "none"}
+          onValueChange={(value) => onAccountLinkChange(bill.id, value === "none" ? "" : value)}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select account" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">No account linked</SelectItem>
+            <SelectItem value="none">No account linked</SelectItem>
             {cashInAccounts.map((account) => (
               <SelectItem key={account.id} value={account.id}>
                 {account.name}
