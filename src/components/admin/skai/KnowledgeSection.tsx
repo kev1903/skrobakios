@@ -49,17 +49,11 @@ export const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
   const fetchEntries = async () => {
     try {
       setIsLoading(true);
-      const query = supabase
+      const { data, error } = await supabase
         .from('skai_knowledge')
         .select('*')
         .eq('knowledge_type', type)
         .order('updated_at', { ascending: false });
-
-      if (companyId) {
-        query.eq('company_id', companyId);
-      }
-
-      const { data, error } = await query;
 
       if (error) throw error;
       setEntries(data || []);
@@ -102,7 +96,7 @@ export const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
           .insert({
             ...formData,
             knowledge_type: type,
-            company_id: companyId,
+            company_id: null,
             created_by: (await supabase.auth.getUser()).data.user?.id
           });
 

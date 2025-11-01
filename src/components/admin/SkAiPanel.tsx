@@ -3,10 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, HardHat, FolderKanban } from "lucide-react";
 import { KnowledgeSection } from './skai/KnowledgeSection';
 import { ProjectKnowledgeSection } from './skai/ProjectKnowledgeSection';
-import { useCompany } from '@/contexts/CompanyContext';
 
 export const SkAiPanel: React.FC = () => {
-  const { currentCompany } = useCompany();
 
   return (
     <div className="space-y-6">
@@ -38,7 +36,6 @@ export const SkAiPanel: React.FC = () => {
             type="business"
             title="Business Knowledge"
             description="Company-specific processes, policies, and operational procedures"
-            companyId={currentCompany?.id}
           />
         </TabsContent>
 
@@ -47,7 +44,6 @@ export const SkAiPanel: React.FC = () => {
             type="industry"
             title="Industry Knowledge"
             description="Construction industry standards, regulations, and best practices"
-            companyId={currentCompany?.id}
           />
         </TabsContent>
 
