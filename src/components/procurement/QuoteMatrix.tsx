@@ -91,6 +91,9 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   const [openVendorPicker, setOpenVendorPicker] = useState<string | null>(null);
   const [vendorSearchQuery, setVendorSearchQuery] = useState('');
   
+  // Vendor assignments state: Map<itemId-invitationIndex, {vendorId, vendorName}>
+  const [vendorAssignments, setVendorAssignments] = useState<Map<string, {vendorId: string, vendorName: string}>>(new Map());
+  
   // Quote popup state
   const [isQuotePopupOpen, setIsQuotePopupOpen] = useState(false);
   const [selectedQuoteData, setSelectedQuoteData] = useState<{
@@ -244,8 +247,22 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
       
       if (activeVendors.length > 0) {
         for (let i = 0; i < Math.min(3, activeVendors.length); i++) {
-          const vendor = activeVendors[i];
-          const quote = rfq ? quotes.find(q => q.rfq_id === rfq.id && q.vendor_id === vendor.id) : null;
+          const invitationKey = `${wbsItem.id}-${i}`;
+          
+          // Check if vendor has been manually assigned
+          const assignment = vendorAssignments.get(invitationKey);
+          
+          let vendor, quote;
+          if (assignment) {
+            // Use assigned vendor
+            vendor = vendors.find(v => v.id === assignment.vendorId) || 
+                     { id: assignment.vendorId, name: assignment.vendorName, trade_category: '' };
+            quote = rfq ? quotes.find(q => q.rfq_id === rfq.id && q.vendor_id === assignment.vendorId) : null;
+          } else {
+            // Use default active vendor
+            vendor = activeVendors[i];
+            quote = rfq ? quotes.find(q => q.rfq_id === rfq.id && q.vendor_id === vendor.id) : null;
+          }
           
           // Determine status based on quote
           let status: 'invited' | 'viewed' | 'received' = 'invited';
@@ -269,9 +286,12 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
       } else {
         // Create placeholder invitations
         for (let i = 0; i < 3; i++) {
+          const invitationKey = `${wbsItem.id}-${i}`;
+          const assignment = vendorAssignments.get(invitationKey);
+          
           supplierInvitations.push({
-            supplierId: `placeholder-${i}`,
-            supplierName: `Vendor ${i + 1}`,
+            supplierId: assignment?.vendorId || `placeholder-${i}`,
+            supplierName: assignment?.vendorName || `Vendor ${i + 1}`,
             status: 'invited',
             invitedDate: new Date().toISOString(),
             files: []
@@ -298,7 +318,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     });
   };
 
-  const wbsMatrix = buildWBSMatrix();
+  const wbsMatrix = useMemo(() => buildWBSMatrix(), [visibleWBSItems, rfqs, quotes, activeVendors, vendors, vendorAssignments]);
 
   // Handle navigation to quote creation page
   const handleCreateQuote = (wbsItem: WBSRow, supplier: SupplierInvitation) => {
@@ -366,12 +386,17 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     }
   };
 
-  const handleVendorSelect = (invitationId: string, vendorId: string, vendorName: string) => {
-    // Update the vendor for this invitation
+  const handleVendorSelect = (invitationKey: string, vendorId: string, vendorName: string) => {
+    // Update the vendor assignment
+    setVendorAssignments(prev => {
+      const newMap = new Map(prev);
+      newMap.set(invitationKey, { vendorId, vendorName });
+      return newMap;
+    });
+    
     toast.success(`Updated vendor to ${vendorName}`);
     setOpenVendorPicker(null);
     setVendorSearchQuery('');
-    // Here you would update the database/state
   };
 
   const handleOpenAnalysis = (row: WBSRow) => {
