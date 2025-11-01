@@ -12,30 +12,30 @@ export const ExpensesSection = () => {
   ];
 
   return (
-    <Card className="glass-card">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <CreditCard className="w-5 h-5 text-purple-600" />
+    <Card className="border border-border/30 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+      <CardHeader className="p-6">
+        <CardTitle className="flex items-center space-x-2 text-lg font-playfair">
+          <CreditCard className="w-5 h-5 text-luxury-gold" />
           <span>Expenses vs Budget</span>
         </CardTitle>
-        <CardDescription>Monthly expense tracking by category</CardDescription>
+        <CardDescription className="text-sm">Monthly expense tracking by category</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6 pt-0">
         <div className="space-y-4">
           {expenseCategories.map((expense, index) => (
             <div key={index} className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">{expense.category}</span>
+                <span className="text-sm font-medium text-foreground">{expense.category}</span>
                 <div className="text-right">
-                  <div className="font-semibold">${expense.current.toLocaleString()}</div>
-                  <div className={`text-xs ${expense.variance < 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className="font-semibold text-foreground">${expense.current.toLocaleString()}</div>
+                  <div className={`text-xs font-medium ${expense.variance < 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                     {expense.variance > 0 ? '+' : ''}{expense.variance}%
                   </div>
                 </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted/30 rounded-full h-2">
                 <div 
-                  className={`h-2 rounded-full ${expense.variance < 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                  className={`h-2 rounded-full ${expense.variance < 0 ? 'bg-emerald-500' : 'bg-rose-500'}`}
                   style={{ width: `${Math.min((expense.current / expense.budget) * 100, 100)}%` }}
                 />
               </div>
