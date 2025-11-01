@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { WBSActivitySelect } from '@/components/project-finance/expenses/WBSActivitySelect';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useCompany } from '@/contexts/CompanyContext';
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -80,6 +81,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { currentCompany } = useCompany();
 
   // Load projects immediately when dialog opens
   useEffect(() => {
@@ -92,39 +94,18 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   const loadProjects = async () => {
     try {
       setLoadingProjects(true);
-      console.log('🔄 Loading projects for dropdown...');
       
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.error('❌ No user found');
+      if (!currentCompany?.id) {
+        console.error('❌ No current company selected');
         return [];
       }
 
-      const { data: memberData, error: memberError } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (memberError) {
-        console.error('❌ Error fetching company membership:', memberError);
-        return [];
-      }
-
-      if (!memberData) {
-        console.error('❌ No company membership found');
-        return [];
-      }
-
-      console.log('✅ Company ID:', memberData.company_id);
+      console.log('🔄 Loading projects for company:', currentCompany.name, currentCompany.id);
 
       const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
         .select('id, name, project_id')
-        .eq('company_id', memberData.company_id)
+        .eq('company_id', currentCompany.id)
         .order('name');
 
       if (projectsError) {
@@ -132,7 +113,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         return [];
       }
 
-      console.log('✅ Loaded projects:', projectsData?.length || 0, projectsData);
+      console.log('✅ Loaded projects for', currentCompany.name, ':', projectsData?.length || 0, projectsData);
       
       if (projectsData) {
         setProjects(projectsData);
@@ -238,17 +219,11 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Get company_id for context
-      const { data: memberData } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      const companyId = memberData?.company_id;
+      // Use the current company from context
+      const companyId = currentCompany?.id;
+      if (!companyId) {
+        throw new Error('No company selected');
+      }
 
       const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
       const sanitizedFileName = file.name
