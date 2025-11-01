@@ -17,7 +17,6 @@ export const BillsPage = ({ onNavigate }: BillsPageProps) => {
     <div className="w-full bg-background">
       <div className="p-6 space-y-6">
         <BillsHeader 
-          onNavigate={onNavigate}
           onUploadClick={() => setIsUploadDialogOpen(true)}
         />
         <BillsSummaryCards />
