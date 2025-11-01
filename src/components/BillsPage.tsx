@@ -14,7 +14,7 @@ export const BillsPage = ({ onNavigate }: BillsPageProps) => {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   return (
-    <div className="w-full bg-background">
+    <div className="w-full">
       <div className="p-6 space-y-6">
         <BillsHeader 
           onUploadClick={() => setIsUploadDialogOpen(true)}

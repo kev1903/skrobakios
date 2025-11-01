@@ -110,7 +110,7 @@ export const FinanceDashboard = () => {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-4xl font-playfair font-bold text-foreground mb-2">Financial Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Company financial overview and key metrics</p>
+          <p className="text-sm font-inter text-muted-foreground">Company financial overview and key metrics</p>
         </div>
 
         {/* Alerts */}

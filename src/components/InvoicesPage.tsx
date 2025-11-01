@@ -17,7 +17,7 @@ export const InvoicesPage = ({ onNavigate }: InvoicesPageProps) => {
   };
 
   return (
-    <div className="w-full bg-background">
+    <div className="w-full">
       <div className="p-6 space-y-6">
         <InvoicesHeader 
           onNavigate={onNavigate || (() => navigate('/finance'))} 

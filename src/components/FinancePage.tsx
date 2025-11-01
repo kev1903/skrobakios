@@ -63,7 +63,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   };
 
   return (
-    <div className="fixed top-[var(--header-height)] left-0 right-0 bottom-0 flex bg-background">
+    <div className="fixed top-[var(--header-height)] left-0 right-0 bottom-0 flex">
       <FinanceRibbon 
         activeTab={activeTab}
         onTabChange={handleTabChange}
