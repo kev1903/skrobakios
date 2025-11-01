@@ -29,7 +29,7 @@ export const BillsHeader = ({ onUploadClick }: BillsHeaderProps) => {
 
           <Button variant="outline">
             <Mail className="w-4 h-4 mr-2" />
-            Send Reminders
+            Notify Payer
           </Button>
 
           <Button variant="outline">
