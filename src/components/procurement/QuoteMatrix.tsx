@@ -6,13 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
-import { ChevronDown, ChevronRight, GripVertical, MoreVertical, Plus, FileText, GitCompare, Calendar, Users, Mail, Eye, CheckCircle, Paperclip, Search, UserPlus } from 'lucide-react';
+import { ChevronDown, ChevronRight, GripVertical, MoreVertical, Plus, FileText, GitCompare, Calendar, Users, Mail, Eye, CheckCircle, Paperclip, Search, UserPlus, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useWBS } from '@/hooks/useWBS';
 import { WBSItem } from '@/types/wbs';
 import { QuotePopup } from './QuotePopup';
+import { SkaiQuoteAnalysis } from './SkaiQuoteAnalysis';
 import { useStakeholders, Stakeholder } from '@/hooks/useStakeholders';
 import { useCompany } from '@/contexts/CompanyContext';
 
@@ -96,6 +97,10 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     wbsItem?: WBSRow;
     contractor?: any;
   }>({});
+  
+  // AI Analysis state
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
+  const [selectedRfqForAnalysis, setSelectedRfqForAnalysis] = useState<WBSRow | null>(null);
   
   // Load WBS items from database
   const { wbsItems, loading: wbsLoading } = useWBS(projectId);
@@ -369,6 +374,25 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     // Here you would update the database/state
   };
 
+  const handleOpenAnalysis = (row: WBSRow) => {
+    // Find RFQ for this WBS item
+    const rfq = rfqs.find(r => 
+      r.trade_category.toLowerCase() === row.title.toLowerCase() ||
+      r.work_package.toLowerCase() === row.title.toLowerCase()
+    );
+    
+    if (rfq) {
+      const rfqQuotes = quotes.filter(q => q.rfq_id === rfq.id && q.quote_amount_inc_gst);
+      if (rfqQuotes.length === 0) {
+        toast.error('No quotes available for analysis');
+        return;
+      }
+    }
+    
+    setSelectedRfqForAnalysis(row);
+    setIsAnalysisOpen(true);
+  };
+
   const handleAddNewVendor = () => {
     // Navigate to stakeholders page to add a new stakeholder
     if (onNavigate) {
@@ -486,6 +510,13 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-xl border border-border/30 shadow-glass z-50 rounded-xl w-44">
+                          <DropdownMenuItem 
+                            className="text-sm cursor-pointer hover:bg-accent/50 transition-colors"
+                            onClick={() => handleOpenAnalysis(row)}
+                          >
+                            <Sparkles className="mr-2 h-3.5 w-3.5 text-luxury-gold" />
+                            SkAi Analysis
+                          </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-sm cursor-pointer hover:bg-accent/50 transition-colors"
                             onClick={() => handleCreateQuote(row, row.supplierInvitations[0])}
@@ -711,6 +742,25 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
           contractorId: selectedQuoteData.contractor.contractorId,
           contractorName: selectedQuoteData.contractor.contractorName
         } : undefined}
+        projectId={projectId}
+      />
+
+      <SkaiQuoteAnalysis
+        open={isAnalysisOpen}
+        onOpenChange={setIsAnalysisOpen}
+        quotes={
+          selectedRfqForAnalysis
+            ? (() => {
+                const rfq = rfqs.find(
+                  (r) =>
+                    r.trade_category.toLowerCase() === selectedRfqForAnalysis.title.toLowerCase() ||
+                    r.work_package.toLowerCase() === selectedRfqForAnalysis.title.toLowerCase()
+                );
+                return rfq ? quotes.filter((q) => q.rfq_id === rfq.id && q.quote_amount_inc_gst) : [];
+              })()
+            : []
+        }
+        rfqTitle={selectedRfqForAnalysis?.title || ''}
         projectId={projectId}
       />
     </div>
