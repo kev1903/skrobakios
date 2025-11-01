@@ -55,11 +55,25 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Found ${bills?.length || 0} unpaid bills with payers assigned`);
 
-    // Fetch stakeholders for all to_pay IDs
-    const payerIds = [...new Set(bills?.map(b => b.to_pay).filter(Boolean))] as string[];
+    // Helper function to check if string is a valid email
+    const isEmail = (str: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
     
-    if (payerIds.length === 0) {
-      console.log("No payer IDs found");
+    // Separate UUIDs from email addresses in to_pay field
+    const payerIds: string[] = [];
+    const directEmails: string[] = [];
+    
+    bills?.forEach(bill => {
+      if (bill.to_pay) {
+        if (isEmail(bill.to_pay)) {
+          directEmails.push(bill.to_pay);
+        } else {
+          payerIds.push(bill.to_pay);
+        }
+      }
+    });
+    
+    if (payerIds.length === 0 && directEmails.length === 0) {
+      console.log("No payer IDs or emails found");
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -70,29 +84,39 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { data: stakeholders, error: stakeholdersError } = await supabase
-      .from("stakeholders")
-      .select("id, display_name, primary_email")
-      .in("id", payerIds);
+    // Fetch stakeholders for UUID-based payers
+    let stakeholderMap: Record<string, any> = {};
+    
+    if (payerIds.length > 0) {
+      const { data: stakeholders, error: stakeholdersError } = await supabase
+        .from("stakeholders")
+        .select("id, display_name, primary_email")
+        .in("id", [...new Set(payerIds)]);
 
-    if (stakeholdersError) {
-      console.error("Error fetching stakeholders:", stakeholdersError);
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch stakeholder details" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      if (stakeholdersError) {
+        console.error("Error fetching stakeholders:", stakeholdersError);
+      } else {
+        stakeholderMap = stakeholders?.reduce((acc: Record<string, any>, s) => {
+          acc[s.id] = s;
+          return acc;
+        }, {}) || {};
+      }
     }
-
-    // Create a map of stakeholder ID to email
-    const stakeholderMap = stakeholders?.reduce((acc: Record<string, any>, s) => {
-      acc[s.id] = s;
-      return acc;
-    }, {}) || {};
 
     // Group bills by payer email
     const billsByPayer = bills?.reduce((acc: Record<string, any[]>, bill) => {
-      const stakeholder = stakeholderMap[bill.to_pay];
-      const payerEmail = stakeholder?.primary_email;
+      let payerEmail: string | null = null;
+      
+      if (bill.to_pay) {
+        if (isEmail(bill.to_pay)) {
+          // Direct email
+          payerEmail = bill.to_pay;
+        } else {
+          // UUID - look up stakeholder
+          const stakeholder = stakeholderMap[bill.to_pay];
+          payerEmail = stakeholder?.primary_email || null;
+        }
+      }
       
       if (payerEmail) {
         if (!acc[payerEmail]) {
@@ -100,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
         }
         acc[payerEmail].push(bill);
       } else {
-        console.warn(`Bill ${bill.id} has to_pay ${bill.to_pay} but no stakeholder email found`);
+        console.warn(`Bill ${bill.id} has to_pay ${bill.to_pay} but no email could be determined`);
       }
       return acc;
     }, {}) || {};
