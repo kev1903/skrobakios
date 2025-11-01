@@ -28,10 +28,10 @@ const InvoiceSchema = {
       subtotal: { type: "string", description: "Subtotal amount before tax (numeric value)" },
       tax: { type: "string", description: "Tax/GST amount (numeric value)" },
       total: { type: "string", description: "Total amount including tax (numeric value)" },
-      project_id: { type: "string", description: "UUID of the matching project from available projects, or null if no clear match" },
-      wbs_activity_id: { type: "string", description: "UUID of the matching WBS activity from available WBS items, or null if no clear match" },
-      project_match_reason: { type: "string", description: "Brief explanation of why this project was selected" },
-      wbs_match_reason: { type: "string", description: "Brief explanation of why this WBS activity was selected" },
+      project_id: { type: "string", description: "CRITICAL: Return the exact UUID string from the 'UUID:' field in the available projects list. Example: 'f8b3c4d5-1234-5678-90ab-cdef12345678'. Never return project code, name, or null - always return the UUID if any match exists." },
+      wbs_activity_id: { type: "string", description: "CRITICAL: Return the exact UUID string from the 'UUID:' field in the available WBS activities list. Example: 'a1b2c3d4-5678-90ab-cdef-1234567890ab'. Never return WBS code, title, or null - always return the UUID if any match exists." },
+      project_match_reason: { type: "string", description: "Brief explanation of which keywords matched and why this project UUID was selected" },
+      wbs_match_reason: { type: "string", description: "Brief explanation of which keywords matched and why this WBS activity UUID was selected" },
       line_items: {
         type: "array",
         description: "Individual line items from the invoice",
@@ -302,8 +302,9 @@ EXTRACTION RULES:
 
 PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
 - **CAREFULLY SCAN** the entire invoice text for project names, keywords, or codes
-- Look in: reference numbers, notes, line item descriptions, addresses, any text field
+- Look in: customer names, reference numbers, addresses, notes, line item descriptions, any text field
 - **KEYWORD MATCHING**: Search for partial matches of project names (e.g., if project is "Skrobaki Construction", look for "Skrobaki" anywhere)
+- **CUSTOMER NAME MATCHING**: If customer name matches project name, that's a strong match
 - **FUZZY MATCHING**: Match even if only part of the project name appears (e.g., "Thanet Street" might match "5 Thanet Street Project")
 - **ADDRESS MATCHING**: If invoice mentions an address, check if it matches any project address or name
 - **CASE INSENSITIVE**: Ignore case differences (e.g., "skrobaki" matches "Skrobaki")
@@ -311,11 +312,16 @@ PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
 - For WBS: only assign if there's a strong match to the WBS title or description
 - Explain your reasoning clearly in the match_reason field
 
-MATCHING EXAMPLES:
-- Invoice mentions "Skrobaki project" → Match to project with "Skrobaki" in name
-- Invoice mentions "5 Thanet Street" → Match to project with "Thanet" in name or address
-- Invoice mentions "structural steel" → Match to WBS activity about "structural" work
-- Invoice mentions project code "PRJ-123" → Match to project with code "PRJ-123"
+**CRITICAL UUID RETURN RULE:**
+- ALWAYS return the exact UUID string from the list (e.g., "f8b3c4d5-1234-5678-90ab-cdef12345678")
+- NEVER return the project code (like "SKROBAKI-PRJ-1") or project name (like "Skrobaki Project")
+- NEVER return null if you found a keyword match - return the UUID from the "UUID:" field
+- Copy the UUID EXACTLY as shown in the "UUID:" line of the matching project/WBS
+
+MATCHING EXAMPLES WITH UUID RETURN:
+- Invoice mentions "Skrobaki project" → Find project with "Skrobaki" in name → Return its UUID (not the code)
+- Invoice mentions "5 Thanet Street" → Find project with "Thanet" in name → Return its UUID
+- Invoice mentions "structural steel" → Find WBS activity about "structural" work → Return its UUID
 
 Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.${projectsContext}${wbsContext}`;
 
@@ -337,8 +343,9 @@ Be precise with data extraction. Set high confidence (0.9+) only if all fields a
 
 PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
 - **CAREFULLY SCAN** the entire invoice image for project names, keywords, or codes
-- Look in: reference numbers, notes, line item descriptions, addresses, any visible text
+- Look in: customer names, reference numbers, addresses, notes, line item descriptions, any visible text
 - **KEYWORD MATCHING**: Search for partial matches of project names (e.g., if project is "Skrobaki Construction", look for "Skrobaki" anywhere)
+- **CUSTOMER NAME MATCHING**: If customer name matches project name, that's a strong match
 - **FUZZY MATCHING**: Match even if only part of the project name appears (e.g., "Thanet Street" might match "5 Thanet Street Project")
 - **ADDRESS MATCHING**: If invoice mentions an address, check if it matches any project address or name
 - **CASE INSENSITIVE**: Ignore case differences (e.g., "skrobaki" matches "Skrobaki")
@@ -346,11 +353,16 @@ PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
 - For WBS: only assign if there's a strong match to the WBS title or description
 - Explain your reasoning clearly in the match_reason field
 
-MATCHING EXAMPLES:
-- Invoice mentions "Skrobaki project" → Match to project with "Skrobaki" in name
-- Invoice mentions "5 Thanet Street" → Match to project with "Thanet" in name or address
-- Invoice mentions "structural steel" → Match to WBS activity about "structural" work
-- Invoice mentions project code "PRJ-123" → Match to project with code "PRJ-123"${projectsContext}${wbsContext}`;
+**CRITICAL UUID RETURN RULE:**
+- ALWAYS return the exact UUID string from the list (e.g., "f8b3c4d5-1234-5678-90ab-cdef12345678")
+- NEVER return the project code (like "SKROBAKI-PRJ-1") or project name (like "Skrobaki Project")
+- NEVER return null if you found a keyword match - return the UUID from the "UUID:" field
+- Copy the UUID EXACTLY as shown in the "UUID:" line of the matching project/WBS
+
+MATCHING EXAMPLES WITH UUID RETURN:
+- Invoice mentions "Skrobaki project" → Find project with "Skrobaki" in name → Return its UUID (not the code)
+- Invoice mentions "5 Thanet Street" → Find project with "Thanet" in name → Return its UUID
+- Invoice mentions "structural steel" → Find WBS activity about "structural" work → Return its UUID${projectsContext}${wbsContext}`;
 
       aiMessages = [
         {
@@ -428,8 +440,10 @@ MATCHING EXAMPLES:
     console.log('Supplier:', extractedData.supplier);
     console.log('Invoice #:', extractedData.invoice_number);
     console.log('Total:', extractedData.total);
-    console.log('Project ID:', extractedData.project_id || 'Not assigned');
-    console.log('WBS Activity ID:', extractedData.wbs_activity_id || 'Not assigned');
+    console.log('Project ID (UUID):', extractedData.project_id || 'Not assigned');
+    console.log('Project Match Reason:', extractedData.project_match_reason || 'N/A');
+    console.log('WBS Activity ID (UUID):', extractedData.wbs_activity_id || 'Not assigned');
+    console.log('WBS Match Reason:', extractedData.wbs_match_reason || 'N/A');
     console.log('Confidence:', (extractedData.ai_confidence * 100).toFixed(0) + '%');
 
     return new Response(
