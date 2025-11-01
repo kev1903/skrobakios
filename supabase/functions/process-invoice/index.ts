@@ -204,8 +204,9 @@ serve(async (req) => {
         if (projectsRes.ok) {
           const projects = await projectsRes.json();
           if (projects.length > 0) {
-            projectsContext = '\n\nAVAILABLE PROJECTS TO MATCH:\n' + 
-              projects.map((p: any) => `- ID: ${p.id}, Code: ${p.project_id}, Name: ${p.name}`).join('\n');
+            projectsContext = '\n\n=== AVAILABLE PROJECTS TO MATCH ===\n' + 
+              'Look for ANY keywords from these project names in the invoice content (partial matches are OK):\n' +
+              projects.map((p: any) => `- UUID: ${p.id}\n  Code: ${p.project_id}\n  Name: ${p.name}\n  Keywords to look for: ${p.name.toLowerCase()}, ${p.project_id.toLowerCase()}`).join('\n\n');
             console.log(`Found ${projects.length} projects for context`);
           }
         }
@@ -221,9 +222,10 @@ serve(async (req) => {
         if (wbsRes.ok) {
           const wbsItems = await wbsRes.json();
           if (wbsItems.length > 0) {
-            wbsContext = '\n\nAVAILABLE WBS ACTIVITIES TO MATCH:\n' + 
-              wbsItems.map((w: any) => `- ID: ${w.id}, WBS: ${w.wbs_id}, Title: ${w.title}, Category: ${w.category || 'N/A'}${w.description ? ', Desc: ' + w.description.substring(0, 100) : ''}`).slice(0, 50).join('\n');
-            console.log(`Found ${wbsItems.length} WBS items for context (showing first 50)`);
+            wbsContext = '\n\n=== AVAILABLE WBS ACTIVITIES TO MATCH ===\n' + 
+              'Look for keywords in the invoice that match these WBS activities:\n' +
+              wbsItems.map((w: any) => `- UUID: ${w.id}\n  WBS Code: ${w.wbs_id}\n  Title: ${w.title}\n  Category: ${w.category || 'N/A'}${w.description ? '\n  Description: ' + w.description.substring(0, 150) : ''}`).slice(0, 30).join('\n\n');
+            console.log(`Found ${wbsItems.length} WBS items for context (showing first 30)`);
           }
         }
       } catch (contextError) {
@@ -298,14 +300,22 @@ EXTRACTION RULES:
 4. AMOUNTS: Numeric values only for Total, Subtotal, Tax/GST
 5. LINE ITEMS: Each item with description, quantity, rate, amount
 
-PROJECT & WBS ASSIGNMENT:
-- Analyze the invoice content (supplier, line items, descriptions, reference numbers)
-- Match to the MOST RELEVANT project from the available projects list
-- Match to the MOST RELEVANT WBS activity from the available WBS activities list
-- Look for keywords, project codes, activity descriptions that match
-- If NO CLEAR MATCH exists (confidence < 70%), return null for that field
-- Provide a brief reason for your match selection
-- WBS assignment is OPTIONAL - only assign if there's a strong match
+PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
+- **CAREFULLY SCAN** the entire invoice text for project names, keywords, or codes
+- Look in: reference numbers, notes, line item descriptions, addresses, any text field
+- **KEYWORD MATCHING**: Search for partial matches of project names (e.g., if project is "Skrobaki Construction", look for "Skrobaki" anywhere)
+- **FUZZY MATCHING**: Match even if only part of the project name appears (e.g., "Thanet Street" might match "5 Thanet Street Project")
+- **ADDRESS MATCHING**: If invoice mentions an address, check if it matches any project address or name
+- **CASE INSENSITIVE**: Ignore case differences (e.g., "skrobaki" matches "Skrobaki")
+- If you find ANY keyword match, assign that project (don't require 70% confidence - even 40% is enough if there's a keyword match)
+- For WBS: only assign if there's a strong match to the WBS title or description
+- Explain your reasoning clearly in the match_reason field
+
+MATCHING EXAMPLES:
+- Invoice mentions "Skrobaki project" → Match to project with "Skrobaki" in name
+- Invoice mentions "5 Thanet Street" → Match to project with "Thanet" in name or address
+- Invoice mentions "structural steel" → Match to WBS activity about "structural" work
+- Invoice mentions project code "PRJ-123" → Match to project with code "PRJ-123"
 
 Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.${projectsContext}${wbsContext}`;
 
@@ -325,14 +335,22 @@ Be precise with data extraction. Set high confidence (0.9+) only if all fields a
       
       const systemPrompt = `You are SkAi, an expert at extracting invoice data from images and intelligently assigning to projects and WBS activities. Analyze the image and extract all fields accurately, then match to the most relevant project and WBS activity.
 
-PROJECT & WBS ASSIGNMENT:
-- Analyze the invoice content (supplier, line items, descriptions, reference numbers)
-- Match to the MOST RELEVANT project from the available projects list
-- Match to the MOST RELEVANT WBS activity from the available WBS activities list
-- Look for keywords, project codes, activity descriptions that match
-- If NO CLEAR MATCH exists (confidence < 70%), return null for that field
-- Provide a brief reason for your match selection
-- WBS assignment is OPTIONAL - only assign if there's a strong match${projectsContext}${wbsContext}`;
+PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
+- **CAREFULLY SCAN** the entire invoice image for project names, keywords, or codes
+- Look in: reference numbers, notes, line item descriptions, addresses, any visible text
+- **KEYWORD MATCHING**: Search for partial matches of project names (e.g., if project is "Skrobaki Construction", look for "Skrobaki" anywhere)
+- **FUZZY MATCHING**: Match even if only part of the project name appears (e.g., "Thanet Street" might match "5 Thanet Street Project")
+- **ADDRESS MATCHING**: If invoice mentions an address, check if it matches any project address or name
+- **CASE INSENSITIVE**: Ignore case differences (e.g., "skrobaki" matches "Skrobaki")
+- If you find ANY keyword match, assign that project (don't require 70% confidence - even 40% is enough if there's a keyword match)
+- For WBS: only assign if there's a strong match to the WBS title or description
+- Explain your reasoning clearly in the match_reason field
+
+MATCHING EXAMPLES:
+- Invoice mentions "Skrobaki project" → Match to project with "Skrobaki" in name
+- Invoice mentions "5 Thanet Street" → Match to project with "Thanet" in name or address
+- Invoice mentions "structural steel" → Match to WBS activity about "structural" work
+- Invoice mentions project code "PRJ-123" → Match to project with code "PRJ-123"${projectsContext}${wbsContext}`;
 
       aiMessages = [
         {
