@@ -1,12 +1,14 @@
-
 import { Button } from "@/components/ui/button";
 import { Upload, Download, Mail, RefreshCw } from "lucide-react";
+import { useNotifyPayer } from "@/hooks/useNotifyPayer";
 
 interface BillsHeaderProps {
   onUploadClick?: () => void;
 }
 
 export const BillsHeader = ({ onUploadClick }: BillsHeaderProps) => {
+  const { notifyPayers, isLoading } = useNotifyPayer();
+
   return (
     <div className="space-y-6">
       {/* Title and Actions */}
@@ -27,9 +29,13 @@ export const BillsHeader = ({ onUploadClick }: BillsHeaderProps) => {
             Upload Bill
           </Button>
 
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={notifyPayers}
+            disabled={isLoading}
+          >
             <Mail className="w-4 h-4 mr-2" />
-            Notify Payer
+            {isLoading ? "Sending..." : "Notify Payer"}
           </Button>
 
           <Button variant="outline">
