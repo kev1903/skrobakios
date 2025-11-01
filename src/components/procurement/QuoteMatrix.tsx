@@ -543,7 +543,9 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                       {row.supplierInvitations.map((invitation, idx) => (
                         <TableRow 
                           key={`${row.itemId}-supplier-${idx}`}
-                          className="h-10 bg-gradient-to-r from-accent/5 to-transparent hover:from-accent/15 hover:to-accent/5 transition-all duration-200 border-b border-border/10"
+                          className={`h-10 bg-gradient-to-r from-accent/5 to-transparent hover:from-accent/15 hover:to-accent/5 transition-all duration-200 border-b border-border/10 ${
+                            invitation.status === 'invited' ? 'opacity-50' : ''
+                          }`}
                         >
                           <TableCell className="px-4 py-2 align-middle">
                             <div className={`w-6 h-6 rounded-full flex items-center justify-center ${getStatusColor(invitation.status)}`}>
