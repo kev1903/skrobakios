@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AlertTriangle, MoreHorizontal, Trash2 } from "lucide-react";
-import { UserEmailCombobox } from "./UserEmailCombobox";
+import { StakeholderCombobox } from "./StakeholderCombobox";
 
 interface Bill {
   id: string;
@@ -95,7 +95,7 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
         </Select>
       </TableCell>
       <TableCell className="min-w-[200px]">
-        <UserEmailCombobox
+        <StakeholderCombobox
           value={bill.toPay || ""}
           onValueChange={(value) => onToPayChange(bill.id, value)}
         />
