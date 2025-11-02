@@ -318,85 +318,34 @@ serve(async (req) => {
       );
     }
 
-    // Step 2: Process file based on type
+    // Step 2: Process file based on type (send ALL files as base64 to Gemini)
     console.log('=== DOCUMENT PROCESSING ===');
     console.log('Processing file type:', fileType);
     
-    let documentContent: string;
+    // For both PDFs and images: Convert to base64
+    // Gemini 2.5 Pro natively supports PDF files, so we don't need to extract text
+    console.log('Converting document to base64 for AI processing...');
+    const base64Data = fileToBase64(bytes);
+    const mimeType = fileType === 'pdf' ? 'application/pdf' : getMimeType(filename);
     
-    if (fileType === 'pdf') {
-      // For PDFs: Use pdfjs to properly extract text
-      console.log('Extracting text from PDF using pdfjs...');
-      try {
-        // Import pdf.js library
-        const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm');
-        
-        // Load the PDF
-        const loadingTask = pdfjsLib.getDocument({ data: bytes });
-        const pdf = await loadingTask.promise;
-        
-        console.log(`PDF loaded: ${pdf.numPages} pages`);
-        
-        // Extract text from all pages (limit to first 10 pages for performance)
-        const maxPages = Math.min(pdf.numPages, 10);
-        let extractedText = '';
-        
-        for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
-          const page = await pdf.getPage(pageNum);
-          const textContent = await page.getTextContent();
-          const pageText = textContent.items
-            .map((item: any) => item.str)
-            .join(' ');
-          extractedText += pageText + '\n';
-        }
-        
-        console.log('PDF text extraction complete, extracted length:', extractedText.length);
-        console.log('First 200 chars:', extractedText.slice(0, 200));
-        
-        if (extractedText.length < 50) {
-          return new Response(
-            JSON.stringify({
-              ok: false,
-              error: 'PDF appears to be empty or contains no readable text. Please use an image of the invoice instead.'
-            }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-        
-        documentContent = `PDF TEXT CONTENT:\n${extractedText.slice(0, 15000)}`;
-      } catch (pdfError) {
-        console.error('PDF extraction error:', pdfError);
-        return new Response(
-          JSON.stringify({
-            ok: false,
-            error: 'Failed to extract text from PDF. Please ensure the PDF contains readable text or use an image instead.'
-          }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    } else {
-      // For images: Convert to base64
-      console.log('Converting image to base64 for AI processing...');
-      const base64Data = fileToBase64(bytes);
-      const mimeType = getMimeType(filename);
-      
-      // Validate base64 size (max ~3MB base64 for images)
-      const base64SizeKB = base64Data.length / 1024;
-      if (base64SizeKB > 3000) {
-        console.error('Base64 payload too large:', base64SizeKB, 'KB');
-        return new Response(
-          JSON.stringify({
-            ok: false,
-            error: `Image file produces a payload that is too large (${base64SizeKB.toFixed(0)}KB). Please use a smaller or more compressed image.`
-          }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      documentContent = `IMAGE_BASE64:${mimeType}:${base64Data}`;
-      console.log('Image conversion complete');
-      console.log(`File size: ${(bytes.byteLength / 1024).toFixed(2)}KB, Base64 size: ${base64SizeKB.toFixed(2)}KB`);
+    // Validate base64 size (max ~4MB base64 for PDFs, ~3MB for images)
+    const maxSizeKB = fileType === 'pdf' ? 4000 : 3000;
+    const base64SizeKB = base64Data.length / 1024;
+    
+    if (base64SizeKB > maxSizeKB) {
+      console.error('Base64 payload too large:', base64SizeKB, 'KB');
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: `File produces a payload that is too large (${base64SizeKB.toFixed(0)}KB). Maximum allowed is ${maxSizeKB}KB. Please use a smaller or more compressed file.`
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+    
+    const documentContent = `DOCUMENT_BASE64:${mimeType}:${base64Data}`;
+    console.log('Document conversion complete');
+    console.log(`File type: ${fileType}, Size: ${(bytes.byteLength / 1024).toFixed(2)}KB, Base64 size: ${base64SizeKB.toFixed(2)}KB, MIME: ${mimeType}`);
 
     // Step 3: Send to AI for structured extraction
     console.log('=== SENDING TO AI FOR EXTRACTION ===');
@@ -445,18 +394,15 @@ MATCHING EXAMPLES WITH UUID RETURN:
 
 Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.${projectsContext}${wbsContext}`;
 
-    // Step 3: Build AI messages based on content type
+    // Step 3: Build AI messages - send document as inline_data for Gemini
+    const [_, mimeType, base64Data] = documentContent.split(':');
+    
     const aiMessages: any[] = [
       {
         role: 'system',
         content: systemPrompt
-      }
-    ];
-    
-    if (documentContent.startsWith('IMAGE_BASE64:')) {
-      // For images: send as image_url
-      const [_, mimeType, base64Data] = documentContent.split(':');
-      aiMessages.push({
+      },
+      {
         role: 'user',
         content: [
           {
@@ -467,18 +413,12 @@ Be precise with data extraction. Set high confidence (0.9+) only if all fields a
             type: 'image_url',
             image_url: {
               url: `data:${mimeType};base64,${base64Data}`,
-              detail: 'low'
+              detail: 'high'  // Use high detail for PDFs to ensure text is readable
             }
           }
         ]
-      });
-    } else {
-      // For PDFs: send as text
-      aiMessages.push({
-        role: 'user',
-        content: `Extract all invoice data from this document including supplier, invoice number, dates, amounts, line items. Also intelligently assign to the most relevant project and WBS activity from the available lists.\n\n${documentContent}`
-      });
-    }
+      }
+    ];
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
