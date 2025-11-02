@@ -207,12 +207,15 @@ serve(async (req) => {
       },
     });
 
+    // Extract JWT token from Authorization header
+    const jwt = authHeader.replace('Bearer ', '');
+
     // Verify user is authenticated and has access to the company
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
     if (userError || !user) {
       console.error("Authentication failed:", userError);
       return new Response(
-        JSON.stringify({ ok: false, error: "Unauthorized" }),
+        JSON.stringify({ ok: false, error: "Unauthorized - Invalid token" }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
