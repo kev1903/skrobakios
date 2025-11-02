@@ -232,6 +232,10 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         fileToUpload = new File([blob], file.name.replace('.pdf', '.png'), { type: 'image/png' });
         
         console.log('✅ PDF converted to image:', fileToUpload.size, 'bytes');
+        
+        // Update the uploaded file state to the converted image
+        setUploadedFile(fileToUpload);
+        
         setUploadProgress(20);
       } catch (conversionError) {
         console.error('PDF conversion error:', conversionError);
