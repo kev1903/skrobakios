@@ -154,10 +154,12 @@ const barRef = useRef<HTMLDivElement>(null);
     loadAvailableProjects();
   }, [currentCompany]);
 
-  // Fetch current project from URL
+  // Fetch current project from URL (supports both projectId and taskId)
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const projectId = searchParams.get('projectId');
+    const taskId = searchParams.get('taskId');
+    const page = searchParams.get('page');
     
     if (projectId) {
       const fetchProject = async () => {
@@ -179,6 +181,40 @@ const barRef = useRef<HTMLDivElement>(null);
         }
       };
       fetchProject();
+    } else if (taskId && page === 'task-edit') {
+      // For task edit page, fetch project from task's project_id
+      const fetchProjectFromTask = async () => {
+        try {
+          // First get the task to find its project_id
+          const { data: taskData, error: taskError } = await supabase
+            .from('tasks')
+            .select('project_id')
+            .eq('id', taskId)
+            .single();
+          
+          if (taskError || !taskData?.project_id) {
+            setCurrentProject(null);
+            return;
+          }
+          
+          // Then fetch the project details
+          const { data: projectData, error: projectError } = await supabase
+            .from('projects')
+            .select('id, name, project_id')
+            .eq('id', taskData.project_id)
+            .single();
+          
+          if (!projectError && projectData) {
+            setCurrentProject(projectData);
+          } else {
+            setCurrentProject(null);
+          }
+        } catch (err) {
+          console.error('Error fetching project from task:', err);
+          setCurrentProject(null);
+        }
+      };
+      fetchProjectFromTask();
     } else {
       setCurrentProject(null);
     }
