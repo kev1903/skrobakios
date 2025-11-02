@@ -176,14 +176,14 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   };
 
   const handleFileSelect = async (file: File) => {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
     if (!validTypes.includes(file.type)) {
-      setError('Please upload an image file (JPG, JPEG, PNG)');
+      setError('Please upload a PDF or image file (JPG, JPEG, PNG)');
       return;
     }
 
-    if (file.size > 3 * 1024 * 1024) {
-      setError('File size must be less than 3MB');
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File size must be less than 5MB');
       return;
     }
 
@@ -500,7 +500,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         <DialogHeader>
           <DialogTitle>Upload Bill (Expense)</DialogTitle>
           <DialogDescription>
-            Upload an image bill (JPG, JPEG, PNG) and our AI will extract the data automatically
+            Upload a PDF or image bill (JPG, JPEG, PNG) and our AI will extract the data automatically
           </DialogDescription>
         </DialogHeader>
 
@@ -521,12 +521,12 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
                 <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-sm font-medium mb-2">Drop your file here or click to browse</p>
                 <p className="text-xs text-muted-foreground mb-4">
-                  JPG, JPEG, or PNG • Maximum file size: 3MB
+                  PDF, JPG, JPEG, or PNG • Maximum file size: 5MB
                 </p>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                  accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
                   onChange={handleFileInputChange}
                   className="hidden"
                 />
