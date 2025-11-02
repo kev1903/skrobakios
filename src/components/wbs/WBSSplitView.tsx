@@ -536,10 +536,29 @@ export const WBSSplitView = ({
       // Get visible items
       const visibleItems = items.filter(item => isItemVisible(item.id));
 
-      // Enter - Add new row when row selected
+      // Enter - Insert row below selected item
       if (e.key === 'Enter' && selectedItems.length > 0) {
         e.preventDefault();
-        handleAddRow();
+        const selectedItem = items.find(i => i.id === selectedItems[0]);
+        if (selectedItem) {
+          const itemType = selectedItem.level === 0 ? 'phase' : 
+                          selectedItem.level === 1 ? 'component' : 
+                          selectedItem.level === 2 ? 'element' : 'task';
+          onContextMenuAction('insert-below', selectedItems[0], itemType);
+        }
+        return;
+      }
+
+      // Ctrl+Shift+Enter - Insert row above selected item
+      if (e.key === 'Enter' && e.ctrlKey && e.shiftKey && selectedItems.length > 0) {
+        e.preventDefault();
+        const selectedItem = items.find(i => i.id === selectedItems[0]);
+        if (selectedItem) {
+          const itemType = selectedItem.level === 0 ? 'phase' : 
+                          selectedItem.level === 1 ? 'component' : 
+                          selectedItem.level === 2 ? 'element' : 'task';
+          onContextMenuAction('insert-above', selectedItems[0], itemType);
+        }
         return;
       }
 

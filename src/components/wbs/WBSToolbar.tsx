@@ -71,7 +71,7 @@ export const WBSToolbar = ({
           className={`h-9 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200 ${
             isMobile ? 'px-3' : 'px-4 gap-2'
           }`}
-          title="Add new row (Enter when row selected)"
+          title="Add row at end, or press Enter to insert below selection, Ctrl+Shift+Enter to insert above"
         >
           <Plus className="w-4 h-4" />
           {!isMobile && 'Add Row'}

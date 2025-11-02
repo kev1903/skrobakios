@@ -65,6 +65,11 @@ export const WBSRowContextMenu = ({
         
         <ContextMenuSeparator />
         
+        <ContextMenuItem onClick={() => onAction('insert-above', itemId)} className="cursor-pointer">
+          <PlusCircle className="w-4 h-4 mr-2" />
+          Insert Row Above
+        </ContextMenuItem>
+        
         <ContextMenuItem onClick={() => onAction('insert-below', itemId)} className="cursor-pointer">
           <PlusCircle className="w-4 h-4 mr-2" />
           Insert Row Below
