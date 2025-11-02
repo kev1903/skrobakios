@@ -198,7 +198,17 @@ serve(async (req) => {
     console.log('Filesize:', filesize);
     console.log('Company ID:', company_id);
 
-    // SECURITY: Create authenticated Supabase client to respect RLS
+    // Extract JWT token from Authorization header
+    const jwt = authHeader.replace('Bearer ', '');
+
+    // SECURITY: Create authenticated Supabase client for user verification
+    // Use a separate client instance for auth verification
+    const authClient = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!);
+    
+    // Verify user is authenticated and has access to the company
+    const { data: { user }, error: userError } = await authClient.auth.getUser(jwt);
+    
+    // Now create the main client with RLS headers for database operations
     const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
       global: {
         headers: {
@@ -206,12 +216,6 @@ serve(async (req) => {
         },
       },
     });
-
-    // Extract JWT token from Authorization header
-    const jwt = authHeader.replace('Bearer ', '');
-
-    // Verify user is authenticated and has access to the company
-    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
     if (userError || !user) {
       console.error("Authentication failed:", userError);
       return new Response(

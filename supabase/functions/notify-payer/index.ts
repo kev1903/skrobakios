@@ -35,7 +35,17 @@ const handler = async (req: Request): Promise<Response> => {
       req.headers.get('apikey') ||
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0YXdua2h2eGd4eWxoeHdxbm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5NDUyMjksImV4cCI6MjA2NjUyMTIyOX0.Ip_bdI4HjsfUdsy6WXLJwvQ2mo_Cm0lBAB50nJt5OPw';
     
-    // Create client with user's auth token - this respects RLS and company isolation
+    // Extract JWT token from Authorization header
+    const jwt = authHeader.replace('Bearer ', '');
+
+    // SECURITY: Create authenticated Supabase client for user verification
+    // Use a separate client instance for auth verification
+    const authClient = createClient(supabaseUrl, supabaseAnonKey);
+    
+    // Verify user is authenticated
+    const { data: { user }, error: userError } = await authClient.auth.getUser(jwt);
+    
+    // Now create the main client with RLS headers for database operations
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: {
@@ -43,12 +53,6 @@ const handler = async (req: Request): Promise<Response> => {
         },
       },
     });
-
-    // Extract JWT token from Authorization header
-    const jwt = authHeader.replace('Bearer ', '');
-
-    // Verify user is authenticated
-    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
     if (userError || !user) {
       console.error("Authentication failed:", userError);
       return new Response(
