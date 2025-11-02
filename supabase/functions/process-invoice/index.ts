@@ -325,30 +325,45 @@ serve(async (req) => {
     let documentContent: string;
     
     if (fileType === 'pdf') {
-      // For PDFs: Extract text directly
-      console.log('Extracting text from PDF...');
+      // For PDFs: Use pdfjs to properly extract text
+      console.log('Extracting text from PDF using pdfjs...');
       try {
-        // Convert PDF to text using simple text extraction
-        const textDecoder = new TextDecoder('utf-8');
-        const pdfText = textDecoder.decode(bytes);
+        // Import pdf.js library
+        const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm');
         
-        // Extract readable text from PDF (simple approach)
-        const textMatches = pdfText.match(/\(([^)]+)\)/g);
+        // Load the PDF
+        const loadingTask = pdfjsLib.getDocument({ data: bytes });
+        const pdf = await loadingTask.promise;
+        
+        console.log(`PDF loaded: ${pdf.numPages} pages`);
+        
+        // Extract text from all pages (limit to first 10 pages for performance)
+        const maxPages = Math.min(pdf.numPages, 10);
         let extractedText = '';
-        if (textMatches) {
-          extractedText = textMatches
-            .map(match => match.slice(1, -1))
-            .filter(text => text.length > 2 && /[a-zA-Z0-9]/.test(text))
+        
+        for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items
+            .map((item: any) => item.str)
             .join(' ');
+          extractedText += pageText + '\n';
         }
+        
+        console.log('PDF text extraction complete, extracted length:', extractedText.length);
+        console.log('First 200 chars:', extractedText.slice(0, 200));
         
         if (extractedText.length < 50) {
-          // Fallback: try to extract any visible text
-          extractedText = pdfText.replace(/[^\x20-\x7E\n]/g, '').slice(0, 5000);
+          return new Response(
+            JSON.stringify({
+              ok: false,
+              error: 'PDF appears to be empty or contains no readable text. Please use an image of the invoice instead.'
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
         
-        documentContent = `PDF TEXT CONTENT:\n${extractedText.slice(0, 8000)}`;
-        console.log('PDF text extraction complete, extracted length:', extractedText.length);
+        documentContent = `PDF TEXT CONTENT:\n${extractedText.slice(0, 15000)}`;
       } catch (pdfError) {
         console.error('PDF extraction error:', pdfError);
         return new Response(
