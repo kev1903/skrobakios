@@ -63,25 +63,24 @@ export const WBSToolbar = ({
     <div className={`h-12 bg-white border-b border-gray-200 flex items-center gap-2 ${
       isMobile ? 'px-2' : 'px-4'
     }`}>
-      {/* Row Management */}
+      {/* Row Management - More Prominent */}
       <div className="flex items-center gap-1">
         <Button
-          variant="outline"
           size="sm"
           onClick={onAddRow}
-          className={`h-8 hover:bg-primary/10 hover:border-primary/20 transition-all duration-200 ${
-            isMobile ? 'px-2' : 'px-3'
+          className={`h-9 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200 ${
+            isMobile ? 'px-3' : 'px-4 gap-2'
           }`}
-          title="Add new row"
+          title="Add new row (Enter when row selected)"
         >
-          <Plus className="w-4 h-4 mr-1" />
-          {!isMobile && 'Row'}
+          <Plus className="w-4 h-4" />
+          {!isMobile && 'Add Row'}
         </Button>
       </div>
 
       {!isMobile && <Separator orientation="vertical" className="h-6" />}
 
-      {/* Indentation Controls */}
+      {/* Indentation Controls - With Keyboard Hints */}
       <div className="flex items-center gap-1">
         <Button
           variant="outline"
@@ -89,12 +88,14 @@ export const WBSToolbar = ({
           onClick={onOutdent}
           disabled={!hasSelection || !canOutdent}
           className={cn(
-            "h-8 w-8 p-0 hover:bg-primary/10 hover:border-primary/20 transition-all duration-200",
-            (!hasSelection || !canOutdent) && "opacity-40"
+            "h-9 gap-1.5 hover:bg-primary/10 hover:border-primary/20 transition-all duration-200",
+            (!hasSelection || !canOutdent) && "opacity-40",
+            isMobile ? 'w-9 p-0' : 'px-3'
           )}
-          title="Decrease indent"
+          title="Outdent (Shift+Tab)"
         >
           <Outdent className="w-4 h-4" />
+          {!isMobile && !isTablet && <span className="text-xs">Outdent</span>}
         </Button>
         <Button
           variant="outline"
@@ -102,12 +103,14 @@ export const WBSToolbar = ({
           onClick={onIndent}
           disabled={!hasSelection || !canIndent}
           className={cn(
-            "h-8 w-8 p-0 hover:bg-primary/10 hover:border-primary/20 transition-all duration-200",
-            (!hasSelection || !canIndent) && "opacity-40"
+            "h-9 gap-1.5 hover:bg-primary/10 hover:border-primary/20 transition-all duration-200",
+            (!hasSelection || !canIndent) && "opacity-40",
+            isMobile ? 'w-9 p-0' : 'px-3'
           )}
-          title="Increase indent"
+          title="Indent (Tab)"
         >
           <Indent className="w-4 h-4" />
+          {!isMobile && !isTablet && <span className="text-xs">Indent</span>}
         </Button>
       </div>
 

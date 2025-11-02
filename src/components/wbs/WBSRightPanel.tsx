@@ -169,7 +169,7 @@ const WBSRow = memo(({
       data-row-id={item.id}
       style={{
         gridTemplateColumns: '140px 120px 160px 60px 40px 40px 84px',
-        height: '1.75rem',
+        height: '36px',
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

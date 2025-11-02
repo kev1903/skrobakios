@@ -73,8 +73,37 @@ export const WBSSplitView = ({
   const handleAddRow = useCallback(() => {
     if (onAddRow) {
       onAddRow();
+      // Clear selection after adding new row
+      setSelectedItems([]);
     }
   }, [onAddRow]);
+
+  // Helper functions to check indent/outdent availability
+  const canIndent = useCallback(() => {
+    if (selectedItems.length === 0) return false;
+    
+    // Check if any selected item can be indented
+    return selectedItems.some(itemId => {
+      const itemIndex = items.findIndex(i => i.id === itemId);
+      if (itemIndex <= 0) return false;
+      
+      const item = items[itemIndex];
+      const prevItem = items[itemIndex - 1];
+      
+      // Can indent if previous item exists and is same or higher level
+      return prevItem && prevItem.level >= item.level;
+    });
+  }, [selectedItems, items]);
+
+  const canOutdent = useCallback(() => {
+    if (selectedItems.length === 0) return false;
+    
+    // Check if any selected item can be outdented (level > 0)
+    return selectedItems.some(itemId => {
+      const item = items.find(i => i.id === itemId);
+      return item && item.level > 0;
+    });
+  }, [selectedItems, items]);
   const handleIndent = useCallback(async () => {
     if (selectedItems.length === 0) return;
     try {
@@ -445,13 +474,48 @@ export const WBSSplitView = ({
     }
   }, [selectedItems, items]);
 
-  // Keyboard navigation for row selection
+  // Keyboard navigation and shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle if we have items and aren't in an input field
-      if (items.length === 0 || (e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') {
+      const target = e.target as HTMLElement;
+      const isEditingText = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+      
+      // Only handle if we have items
+      if (items.length === 0) return;
+
+      // Tab - Indent (only when not editing text)
+      if (e.key === 'Tab' && !e.shiftKey && selectedItems.length > 0 && !isEditingText) {
+        e.preventDefault();
+        if (canIndent()) {
+          handleIndent();
+        }
         return;
       }
+      
+      // Shift+Tab - Outdent (only when not editing text)
+      if (e.key === 'Tab' && e.shiftKey && selectedItems.length > 0 && !isEditingText) {
+        e.preventDefault();
+        if (canOutdent()) {
+          handleOutdent();
+        }
+        return;
+      }
+
+      // Delete - Delete selected rows (only when not editing text)
+      if (e.key === 'Delete' && selectedItems.length > 0 && !isEditingText) {
+        e.preventDefault();
+        const itemToDelete = items.find(i => i.id === selectedItems[0]);
+        if (itemToDelete) {
+          const itemType = itemToDelete.level === 0 ? 'phase' : 
+                          itemToDelete.level === 1 ? 'component' : 
+                          itemToDelete.level === 2 ? 'element' : 'task';
+          onContextMenuAction('delete', selectedItems[0], itemType);
+        }
+        return;
+      }
+
+      // Arrow navigation and Enter (don't handle when editing text)
+      if (isEditingText) return;
 
       // Helper to check if item is visible (all ancestors are expanded)
       const isItemVisible = (itemId: string): boolean => {
@@ -472,7 +536,14 @@ export const WBSSplitView = ({
       // Get visible items
       const visibleItems = items.filter(item => isItemVisible(item.id));
 
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter') {
+      // Enter - Add new row when row selected
+      if (e.key === 'Enter' && selectedItems.length > 0) {
+        e.preventDefault();
+        handleAddRow();
+        return;
+      }
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
         
         const currentSelectedId = selectedItems.length > 0 ? selectedItems[selectedItems.length - 1] : null;
@@ -480,8 +551,8 @@ export const WBSSplitView = ({
 
         let newIndex = -1;
         
-        if (e.key === 'ArrowDown' || e.key === 'Enter') {
-          // Move down or Enter (next row)
+        if (e.key === 'ArrowDown') {
+          // Move down
           if (currentIndex === -1) {
             newIndex = 0; // Select first item if nothing selected
           } else if (currentIndex < visibleItems.length - 1) {
@@ -513,7 +584,7 @@ export const WBSSplitView = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [items, selectedItems]);
+  }, [items, selectedItems, handleIndent, handleOutdent, handleAddRow, canIndent, canOutdent, onContextMenuAction]);
 
   // Synchronize scrolling between left and right panels
   const handleLeftScroll = useCallback(() => {

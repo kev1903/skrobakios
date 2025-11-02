@@ -91,7 +91,7 @@ export const WBSLeftPanel = ({
               return (
                 <div key={item.id} className="contents">
                   {dragIndicator && dragIndicator.type === 'item' && dragIndicator.index === index && (
-                    <div className="px-2"><div className="h-0.5 bg-primary/60 rounded-full" /></div>
+                    <div className="px-2 py-1"><div className="h-1 bg-primary rounded-full shadow-sm" /></div>
                   )}
                   
                   <Draggable draggableId={item.id} index={index}>
@@ -101,29 +101,30 @@ export const WBSLeftPanel = ({
                           ref={dragProvided.innerRef}
                           {...dragProvided.draggableProps}
                           data-row-id={item.id}
-                          className={`flex items-center border-b border-gray-100 border-l-4 cursor-pointer transition-colors duration-150 ${
+                          className={`flex items-center border-b border-gray-100 border-l-4 cursor-pointer transition-all duration-200 ${
                             selectedItems.includes(item.id) 
-                              ? 'bg-primary/10 border-l-primary' 
+                              ? 'bg-primary/20 border-l-primary shadow-sm' 
                               : hoveredId === item.id 
-                                ? itemHasChildren ? 'bg-slate-100 border-l-transparent' : 'bg-gray-50 border-l-transparent'
-                                : itemHasChildren ? 'bg-slate-50 border-l-transparent' : 'bg-white hover:bg-gray-50 border-l-transparent'
-                          } ${snapshot.isDragging ? 'bg-white shadow-lg border rounded-md' : ''}`}
+                                ? itemHasChildren ? 'bg-accent/30 border-l-transparent' : 'bg-accent/20 border-l-transparent'
+                                : itemHasChildren ? 'bg-slate-50 border-l-transparent' : 'bg-white hover:bg-accent/10 border-l-transparent'
+                          } ${snapshot.isDragging ? 'bg-white shadow-2xl border-2 border-primary/50 rounded-lg scale-[1.02]' : ''}`}
                           style={{
-                            height: '28px',
-                            width: snapshot.isDragging ? '580px' : 'auto',
+                            height: '36px',
+                            width: snapshot.isDragging ? '600px' : 'auto',
                             ...dragProvided.draggableProps.style,
                           }}
                           onMouseEnter={() => onRowHover?.(item.id)}
                           onMouseLeave={() => onRowHover?.(null)}
                         >
-                          {/* Drag Handle - Separate from context menu */}
-                          <div className="px-2 flex items-center justify-center h-full flex-shrink-0" style={{ width: '32px' }}>
+                          {/* Drag Handle - Larger and more prominent */}
+                          <div className="px-2 flex items-center justify-center h-full flex-shrink-0" style={{ width: '40px' }}>
                             <div
                               {...dragProvided.dragHandleProps}
-                              className="cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 hover:bg-accent/20"
+                              className="cursor-grab active:cursor-grabbing p-1.5 rounded transition-all duration-200 hover:bg-primary/10 hover:scale-110"
                               title="Drag to reorder"
+                              style={{ minWidth: '24px', minHeight: '24px' }}
                             >
-                              <GripVertical className="w-3 h-3 text-muted-foreground" />
+                              <GripVertical className="w-4 h-4 text-muted-foreground hover:text-primary" />
                             </div>
                           </div>
 
