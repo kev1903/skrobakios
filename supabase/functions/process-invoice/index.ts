@@ -374,8 +374,7 @@ MATCHING EXAMPLES WITH UUID RETURN:
 
 Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.${projectsContext}${wbsContext}`;
 
-    // Parse the file format: FILE:mimetype:base64data
-    const [_, mimeType, base64Data] = documentContent.split(':');
+    // We already have mimeType and base64Data from above, no need to parse documentContent
     
     const aiMessages = [
       {
