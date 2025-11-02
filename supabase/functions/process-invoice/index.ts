@@ -207,11 +207,9 @@ serve(async (req) => {
       },
     });
 
-    // Extract JWT token from Authorization header
-    const jwt = authHeader.replace('Bearer ', '');
-
     // Verify user is authenticated and has access to the company
-    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
+    // Note: No need to pass JWT to getUser() since it's already in global headers
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       console.error("Authentication failed:", userError);
       return new Response(
