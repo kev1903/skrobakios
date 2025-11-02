@@ -207,26 +207,36 @@ const handler = async (req: Request): Promise<Response> => {
       const attachments = [];
       for (const bill of payerBills) {
         if (bill.storage_path) {
+          console.log(`Attempting to download bill file from storage: ${bill.storage_path}`);
           try {
             const { data: fileData, error: fileError } = await supabase.storage
               .from('bills')
               .download(bill.storage_path);
             
             if (fileError) {
-              console.warn(`Could not fetch bill file for ${bill.id}:`, fileError);
+              console.error(`Could not fetch bill file for ${bill.id} (path: ${bill.storage_path}):`, fileError);
             } else if (fileData) {
               const arrayBuffer = await fileData.arrayBuffer();
-              const buffer = Buffer.from(arrayBuffer);
+              const base64Content = btoa(
+                new Uint8Array(arrayBuffer).reduce(
+                  (data, byte) => data + String.fromCharCode(byte),
+                  ''
+                )
+              );
               const fileName = bill.storage_path.split('/').pop() || `bill-${bill.reference_number || bill.bill_no}.pdf`;
+              
+              console.log(`Successfully downloaded and converted file: ${fileName} (${arrayBuffer.byteLength} bytes)`);
               
               attachments.push({
                 filename: fileName,
-                content: buffer,
+                content: base64Content,
               });
             }
           } catch (err) {
-            console.warn(`Error downloading bill file ${bill.storage_path}:`, err);
+            console.error(`Exception downloading bill file ${bill.storage_path}:`, err);
           }
+        } else {
+          console.warn(`Bill ${bill.id} (${bill.supplier_name}) has no storage_path - cannot attach file`);
         }
       }
       
