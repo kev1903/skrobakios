@@ -25,6 +25,7 @@ interface Bill {
   total: number;
   due_date: string;
   bill_no?: string;
+  storage_path?: string;
   projects?: {
     name: string;
     project_id: string;
@@ -70,6 +71,10 @@ export const BillNotificationEmail = ({
             </Heading>
             {bills.map((bill, index) => {
               const markAsPaidUrl = `${SUPABASE_URL}/functions/v1/mark-bill-paid?billId=${bill.id}&token=${bill.token}`;
+              const downloadUrl = bill.storage_path 
+                ? `${SUPABASE_URL}/storage/v1/object/public/bills/${bill.storage_path}`
+                : null;
+              
               return (
                 <div key={index} style={invoiceItem}>
                   <Row style={{ backgroundColor: '#ffffff' }}>
@@ -90,6 +95,11 @@ export const BillNotificationEmail = ({
                       <Button href={markAsPaidUrl} style={markAsPaidButton}>
                         Mark as Paid
                       </Button>
+                      {downloadUrl && (
+                        <Button href={downloadUrl} style={downloadButton}>
+                          ⬇ Download PDF
+                        </Button>
+                      )}
                     </Column>
                   </Row>
                 </div>
@@ -259,4 +269,21 @@ const markAsPaidButton = {
   border: 'none',
   cursor: 'pointer',
   textAlign: 'center' as const,
+  marginBottom: '8px',
+  width: '100%',
+};
+
+const downloadButton = {
+  backgroundColor: '#10b981',
+  color: '#ffffff',
+  fontSize: '12px',
+  fontWeight: '600' as const,
+  borderRadius: '8px',
+  padding: '10px 20px',
+  textDecoration: 'none',
+  display: 'inline-block',
+  border: 'none',
+  cursor: 'pointer',
+  textAlign: 'center' as const,
+  width: '100%',
 };
