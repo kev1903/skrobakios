@@ -3,9 +3,6 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { validateRequest, ProcessInvoiceRequest } from "./schemas.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
-// Import PDF.js for text extraction
-import * as pdfjsLib from "npm:pdfjs-dist@4.0.379/legacy/build/pdf.mjs";
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -54,51 +51,18 @@ const InvoiceSchema = {
   }
 };
 
-// Extract text from PDF using PDF.js - MEMORY OPTIMIZED
-async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
-  try {
-    console.log('=== EXTRACTING TEXT FROM PDF ===');
-    
-    // Load PDF document with memory optimization
-    const loadingTask = pdfjsLib.getDocument({
-      data: new Uint8Array(pdfBytes),
-      useSystemFonts: true,
-      standardFontDataUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/standard_fonts/",
-      disableFontFace: true, // Reduce memory usage
-      verbosity: 0 // Reduce logging overhead
-    });
-    
-    const pdfDoc = await loadingTask.promise;
-    const numPages = Math.min(pdfDoc.numPages, 3); // Only process first 3 pages for invoices
-    console.log(`PDF loaded: ${pdfDoc.numPages} pages (processing first ${numPages})`);
-    
-    let fullText = '';
-    
-    // Extract text from first few pages only (invoices are usually 1-2 pages)
-    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-      const page = await pdfDoc.getPage(pageNum);
-      const textContent = await page.getTextContent();
-      
-      // Combine text items
-      const pageText = textContent.items
-        .map((item: any) => item.str)
-        .join(' ');
-      
-      fullText += pageText + '\n\n';
-      
-      // Clean up page to free memory
-      page.cleanup();
-    }
-    
-    // Destroy PDF document to free memory
-    await pdfDoc.destroy();
-    
-    console.log(`Total extracted text: ${fullText.length} characters`);
-    return fullText.trim();
-  } catch (error) {
-    console.error('PDF text extraction error:', error);
-    throw new Error(`Failed to extract text from PDF: ${error.message}`);
+// Convert file to base64 for AI processing (works for both PDFs and images)
+function fileToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 8192; // Process in chunks to avoid string length limits
+  
+  for (let i = 0; i < bytes.byteLength; i += chunkSize) {
+    const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.byteLength));
+    binary += String.fromCharCode.apply(null, Array.from(chunk));
   }
+  
+  return btoa(binary);
 }
 
 async function fetchAsArrayBuffer(url: string): Promise<ArrayBuffer> {
@@ -109,15 +73,6 @@ async function fetchAsArrayBuffer(url: string): Promise<ArrayBuffer> {
   return response.arrayBuffer();
 }
 
-// Convert ArrayBuffer to base64
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
 
 // Detect file type from filename
 function getFileType(filename: string): 'pdf' | 'image' | 'unknown' {
@@ -360,38 +315,23 @@ serve(async (req) => {
       );
     }
 
-    // Step 2: Extract text from PDF or prepare image
+    // Step 2: Convert file to base64 for AI processing (both PDFs and images)
     console.log('=== DOCUMENT PROCESSING ===');
-    let documentContent: string;
+    console.log('Converting file to base64 for AI processing...');
+    const base64Data = fileToBase64(bytes);
+    const mimeType = getMimeType(filename);
     
-    if (fileType === 'pdf') {
-      // For PDFs: Extract text content
-      console.log('Extracting text from PDF...');
-      documentContent = await extractTextFromPDF(bytes);
-      console.log('Text extraction complete');
-      console.log('Extracted text preview:', documentContent.substring(0, 300));
-      
-      // Clear bytes from memory after processing
-      (bytes as any) = null;
-    } else {
-      // For images: Convert to base64 for vision processing
-      console.log('Processing image with vision...');
-      const base64Data = arrayBufferToBase64(bytes);
-      const mimeType = getMimeType(filename);
-      documentContent = `IMAGE:${mimeType}:${base64Data}`;
-      
-      // Clear bytes from memory
-      (bytes as any) = null;
-    }
+    // Format: FILE:mimetype:base64data
+    const documentContent = `FILE:${mimeType}:${base64Data}`;
+    
+    console.log('File conversion complete');
+    console.log(`File size: ${(bytes.byteLength / 1024).toFixed(2)}KB, Base64 size: ${(base64Data.length / 1024).toFixed(2)}KB`);
 
     // Step 3: Send to AI for structured extraction
     console.log('=== SENDING TO AI FOR EXTRACTION ===');
     
-    let aiMessages;
-    
-    if (fileType === 'pdf') {
-      // For PDFs with extracted text
-      const systemPrompt = `You are SkAi, an expert invoice data extraction and intelligent project assignment system. Extract structured data from the invoice text and intelligently assign it to the most relevant project and WBS activity.
+    // Universal system prompt for both PDFs and images
+    const systemPrompt = `You are SkAi, an expert invoice data extraction and intelligent project assignment system. Extract structured data from the invoice document and intelligently assign it to the most relevant project and WBS activity.
 
 EXTRACTION RULES:
 1. SUPPLIER: Full company name (look for "Pty Ltd", "LLC", "Inc", etc.)
@@ -403,7 +343,7 @@ EXTRACTION RULES:
 PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
 
 **STEP 1 - PROJECT MATCHING:**
-- **CAREFULLY SCAN** the entire invoice text for project names, keywords, or codes
+- **CAREFULLY SCAN** the entire invoice for project names, keywords, or codes
 - Look in: customer names, reference numbers, addresses, notes, line item descriptions, any text field
 - **KEYWORD MATCHING**: Search for partial matches of project names (e.g., if project is "Skrobaki Construction", look for "Skrobaki" anywhere)
 - **CUSTOMER NAME MATCHING**: If customer name matches project name, that's a strong match
@@ -434,77 +374,31 @@ MATCHING EXAMPLES WITH UUID RETURN:
 
 Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.${projectsContext}${wbsContext}`;
 
-      aiMessages = [
-        {
-          role: 'system',
-          content: systemPrompt
-        },
-        {
-          role: 'user',
-          content: `Extract invoice data and assign to project/WBS from this text:\n\n${documentContent}`
-        }
-      ];
-    } else {
-      // For images with vision
-      const [_, mimeType, base64Data] = documentContent.split(':');
-      
-      const systemPrompt = `You are SkAi, an expert at extracting invoice data from images and intelligently assigning to projects and WBS activities. Analyze the image and extract all fields accurately, then match to the most relevant project and WBS activity.
-
-PROJECT & WBS ASSIGNMENT - CRITICAL MATCHING RULES:
-
-**STEP 1 - PROJECT MATCHING:**
-- **CAREFULLY SCAN** the entire invoice image for project names, keywords, or codes
-- Look in: customer names, reference numbers, addresses, notes, line item descriptions, any visible text
-- **KEYWORD MATCHING**: Search for partial matches of project names (e.g., if project is "Skrobaki Construction", look for "Skrobaki" anywhere)
-- **CUSTOMER NAME MATCHING**: If customer name matches project name, that's a strong match
-- **FUZZY MATCHING**: Match even if only part of the project name appears (e.g., "Thanet Street" might match "5 Thanet Street Project")
-- **ADDRESS MATCHING**: If invoice mentions an address, check if it matches any project address or name
-- **CASE INSENSITIVE**: Ignore case differences (e.g., "skrobaki" matches "Skrobaki")
-- If you find ANY keyword match, assign that project (don't require 70% confidence - even 40% is enough if there's a keyword match)
-- Explain your reasoning clearly in the project_match_reason field
-
-**STEP 2 - WBS ACTIVITY MATCHING (AFTER PROJECT IS MATCHED):**
-- **CRITICAL**: Only select WBS activities that have "Belongs to Project ID" matching the project_id you selected in Step 1
-- Look at invoice line items, descriptions, materials, work types to match WBS activities
-- Match keywords: e.g., "landscaping" → WBS for landscaping work, "concrete" → WBS for concrete work
-- **STRONG MATCH REQUIRED**: Only assign WBS if there's a clear match to the WBS title/description/category
-- If no clear WBS match exists for the matched project, return null for wbs_activity_id
-- Explain your reasoning clearly in the wbs_match_reason field
-
-**CRITICAL UUID RETURN RULE:**
-- ALWAYS return the exact UUID string from the list (e.g., "f8b3c4d5-1234-5678-90ab-cdef12345678")
-- NEVER return the project code (like "SKROBAKI-PRJ-1") or project name (like "Skrobaki Project")
-- NEVER return null if you found a keyword match - return the UUID from the "UUID:" field
-- Copy the UUID EXACTLY as shown in the "UUID:" line of the matching project/WBS
-
-MATCHING EXAMPLES WITH UUID RETURN:
-- Invoice mentions "Skrobaki project" → Find project with "Skrobaki" in name → Return its UUID (not the code)
-- Invoice mentions "5 Thanet Street" → Find project with "Thanet" in name → Return its UUID
-- Invoice mentions "structural steel" → Find WBS activity about "structural" work → Return its UUID${projectsContext}${wbsContext}`;
-
-      aiMessages = [
-        {
-          role: 'system',
-          content: systemPrompt
-        },
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: 'Extract all invoice data from this image including supplier, invoice number, dates, amounts, line items. Also intelligently assign to the most relevant project and WBS activity from the available lists.'
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:${mimeType};base64,${base64Data}`,
-                detail: 'high'
-              }
+    // Parse the file format: FILE:mimetype:base64data
+    const [_, mimeType, base64Data] = documentContent.split(':');
+    
+    const aiMessages = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: 'Extract all invoice data from this document including supplier, invoice number, dates, amounts, line items. Also intelligently assign to the most relevant project and WBS activity from the available lists.'
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: `data:${mimeType};base64,${base64Data}`,
+              detail: 'high'
             }
-          ]
-        }
-      ];
-    }
+          }
+        ]
+      }
+    ];
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
