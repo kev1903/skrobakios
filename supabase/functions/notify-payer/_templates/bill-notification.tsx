@@ -141,7 +141,7 @@ const container = {
   maxWidth: '600px',
   borderRadius: '16px',
   border: '1px solid #e2e8f0',
-  boxShadow: '0 10px 40px rgba(15, 23, 42, 0.1), 0 4px 12px rgba(15, 23, 42, 0.05)',
+  boxShadow: '0 4px 12px #e2e8f0',
   overflow: 'hidden',
 };
 
@@ -161,11 +161,10 @@ const heading = {
   padding: '0',
   lineHeight: '1.2',
   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
-  textShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
 };
 
 const subtitle = {
-  color: 'rgba(255, 255, 255, 0.95)',
+  color: '#ffffff',
   fontSize: '14px',
   fontWeight: '500',
   margin: '0',
@@ -209,8 +208,8 @@ const invoiceItem = {
   margin: '0 0 16px',
   padding: '20px 24px',
   borderRadius: '12px',
-  border: '1px solid #e2e8f0',
-  boxShadow: '0 2px 8px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04)',
+  border: '2px solid #e2e8f0',
+  boxShadow: 'none',
 };
 
 const signature = {
@@ -227,7 +226,7 @@ const signatureText = {
 };
 
 const footerDivider = {
-  borderColor: 'rgba(226, 232, 240, 0.5)',
+  borderColor: '#e2e8f0',
   borderWidth: '1px',
   margin: '0',
 };
@@ -247,7 +246,7 @@ const footerText = {
 };
 
 const markAsPaidButton = {
-  background: 'linear-gradient(135deg, #217BF4 0%, #1e70e8 100%)',
+  backgroundColor: '#217BF4',
   color: '#ffffff',
   fontSize: '13px',
   fontWeight: '600' as const,
@@ -255,7 +254,7 @@ const markAsPaidButton = {
   padding: '10px 18px',
   textDecoration: 'none',
   display: 'inline-block',
-  boxShadow: '0 2px 8px rgba(33, 123, 244, 0.25)',
+  boxShadow: 'none',
   border: 'none',
   cursor: 'pointer',
   textAlign: 'center' as const,
