@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("Notify payer function called");
+    console.log("Notify payer function called - v2");
 
     // SECURITY: Get auth token from request to respect RLS and company isolation
     const authHeader = req.headers.get('Authorization');
