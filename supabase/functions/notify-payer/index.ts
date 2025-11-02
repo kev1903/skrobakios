@@ -189,18 +189,18 @@ const handler = async (req: Request): Promise<Response> => {
       // Fetch bill attachments from storage (RLS on storage applies company isolation)
       const attachments = [];
       for (const bill of payerBills) {
-        if (bill.bill_file_path) {
+        if (bill.storage_path) {
           try {
             const { data: fileData, error: fileError } = await supabase.storage
               .from('bills')
-              .download(bill.bill_file_path);
+              .download(bill.storage_path);
             
             if (fileError) {
               console.warn(`Could not fetch bill file for ${bill.id}:`, fileError);
             } else if (fileData) {
               const arrayBuffer = await fileData.arrayBuffer();
               const buffer = Buffer.from(arrayBuffer);
-              const fileName = bill.bill_file_path.split('/').pop() || `bill-${bill.invoice_number || bill.bill_no}.pdf`;
+              const fileName = bill.storage_path.split('/').pop() || `bill-${bill.reference_number || bill.bill_no}.pdf`;
               
               attachments.push({
                 filename: fileName,
@@ -208,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
               });
             }
           } catch (err) {
-            console.warn(`Error downloading bill file ${bill.bill_file_path}:`, err);
+            console.warn(`Error downloading bill file ${bill.storage_path}:`, err);
           }
         }
       }
