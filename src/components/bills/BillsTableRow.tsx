@@ -88,44 +88,45 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
   };
 
   return (
-    <TableRow key={bill.id}>
-      <TableCell>
+    <TableRow key={bill.id} className="h-10">
+      <TableCell className="py-1.5">
         <Checkbox
           checked={isSelected}
           onCheckedChange={(checked) => 
             onSelect(bill.id, checked as boolean)
           }
+          className="h-3.5 w-3.5"
         />
       </TableCell>
-      <TableCell>
-        <div className="flex items-center space-x-2">
-          <span>{bill.dueDate}</span>
+      <TableCell className="py-1.5">
+        <div className="flex items-center space-x-1.5">
+          <span className="text-xs">{bill.dueDate}</span>
           {bill.hasWarning && (
-            <AlertTriangle className="w-4 h-4 text-red-500" />
+            <AlertTriangle className="w-3 h-3 text-red-500" />
           )}
         </div>
       </TableCell>
-      <TableCell>{bill.vendor}</TableCell>
-      <TableCell className="font-medium">{bill.billNumber}</TableCell>
-      <TableCell>
-        <span className="text-sm text-muted-foreground">
+      <TableCell className="py-1.5 text-xs">{bill.vendor}</TableCell>
+      <TableCell className="py-1.5 text-xs font-medium">{bill.billNumber}</TableCell>
+      <TableCell className="py-1.5">
+        <span className="text-xs text-muted-foreground">
           {bill.project || '-'}
         </span>
       </TableCell>
-      <TableCell className="text-right font-medium">
+      <TableCell className="py-1.5 text-right text-xs font-medium">
         ${bill.amount}
       </TableCell>
-      <TableCell>
+      <TableCell className="py-1.5">
         {onStatusChange ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="h-7 text-xs px-2 flex items-center gap-1"
+                className="h-6 text-[10px] px-1.5 flex items-center gap-0.5"
               >
                 {getStatusLabel(bill.status)}
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown className="h-2.5 w-2.5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -150,17 +151,17 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Badge variant={getStatusBadgeVariant(bill.status)}>
+          <Badge variant={getStatusBadgeVariant(bill.status)} className="text-[10px] h-5 px-1.5">
             {getStatusLabel(bill.status)}
           </Badge>
         )}
       </TableCell>
-      <TableCell className="min-w-[200px]">
+      <TableCell className="min-w-[200px] py-1.5">
         <Select
           value={bill.linkedCashInAccount || "none"}
           onValueChange={(value) => onAccountLinkChange(bill.id, value === "none" ? "" : value)}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full h-7 text-xs">
             <SelectValue placeholder="Select account" />
           </SelectTrigger>
           <SelectContent>
@@ -173,17 +174,17 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
           </SelectContent>
         </Select>
       </TableCell>
-      <TableCell className="min-w-[200px]">
+      <TableCell className="min-w-[200px] py-1.5">
         <StakeholderCombobox
           value={bill.toPay || ""}
           onValueChange={(value) => onToPayChange(bill.id, value)}
         />
       </TableCell>
-      <TableCell>
+      <TableCell className="py-1.5">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="w-4 h-4" />
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <MoreHorizontal className="w-3 h-3" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
