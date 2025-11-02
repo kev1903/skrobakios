@@ -14,14 +14,14 @@ export const ProcessInvoiceRequestSchema = z.object({
   filename: z.string()
     .min(1, { message: 'Filename is required' })
     .max(255, { message: 'Filename too long' })
-    .regex(/^[a-zA-Z0-9._-]+\.(jpg|jpeg|png)$/i, { 
-      message: 'Only image files (JPG, JPEG, PNG) are supported' 
+    .regex(/^[a-zA-Z0-9._-]+\.(pdf|jpg|jpeg|png)$/i, { 
+      message: 'Invalid filename or unsupported file type. Only PDF, JPG, JPEG, PNG are supported.' 
     }),
   
   filesize: z.number()
     .int({ message: 'Filesize must be an integer' })
     .positive({ message: 'Filesize must be positive' })
-    .max(1 * 1024 * 1024, { message: 'File too large (max 1MB for AI processing)' }),
+    .max(5 * 1024 * 1024, { message: 'File too large (max 5MB)' }),
   
   storage_path: z.string()
     .min(1, { message: 'Storage path is required' })

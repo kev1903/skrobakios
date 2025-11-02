@@ -160,18 +160,6 @@ serve(async (req) => {
     console.log('Filename:', filename);
     console.log('Filesize:', filesize);
     console.log('Company ID:', company_id);
-    
-    // Stricter file size limit for AI processing (1MB max to avoid payload issues)
-    if (filesize > 1 * 1024 * 1024) {
-      console.error('File too large for AI processing:', filesize);
-      return new Response(
-        JSON.stringify({
-          ok: false,
-          error: 'File size must be under 1MB for AI processing. Please compress or reduce the file size.'
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     // Extract JWT token from Authorization header
     const jwt = authHeader.replace('Bearer ', '');
@@ -330,45 +318,71 @@ serve(async (req) => {
       );
     }
 
-    // Step 2: Detect and validate file type
+    // Step 2: Process file based on type
     console.log('=== DOCUMENT PROCESSING ===');
-    console.log('Converting file to base64 for AI processing...');
     
     const fileType = getFileType(filename);
     console.log('File type detected:', fileType);
     
-    // Only accept image files for AI processing (PDFs are too complex)
-    if (fileType !== 'image') {
-      console.error('Unsupported file type for AI processing:', fileType);
-      return new Response(
-        JSON.stringify({
-          ok: false,
-          error: 'Only image files (JPG, JPEG, PNG) are supported for AI extraction. Please convert your PDF to an image or take a photo of the document.'
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    let documentContent: string;
     
-    const base64Data = fileToBase64(bytes);
-    const mimeType = getMimeType(filename);
-    
-    // Format: FILE:mimetype:base64data
-    const documentContent = `FILE:${mimeType}:${base64Data}`;
-    
-    console.log('File conversion complete');
-    console.log(`File size: ${(bytes.byteLength / 1024).toFixed(2)}KB, Base64 size: ${(base64Data.length / 1024).toFixed(2)}KB`);
-    
-    // Validate base64 size (max ~700KB base64 = ~500KB file after encoding overhead)
-    const base64SizeKB = base64Data.length / 1024;
-    if (base64SizeKB > 700) {
-      console.error('Base64 payload too large:', base64SizeKB, 'KB');
-      return new Response(
-        JSON.stringify({
-          ok: false,
-          error: `File produces a payload that is too large (${base64SizeKB.toFixed(0)}KB). Please use a smaller or more compressed file.`
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (fileType === 'pdf') {
+      // For PDFs: Extract text directly
+      console.log('Extracting text from PDF...');
+      try {
+        // Convert PDF to text using simple text extraction
+        const textDecoder = new TextDecoder('utf-8');
+        const pdfText = textDecoder.decode(bytes);
+        
+        // Extract readable text from PDF (simple approach)
+        const textMatches = pdfText.match(/\(([^)]+)\)/g);
+        let extractedText = '';
+        if (textMatches) {
+          extractedText = textMatches
+            .map(match => match.slice(1, -1))
+            .filter(text => text.length > 2 && /[a-zA-Z0-9]/.test(text))
+            .join(' ');
+        }
+        
+        if (extractedText.length < 50) {
+          // Fallback: try to extract any visible text
+          extractedText = pdfText.replace(/[^\x20-\x7E\n]/g, '').slice(0, 5000);
+        }
+        
+        documentContent = `PDF TEXT CONTENT:\n${extractedText.slice(0, 8000)}`;
+        console.log('PDF text extraction complete, extracted length:', extractedText.length);
+      } catch (pdfError) {
+        console.error('PDF extraction error:', pdfError);
+        return new Response(
+          JSON.stringify({
+            ok: false,
+            error: 'Failed to extract text from PDF. Please ensure the PDF contains readable text or use an image instead.'
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } else {
+      // For images: Convert to base64
+      console.log('Converting image to base64 for AI processing...');
+      const base64Data = fileToBase64(bytes);
+      const mimeType = getMimeType(filename);
+      
+      // Validate base64 size (max ~3MB base64 for images)
+      const base64SizeKB = base64Data.length / 1024;
+      if (base64SizeKB > 3000) {
+        console.error('Base64 payload too large:', base64SizeKB, 'KB');
+        return new Response(
+          JSON.stringify({
+            ok: false,
+            error: `Image file produces a payload that is too large (${base64SizeKB.toFixed(0)}KB). Please use a smaller or more compressed image.`
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      documentContent = `IMAGE_BASE64:${mimeType}:${base64Data}`;
+      console.log('Image conversion complete');
+      console.log(`File size: ${(bytes.byteLength / 1024).toFixed(2)}KB, Base64 size: ${base64SizeKB.toFixed(2)}KB`);
     }
 
     // Step 3: Send to AI for structured extraction
@@ -418,14 +432,18 @@ MATCHING EXAMPLES WITH UUID RETURN:
 
 Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.${projectsContext}${wbsContext}`;
 
-    // We already have mimeType and base64Data from above, no need to parse documentContent
-    
-    const aiMessages = [
+    // Step 3: Build AI messages based on content type
+    const aiMessages: any[] = [
       {
         role: 'system',
         content: systemPrompt
-      },
-      {
+      }
+    ];
+    
+    if (documentContent.startsWith('IMAGE_BASE64:')) {
+      // For images: send as image_url
+      const [_, mimeType, base64Data] = documentContent.split(':');
+      aiMessages.push({
         role: 'user',
         content: [
           {
@@ -436,12 +454,18 @@ Be precise with data extraction. Set high confidence (0.9+) only if all fields a
             type: 'image_url',
             image_url: {
               url: `data:${mimeType};base64,${base64Data}`,
-              detail: 'low' // Use 'low' to reduce payload and processing requirements
+              detail: 'low'
             }
           }
         ]
-      }
-    ];
+      });
+    } else {
+      // For PDFs: send as text
+      aiMessages.push({
+        role: 'user',
+        content: `Extract all invoice data from this document including supplier, invoice number, dates, amounts, line items. Also intelligently assign to the most relevant project and WBS activity from the available lists.\n\n${documentContent}`
+      });
+    }
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
