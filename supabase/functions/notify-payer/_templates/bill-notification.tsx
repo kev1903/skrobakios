@@ -127,11 +127,12 @@ export const BillNotificationEmail = ({
 
 export default BillNotificationEmail;
 
-// Styles - Modern Liquid Glass Design
+// Styles - Clean White Background Design
 const main = {
   backgroundColor: '#ffffff',
   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
   padding: '40px 20px',
+  margin: '0',
 };
 
 const container = {
@@ -139,17 +140,16 @@ const container = {
   margin: '0 auto',
   padding: '0',
   maxWidth: '600px',
-  borderRadius: '16px',
-  border: '1px solid #e2e8f0',
-  boxShadow: '0 4px 12px #e2e8f0',
+  borderRadius: '12px',
+  border: '2px solid #cccccc',
   overflow: 'hidden',
 };
 
 const header = {
-  background: 'linear-gradient(135deg, #217BF4 0%, #1e70e8 50%, #217BF4 100%)',
+  backgroundColor: '#217BF4',
   padding: '48px 40px 40px',
   textAlign: 'center' as const,
-  position: 'relative' as const,
+  margin: '0',
 };
 
 const heading = {
@@ -175,10 +175,11 @@ const subtitle = {
 const content = {
   padding: '36px 40px 24px',
   backgroundColor: '#ffffff',
+  margin: '0',
 };
 
 const paragraph = {
-  color: '#334155',
+  color: '#1a1a1a',
   fontSize: '15px',
   lineHeight: '1.7',
   margin: '0 0 18px',
@@ -187,12 +188,12 @@ const paragraph = {
 
 const billsSection = {
   padding: '24px 40px 32px',
-  backgroundColor: '#f8fafc',
+  backgroundColor: '#ffffff',
   margin: '0',
 };
 
 const sectionHeading = {
-  color: '#0f172a',
+  color: '#1a1a1a',
   fontSize: '18px',
   fontWeight: '600',
   margin: '0 0 24px',
@@ -202,23 +203,23 @@ const sectionHeading = {
 
 const invoiceItem = {
   backgroundColor: '#ffffff',
-  color: '#1e293b',
+  color: '#1a1a1a',
   fontSize: '14px',
   lineHeight: '1.8',
   margin: '0 0 16px',
   padding: '20px 24px',
-  borderRadius: '12px',
-  border: '2px solid #e2e8f0',
-  boxShadow: 'none',
+  borderRadius: '8px',
+  border: '2px solid #cccccc',
 };
 
 const signature = {
   padding: '24px 40px 36px',
   backgroundColor: '#ffffff',
+  margin: '0',
 };
 
 const signatureText = {
-  color: '#475569',
+  color: '#1a1a1a',
   fontSize: '15px',
   lineHeight: '1.7',
   margin: '0 0 12px',
@@ -226,7 +227,7 @@ const signatureText = {
 };
 
 const footerDivider = {
-  borderColor: '#e2e8f0',
+  borderColor: '#cccccc',
   borderWidth: '1px',
   margin: '0',
 };
@@ -234,11 +235,12 @@ const footerDivider = {
 const footer = {
   padding: '28px 40px',
   textAlign: 'center' as const,
-  backgroundColor: '#f8fafc',
+  backgroundColor: '#ffffff',
+  margin: '0',
 };
 
 const footerText = {
-  color: '#64748b',
+  color: '#666666',
   fontSize: '13px',
   lineHeight: '1.6',
   margin: '0',
@@ -251,12 +253,10 @@ const markAsPaidButton = {
   fontSize: '13px',
   fontWeight: '600' as const,
   borderRadius: '8px',
-  padding: '10px 18px',
+  padding: '12px 24px',
   textDecoration: 'none',
   display: 'inline-block',
-  boxShadow: 'none',
   border: 'none',
   cursor: 'pointer',
   textAlign: 'center' as const,
-  letterSpacing: '0.3px',
 };
