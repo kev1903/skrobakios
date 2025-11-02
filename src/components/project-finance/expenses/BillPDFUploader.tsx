@@ -222,6 +222,20 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     setError(null);
 
     try {
+      // Get company_id from project first (required for security)
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .select('company_id')
+        .eq('id', projectId)
+        .single();
+
+      if (projectError || !projectData?.company_id) {
+        throw new Error('Could not find company for this project');
+      }
+
+      const companyId = projectData.company_id;
+      console.log('Project company_id:', companyId);
+
       // Sanitize filename - replace spaces and special chars with underscores
       const sanitizedFileName = file.name
         .replace(/[^a-zA-Z0-9._-]/g, '_')
@@ -270,16 +284,17 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       console.log('Signed URL generated:', fullSignedUrl);
       setUploadProgress(40);
 
-      // Step 3: Call edge function using invokeEdge helper (same as InvoicePDFUploader)
+      // Step 3: Call edge function with company_id for security
       const requestBody = {
         signed_url: fullSignedUrl,
         filename: sanitizedFileName,
         filesize: file.size,
-        storage_path: uploadData.path
+        storage_path: uploadData.path,
+        company_id: companyId // CRITICAL: Required for RLS security
       };
       
       console.log('=== CALLING EDGE FUNCTION ===');
-      console.log('Request body:', requestBody);
+      console.log('Request body with company_id:', companyId);
       
       const processingData = await invokeEdge('process-invoice', requestBody);
 

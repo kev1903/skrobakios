@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { validateRequest, ProcessInvoiceRequest } from "./schemas.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 // Import PDF.js for text extraction
 import * as pdfjsLib from "npm:pdfjs-dist@4.0.379/legacy/build/pdf.mjs";
@@ -198,7 +199,6 @@ serve(async (req) => {
     console.log('Company ID:', company_id);
 
     // SECURITY: Create authenticated Supabase client to respect RLS
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.0');
     const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
       global: {
         headers: {
@@ -216,6 +216,8 @@ serve(async (req) => {
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log(`User ${user.id} authenticated for invoice processing`);
 
     // Validate user has access to the company if company_id is provided
     if (company_id) {
