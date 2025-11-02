@@ -318,34 +318,41 @@ serve(async (req) => {
       );
     }
 
-    // Step 2: Process file based on type (send ALL files as base64 to Gemini)
+    // Step 2: Process file - IMAGES ONLY (PDFs not supported by AI Gateway)
     console.log('=== DOCUMENT PROCESSING ===');
     console.log('Processing file type:', fileType);
     
-    // For both PDFs and images: Convert to base64
-    // Gemini 2.5 Pro natively supports PDF files, so we don't need to extract text
-    console.log('Converting document to base64 for AI processing...');
-    const base64Data = fileToBase64(bytes);
-    const mimeType = fileType === 'pdf' ? 'application/pdf' : getMimeType(filename);
-    
-    // Validate base64 size (max ~4MB base64 for PDFs, ~3MB for images)
-    const maxSizeKB = fileType === 'pdf' ? 4000 : 3000;
-    const base64SizeKB = base64Data.length / 1024;
-    
-    if (base64SizeKB > maxSizeKB) {
-      console.error('Base64 payload too large:', base64SizeKB, 'KB');
+    if (fileType === 'pdf') {
+      console.error('PDF files are not supported');
       return new Response(
         JSON.stringify({
           ok: false,
-          error: `File produces a payload that is too large (${base64SizeKB.toFixed(0)}KB). Maximum allowed is ${maxSizeKB}KB. Please use a smaller or more compressed file.`
+          error: 'PDF files are not currently supported. Please upload an image (JPG, JPEG, or PNG) of your invoice instead.'
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
     
-    const documentContent = `DOCUMENT_BASE64:${mimeType}:${base64Data}`;
-    console.log('Document conversion complete');
-    console.log(`File type: ${fileType}, Size: ${(bytes.byteLength / 1024).toFixed(2)}KB, Base64 size: ${base64SizeKB.toFixed(2)}KB, MIME: ${mimeType}`);
+    // For images: Convert to base64
+    console.log('Converting image to base64 for AI processing...');
+    const base64Data = fileToBase64(bytes);
+    const mimeType = getMimeType(filename);
+    
+    // Validate base64 size (max ~3MB base64 for images)
+    const base64SizeKB = base64Data.length / 1024;
+    if (base64SizeKB > 3000) {
+      console.error('Base64 payload too large:', base64SizeKB, 'KB');
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: `Image file produces a payload that is too large (${base64SizeKB.toFixed(0)}KB). Please use a smaller or more compressed image (max 3MB).`
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log('Image conversion complete');
+    console.log(`File size: ${(bytes.byteLength / 1024).toFixed(2)}KB, Base64 size: ${base64SizeKB.toFixed(2)}KB, MIME: ${mimeType}`);
 
     // Step 3: Send to AI for structured extraction
     console.log('=== SENDING TO AI FOR EXTRACTION ===');
@@ -394,8 +401,7 @@ MATCHING EXAMPLES WITH UUID RETURN:
 
 Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.${projectsContext}${wbsContext}`;
 
-    // Step 3: Build AI messages - send document as base64 for Gemini
-    // Use the mimeType and base64Data already declared above
+    // Step 3: Build AI messages - send image for processing
     const aiMessages: any[] = [
       {
         role: 'system',
@@ -406,13 +412,13 @@ Be precise with data extraction. Set high confidence (0.9+) only if all fields a
         content: [
           {
             type: 'text',
-            text: 'Extract all invoice data from this document including supplier, invoice number, dates, amounts, line items. Also intelligently assign to the most relevant project and WBS activity from the available lists.'
+            text: 'Extract all invoice data from this image including supplier, invoice number, dates, amounts, line items. Also intelligently assign to the most relevant project and WBS activity from the available lists.'
           },
           {
             type: 'image_url',
             image_url: {
               url: `data:${mimeType};base64,${base64Data}`,
-              detail: 'high'  // Use high detail for PDFs to ensure text is readable
+              detail: 'high'
             }
           }
         ]
