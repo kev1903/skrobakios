@@ -394,9 +394,8 @@ MATCHING EXAMPLES WITH UUID RETURN:
 
 Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.${projectsContext}${wbsContext}`;
 
-    // Step 3: Build AI messages - send document as inline_data for Gemini
-    const [_, mimeType, base64Data] = documentContent.split(':');
-    
+    // Step 3: Build AI messages - send document as base64 for Gemini
+    // Use the mimeType and base64Data already declared above
     const aiMessages: any[] = [
       {
         role: 'system',
