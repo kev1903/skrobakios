@@ -14,6 +14,7 @@ import { BillEditDialog } from './BillEditDialog';
 import { BillDetailsDialog } from './BillDetailsDialog';
 import { StakeholderCombobox } from '@/components/bills/StakeholderCombobox';
 import { WBSActivitySelect } from './WBSActivitySelect';
+import { invokeEdge } from '@/lib/invokeEdge';
 
 interface Bill {
   id: string;
@@ -385,17 +386,13 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
 
       const fileSize = fileData[0].metadata?.size || 0;
 
-      // Call process-invoice with correct parameters
-      const { data, error } = await supabase.functions.invoke('process-invoice', {
-        body: {
-          signed_url: signedUrlData.signedUrl,
-          filename: attachment.name,
-          filesize: fileSize,
-          storage_path: storagePath
-        }
+      // Call process-invoice with correct parameters using invokeEdge for proper auth
+      const data = await invokeEdge('process-invoice', {
+        signed_url: signedUrlData.signedUrl,
+        filename: attachment.name,
+        filesize: fileSize,
+        storage_path: storagePath
       });
-
-      if (error) throw error;
 
       if (!data?.ok) {
         throw new Error(data?.error || 'Failed to process invoice');
