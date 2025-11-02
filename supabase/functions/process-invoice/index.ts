@@ -320,9 +320,7 @@ serve(async (req) => {
 
     // Step 2: Process file based on type
     console.log('=== DOCUMENT PROCESSING ===');
-    
-    const fileType = getFileType(filename);
-    console.log('File type detected:', fileType);
+    console.log('Processing file type:', fileType);
     
     let documentContent: string;
     
