@@ -21,7 +21,7 @@ export const ProcessInvoiceRequestSchema = z.object({
   filesize: z.number()
     .int({ message: 'Filesize must be an integer' })
     .positive({ message: 'Filesize must be positive' })
-    .max(5 * 1024 * 1024, { message: 'File too large (max 5MB)' }),
+    .max(1 * 1024 * 1024, { message: 'File too large (max 1MB for AI processing)' }),
   
   storage_path: z.string()
     .min(1, { message: 'Storage path is required' })

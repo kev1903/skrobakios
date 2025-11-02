@@ -160,6 +160,18 @@ serve(async (req) => {
     console.log('Filename:', filename);
     console.log('Filesize:', filesize);
     console.log('Company ID:', company_id);
+    
+    // Stricter file size limit for AI processing (1MB max to avoid payload issues)
+    if (filesize > 1 * 1024 * 1024) {
+      console.error('File too large for AI processing:', filesize);
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: 'File size must be under 1MB for AI processing. Please compress or reduce the file size.'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Extract JWT token from Authorization header
     const jwt = authHeader.replace('Bearer ', '');
@@ -329,6 +341,19 @@ serve(async (req) => {
     
     console.log('File conversion complete');
     console.log(`File size: ${(bytes.byteLength / 1024).toFixed(2)}KB, Base64 size: ${(base64Data.length / 1024).toFixed(2)}KB`);
+    
+    // Validate base64 size (max ~700KB base64 = ~500KB file after encoding overhead)
+    const base64SizeKB = base64Data.length / 1024;
+    if (base64SizeKB > 700) {
+      console.error('Base64 payload too large:', base64SizeKB, 'KB');
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: `File produces a payload that is too large (${base64SizeKB.toFixed(0)}KB). Please use a smaller or more compressed file.`
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Step 3: Send to AI for structured extraction
     console.log('=== SENDING TO AI FOR EXTRACTION ===');
@@ -395,7 +420,7 @@ Be precise with data extraction. Set high confidence (0.9+) only if all fields a
             type: 'image_url',
             image_url: {
               url: `data:${mimeType};base64,${base64Data}`,
-              detail: 'high'
+              detail: 'low' // Use 'low' to reduce payload and processing requirements
             }
           }
         ]
