@@ -29,6 +29,7 @@ export const BillsTableHeader = ({ selectedCount, totalCount, onSelectAll }: Bil
         <TableHead>Bill number</TableHead>
         <TableHead>Project</TableHead>
         <TableHead className="text-right">Amount</TableHead>
+        <TableHead>Status</TableHead>
         <TableHead className="min-w-[200px]">Linked Cash In Account</TableHead>
         <TableHead className="min-w-[200px]">To Pay</TableHead>
         <TableHead className="w-12"></TableHead>

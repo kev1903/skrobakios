@@ -15,8 +15,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, MoreHorizontal, Trash2 } from "lucide-react";
+import { AlertTriangle, MoreHorizontal, Trash2, ChevronDown } from "lucide-react";
 import { StakeholderCombobox } from "./StakeholderCombobox";
+import { Badge } from "@/components/ui/badge";
 
 interface Bill {
   id: string;
@@ -29,6 +30,7 @@ interface Bill {
   hasWarning: boolean;
   linkedCashInAccount: string;
   toPay?: string;
+  status?: 'draft' | 'submitted' | 'scheduled' | 'approved' | 'paid' | 'cancelled';
 }
 
 interface BillsTableRowProps {
@@ -38,6 +40,7 @@ interface BillsTableRowProps {
   onAccountLinkChange: (billId: string, accountId: string) => void;
   onToPayChange: (billId: string, toPay: string) => void;
   onDelete: (billId: string) => void;
+  onStatusChange?: (billId: string, status: string) => void;
 }
 
 const cashInAccounts = [
@@ -47,7 +50,43 @@ const cashInAccounts = [
   { id: "returns-revenue", name: "Returns & Revenue" },
 ];
 
-export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange, onToPayChange, onDelete }: BillsTableRowProps) => {
+export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange, onToPayChange, onDelete, onStatusChange }: BillsTableRowProps) => {
+  const getStatusLabel = (status: string | undefined) => {
+    switch (status) {
+      case 'paid':
+        return 'Paid';
+      case 'approved':
+        return 'Approved';
+      case 'submitted':
+        return 'Pending';
+      case 'scheduled':
+        return 'Scheduled';
+      case 'draft':
+        return 'Draft';
+      case 'cancelled':
+        return 'Cancelled';
+      default:
+        return 'Pending';
+    }
+  };
+
+  const getStatusBadgeVariant = (status: string | undefined): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+      case 'paid':
+        return 'default';
+      case 'approved':
+        return 'default';
+      case 'submitted':
+        return 'secondary';
+      case 'scheduled':
+        return 'secondary';
+      case 'cancelled':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
+  };
+
   return (
     <TableRow key={bill.id}>
       <TableCell>
@@ -75,6 +114,46 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
       </TableCell>
       <TableCell className="text-right font-medium">
         ${bill.amount}
+      </TableCell>
+      <TableCell>
+        {onStatusChange ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-7 text-xs px-2 flex items-center gap-1"
+              >
+                {getStatusLabel(bill.status)}
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'draft')}>
+                Draft
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'submitted')}>
+                Pending
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'approved')}>
+                Approved
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'scheduled')}>
+                Scheduled
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'paid')}>
+                Paid
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'cancelled')}>
+                Cancelled
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Badge variant={getStatusBadgeVariant(bill.status)}>
+            {getStatusLabel(bill.status)}
+          </Badge>
+        )}
       </TableCell>
       <TableCell className="min-w-[200px]">
         <Select

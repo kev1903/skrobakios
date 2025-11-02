@@ -86,6 +86,7 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
         hasWarning: new Date(bill.due_date) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) && bill.payment_status === 'unpaid',
         linkedCashInAccount: "",
         toPay: bill.to_pay || "",
+        status: bill.status || 'submitted',
       }));
 
       setBills(transformedBills);
@@ -209,6 +210,51 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
     }
   };
 
+  const handleStatusChange = async (billId: string, status: string) => {
+    // Update local state immediately for responsive UI
+    setBills(prevBills =>
+      prevBills.map(bill =>
+        bill.id === billId
+          ? { ...bill, status }
+          : bill
+      )
+    );
+
+    // Save to database
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ status })
+        .eq('id', billId);
+
+      if (error) {
+        console.error('Error updating status:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update status",
+          variant: "destructive",
+        });
+        // Revert local state on error
+        fetchBills();
+        return;
+      }
+
+      console.log(`Bill ${billId} status updated to: ${status}`);
+      toast({
+        title: "Status Updated",
+        description: "Bill status has been updated successfully",
+      });
+    } catch (err) {
+      console.error('Update error:', err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+      fetchBills();
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-border/30 p-8 flex items-center justify-center">
@@ -244,6 +290,7 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
                 onAccountLinkChange={handleAccountLinkChange}
                 onToPayChange={handleToPayChange}
                 onDelete={handleDeleteBill}
+                onStatusChange={handleStatusChange}
               />
             ))}
           </div>
@@ -269,23 +316,24 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
         <TableBody>
           {bills.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                 No bills found. Upload your first bill to get started.
               </TableCell>
             </TableRow>
-          ) : (
-            bills.map((bill) => (
-              <BillsTableRow
-                key={bill.id}
-                bill={bill}
-                isSelected={selectedBills.includes(bill.id)}
-                onSelect={handleSelectBill}
-                onAccountLinkChange={handleAccountLinkChange}
-                onToPayChange={handleToPayChange}
-                onDelete={handleDeleteBill}
-              />
-            ))
-          )}
+           ) : (
+             bills.map((bill) => (
+               <BillsTableRow
+                 key={bill.id}
+                 bill={bill}
+                 isSelected={selectedBills.includes(bill.id)}
+                 onSelect={handleSelectBill}
+                 onAccountLinkChange={handleAccountLinkChange}
+                 onToPayChange={handleToPayChange}
+                 onDelete={handleDeleteBill}
+                 onStatusChange={handleStatusChange}
+               />
+             ))
+           )}
         </TableBody>
       </Table>
 

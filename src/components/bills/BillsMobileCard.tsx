@@ -12,9 +12,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, MoreVertical, Trash2 } from "lucide-react";
+import { AlertTriangle, MoreVertical, Trash2, ChevronDown } from "lucide-react";
 import { StakeholderCombobox } from "./StakeholderCombobox";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface Bill {
   id: string;
@@ -27,6 +28,7 @@ interface Bill {
   hasWarning: boolean;
   linkedCashInAccount: string;
   toPay?: string;
+  status?: 'draft' | 'submitted' | 'scheduled' | 'approved' | 'paid' | 'cancelled';
 }
 
 interface BillsMobileCardProps {
@@ -36,6 +38,7 @@ interface BillsMobileCardProps {
   onAccountLinkChange: (billId: string, accountId: string) => void;
   onToPayChange: (billId: string, toPay: string) => void;
   onDelete: (billId: string) => void;
+  onStatusChange?: (billId: string, status: string) => void;
 }
 
 const cashInAccounts = [
@@ -51,8 +54,45 @@ export const BillsMobileCard = ({
   onSelect, 
   onAccountLinkChange, 
   onToPayChange, 
-  onDelete 
+  onDelete,
+  onStatusChange
 }: BillsMobileCardProps) => {
+  const getStatusLabel = (status: string | undefined) => {
+    switch (status) {
+      case 'paid':
+        return 'Paid';
+      case 'approved':
+        return 'Approved';
+      case 'submitted':
+        return 'Pending';
+      case 'scheduled':
+        return 'Scheduled';
+      case 'draft':
+        return 'Draft';
+      case 'cancelled':
+        return 'Cancelled';
+      default:
+        return 'Pending';
+    }
+  };
+
+  const getStatusBadgeVariant = (status: string | undefined): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+      case 'paid':
+        return 'default';
+      case 'approved':
+        return 'default';
+      case 'submitted':
+        return 'secondary';
+      case 'scheduled':
+        return 'secondary';
+      case 'cancelled':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
+  };
+
   return (
     <div className="bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl p-4 shadow-sm space-y-3">
       {/* Header with checkbox and actions */}
@@ -105,8 +145,51 @@ export const BillsMobileCard = ({
           <span className="text-muted-foreground">Amount</span>
           <p className="font-semibold mt-0.5 text-right">${bill.amount}</p>
         </div>
+        <div>
+          <span className="text-muted-foreground">Status</span>
+          <div className="mt-0.5">
+            {onStatusChange ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 text-xs px-2 flex items-center gap-1 w-full justify-between"
+                  >
+                    {getStatusLabel(bill.status)}
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'draft')}>
+                    Draft
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'submitted')}>
+                    Pending
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'approved')}>
+                    Approved
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'scheduled')}>
+                    Scheduled
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'paid')}>
+                    Paid
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'cancelled')}>
+                    Cancelled
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Badge variant={getStatusBadgeVariant(bill.status)}>
+                {getStatusLabel(bill.status)}
+              </Badge>
+            )}
+          </div>
+        </div>
         {bill.project && (
-          <div className="col-span-2">
+          <div>
             <span className="text-muted-foreground">Project</span>
             <p className="font-medium mt-0.5">{bill.project}</p>
           </div>
