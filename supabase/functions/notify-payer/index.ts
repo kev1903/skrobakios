@@ -225,7 +225,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       // Send email using Resend with CC and attachments
       const emailPayload: any = {
-        from: "SKROBAKI Finance <finance@skrobaki.com>",
+        from: "SKROBAKI Finance <accounts@skrobaki.com>",
         to: [payerEmail],
         cc: ["accounts@skrobaki.com", "kevin@skrobaki.com"],
         subject: "Project Cost Invoices for Your Payment",

@@ -97,7 +97,7 @@ export const BillNotificationEmail = ({
           <Hr style={footerDivider} />
           <Section style={footer}>
             <Text style={footerText}>
-              SKROBAKI Finance • finance@skrobaki.com
+              SKROBAKI Finance • accounts@skrobaki.com
             </Text>
           </Section>
         </Container>
