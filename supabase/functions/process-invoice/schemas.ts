@@ -14,8 +14,8 @@ export const ProcessInvoiceRequestSchema = z.object({
   filename: z.string()
     .min(1, { message: 'Filename is required' })
     .max(255, { message: 'Filename too long' })
-    .regex(/^[a-zA-Z0-9._-]+\.(pdf|jpg|jpeg|png)$/i, { 
-      message: 'Invalid filename or unsupported file type' 
+    .regex(/^[a-zA-Z0-9._-]+\.(jpg|jpeg|png)$/i, { 
+      message: 'Only image files (JPG, JPEG, PNG) are supported' 
     }),
   
   filesize: z.number()

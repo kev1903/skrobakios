@@ -176,14 +176,16 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   };
 
   const handleFileSelect = async (file: File) => {
-    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    // Only accept image files for AI processing
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!validTypes.includes(file.type)) {
-      setError('Please upload a PDF or image file (JPG, JPEG, PNG)');
+      setError('Only image files (JPG, JPEG, PNG) are supported. Please convert your PDF to an image or take a photo of the document.');
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      setError('File size must be less than 10MB');
+    // 1MB file size limit for AI processing
+    if (file.size > 1 * 1024 * 1024) {
+      setError('File size must be less than 1MB for AI processing. Please compress or reduce the file size.');
       return;
     }
 
@@ -500,7 +502,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         <DialogHeader>
           <DialogTitle>Upload Bill (Expense)</DialogTitle>
           <DialogDescription>
-            Upload a PDF or image bill (JPG, JPEG, PNG) and our AI will extract the data automatically
+            Upload an image of your bill (JPG, JPEG, PNG - max 1MB) and our AI will extract the data automatically
           </DialogDescription>
         </DialogHeader>
 
@@ -519,14 +521,14 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
                 onDrop={handleDrop}
               >
                 <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-sm font-medium mb-2">Drop your file here or click to browse</p>
+                <p className="text-sm font-medium mb-2">Drop your image here or click to browse</p>
                 <p className="text-xs text-muted-foreground mb-4">
-                  PDF, JPG, JPEG, or PNG • Maximum file size: 10MB
+                  JPG, JPEG, or PNG only • Maximum file size: 1MB
                 </p>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.jpg,.jpeg,.png"
+                  accept="image/jpeg,image/jpg,image/png"
                   onChange={handleFileInputChange}
                   className="hidden"
                 />

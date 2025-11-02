@@ -330,9 +330,25 @@ serve(async (req) => {
       );
     }
 
-    // Step 2: Convert file to base64 for AI processing (both PDFs and images)
+    // Step 2: Detect and validate file type
     console.log('=== DOCUMENT PROCESSING ===');
     console.log('Converting file to base64 for AI processing...');
+    
+    const fileType = getFileType(filename);
+    console.log('File type detected:', fileType);
+    
+    // Only accept image files for AI processing (PDFs are too complex)
+    if (fileType !== 'image') {
+      console.error('Unsupported file type for AI processing:', fileType);
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: 'Only image files (JPG, JPEG, PNG) are supported for AI extraction. Please convert your PDF to an image or take a photo of the document.'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const base64Data = fileToBase64(bytes);
     const mimeType = getMimeType(filename);
     
