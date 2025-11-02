@@ -15,6 +15,7 @@ import { ArrowUpDown, Search, Filter } from "lucide-react";
 import { ExpenseDetailsDrawer } from "./ExpenseDetailsDrawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useCompany } from "@/contexts/CompanyContext";
 
 interface ExpenseRecord {
   id: string;
@@ -46,24 +47,14 @@ export const ExpenseTable = ({ refreshTrigger }: ExpenseTableProps) => {
   const [selectedRecord, setSelectedRecord] = useState<ExpenseRecord | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
+  const { currentCompany } = useCompany();
 
   const fetchExpenseData = async () => {
     try {
       setLoading(true);
       
-      // Get user's active company
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: companyMember } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .limit(1)
-        .maybeSingle();
-
-      if (!companyMember) {
+      // Use current company from context
+      if (!currentCompany?.id) {
         setData([]);
         return;
       }
@@ -71,7 +62,7 @@ export const ExpenseTable = ({ refreshTrigger }: ExpenseTableProps) => {
       const { data: expenseData, error } = await supabase
         .from('expense_transactions')
         .select('*')
-        .eq('company_id', companyMember.company_id)
+        .eq('company_id', currentCompany.id)
         .order('transaction_date', { ascending: false });
 
       if (error) throw error;
@@ -124,7 +115,7 @@ export const ExpenseTable = ({ refreshTrigger }: ExpenseTableProps) => {
 
   useEffect(() => {
     fetchExpenseData();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, currentCompany?.id]);
 
   const handleSort = (column: "date" | "amount") => {
     if (sortColumn === column) {

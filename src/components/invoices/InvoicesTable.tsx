@@ -28,6 +28,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useCompany } from "@/contexts/CompanyContext";
 
 interface XeroInvoice {
   id: string;
@@ -51,51 +52,27 @@ export const InvoicesTable = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("all");
   const { toast } = useToast();
+  const { currentCompany } = useCompany();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchInvoices();
     fetchAllocatedInvoices();
-  }, []);
+  }, [currentCompany?.id]);
 
   const fetchInvoices = async () => {
     try {
       setLoading(true);
       
-      // Get user's company_id
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      // Use current company from context
+      if (!currentCompany?.id) {
+        console.warn('No current company selected');
         setLoading(false);
         return;
       }
 
-      const { data: memberData, error: memberError } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      console.log('Invoices table - company lookup:', { memberData, memberError, userId: user.id });
-
-      if (memberError) {
-        console.error('Error fetching company membership:', memberError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch company information",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      if (!memberData || memberData.length === 0) {
-        console.warn('No active company membership found');
-        setLoading(false);
-        return;
-      }
-
-      const companyId = memberData[0].company_id;
+      const companyId = currentCompany.id;
+      console.log('Invoices table - filtering by current company:', companyId, currentCompany.name);
 
       const { data, error } = await supabase
         .from('xero_invoices')
@@ -129,19 +106,9 @@ export const InvoicesTable = () => {
 
   const fetchAllocatedInvoices = async () => {
     try {
-      // Get user's company_id
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: memberData } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (!memberData || memberData.length === 0) return;
-      const companyId = memberData[0].company_id;
+      // Use current company from context
+      if (!currentCompany?.id) return;
+      const companyId = currentCompany.id;
 
       const { data, error } = await supabase
         .from('invoice_allocations')

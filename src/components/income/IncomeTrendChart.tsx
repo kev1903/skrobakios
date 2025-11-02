@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
+import { useCompany } from "@/contexts/CompanyContext";
 
 interface TransactionData {
   month: string;
@@ -43,33 +44,23 @@ const CustomTooltip = ({ active, payload }: any) => {
 export const IncomeTrendChart = () => {
   const [transactionData, setTransactionData] = useState<TransactionData[]>([]);
   const [loading, setLoading] = useState(true);
+  const { currentCompany } = useCompany();
 
   useEffect(() => {
     fetchTransactionData();
-  }, []);
+  }, [currentCompany?.id]);
 
   const fetchTransactionData = async () => {
     try {
       setLoading(true);
       
-      // Get user's active company
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: companyMember } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .limit(1)
-        .maybeSingle();
-
-      if (!companyMember) return;
+      // Use current company from context
+      if (!currentCompany?.id) return;
 
       const { data: incomeData, error } = await supabase
         .from('income_transactions')
         .select('transaction_date, amount, client_source, description')
-        .eq('company_id', companyMember.company_id)
+        .eq('company_id', currentCompany.id)
         .eq('status', 'received')
         .order('transaction_date', { ascending: true });
 

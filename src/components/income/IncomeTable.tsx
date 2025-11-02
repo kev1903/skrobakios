@@ -15,6 +15,7 @@ import { ArrowUpDown, Search, Filter } from "lucide-react";
 import { IncomeDetailsDrawer } from "./IncomeDetailsDrawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useCompany } from "@/contexts/CompanyContext";
 
 interface IncomeRecord {
   id: string;
@@ -42,24 +43,14 @@ export const IncomeTable = () => {
   const [selectedRecord, setSelectedRecord] = useState<IncomeRecord | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
+  const { currentCompany } = useCompany();
 
   const fetchIncomeData = async (shouldSeedIfEmpty = false) => {
     try {
       setLoading(true);
       
-      // Get user's active company
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: companyMember } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .limit(1)
-        .maybeSingle();
-
-      if (!companyMember) {
+      // Use current company from context
+      if (!currentCompany?.id) {
         setData([]);
         return;
       }
@@ -67,7 +58,7 @@ export const IncomeTable = () => {
       const { data: incomeData, error } = await supabase
         .from('income_transactions')
         .select('*')
-        .eq('company_id', companyMember.company_id)
+        .eq('company_id', currentCompany.id)
         .order('transaction_date', { ascending: false });
 
       if (error) throw error;
@@ -131,22 +122,12 @@ export const IncomeTable = () => {
 
   const seedInitialData = async () => {
     try {
-      // Get user's active company
+      // Get user and use current company from context
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: companyMember } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .limit(1)
-        .maybeSingle();
-
-      if (!companyMember) {
+      if (!user || !currentCompany?.id) {
         toast({
           title: "Error",
-          description: "No active company found",
+          description: "Not authenticated or no company selected",
           variant: "destructive",
         });
         return;
@@ -178,7 +159,7 @@ export const IncomeTable = () => {
       const { data: existingData } = await supabase
         .from('income_transactions')
         .select('transaction_date, client_source, description, amount')
-        .eq('company_id', companyMember.company_id);
+        .eq('company_id', currentCompany.id);
 
       // Filter out transactions that already exist
       const existingKeys = new Set(
@@ -195,7 +176,7 @@ export const IncomeTable = () => {
       }
 
       const recordsToInsert = newRecords.map(record => ({
-        company_id: companyMember.company_id,
+        company_id: currentCompany.id,
         transaction_date: record.date,
         client_source: record.client,
         project_name: record.project || '—',
@@ -232,7 +213,7 @@ export const IncomeTable = () => {
 
   useEffect(() => {
     fetchIncomeData(true);
-  }, []);
+  }, [currentCompany?.id]);
 
   const handleSort = (column: "date" | "amount") => {
     if (sortColumn === column) {
