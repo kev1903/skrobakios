@@ -569,7 +569,6 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                 <th className="text-left p-2 font-medium w-12 text-xs">
                   <input type="checkbox" className="rounded" />
                 </th>
-                <th className="text-left p-2 font-medium w-16 text-foreground text-xs">View</th>
                 <th className="text-left p-2 font-medium text-foreground text-xs">From</th>
                 <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Reference</th>
                 <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Date ↓</th>
@@ -585,11 +584,6 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
               {filteredBills.map((bill) => (
                 <tr key={bill.id} className="border-b hover:bg-muted/30 group h-12">
                   <td className="p-2"><input type="checkbox" className="rounded" /></td>
-                  <td className="p-2">
-                    <Button variant="ghost" size="sm" className="p-1 h-6 w-6" onClick={() => handleViewFile(bill)}>
-                      <Eye className="h-3 w-3 text-blue-600" />
-                    </Button>
-                  </td>
                   <td className="p-2 text-foreground font-medium text-xs">{bill.supplier_name}</td>
                   <td className="p-2 text-foreground">
                     <div>
