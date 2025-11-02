@@ -138,10 +138,22 @@ serve(async (req) => {
   try {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    // Use SUPABASE_ANON_KEY or fallback to apikey header
+    const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') || 
+      req.headers.get('apikey') ||
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0YXdua2h2eGd4eWxoeHdxbm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5NDUyMjksImV4cCI6MjA2NjUyMTIyOX0.Ip_bdI4HjsfUdsy6WXLJwvQ2mo_Cm0lBAB50nJt5OPw';
     
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
+    }
+
+    // SECURITY: Get auth token from request to respect RLS and company isolation
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ ok: false, error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Step 1: Parse and validate request body
@@ -185,77 +197,111 @@ serve(async (req) => {
     console.log('Filesize:', filesize);
     console.log('Company ID:', company_id);
 
-    // Fetch available projects and WBS items for context (if company_id provided)
+    // SECURITY: Create authenticated Supabase client to respect RLS
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.0');
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+      global: {
+        headers: {
+          Authorization: authHeader,
+        },
+      },
+    });
+
+    // Verify user is authenticated and has access to the company
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error("Authentication failed:", userError);
+      return new Response(
+        JSON.stringify({ ok: false, error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate user has access to the company if company_id is provided
+    if (company_id) {
+      const { data: membership, error: memberError } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('company_id', company_id)
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single();
+
+      if (memberError || !membership) {
+        console.error(`User ${user.id} does not have access to company ${company_id}`);
+        return new Response(
+          JSON.stringify({ ok: false, error: "Access denied to this company" }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      console.log(`User ${user.id} verified for company ${company_id}`);
+    }
+
+    // Fetch available projects and WBS items for context (RLS automatically filters by company)
     let projectsContext = '';
     let wbsContext = '';
     
-    if (company_id && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+    if (company_id) {
       try {
-        console.log('=== Fetching projects and WBS context ===');
+        console.log('=== Fetching projects and WBS context (RLS filtered) ===');
         
-        // Fetch projects
-        const projectsRes = await fetch(`${SUPABASE_URL}/rest/v1/projects?company_id=eq.${company_id}&select=id,name,project_id`, {
-          headers: {
-            'apikey': SUPABASE_SERVICE_ROLE_KEY,
-            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
-          }
-        });
+        // Fetch projects using authenticated client (RLS applies)
+        const { data: projects, error: projectsError } = await supabase
+          .from('projects')
+          .select('id,name,project_id')
+          .eq('company_id', company_id);
         
-        if (projectsRes.ok) {
-          const projects = await projectsRes.json();
-          if (projects.length > 0) {
-            console.log('=== PROJECTS CONTEXT FOR AI ===');
-            console.log('Number of projects:', projects.length);
-            projects.forEach((p: any) => {
-              console.log(`Project: ${p.name} | UUID: ${p.id} | Code: ${p.project_id}`);
-            });
-            
-            projectsContext = '\n\n=== AVAILABLE PROJECTS TO MATCH ===\n' + 
-              'CRITICAL: You MUST return the exact UUID from below. DO NOT generate fake placeholder UUIDs!\n' +
-              'Look for ANY keywords from these project names in the invoice content (partial matches are OK):\n\n' +
-              projects.map((p: any) => 
-                `PROJECT:\n` +
-                `  UUID (RETURN THIS EXACT STRING): ${p.id}\n` +
-                `  Project Code: ${p.project_id}\n` +
-                `  Project Name: ${p.name}\n` +
-                `  Keywords to search: ${p.name.toLowerCase()}, ${p.project_id.toLowerCase()}\n`
-              ).join('\n');
-            console.log(`Found ${projects.length} projects for context`);
-          }
+        if (projectsError) {
+          console.error('Error fetching projects:', projectsError);
+        } else if (projects && projects.length > 0) {
+          console.log('=== PROJECTS CONTEXT FOR AI ===');
+          console.log('Number of projects:', projects.length);
+          projects.forEach((p: any) => {
+            console.log(`Project: ${p.name} | UUID: ${p.id} | Code: ${p.project_id}`);
+          });
+          
+          projectsContext = '\n\n=== AVAILABLE PROJECTS TO MATCH ===\n' + 
+            'CRITICAL: You MUST return the exact UUID from below. DO NOT generate fake placeholder UUIDs!\n' +
+            'Look for ANY keywords from these project names in the invoice content (partial matches are OK):\n\n' +
+            projects.map((p: any) => 
+              `PROJECT:\n` +
+              `  UUID (RETURN THIS EXACT STRING): ${p.id}\n` +
+              `  Project Code: ${p.project_id}\n` +
+              `  Project Name: ${p.name}\n` +
+              `  Keywords to search: ${p.name.toLowerCase()}, ${p.project_id.toLowerCase()}\n`
+            ).join('\n');
+          console.log(`Found ${projects.length} projects for context (RLS filtered)`);
         }
         
-        // Fetch WBS items with project associations
-        const wbsRes = await fetch(`${SUPABASE_URL}/rest/v1/wbs_items?company_id=eq.${company_id}&select=id,wbs_id,title,description,category,project_id`, {
-          headers: {
-            'apikey': SUPABASE_SERVICE_ROLE_KEY,
-            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
-          }
-        });
+        // Fetch WBS items with project associations using authenticated client (RLS applies)
+        const { data: wbsItems, error: wbsError } = await supabase
+          .from('wbs_items')
+          .select('id,wbs_id,title,description,category,project_id')
+          .eq('company_id', company_id);
         
-        if (wbsRes.ok) {
-          const wbsItems = await wbsRes.json();
-          if (wbsItems.length > 0) {
-            console.log('=== WBS ACTIVITIES CONTEXT FOR AI ===');
-            console.log('Number of WBS activities:', wbsItems.length);
-            wbsItems.slice(0, 5).forEach((w: any) => {
-              console.log(`WBS: ${w.title} | UUID: ${w.id} | Code: ${w.wbs_id} | Project: ${w.project_id}`);
-            });
-            
-            wbsContext = '\n\n=== AVAILABLE WBS ACTIVITIES TO MATCH ===\n' + 
-              'CRITICAL: You MUST return the exact WBS UUID from below. DO NOT generate fake placeholder UUIDs!\n' +
-              'IMPORTANT: Only assign WBS activities that belong to the SAME project you matched above.\n' +
-              'Look for keywords in the invoice line items, descriptions, or notes that match these WBS activities:\n\n' +
-              wbsItems.map((w: any) => 
-                `WBS ACTIVITY:\n` +
-                `  UUID (RETURN THIS EXACT STRING): ${w.id}\n` +
-                `  WBS Code: ${w.wbs_id}\n` +
-                `  Title: ${w.title}\n` +
-                `  Category: ${w.category || 'N/A'}\n` +
-                `  Belongs to Project ID: ${w.project_id}\n` +
-                `  Keywords to search: ${w.title.toLowerCase()}, ${w.wbs_id.toLowerCase()}${w.description ? ', ' + w.description.substring(0, 100).toLowerCase() : ''}\n`
-              ).slice(0, 50).join('\n');
-            console.log(`Found ${wbsItems.length} WBS items for context (showing first 50)`);
-          }
+        if (wbsError) {
+          console.error('Error fetching WBS items:', wbsError);
+        } else if (wbsItems && wbsItems.length > 0) {
+          console.log('=== WBS ACTIVITIES CONTEXT FOR AI ===');
+          console.log('Number of WBS activities:', wbsItems.length);
+          wbsItems.slice(0, 5).forEach((w: any) => {
+            console.log(`WBS: ${w.title} | UUID: ${w.id} | Code: ${w.wbs_id} | Project: ${w.project_id}`);
+          });
+          
+          wbsContext = '\n\n=== AVAILABLE WBS ACTIVITIES TO MATCH ===\n' + 
+            'CRITICAL: You MUST return the exact WBS UUID from below. DO NOT generate fake placeholder UUIDs!\n' +
+            'IMPORTANT: Only assign WBS activities that belong to the SAME project you matched above.\n' +
+            'Look for keywords in the invoice line items, descriptions, or notes that match these WBS activities:\n\n' +
+            wbsItems.map((w: any) => 
+              `WBS ACTIVITY:\n` +
+              `  UUID (RETURN THIS EXACT STRING): ${w.id}\n` +
+              `  WBS Code: ${w.wbs_id}\n` +
+              `  Title: ${w.title}\n` +
+              `  Category: ${w.category || 'N/A'}\n` +
+              `  Belongs to Project ID: ${w.project_id}\n` +
+              `  Keywords to search: ${w.title.toLowerCase()}, ${w.wbs_id.toLowerCase()}${w.description ? ', ' + w.description.substring(0, 100).toLowerCase() : ''}\n`
+            ).slice(0, 50).join('\n');
+          console.log(`Found ${wbsItems.length} WBS items for context (showing first 50, RLS filtered)`);
         }
       } catch (contextError) {
         console.error('Error fetching context:', contextError);

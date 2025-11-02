@@ -20,9 +20,41 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     console.log("Notify payer function called");
 
+    // SECURITY: Get auth token from request to respect RLS and company isolation
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    // Use SUPABASE_ANON_KEY or fallback to apikey header
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || 
+      req.headers.get('apikey') ||
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0YXdua2h2eGd4eWxoeHdxbm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5NDUyMjksImV4cCI6MjA2NjUyMTIyOX0.Ip_bdI4HjsfUdsy6WXLJwvQ2mo_Cm0lBAB50nJt5OPw';
+    
+    // Create client with user's auth token - this respects RLS and company isolation
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: authHeader,
+        },
+      },
+    });
+
+    // Verify user is authenticated
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error("Authentication failed:", userError);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log("Authenticated user:", user.id);
 
     // Fetch FIN001 knowledge entry (optional - for reference)
     const { data: knowledge } = await supabase
@@ -35,12 +67,15 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("FIN001 knowledge found:", knowledge.title);
     }
 
-    // Fetch all unpaid bills with project info
+    // SECURITY: RLS automatically filters bills by company through company_members table
+    // Users can only see bills from companies they are active members of
     const { data: bills, error: billsError } = await supabase
       .from("bills")
       .select("*, projects(name, project_id)")
       .eq("payment_status", "unpaid")
       .not("to_pay", "is", null);
+
+    console.log(`User ${user.id} has access to ${bills?.length || 0} unpaid bills (RLS filtered by company)`);
 
     if (billsError) {
       console.error("Error fetching bills:", billsError);
@@ -70,18 +105,18 @@ const handler = async (req: Request): Promise<Response> => {
     });
     
     if (payerIds.length === 0 && directEmails.length === 0) {
-      console.log("No payer IDs or emails found");
+      console.log("No payer IDs or emails found in accessible bills");
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: "No bills with assigned payers",
+          message: "No bills with assigned payers in your companies",
           results: [] 
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Fetch stakeholders for UUID-based payers
+    // Fetch stakeholders for UUID-based payers (RLS filtered by company)
     let stakeholderMap: Record<string, any> = {};
     
     if (payerIds.length > 0) {
@@ -97,6 +132,7 @@ const handler = async (req: Request): Promise<Response> => {
           acc[s.id] = s;
           return acc;
         }, {}) || {};
+        console.log(`Fetched ${Object.keys(stakeholderMap).length} stakeholders (RLS filtered by company)`);
       }
     }
 
@@ -143,7 +179,7 @@ const handler = async (req: Request): Promise<Response> => {
         }
       }
 
-      // Fetch bill attachments from storage
+      // Fetch bill attachments from storage (RLS on storage applies company isolation)
       const attachments = [];
       for (const bill of payerBills) {
         if (bill.bill_file_path) {
@@ -169,6 +205,8 @@ const handler = async (req: Request): Promise<Response> => {
           }
         }
       }
+      
+      console.log(`Attached ${attachments.length} files for ${payerEmail}`);
 
       // Render the React Email template
       const emailHtml = await renderAsync(
