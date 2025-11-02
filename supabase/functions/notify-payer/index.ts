@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("Notify payer function called - v2");
+    console.log("Notify payer function called - v3 (fixed column names)");
 
     // SECURITY: Get auth token from request to respect RLS and company isolation
     const authHeader = req.headers.get('Authorization');
@@ -95,7 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Users can only see bills from companies they are active members of
     const { data: bills, error: billsError } = await supabase
       .from("bills")
-      .select("id, storage_path, to_pay, payment_status, reference_number, bill_no, invoice_number, supplier_name, total, due_date, projects(name, project_id)")
+      .select("id, storage_path, to_pay, payment_status, reference_number, bill_no, supplier_name, total, due_date, projects(name, project_id)")
       .eq("payment_status", "unpaid")
       .not("to_pay", "is", null);
 
