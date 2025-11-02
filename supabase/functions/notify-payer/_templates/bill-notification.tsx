@@ -129,8 +129,7 @@ export default BillNotificationEmail;
 
 // Styles - Modern Liquid Glass Design
 const main = {
-  backgroundColor: '#f8fafc',
-  backgroundImage: 'linear-gradient(180deg, #f8fafc 0%, #e0f2fe 100%)',
+  backgroundColor: '#ffffff',
   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
   padding: '40px 20px',
 };
@@ -161,7 +160,7 @@ const heading = {
   margin: '0 0 12px',
   padding: '0',
   lineHeight: '1.2',
-  fontFamily: '"Playfair Display", Georgia, serif',
+  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
   textShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
 };
 
