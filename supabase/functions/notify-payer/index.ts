@@ -35,10 +35,10 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("FIN001 knowledge found:", knowledge.title);
     }
 
-    // Fetch all unpaid bills
+    // Fetch all unpaid bills with project info
     const { data: bills, error: billsError } = await supabase
       .from("bills")
-      .select("*")
+      .select("*, projects(name, project_id)")
       .eq("payment_status", "unpaid")
       .not("to_pay", "is", null);
 
@@ -133,25 +133,68 @@ const handler = async (req: Request): Promise<Response> => {
     for (const [payerEmail, payerBills] of Object.entries(billsByPayer)) {
       console.log(`Processing ${payerBills.length} bills for ${payerEmail}`);
 
+      // Get payer name from stakeholder or use email
+      let payerName = payerEmail.split('@')[0]; // Default to email username
+      const firstBill = payerBills[0];
+      if (firstBill && firstBill.to_pay && !isEmail(firstBill.to_pay)) {
+        const stakeholder = stakeholderMap[firstBill.to_pay];
+        if (stakeholder?.display_name) {
+          payerName = stakeholder.display_name;
+        }
+      }
+
+      // Fetch bill attachments from storage
+      const attachments = [];
+      for (const bill of payerBills) {
+        if (bill.bill_file_path) {
+          try {
+            const { data: fileData, error: fileError } = await supabase.storage
+              .from('bills')
+              .download(bill.bill_file_path);
+            
+            if (fileError) {
+              console.warn(`Could not fetch bill file for ${bill.id}:`, fileError);
+            } else if (fileData) {
+              const arrayBuffer = await fileData.arrayBuffer();
+              const buffer = Buffer.from(arrayBuffer);
+              const fileName = bill.bill_file_path.split('/').pop() || `bill-${bill.invoice_number || bill.bill_no}.pdf`;
+              
+              attachments.push({
+                filename: fileName,
+                content: buffer,
+              });
+            }
+          } catch (err) {
+            console.warn(`Error downloading bill file ${bill.bill_file_path}:`, err);
+          }
+        }
+      }
+
       // Render the React Email template
       const emailHtml = await renderAsync(
         React.createElement(BillNotificationEmail, {
-          payerEmail,
+          payerName,
           bills: payerBills,
         })
       );
 
-      // Send email using Resend with CC
-      const emailResponse = await resend.emails.send({
+      // Send email using Resend with CC and attachments
+      const emailPayload: any = {
         from: "SKROBAKI Finance <finance@skrobaki.com>",
         to: [payerEmail],
         cc: ["accounts@skrobaki.com", "kevin@skrobaki.com"],
-        subject: "Outstanding Bills - Payment Required",
+        subject: "Project Cost Invoices for Your Payment",
         html: emailHtml,
-      });
+      };
 
-      console.log(`Email sent to ${payerEmail}:`, emailResponse);
-      emailResults.push({ payer: payerEmail, success: true, emailId: emailResponse.data?.id });
+      if (attachments.length > 0) {
+        emailPayload.attachments = attachments;
+      }
+
+      const emailResponse = await resend.emails.send(emailPayload);
+
+      console.log(`Email sent to ${payerEmail} with ${attachments.length} attachments:`, emailResponse);
+      emailResults.push({ payer: payerEmail, success: true, emailId: emailResponse.data?.id, attachments: attachments.length });
     }
 
     return new Response(
