@@ -32,7 +32,7 @@ import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
 import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
-import { BillPDFUploader } from '../project-finance/expenses/BillPDFUploader';
+import { CompanyBillPDFUploader } from '../bills/CompanyBillPDFUploader';
 import { AIPromptSettings } from './AIPromptSettings';
 import { AwaitingPaymentsTable } from '../project-finance/awaiting-payments/AwaitingPaymentsTable';
 import { IncomeTable } from './IncomeTable';
@@ -522,10 +522,9 @@ export const ProjectCostPage = ({
       </div>
 
       {/* Bill PDF Uploader (for Expense tab) */}
-      <BillPDFUploader
+      <CompanyBillPDFUploader
         isOpen={isPDFUploaderOpen}
         onClose={() => setIsPDFUploaderOpen(false)}
-        projectId={project.id}
         onSaved={refreshData}
       />
 
