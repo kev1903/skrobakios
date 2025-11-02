@@ -54,10 +54,10 @@ export const BillNotificationEmail = ({
 
           {/* Greeting */}
           <Section style={content}>
-            <Text style={paragraph}>
+            <Text style={{ ...paragraph, backgroundColor: '#ffffff' }}>
               Hi {payerName},
             </Text>
-            <Text style={paragraph}>
+            <Text style={{ ...paragraph, backgroundColor: '#ffffff' }}>
               Attached are project invoices that require direct payment to suppliers/subcontractors. 
               Please process these by the due dates and share remittance once completed.
             </Text>
@@ -65,16 +65,16 @@ export const BillNotificationEmail = ({
 
           {/* Summary of Invoices */}
           <Section style={billsSection}>
-            <Heading as="h3" style={sectionHeading}>
+            <Heading as="h3" style={{ ...sectionHeading, backgroundColor: '#ffffff' }}>
               Summary of Invoices:
             </Heading>
             {bills.map((bill, index) => {
               const markAsPaidUrl = `${SUPABASE_URL}/functions/v1/mark-bill-paid?billId=${bill.id}&token=${bill.token}`;
               return (
                 <div key={index} style={invoiceItem}>
-                  <Row>
-                    <Column style={{ width: '70%', paddingRight: '12px', verticalAlign: 'top' }}>
-                      <Text style={{ margin: '0', lineHeight: '1.8' }}>
+                  <Row style={{ backgroundColor: '#ffffff' }}>
+                    <Column style={{ width: '70%', paddingRight: '12px', verticalAlign: 'top', backgroundColor: '#ffffff' }}>
+                      <Text style={{ margin: '0', lineHeight: '1.8', color: '#1a1a1a', backgroundColor: '#ffffff' }}>
                         {index + 1}) <strong>{bill.supplier_name}</strong><br />
                         Invoice: {bill.invoice_number || bill.bill_no || 'Not provided'}<br />
                         Amount: ${bill.total.toFixed(2)}<br />
@@ -86,7 +86,7 @@ export const BillNotificationEmail = ({
                         {bill.projects && <><br />Project: {bill.projects.name}</>}
                       </Text>
                     </Column>
-                    <Column style={{ width: '30%', verticalAlign: 'middle', textAlign: 'center' as const }}>
+                    <Column style={{ width: '30%', verticalAlign: 'middle', textAlign: 'center' as const, backgroundColor: '#ffffff' }}>
                       <Button href={markAsPaidUrl} style={markAsPaidButton}>
                         Mark as Paid
                       </Button>
@@ -99,14 +99,14 @@ export const BillNotificationEmail = ({
 
           {/* Footer Message */}
           <Section style={content}>
-            <Text style={paragraph}>
+            <Text style={{ ...paragraph, backgroundColor: '#ffffff' }}>
               Let me know if you need any clarification.
             </Text>
           </Section>
 
           {/* Signature */}
           <Section style={signature}>
-            <Text style={signatureText}>
+            <Text style={{ ...signatureText, backgroundColor: '#ffffff' }}>
               Kind regards,<br />
               <strong>Skrobaki Project Team</strong>
             </Text>
@@ -115,7 +115,7 @@ export const BillNotificationEmail = ({
           {/* Footer */}
           <Hr style={footerDivider} />
           <Section style={footer}>
-            <Text style={footerText}>
+            <Text style={{ ...footerText, backgroundColor: '#ffffff' }}>
               SKROBAKI Finance • accounts@skrobaki.com
             </Text>
           </Section>
