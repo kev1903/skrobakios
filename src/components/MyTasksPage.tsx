@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ArrowLeft, Plus, Search, GripVertical, Clock } from "lucide-react";
 import { useUser } from '@/contexts/UserContext';
+import { useCompany } from '@/contexts/CompanyContext';
 import { Task } from './tasks/types';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -31,6 +32,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { userProfile } = useUser();
+  const { currentCompany } = useCompany();
   const { toast } = useToast();
   const { spacingClasses, fullHeightClasses } = useMenuBarSpacing();
 
@@ -38,6 +40,11 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   const refreshTasks = async () => {
     if (!userProfile.firstName && !userProfile.lastName) {
       console.log('⚠️ MyTasks: No user profile available');
+      return;
+    }
+
+    if (!currentCompany?.id) {
+      console.log('⚠️ MyTasks: No current company selected');
       return;
     }
 
@@ -50,19 +57,21 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
       }
 
       const fullName = `${userProfile.firstName} ${userProfile.lastName}`.trim();
-      console.log('📋 MyTasks: Fetching tasks for user:', fullName, 'ID:', user.id);
+      console.log('📋 MyTasks: Fetching tasks for user:', fullName, 'ID:', user.id, 'Company:', currentCompany.id);
       
-      // Query tasks assigned by user_id OR by name (for backwards compatibility)
+      // Query tasks assigned to user AND filtered by current company through projects
       const { data: allTasks, error } = await supabase
         .from('tasks')
         .select(`
           *,
-          projects (
+          projects!inner (
             id,
             name,
-            project_id
+            project_id,
+            company_id
           )
         `)
+        .eq('projects.company_id', currentCompany.id)
         .or(`assigned_to_user_id.eq.${user.id},assigned_to_name.ilike.%${fullName}%,assigned_to_name.ilike.%${userProfile.firstName}%,assigned_to_name.ilike.%${userProfile.lastName}%`)
         .order('created_at', { ascending: false });
 
@@ -137,7 +146,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userProfile, toast]);
+  }, [userProfile, currentCompany?.id, toast]);
 
   // Get backlog tasks (tasks without scheduled time - at midnight or no due date)
   const getBacklogTasks = () => {
