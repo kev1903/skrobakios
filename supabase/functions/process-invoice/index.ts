@@ -318,70 +318,27 @@ serve(async (req) => {
       );
     }
 
-    // Step 2: Process file based on type
+    // Step 2: Process file - images only (PDFs converted on client)
     console.log('=== DOCUMENT PROCESSING ===');
     console.log('Processing file type:', fileType);
     
-    let base64Data: string;
-    let mimeType: string;
-    
+    // Note: PDFs are now converted to images on the client side
+    // The edge function only processes images for simplicity and reliability
     if (fileType === 'pdf') {
-      // For PDFs: Use pdfjs-dist to render first page as image
-      console.log('Converting PDF to image for AI processing...');
-      
-      try {
-        // Import pdfjs-dist from CDN
-        const pdfjsLib = await import('https://esm.sh/pdfjs-dist@3.11.174/build/pdf.min.mjs');
-        
-        // Load PDF document
-        const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(bytes) });
-        const pdf = await loadingTask.promise;
-        
-        console.log(`PDF loaded: ${pdf.numPages} pages`);
-        
-        // Get first page
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 2.0 }); // 2x scale for better quality
-        
-        // Create canvas
-        const canvas = new OffscreenCanvas(viewport.width, viewport.height);
-        const context = canvas.getContext('2d');
-        
-        if (!context) {
-          throw new Error('Failed to get canvas context');
-        }
-        
-        // Render PDF page to canvas
-        await page.render({
-          canvasContext: context,
-          viewport: viewport
-        }).promise;
-        
-        // Convert canvas to PNG blob
-        const blob = await canvas.convertToBlob({ type: 'image/png' });
-        const imageBuffer = await blob.arrayBuffer();
-        
-        // Convert to base64
-        base64Data = fileToBase64(imageBuffer);
-        mimeType = 'image/png';
-        
-        console.log(`PDF converted to PNG: ${(imageBuffer.byteLength / 1024).toFixed(2)}KB`);
-      } catch (pdfError) {
-        console.error('PDF conversion error:', pdfError);
-        return new Response(
-          JSON.stringify({
-            ok: false,
-            error: 'Failed to process PDF. Please try uploading the PDF as an image (screenshot) instead.'
-          }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    } else {
-      // For images: Convert to base64 directly
-      console.log('Converting image to base64 for AI processing...');
-      base64Data = fileToBase64(bytes);
-      mimeType = getMimeType(filename);
+      console.error('PDF files should be converted to images on the client side');
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: 'PDF processing error. Please try again.'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+    
+    // Convert image to base64
+    console.log('Converting image to base64 for AI processing...');
+    const base64Data = fileToBase64(bytes);
+    const mimeType = getMimeType(filename);
     
     // Validate base64 size (max ~3MB base64 for images)
     const base64SizeKB = base64Data.length / 1024;

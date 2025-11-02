@@ -190,7 +190,58 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
     setError(null);
     setUploadedFile(file);
     
-    const previewUrl = URL.createObjectURL(file);
+    // Convert PDF to image on client side before uploading
+    let fileToUpload = file;
+    if (file.type === 'application/pdf') {
+      console.log('📄 Converting PDF to image for processing...');
+      try {
+        setUploading(true);
+        setUploadProgress(10);
+        
+        // Load PDF and render first page to canvas
+        const pdfData = await file.arrayBuffer();
+        const pdf = await pdfjs.getDocument({ data: pdfData }).promise;
+        const page = await pdf.getPage(1);
+        
+        // Set scale for good quality
+        const viewport = page.getViewport({ scale: 2.0 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        if (!context) {
+          throw new Error('Failed to get canvas context');
+        }
+        
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise;
+        
+        // Convert canvas to blob
+        const blob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Failed to convert canvas to blob'));
+          }, 'image/png', 0.95);
+        });
+        
+        // Create a new file from the blob
+        fileToUpload = new File([blob], file.name.replace('.pdf', '.png'), { type: 'image/png' });
+        
+        console.log('✅ PDF converted to image:', fileToUpload.size, 'bytes');
+        setUploadProgress(20);
+      } catch (conversionError) {
+        console.error('PDF conversion error:', conversionError);
+        setError('Failed to convert PDF. Please try saving the PDF as an image first.');
+        setUploading(false);
+        return;
+      }
+    }
+    
+    const previewUrl = URL.createObjectURL(fileToUpload);
     setFilePreviewUrl(previewUrl);
     
     // Ensure projects are loaded before extraction
@@ -200,7 +251,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       currentProjects = await loadProjects();
     }
     
-    await handleUploadAndExtract(file, currentProjects);
+    await handleUploadAndExtract(fileToUpload, currentProjects);
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
