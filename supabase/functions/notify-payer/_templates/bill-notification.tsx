@@ -136,13 +136,13 @@ const main = {
 };
 
 const container = {
-  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+  backgroundColor: '#ffffff',
   margin: '0 auto',
   padding: '0',
   maxWidth: '600px',
   borderRadius: '16px',
-  border: '1px solid rgba(217, 231, 255, 0.6)',
-  boxShadow: '0 8px 32px rgba(33, 123, 244, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)',
+  border: '1px solid #e2e8f0',
+  boxShadow: '0 10px 40px rgba(15, 23, 42, 0.1), 0 4px 12px rgba(15, 23, 42, 0.05)',
   overflow: 'hidden',
 };
 
@@ -176,11 +176,11 @@ const subtitle = {
 
 const content = {
   padding: '36px 40px 24px',
-  backgroundColor: 'rgba(255, 255, 255, 0.6)',
+  backgroundColor: '#ffffff',
 };
 
 const paragraph = {
-  color: '#1e293b',
+  color: '#334155',
   fontSize: '15px',
   lineHeight: '1.7',
   margin: '0 0 18px',
@@ -188,8 +188,8 @@ const paragraph = {
 };
 
 const billsSection = {
-  padding: '0 40px 32px',
-  backgroundColor: 'rgba(248, 250, 252, 0.8)',
+  padding: '24px 40px 32px',
+  backgroundColor: '#f8fafc',
   margin: '0',
 };
 
@@ -198,25 +198,25 @@ const sectionHeading = {
   fontSize: '18px',
   fontWeight: '600',
   margin: '0 0 24px',
-  paddingTop: '24px',
+  paddingTop: '0',
   letterSpacing: '-0.5px',
 };
 
 const invoiceItem = {
-  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  color: '#334155',
+  backgroundColor: '#ffffff',
+  color: '#1e293b',
   fontSize: '14px',
   lineHeight: '1.8',
-  margin: '0 0 12px',
-  padding: '16px 20px',
+  margin: '0 0 16px',
+  padding: '20px 24px',
   borderRadius: '12px',
-  border: '1px solid rgba(226, 232, 240, 0.5)',
-  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.02)',
+  border: '1px solid #e2e8f0',
+  boxShadow: '0 2px 8px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04)',
 };
 
 const signature = {
   padding: '24px 40px 36px',
-  backgroundColor: 'rgba(255, 255, 255, 0.6)',
+  backgroundColor: '#ffffff',
 };
 
 const signatureText = {
@@ -236,7 +236,7 @@ const footerDivider = {
 const footer = {
   padding: '28px 40px',
   textAlign: 'center' as const,
-  backgroundColor: 'rgba(248, 250, 252, 0.5)',
+  backgroundColor: '#f8fafc',
 };
 
 const footerText = {
