@@ -10,10 +10,15 @@ import {
   Hr,
   Row,
   Column,
+  Button,
 } from 'npm:@react-email/components@0.0.22';
 import * as React from 'npm:react@18.3.1';
 
+const SUPABASE_URL = "https://xtawnkhvxgxylhxwqnmm.supabase.co";
+
 interface Bill {
+  id: string;
+  token?: string;
   invoice_number?: string;
   supplier_name: string;
   description?: string;
@@ -63,19 +68,33 @@ export const BillNotificationEmail = ({
             <Heading as="h3" style={sectionHeading}>
               Summary of Invoices:
             </Heading>
-            {bills.map((bill, index) => (
-              <Text key={index} style={invoiceItem}>
-                {index + 1}) <strong>{bill.supplier_name}</strong> - 
-                Invoice: {bill.invoice_number || bill.bill_no || 'Not provided'} - 
-                Amount: ${bill.total.toFixed(2)} - 
-                Due: {new Date(bill.due_date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-                {bill.projects && ` - Project: ${bill.projects.name}`}
-              </Text>
-            ))}
+            {bills.map((bill, index) => {
+              const markAsPaidUrl = `${SUPABASE_URL}/functions/v1/mark-bill-paid?billId=${bill.id}&token=${bill.token}`;
+              return (
+                <div key={index} style={invoiceItem}>
+                  <Row>
+                    <Column style={{ width: '70%', paddingRight: '12px', verticalAlign: 'top' }}>
+                      <Text style={{ margin: '0', lineHeight: '1.8' }}>
+                        {index + 1}) <strong>{bill.supplier_name}</strong><br />
+                        Invoice: {bill.invoice_number || bill.bill_no || 'Not provided'}<br />
+                        Amount: ${bill.total.toFixed(2)}<br />
+                        Due: {new Date(bill.due_date).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                        {bill.projects && <><br />Project: {bill.projects.name}</>}
+                      </Text>
+                    </Column>
+                    <Column style={{ width: '30%', verticalAlign: 'middle', textAlign: 'center' as const }}>
+                      <Button href={markAsPaidUrl} style={markAsPaidButton}>
+                        Mark as Paid
+                      </Button>
+                    </Column>
+                  </Row>
+                </div>
+              );
+            })}
           </Section>
 
           {/* Footer Message */}
@@ -226,4 +245,20 @@ const footerText = {
   lineHeight: '1.6',
   margin: '0',
   fontWeight: '500',
+};
+
+const markAsPaidButton = {
+  background: 'linear-gradient(135deg, #217BF4 0%, #1e70e8 100%)',
+  color: '#ffffff',
+  fontSize: '13px',
+  fontWeight: '600' as const,
+  borderRadius: '8px',
+  padding: '10px 18px',
+  textDecoration: 'none',
+  display: 'inline-block',
+  boxShadow: '0 2px 8px rgba(33, 123, 244, 0.25)',
+  border: 'none',
+  cursor: 'pointer',
+  textAlign: 'center' as const,
+  letterSpacing: '0.3px',
 };

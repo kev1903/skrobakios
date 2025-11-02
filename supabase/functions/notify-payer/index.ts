@@ -5,6 +5,23 @@ import React from 'npm:react@18.3.1';
 import { renderAsync } from 'npm:@react-email/components@0.0.22';
 import { BillNotificationEmail } from './_templates/bill-notification.tsx';
 
+// Generate HMAC token for bill verification
+async function generateToken(billId: string, secret: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(billId);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, data);
+  return Array.from(new Uint8Array(signature))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
@@ -78,7 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Users can only see bills from companies they are active members of
     const { data: bills, error: billsError } = await supabase
       .from("bills")
-      .select("*, projects(name, project_id)")
+      .select("id, storage_path, to_pay, payment_status, reference_number, bill_no, invoice_no, supplier_name, total_amount, due_date, projects(name, project_id)")
       .eq("payment_status", "unpaid")
       .not("to_pay", "is", null);
 
@@ -215,17 +232,26 @@ const handler = async (req: Request): Promise<Response> => {
       
       console.log(`Attached ${attachments.length} files for ${payerEmail}`);
 
+      // Generate tokens for each bill
+      const secret = Deno.env.get("RESEND_API_KEY") || "";
+      const billsWithTokens = await Promise.all(
+        payerBills.map(async (bill) => ({
+          ...bill,
+          token: await generateToken(bill.id, secret),
+        }))
+      );
+
       // Render the React Email template
       const emailHtml = await renderAsync(
         React.createElement(BillNotificationEmail, {
           payerName,
-          bills: payerBills,
+          bills: billsWithTokens,
         })
       );
 
       // Send email using Resend with CC and attachments
       const emailPayload: any = {
-        from: "SKROBAKI Finance <accounts@skrobaki.com>",
+        from: "SkAi | SKROBAKI <skai@skrobaki.com>",
         to: [payerEmail],
         cc: ["accounts@skrobaki.com", "kevin@skrobaki.com"],
         subject: "Project Cost Invoices for Your Payment",

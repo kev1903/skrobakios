@@ -98,3 +98,6 @@ verify_jwt = true
 
 [functions.notify-payer]
 verify_jwt = true
+
+[functions.mark-bill-paid]
+verify_jwt = false
