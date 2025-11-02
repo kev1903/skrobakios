@@ -445,27 +445,13 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Get user's company_id - get all active memberships first
-      const { data: memberData, error: memberError } = await supabase
-        .from('company_members')
-        .select('company_id, role')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      console.log('Company membership lookup:', { memberData, memberError, userId: user.id });
-
-      if (memberError) {
-        console.error('Error fetching company membership:', memberError);
-        throw new Error(`Database error: ${memberError.message}`);
+      // Use current company from context
+      if (!currentCompany?.id) {
+        throw new Error('No company selected. Please select a company first.');
       }
 
-      if (!memberData || memberData.length === 0) {
-        throw new Error('No active company membership found. Please contact your administrator to add you to a company.');
-      }
-
-      // Use the first active company (most recent)
-      const companyId = memberData[0].company_id;
+      const companyId = currentCompany.id;
+      console.log('Saving bill to company:', companyId, currentCompany.name);
 
       // Get the storage path from uploaded file
       const fileExt = uploadedFile.name.split('.').pop()?.toLowerCase() || '';
