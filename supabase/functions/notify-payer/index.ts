@@ -203,13 +203,25 @@ const handler = async (req: Request): Promise<Response> => {
         }
       }
 
-      // Fetch bill attachments from storage (RLS on storage applies company isolation)
+      // Fetch bill attachments from storage
+      // Create a service role client for storage access (bypasses RLS)
+      const supabaseServiceRole = createClient(
+        supabaseUrl,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || supabaseAnonKey,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          }
+        }
+      );
+      
       const attachments = [];
       for (const bill of payerBills) {
         if (bill.storage_path) {
           console.log(`Attempting to download bill file from storage: ${bill.storage_path}`);
           try {
-            const { data: fileData, error: fileError } = await supabase.storage
+            const { data: fileData, error: fileError } = await supabaseServiceRole.storage
               .from('bills')
               .download(bill.storage_path);
             
