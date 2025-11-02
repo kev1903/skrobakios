@@ -108,97 +108,122 @@ export const BillNotificationEmail = ({
 
 export default BillNotificationEmail;
 
-// Styles
+// Styles - Modern Liquid Glass Design
 const main = {
-  backgroundColor: '#f6f9fc',
-  fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+  backgroundColor: '#f8fafc',
+  backgroundImage: 'linear-gradient(180deg, #f8fafc 0%, #e0f2fe 100%)',
+  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
+  padding: '40px 20px',
 };
 
 const container = {
-  backgroundColor: '#ffffff',
+  backgroundColor: 'rgba(255, 255, 255, 0.85)',
   margin: '0 auto',
-  padding: '20px 0',
-  marginBottom: '64px',
+  padding: '0',
   maxWidth: '600px',
+  borderRadius: '16px',
+  border: '1px solid rgba(217, 231, 255, 0.6)',
+  boxShadow: '0 8px 32px rgba(33, 123, 244, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)',
+  overflow: 'hidden',
 };
 
 const header = {
-  backgroundColor: '#217BF4',
-  padding: '32px 40px',
+  background: 'linear-gradient(135deg, #217BF4 0%, #1e70e8 50%, #217BF4 100%)',
+  padding: '48px 40px 40px',
   textAlign: 'center' as const,
+  position: 'relative' as const,
 };
 
 const heading = {
   color: '#ffffff',
-  fontSize: '28px',
+  fontSize: '32px',
   fontWeight: '700',
-  margin: '0 0 8px',
+  letterSpacing: '0.5px',
+  margin: '0 0 12px',
   padding: '0',
   lineHeight: '1.2',
+  fontFamily: '"Playfair Display", Georgia, serif',
+  textShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
 };
 
 const subtitle = {
-  color: '#ffffff',
-  fontSize: '16px',
-  fontWeight: '400',
+  color: 'rgba(255, 255, 255, 0.95)',
+  fontSize: '14px',
+  fontWeight: '500',
   margin: '0',
-  opacity: 0.9,
+  letterSpacing: '2px',
+  textTransform: 'uppercase' as const,
 };
 
 const content = {
-  padding: '32px 40px',
+  padding: '36px 40px 24px',
+  backgroundColor: 'rgba(255, 255, 255, 0.6)',
 };
 
 const paragraph = {
-  color: '#333333',
+  color: '#1e293b',
   fontSize: '15px',
-  lineHeight: '1.6',
-  margin: '0 0 16px',
+  lineHeight: '1.7',
+  margin: '0 0 18px',
+  fontWeight: '400',
 };
 
 const billsSection = {
-  padding: '0 40px 24px',
+  padding: '0 40px 32px',
+  backgroundColor: 'rgba(248, 250, 252, 0.8)',
+  margin: '0',
 };
 
 const sectionHeading = {
-  color: '#1e293b',
-  fontSize: '16px',
-  fontWeight: '700',
-  margin: '0 0 16px',
+  color: '#0f172a',
+  fontSize: '18px',
+  fontWeight: '600',
+  margin: '0 0 24px',
+  paddingTop: '24px',
+  letterSpacing: '-0.5px',
 };
 
 const invoiceItem = {
-  color: '#333333',
+  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  color: '#334155',
   fontSize: '14px',
   lineHeight: '1.8',
   margin: '0 0 12px',
-  paddingLeft: '0',
+  padding: '16px 20px',
+  borderRadius: '12px',
+  border: '1px solid rgba(226, 232, 240, 0.5)',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.02)',
 };
 
 const signature = {
-  padding: '0 40px 32px',
+  padding: '24px 40px 36px',
+  backgroundColor: 'rgba(255, 255, 255, 0.6)',
 };
 
 const signatureText = {
   color: '#475569',
   fontSize: '15px',
-  lineHeight: '1.6',
+  lineHeight: '1.7',
   margin: '0 0 12px',
+  fontWeight: '400',
 };
 
 const footerDivider = {
-  borderColor: '#e2e8f0',
-  margin: '0 40px',
+  borderColor: 'rgba(226, 232, 240, 0.5)',
+  borderWidth: '1px',
+  margin: '0',
 };
 
 const footer = {
-  padding: '24px 40px',
+  padding: '28px 40px',
   textAlign: 'center' as const,
+  backgroundColor: 'rgba(248, 250, 252, 0.5)',
 };
 
 const footerText = {
-  color: '#94a3b8',
+  color: '#64748b',
   fontSize: '13px',
   lineHeight: '1.6',
-  margin: '0 0 8px',
+  margin: '0',
+  fontWeight: '500',
 };
