@@ -232,17 +232,20 @@ serve(async (req) => {
             console.log(`Project: ${p.name} | UUID: ${p.id} | Code: ${p.project_id}`);
           });
           
+          // Limit projects to reduce payload size
+          const limitedProjects = projects.slice(0, 15);
+          
           projectsContext = '\n\n=== AVAILABLE PROJECTS TO MATCH ===\n' + 
             'CRITICAL: You MUST return the exact UUID from below. DO NOT generate fake placeholder UUIDs!\n' +
             'Look for ANY keywords from these project names in the invoice content (partial matches are OK):\n\n' +
-            projects.map((p: any) => 
+            limitedProjects.map((p: any) => 
               `PROJECT:\n` +
               `  UUID (RETURN THIS EXACT STRING): ${p.id}\n` +
               `  Project Code: ${p.project_id}\n` +
               `  Project Name: ${p.name}\n` +
               `  Keywords to search: ${p.name.toLowerCase()}, ${p.project_id.toLowerCase()}\n`
             ).join('\n');
-          console.log(`Found ${projects.length} projects for context (RLS filtered)`);
+          console.log(`Found ${projects.length} projects for context (showing first ${limitedProjects.length} for payload size optimization, RLS filtered)`);
         }
         
         // Fetch WBS items with project associations using authenticated client (RLS applies)
@@ -260,8 +263,8 @@ serve(async (req) => {
             console.log(`WBS: ${w.title} | UUID: ${w.id} | Code: ${w.wbs_id} | Project: ${w.project_id}`);
           });
           
-          // Limit WBS context to reduce memory usage
-          const limitedWbsItems = wbsItems.slice(0, 25); // Reduced from 50 to 25 for memory
+          // Limit WBS context to reduce payload size
+          const limitedWbsItems = wbsItems.slice(0, 15);
           wbsContext = '\n\n=== AVAILABLE WBS ACTIVITIES TO MATCH ===\n' + 
             'CRITICAL: You MUST return the exact WBS UUID from below. DO NOT generate fake placeholder UUIDs!\n' +
             'IMPORTANT: Only assign WBS activities that belong to the SAME project you matched above.\n' +
@@ -273,9 +276,9 @@ serve(async (req) => {
               `  Title: ${w.title}\n` +
               `  Category: ${w.category || 'N/A'}\n` +
               `  Belongs to Project ID: ${w.project_id}\n` +
-              `  Keywords: ${w.title.toLowerCase()}, ${w.wbs_id.toLowerCase()}${w.description ? ', ' + w.description.substring(0, 50).toLowerCase() : ''}\n`
+              `  Keywords: ${w.title.toLowerCase()}, ${w.wbs_id.toLowerCase()}${w.description ? ', ' + w.description.substring(0, 30).toLowerCase() : ''}\n`
             ).join('\n');
-          console.log(`Found ${wbsItems.length} WBS items for context (showing first 25 for memory optimization, RLS filtered)`);
+          console.log(`Found ${wbsItems.length} WBS items for context (showing first ${limitedWbsItems.length} for payload size optimization, RLS filtered)`);
         }
       } catch (contextError) {
         console.error('Error fetching context:', contextError);
@@ -405,7 +408,7 @@ Be precise with data extraction. Set high confidence (0.9+) only if all fields a
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-pro',
         messages: aiMessages,
         tools: [{
           type: 'function',
