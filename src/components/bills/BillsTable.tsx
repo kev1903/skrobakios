@@ -14,6 +14,7 @@ import { BillsMobileCard } from "./BillsMobileCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useScreenSize } from "@/hooks/use-mobile";
+import { useCompany } from "@/contexts/CompanyContext";
 import { Loader2 } from "lucide-react";
 
 interface BillsTableProps {
@@ -26,52 +27,28 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
   const [bills, setBills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { currentCompany } = useCompany();
   const screenSize = useScreenSize();
   const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
   const isTablet = screenSize === 'tablet';
 
   useEffect(() => {
     fetchBills();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, currentCompany?.id]);
 
   const fetchBills = async () => {
     try {
       setLoading(true);
       
-      // Get user's company_id
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      // Use current company from context
+      if (!currentCompany?.id) {
+        console.warn('No current company selected');
         setLoading(false);
         return;
       }
 
-      const { data: memberData, error: memberError } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      console.log('Bills table - company lookup:', { memberData, memberError, userId: user.id });
-
-      if (memberError) {
-        console.error('Error fetching company membership:', memberError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch company information",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      if (!memberData || memberData.length === 0) {
-        console.warn('No active company membership found');
-        setLoading(false);
-        return;
-      }
-
-      const companyId = memberData[0].company_id;
+      const companyId = currentCompany.id;
+      console.log('Bills table - filtering by current company:', companyId, currentCompany.name);
 
       // Fetch bills with project information
       const { data, error } = await supabase
