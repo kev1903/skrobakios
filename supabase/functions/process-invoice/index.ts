@@ -54,25 +54,28 @@ const InvoiceSchema = {
   }
 };
 
-// Extract text from PDF using PDF.js
+// Extract text from PDF using PDF.js - MEMORY OPTIMIZED
 async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
   try {
     console.log('=== EXTRACTING TEXT FROM PDF ===');
     
-    // Load PDF document
+    // Load PDF document with memory optimization
     const loadingTask = pdfjsLib.getDocument({
       data: new Uint8Array(pdfBytes),
       useSystemFonts: true,
       standardFontDataUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/standard_fonts/",
+      disableFontFace: true, // Reduce memory usage
+      verbosity: 0 // Reduce logging overhead
     });
     
     const pdfDoc = await loadingTask.promise;
-    console.log(`PDF loaded: ${pdfDoc.numPages} pages`);
+    const numPages = Math.min(pdfDoc.numPages, 3); // Only process first 3 pages for invoices
+    console.log(`PDF loaded: ${pdfDoc.numPages} pages (processing first ${numPages})`);
     
     let fullText = '';
     
-    // Extract text from all pages
-    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+    // Extract text from first few pages only (invoices are usually 1-2 pages)
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
       const page = await pdfDoc.getPage(pageNum);
       const textContent = await page.getTextContent();
       
@@ -82,8 +85,13 @@ async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
         .join(' ');
       
       fullText += pageText + '\n\n';
-      console.log(`Page ${pageNum} text extracted: ${pageText.length} chars`);
+      
+      // Clean up page to free memory
+      page.cleanup();
     }
+    
+    // Destroy PDF document to free memory
+    await pdfDoc.destroy();
     
     console.log(`Total extracted text: ${fullText.length} characters`);
     return fullText.trim();
@@ -297,20 +305,22 @@ serve(async (req) => {
             console.log(`WBS: ${w.title} | UUID: ${w.id} | Code: ${w.wbs_id} | Project: ${w.project_id}`);
           });
           
+          // Limit WBS context to reduce memory usage
+          const limitedWbsItems = wbsItems.slice(0, 25); // Reduced from 50 to 25 for memory
           wbsContext = '\n\n=== AVAILABLE WBS ACTIVITIES TO MATCH ===\n' + 
             'CRITICAL: You MUST return the exact WBS UUID from below. DO NOT generate fake placeholder UUIDs!\n' +
             'IMPORTANT: Only assign WBS activities that belong to the SAME project you matched above.\n' +
             'Look for keywords in the invoice line items, descriptions, or notes that match these WBS activities:\n\n' +
-            wbsItems.map((w: any) => 
+            limitedWbsItems.map((w: any) => 
               `WBS ACTIVITY:\n` +
               `  UUID (RETURN THIS EXACT STRING): ${w.id}\n` +
               `  WBS Code: ${w.wbs_id}\n` +
               `  Title: ${w.title}\n` +
               `  Category: ${w.category || 'N/A'}\n` +
               `  Belongs to Project ID: ${w.project_id}\n` +
-              `  Keywords to search: ${w.title.toLowerCase()}, ${w.wbs_id.toLowerCase()}${w.description ? ', ' + w.description.substring(0, 100).toLowerCase() : ''}\n`
-            ).slice(0, 50).join('\n');
-          console.log(`Found ${wbsItems.length} WBS items for context (showing first 50, RLS filtered)`);
+              `  Keywords: ${w.title.toLowerCase()}, ${w.wbs_id.toLowerCase()}${w.description ? ', ' + w.description.substring(0, 50).toLowerCase() : ''}\n`
+            ).join('\n');
+          console.log(`Found ${wbsItems.length} WBS items for context (showing first 25 for memory optimization, RLS filtered)`);
         }
       } catch (contextError) {
         console.error('Error fetching context:', contextError);
@@ -337,14 +347,14 @@ serve(async (req) => {
     const bytes = await fetchAsArrayBuffer(signed_url);
     console.log(`Downloaded ${bytes.byteLength} bytes`);
 
-    // Check file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024;
+    // Check file size (max 3MB for memory optimization)
+    const maxSize = 3 * 1024 * 1024; // Reduced from 5MB to 3MB
     if (bytes.byteLength > maxSize) {
       const sizeMB = (bytes.byteLength / 1024 / 1024).toFixed(2);
       return new Response(
         JSON.stringify({ 
           ok: false, 
-          error: `File too large (${sizeMB}MB). Maximum is 5MB.` 
+          error: `File too large (${sizeMB}MB). Maximum is 3MB for processing.` 
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -359,13 +369,19 @@ serve(async (req) => {
       console.log('Extracting text from PDF...');
       documentContent = await extractTextFromPDF(bytes);
       console.log('Text extraction complete');
-      console.log('Extracted text preview:', documentContent.substring(0, 500));
+      console.log('Extracted text preview:', documentContent.substring(0, 300));
+      
+      // Clear bytes from memory after processing
+      (bytes as any) = null;
     } else {
       // For images: Convert to base64 for vision processing
       console.log('Processing image with vision...');
       const base64Data = arrayBufferToBase64(bytes);
       const mimeType = getMimeType(filename);
       documentContent = `IMAGE:${mimeType}:${base64Data}`;
+      
+      // Clear bytes from memory
+      (bytes as any) = null;
     }
 
     // Step 3: Send to AI for structured extraction
