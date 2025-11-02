@@ -63,6 +63,8 @@ export const WBSSplitView = ({
     bold: false,
     italic: false,
     underline: false,
+    highlight: false,
+    textColor: false,
     fontSize: "12"
   });
   const leftScrollRef = useRef<HTMLDivElement>(null);
@@ -404,6 +406,82 @@ export const WBSSplitView = ({
       console.error('❌ Error applying underline formatting:', error);
     }
   }, [selectedItems, currentFormatting.underline, items, onItemUpdate, onReloadItems]);
+
+  const handleHighlight = useCallback(async () => {
+    if (selectedItems.length === 0) return;
+    
+    // TODO: Implement color picker modal for highlight color
+    // For now, toggle a default highlight color (yellow)
+    const newHighlightState = !currentFormatting.highlight;
+    setCurrentFormatting(prev => ({
+      ...prev,
+      highlight: newHighlightState
+    }));
+    
+    try {
+      await Promise.all(
+        selectedItems.map(itemId => {
+          const item = items.find(i => i.id === itemId);
+          if (!item) return Promise.resolve();
+          
+          const currentFormatting = item.text_formatting || {};
+          return onItemUpdate(itemId, {
+            text_formatting: {
+              ...currentFormatting,
+              highlight: newHighlightState,
+              highlightColor: newHighlightState ? '#FFEB3B' : undefined
+            }
+          });
+        })
+      );
+      console.log('✅ Highlight formatting applied to', selectedItems.length, 'items');
+      
+      // Reload items to reflect the formatting changes
+      if (onReloadItems) {
+        await onReloadItems();
+      }
+    } catch (error) {
+      console.error('❌ Error applying highlight formatting:', error);
+    }
+  }, [selectedItems, currentFormatting.highlight, items, onItemUpdate, onReloadItems]);
+
+  const handleTextColor = useCallback(async () => {
+    if (selectedItems.length === 0) return;
+    
+    // TODO: Implement color picker modal for text color
+    // For now, toggle between default and red color
+    const newTextColorState = !currentFormatting.textColor;
+    setCurrentFormatting(prev => ({
+      ...prev,
+      textColor: newTextColorState
+    }));
+    
+    try {
+      await Promise.all(
+        selectedItems.map(itemId => {
+          const item = items.find(i => i.id === itemId);
+          if (!item) return Promise.resolve();
+          
+          const currentFormatting = item.text_formatting || {};
+          return onItemUpdate(itemId, {
+            text_formatting: {
+              ...currentFormatting,
+              color: newTextColorState ? '#F44336' : undefined
+            }
+          });
+        })
+      );
+      console.log('✅ Text color formatting applied to', selectedItems.length, 'items');
+      
+      // Reload items to reflect the formatting changes
+      if (onReloadItems) {
+        await onReloadItems();
+      }
+    } catch (error) {
+      console.error('❌ Error applying text color formatting:', error);
+    }
+  }, [selectedItems, currentFormatting.textColor, items, onItemUpdate, onReloadItems]);
+
   const handleFontSizeChange = useCallback(async (size: string) => {
     if (selectedItems.length === 0) return;
     
@@ -450,17 +528,22 @@ export const WBSSplitView = ({
     if (selectedItems.length === 1) {
       const selectedItem = items.find(i => i.id === selectedItems[0]);
       if (selectedItem?.text_formatting) {
+        const formatting = selectedItem.text_formatting as any;
         setCurrentFormatting({
-          bold: selectedItem.text_formatting.bold || false,
-          italic: selectedItem.text_formatting.italic || false,
-          underline: selectedItem.text_formatting.underline || false,
-          fontSize: selectedItem.text_formatting.fontSize || "12"
+          bold: formatting.bold || false,
+          italic: formatting.italic || false,
+          underline: formatting.underline || false,
+          highlight: formatting.highlight || false,
+          textColor: !!formatting.color,
+          fontSize: formatting.fontSize || "12"
         });
       } else {
         setCurrentFormatting({
           bold: false,
           italic: false,
           underline: false,
+          highlight: false,
+          textColor: false,
           fontSize: "12"
         });
       }
@@ -469,6 +552,8 @@ export const WBSSplitView = ({
         bold: false,
         italic: false,
         underline: false,
+        highlight: false,
+        textColor: false,
         fontSize: "12"
       });
     }
@@ -628,7 +713,7 @@ export const WBSSplitView = ({
   }, []);
   return <div className="h-full w-full bg-white flex flex-col">
       {/* WBS Toolbar */}
-      <WBSToolbar onAddRow={handleAddRow} onIndent={handleIndent} onOutdent={handleOutdent} onBold={handleBold} onItalic={handleItalic} onUnderline={handleUnderline} onFontSizeChange={handleFontSizeChange} selectedItems={selectedItems} canIndent={selectedItems.length > 0 && selectedItems.some(id => {
+      <WBSToolbar onAddRow={handleAddRow} onIndent={handleIndent} onOutdent={handleOutdent} onBold={handleBold} onItalic={handleItalic} onUnderline={handleUnderline} onHighlight={handleHighlight} onTextColor={handleTextColor} onFontSizeChange={handleFontSizeChange} selectedItems={selectedItems} canIndent={selectedItems.length > 0 && selectedItems.some(id => {
       const item = items.find(i => i.id === id);
       return item && item.level < 4; // Can only indent if not at max level (4)
     })} canOutdent={selectedItems.length > 0 && selectedItems.some(id => {

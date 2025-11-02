@@ -17,7 +17,9 @@ import {
   Italic, 
   Underline,
   Type,
-  MoreHorizontal
+  MoreHorizontal,
+  Highlighter,
+  Palette
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useScreenSize } from '@/hooks/use-mobile';
@@ -29,6 +31,8 @@ interface WBSToolbarProps {
   onBold?: () => void;
   onItalic?: () => void;
   onUnderline?: () => void;
+  onHighlight?: () => void;
+  onTextColor?: () => void;
   onFontSizeChange?: (size: string) => void;
   selectedItems?: string[];
   canIndent?: boolean;
@@ -37,6 +41,8 @@ interface WBSToolbarProps {
     bold?: boolean;
     italic?: boolean;
     underline?: boolean;
+    highlight?: boolean;
+    textColor?: boolean;
     fontSize?: string;
   };
 }
@@ -48,6 +54,8 @@ export const WBSToolbar = ({
   onBold,
   onItalic,
   onUnderline,
+  onHighlight,
+  onTextColor,
   onFontSizeChange,
   selectedItems = [],
   canIndent = false,
@@ -169,6 +177,44 @@ export const WBSToolbar = ({
             >
               <Underline className="w-4 h-4" />
             </Button>
+            
+            <Separator orientation="vertical" className="h-6 mx-1" />
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onHighlight}
+              disabled={!hasSelection}
+              className={cn(
+                "h-8 w-8 p-0 transition-all duration-200 relative",
+                currentFormatting.highlight 
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                  : "hover:bg-primary/10 hover:border-primary/20",
+                !hasSelection && "opacity-40"
+              )}
+              title="Highlight Color"
+            >
+              <Highlighter className="w-4 h-4" />
+              <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 bg-yellow-400" />
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onTextColor}
+              disabled={!hasSelection}
+              className={cn(
+                "h-8 w-8 p-0 transition-all duration-200 relative",
+                currentFormatting.textColor 
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                  : "hover:bg-primary/10 hover:border-primary/20",
+                !hasSelection && "opacity-40"
+              )}
+              title="Text Color"
+            >
+              <Palette className="w-4 h-4" />
+              <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 bg-red-500" />
+            </Button>
           </div>
 
           <Separator orientation="vertical" className="h-6" />
@@ -230,6 +276,15 @@ export const WBSToolbar = ({
             <DropdownMenuItem onClick={onUnderline} disabled={!hasSelection}>
               <Underline className="w-4 h-4 mr-2" />
               Underline
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onHighlight} disabled={!hasSelection}>
+              <Highlighter className="w-4 h-4 mr-2" />
+              Highlight
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onTextColor} disabled={!hasSelection}>
+              <Palette className="w-4 h-4 mr-2" />
+              Text Color
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled={!hasSelection}>
