@@ -32,7 +32,11 @@ interface ExpenseRecord {
   attachments?: string[];
 }
 
-export const ExpenseTable = () => {
+interface ExpenseTableProps {
+  refreshTrigger?: number;
+}
+
+export const ExpenseTable = ({ refreshTrigger }: ExpenseTableProps) => {
   const [data, setData] = useState<ExpenseRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortColumn, setSortColumn] = useState<"date" | "amount" | null>(null);
@@ -120,7 +124,7 @@ export const ExpenseTable = () => {
 
   useEffect(() => {
     fetchExpenseData();
-  }, []);
+  }, [refreshTrigger]);
 
   const handleSort = (column: "date" | "amount") => {
     if (sortColumn === column) {
