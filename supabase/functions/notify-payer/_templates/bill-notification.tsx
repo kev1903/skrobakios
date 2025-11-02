@@ -78,7 +78,7 @@ export const BillNotificationEmail = ({
               return (
                 <div key={index} style={invoiceItem}>
                   <Row style={{ backgroundColor: '#ffffff' }}>
-                    <Column style={{ width: '70%', paddingRight: '12px', verticalAlign: 'top', backgroundColor: '#ffffff' }}>
+                    <Column style={{ width: '65%', paddingRight: '16px', verticalAlign: 'top', backgroundColor: '#ffffff' }}>
                       <Text style={{ margin: '0', lineHeight: '1.8', color: '#1a1a1a', backgroundColor: '#ffffff' }}>
                         {index + 1}) <strong>{bill.supplier_name}</strong><br />
                         Invoice: {bill.invoice_number || bill.bill_no || 'Not provided'}<br />
@@ -91,15 +91,15 @@ export const BillNotificationEmail = ({
                         {bill.projects && <><br />Project: {bill.projects.name}</>}
                       </Text>
                     </Column>
-                    <Column style={{ width: '30%', verticalAlign: 'middle', textAlign: 'center' as const, backgroundColor: '#ffffff' }}>
-                      <Button href={markAsPaidUrl} style={markAsPaidButton}>
-                        Mark as Paid
-                      </Button>
+                    <Column style={{ width: '35%', verticalAlign: 'middle', backgroundColor: '#ffffff', paddingLeft: '8px' }}>
                       {downloadUrl && (
                         <Button href={downloadUrl} style={downloadButton}>
-                          ⬇ Download PDF
+                          📥 Download PDF
                         </Button>
                       )}
+                      <Button href={markAsPaidUrl} style={markAsPaidButton}>
+                        ✓ Mark as Paid
+                      </Button>
                     </Column>
                   </Row>
                 </div>
@@ -257,33 +257,37 @@ const footerText = {
   fontWeight: '500',
 };
 
+const downloadButton = {
+  backgroundColor: '#10b981',
+  color: '#ffffff',
+  fontSize: '13px',
+  fontWeight: '700' as const,
+  borderRadius: '10px',
+  padding: '14px 20px',
+  textDecoration: 'none',
+  display: 'block',
+  border: 'none',
+  cursor: 'pointer',
+  textAlign: 'center' as const,
+  width: '100%',
+  marginBottom: '10px',
+  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+  letterSpacing: '0.3px',
+};
+
 const markAsPaidButton = {
   backgroundColor: '#217BF4',
   color: '#ffffff',
   fontSize: '13px',
-  fontWeight: '600' as const,
-  borderRadius: '8px',
-  padding: '12px 24px',
+  fontWeight: '700' as const,
+  borderRadius: '10px',
+  padding: '14px 20px',
   textDecoration: 'none',
-  display: 'inline-block',
-  border: 'none',
-  cursor: 'pointer',
-  textAlign: 'center' as const,
-  marginBottom: '8px',
-  width: '100%',
-};
-
-const downloadButton = {
-  backgroundColor: '#10b981',
-  color: '#ffffff',
-  fontSize: '12px',
-  fontWeight: '600' as const,
-  borderRadius: '8px',
-  padding: '10px 20px',
-  textDecoration: 'none',
-  display: 'inline-block',
+  display: 'block',
   border: 'none',
   cursor: 'pointer',
   textAlign: 'center' as const,
   width: '100%',
+  boxShadow: '0 4px 12px rgba(33, 123, 244, 0.3)',
+  letterSpacing: '0.3px',
 };
