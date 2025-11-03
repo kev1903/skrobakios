@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, Pencil, Trash2, Check, X } from 'lucide-react';
 
 interface BillNote {
   id: string;
@@ -32,6 +32,9 @@ export const BillNotesDialog = ({ isOpen, onClose, billId, billNumber }: BillNot
   const [newNote, setNewNote] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+  const [deleting, setDeleting] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -124,6 +127,73 @@ export const BillNotesDialog = ({ isOpen, onClose, billId, billNumber }: BillNot
     }
   };
 
+  const handleEditNote = async (noteId: string) => {
+    if (!editText.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from('bill_notes')
+        .update({ note: editText.trim() })
+        .eq('id', noteId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Note Updated',
+        description: 'Your note has been updated successfully'
+      });
+
+      setEditingId(null);
+      setEditText('');
+      fetchNotes();
+    } catch (err: any) {
+      console.error('Error updating note:', err);
+      toast({
+        title: 'Failed to Update Note',
+        description: err.message,
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    try {
+      setDeleting(noteId);
+      const { error } = await supabase
+        .from('bill_notes')
+        .delete()
+        .eq('id', noteId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Note Deleted',
+        description: 'Your note has been deleted successfully'
+      });
+
+      fetchNotes();
+    } catch (err: any) {
+      console.error('Error deleting note:', err);
+      toast({
+        title: 'Failed to Delete Note',
+        description: err.message,
+        variant: 'destructive'
+      });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const startEdit = (note: BillNote) => {
+    setEditingId(note.id);
+    setEditText(note.note);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText('');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-2xl max-h-[80vh]">
@@ -195,13 +265,70 @@ export const BillNotesDialog = ({ isOpen, onClose, billId, billNumber }: BillNot
                         <span className="text-sm font-semibold text-foreground">
                           {note.user_name}
                         </span>
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(note.created_at), 'MMM dd, yyyy HH:mm')}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(note.created_at), 'MMM dd, yyyy HH:mm')}
+                          </span>
+                          {editingId !== note.id && (
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                onClick={() => startEdit(note)}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                onClick={() => handleDeleteNote(note.id)}
+                                disabled={deleting === note.id}
+                              >
+                                {deleting === note.id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-sm text-foreground/90 whitespace-pre-wrap">
-                        {note.note}
-                      </p>
+                      
+                      {editingId === note.id ? (
+                        <div className="space-y-2">
+                          <Textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            rows={3}
+                            className="resize-none text-sm"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleEditNote(note.id)}
+                              disabled={!editText.trim()}
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={cancelEdit}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-foreground/90 whitespace-pre-wrap">
+                          {note.note}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
