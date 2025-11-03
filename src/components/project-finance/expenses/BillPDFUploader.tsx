@@ -51,6 +51,7 @@ interface ExtractedBillData {
 
 export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDFUploaderProps) => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [originalPdfFile, setOriginalPdfFile] = useState<File | null>(null); // Keep original PDF separate
   const [uploading, setUploading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -205,6 +206,12 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
     setUploadedFile(file);
     
+    // Keep original PDF for storage
+    if (file.type === 'application/pdf') {
+      setOriginalPdfFile(file);
+      console.log('📄 Keeping original PDF for storage');
+    }
+    
     // Create preview URL for the file
     const previewUrl = URL.createObjectURL(file);
     console.log('Preview URL created for:', file.name);
@@ -244,15 +251,19 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       console.log('Original filename:', file.name);
       console.log('Sanitized filename:', sanitizedFileName);
       
-      // Step 1: Upload file to Supabase Storage
-      console.log('Uploading to storage...');
+      // Step 1: Upload original PDF to Supabase Storage (not converted PNG)
+      console.log('Uploading original PDF to storage...');
       const timestamp = Date.now();
       const uniqueFileName = `${timestamp}_${sanitizedFileName}`;
       const filePath = `bills/${uniqueFileName}`;
       
+      // Use original PDF if available, otherwise use the file passed in
+      const fileToUpload = originalPdfFile || file;
+      console.log('Uploading file type:', fileToUpload.type);
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('bill-documents')
-        .upload(filePath, file, {
+        .upload(filePath, fileToUpload, {
           cacheControl: '3600',
           upsert: false
         });
@@ -408,6 +419,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     }
     
     setUploadedFile(null);
+    setOriginalPdfFile(null);
     setUploading(false);
     setExtracting(false);
     setUploadProgress(0);

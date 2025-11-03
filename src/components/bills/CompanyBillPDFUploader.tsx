@@ -64,6 +64,7 @@ interface ExtractedBillData {
 
 export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBillPDFUploaderProps) => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [originalPdfFile, setOriginalPdfFile] = useState<File | null>(null); // Keep original PDF separate
   const [uploading, setUploading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -158,6 +159,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
 
   const resetState = () => {
     setUploadedFile(null);
+    setOriginalPdfFile(null);
     setUploading(false);
     setExtracting(false);
     setUploadProgress(0);
@@ -190,15 +192,17 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
     setError(null);
     setUploadedFile(file);
     
-    // Convert PDF to image on client side before uploading
-    let fileToUpload = file;
+    // Keep original PDF for storage upload
+    let fileForAI = file;
     if (file.type === 'application/pdf') {
-      console.log('📄 Converting PDF to image for processing...');
+      console.log('📄 Keeping original PDF for storage, converting copy for AI...');
+      setOriginalPdfFile(file); // Store original PDF
+      
       try {
         setUploading(true);
         setUploadProgress(10);
         
-        // Load PDF and render first page to canvas
+        // Load PDF and render first page to canvas for AI processing
         const pdfData = await file.arrayBuffer();
         const pdf = await pdfjs.getDocument({ data: pdfData }).promise;
         const page = await pdf.getPage(1);
@@ -220,7 +224,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
           viewport: viewport
         }).promise;
         
-        // Convert canvas to blob
+        // Convert canvas to blob for AI processing
         const blob = await new Promise<Blob>((resolve, reject) => {
           canvas.toBlob((blob) => {
             if (blob) resolve(blob);
@@ -228,13 +232,10 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
           }, 'image/png', 0.95);
         });
         
-        // Create a new file from the blob
-        fileToUpload = new File([blob], file.name.replace('.pdf', '.png'), { type: 'image/png' });
+        // Create PNG file only for AI extraction
+        fileForAI = new File([blob], file.name.replace('.pdf', '.png'), { type: 'image/png' });
         
-        console.log('✅ PDF converted to image:', fileToUpload.size, 'bytes');
-        
-        // Update the uploaded file state to the converted image
-        setUploadedFile(fileToUpload);
+        console.log('✅ PDF converted to PNG for AI:', fileForAI.size, 'bytes');
         
         setUploadProgress(20);
       } catch (conversionError) {
@@ -245,7 +246,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       }
     }
     
-    const previewUrl = URL.createObjectURL(fileToUpload);
+    const previewUrl = URL.createObjectURL(file); // Preview original file
     setFilePreviewUrl(previewUrl);
     
     // Ensure projects are loaded before extraction
@@ -255,7 +256,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       currentProjects = await loadProjects();
     }
     
-    await handleUploadAndExtract(fileToUpload, currentProjects);
+    await handleUploadAndExtract(fileForAI, currentProjects);
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -453,15 +454,33 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
       const companyId = currentCompany.id;
       console.log('Saving bill to company:', companyId, currentCompany.name);
 
-      // Get the storage path from uploaded file
-      const fileExt = uploadedFile.name.split('.').pop()?.toLowerCase() || '';
+      // Use original PDF if available, otherwise use uploaded file
+      const fileToSave = originalPdfFile || uploadedFile;
+      console.log('Saving file to storage:', fileToSave.name, fileToSave.type);
+      
       const timestamp = Date.now();
-      const sanitizedFileName = uploadedFile.name
+      const sanitizedFileName = fileToSave.name
         .replace(/[^a-zA-Z0-9._-]/g, '_')
         .replace(/_{2,}/g, '_')
         .substring(0, 200);
       const fileName = `${timestamp}_${sanitizedFileName}`;
       const storagePath = `${user.id}/company-bills/${fileName}`;
+      
+      // Upload the original file to storage
+      console.log('Uploading original file to storage...');
+      const { error: uploadError } = await supabase.storage
+        .from('bills')
+        .upload(storagePath, fileToSave, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Failed to upload file: ${uploadError.message}`);
+      }
+      
+      console.log('✅ File uploaded successfully to:', storagePath);
 
       // Insert bill record
       const { data: billData, error: billError } = await supabase
