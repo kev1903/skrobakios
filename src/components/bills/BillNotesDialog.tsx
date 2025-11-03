@@ -51,8 +51,10 @@ export const BillNotesDialog = ({ isOpen, onClose, billId, billNumber }: BillNot
           note,
           created_at,
           created_by,
-          profiles:created_by (
-            full_name
+          profiles!bill_notes_created_by_fkey (
+            first_name,
+            last_name,
+            email
           )
         `)
         .eq('bill_id', billId)
@@ -60,10 +62,17 @@ export const BillNotesDialog = ({ isOpen, onClose, billId, billNumber }: BillNot
 
       if (error) throw error;
 
-      const formattedNotes = data.map((note: any) => ({
-        ...note,
-        user_name: note.profiles?.full_name || 'Unknown User'
-      }));
+      const formattedNotes = data.map((note: any) => {
+        const profile = note.profiles;
+        const userName = profile 
+          ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.email || 'Unknown User'
+          : 'Unknown User';
+        
+        return {
+          ...note,
+          user_name: userName
+        };
+      });
 
       setNotes(formattedNotes);
     } catch (err: any) {
