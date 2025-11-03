@@ -90,7 +90,7 @@ export const BillNotificationEmail = ({
                         })}
                         {bill.projects && <><br />Project: {bill.projects.name}</>}
                       </Text>
-                      <div style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
                         {downloadUrl && (
                           <Button href={downloadUrl} style={downloadButton}>
                             📥 Download Bill
@@ -258,38 +258,37 @@ const footerText = {
 };
 
 const downloadButton = {
-  backgroundColor: '#10b981',
+  backgroundColor: 'rgba(16, 185, 129, 0.95)',
   color: '#ffffff',
-  fontSize: '14px',
-  fontWeight: '700' as const,
-  borderRadius: '10px',
-  padding: '16px 24px',
+  fontSize: '12px',
+  fontWeight: '600' as const,
+  borderRadius: '8px',
+  padding: '10px 18px',
   textDecoration: 'none',
   display: 'inline-block',
-  border: 'none',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
   cursor: 'pointer',
   textAlign: 'center' as const,
-  width: '100%',
-  marginBottom: '12px',
-  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.25)',
-  letterSpacing: '0.3px',
-  maxWidth: '100%',
+  flex: '1',
+  minWidth: '140px',
+  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+  letterSpacing: '0.2px',
 };
 
 const markAsPaidButton = {
-  backgroundColor: '#217BF4',
+  backgroundColor: 'rgba(33, 123, 244, 0.95)',
   color: '#ffffff',
-  fontSize: '14px',
-  fontWeight: '700' as const,
-  borderRadius: '10px',
-  padding: '16px 24px',
+  fontSize: '12px',
+  fontWeight: '600' as const,
+  borderRadius: '8px',
+  padding: '10px 18px',
   textDecoration: 'none',
   display: 'inline-block',
-  border: 'none',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
   cursor: 'pointer',
   textAlign: 'center' as const,
-  width: '100%',
-  boxShadow: '0 4px 16px rgba(33, 123, 244, 0.25)',
-  letterSpacing: '0.3px',
-  maxWidth: '100%',
+  flex: '1',
+  minWidth: '140px',
+  boxShadow: '0 2px 8px rgba(33, 123, 244, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+  letterSpacing: '0.2px',
 };
