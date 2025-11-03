@@ -71,8 +71,9 @@ export const BillNotificationEmail = ({
             </Heading>
             {bills.map((bill, index) => {
               const markAsPaidUrl = `${SUPABASE_URL}/functions/v1/mark-bill-paid?billId=${bill.id}&token=${bill.token}`;
+              // Storage path is relative to bucket, so we need to add "bills/" prefix
               const downloadUrl = bill.storage_path 
-                ? `${SUPABASE_URL}/storage/v1/object/public/${bill.storage_path}`
+                ? `${SUPABASE_URL}/storage/v1/object/public/bills/${bill.storage_path}`
                 : null;
               
               return (
