@@ -441,6 +441,25 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
   const handleSave = async () => {
     if (!editableData || !uploadedFile) return;
 
+    // Validate required fields
+    if (!editableData.due_date || editableData.due_date.trim() === '') {
+      toast({
+        title: "Due Date Required",
+        description: "Please enter a due date for this bill before saving.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!editableData.bill_date || editableData.bill_date.trim() === '') {
+      toast({
+        title: "Bill Date Required",
+        description: "Please enter a bill date before saving.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
