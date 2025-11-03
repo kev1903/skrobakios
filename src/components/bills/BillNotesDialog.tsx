@@ -51,7 +51,7 @@ export const BillNotesDialog = ({ isOpen, onClose, billId, billNumber }: BillNot
           note,
           created_at,
           created_by,
-          profiles!bill_notes_created_by_fkey (
+          profiles!created_by (
             first_name,
             last_name,
             email
