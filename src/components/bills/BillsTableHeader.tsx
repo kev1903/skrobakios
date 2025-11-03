@@ -33,6 +33,7 @@ export const BillsTableHeader = ({ selectedCount, totalCount, onSelectAll }: Bil
         <TableHead className="py-2 text-[10px] uppercase tracking-wider">Status</TableHead>
         <TableHead className="min-w-[200px] py-2 text-[10px] uppercase tracking-wider">Linked Cash In Account</TableHead>
         <TableHead className="min-w-[200px] py-2 text-[10px] uppercase tracking-wider">To Pay</TableHead>
+        <TableHead className="w-12 py-2 text-center text-[10px] uppercase tracking-wider">Notes</TableHead>
         <TableHead className="w-12 py-2"></TableHead>
       </TableRow>
     </TableHeader>

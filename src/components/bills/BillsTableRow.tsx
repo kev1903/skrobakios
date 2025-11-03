@@ -15,9 +15,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, MoreHorizontal, Trash2, ChevronDown } from "lucide-react";
+import { AlertTriangle, MoreHorizontal, Trash2, ChevronDown, StickyNote } from "lucide-react";
 import { StakeholderCombobox } from "./StakeholderCombobox";
 import { Badge } from "@/components/ui/badge";
+import { BillNotesDialog } from "./BillNotesDialog";
+import { useState } from "react";
 
 interface Bill {
   id: string;
@@ -51,6 +53,8 @@ const cashInAccounts = [
 ];
 
 export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange, onToPayChange, onDelete, onStatusChange }: BillsTableRowProps) => {
+  const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+  
   const getStatusLabel = (status: string | undefined) => {
     switch (status) {
       case 'paid':
@@ -178,6 +182,23 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
         <StakeholderCombobox
           value={bill.toPay || ""}
           onValueChange={(value) => onToPayChange(bill.id, value)}
+        />
+      </TableCell>
+      <TableCell className="py-1.5 text-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0 hover:bg-accent"
+          onClick={() => setNotesDialogOpen(true)}
+        >
+          <StickyNote className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+        </Button>
+        
+        <BillNotesDialog
+          isOpen={notesDialogOpen}
+          onClose={() => setNotesDialogOpen(false)}
+          billId={bill.id}
+          billNumber={bill.billNumber}
         />
       </TableCell>
       <TableCell className="py-1.5">

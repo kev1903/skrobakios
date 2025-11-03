@@ -12,10 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, MoreVertical, Trash2, ChevronDown } from "lucide-react";
+import { AlertTriangle, MoreVertical, Trash2, ChevronDown, StickyNote } from "lucide-react";
 import { StakeholderCombobox } from "./StakeholderCombobox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BillNotesDialog } from "./BillNotesDialog";
+import { useState } from "react";
 
 interface Bill {
   id: string;
@@ -57,6 +59,8 @@ export const BillsMobileCard = ({
   onDelete,
   onStatusChange
 }: BillsMobileCardProps) => {
+  const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+  
   const getStatusLabel = (status: string | undefined) => {
     switch (status) {
       case 'paid':
@@ -225,6 +229,26 @@ export const BillsMobileCard = ({
           onValueChange={(value) => onToPayChange(bill.id, value)}
         />
       </div>
+
+      {/* Notes button */}
+      <div className="pt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-center gap-2"
+          onClick={() => setNotesDialogOpen(true)}
+        >
+          <StickyNote className="w-4 h-4" />
+          View Notes
+        </Button>
+      </div>
+
+      <BillNotesDialog
+        isOpen={notesDialogOpen}
+        onClose={() => setNotesDialogOpen(false)}
+        billId={bill.id}
+        billNumber={bill.billNumber}
+      />
     </div>
   );
 };
