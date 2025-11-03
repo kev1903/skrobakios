@@ -34,12 +34,18 @@ export const StakeholderCombobox = ({ value, onValueChange }: StakeholderCombobo
   const getDisplayValue = () => {
     if (!value) return "Select stakeholder";
     
+    // While loading, show loading state instead of raw ID
+    if (loading) {
+      return "Loading...";
+    }
+    
     const stakeholder = stakeholders.find((s) => s.id === value);
     if (stakeholder) {
       return stakeholder.display_name;
     }
     
-    return value;
+    // If stakeholder not found after loading, show placeholder
+    return "Select stakeholder";
   };
 
   return (
@@ -55,7 +61,7 @@ export const StakeholderCombobox = ({ value, onValueChange }: StakeholderCombobo
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0 bg-background/95 backdrop-blur-xl border-border/30 z-50">
+      <PopoverContent className="w-[300px] p-0 bg-background/95 backdrop-blur-xl border-border/30 z-[9999]">
         <Command>
           <CommandInput 
             placeholder="Search stakeholder..." 
