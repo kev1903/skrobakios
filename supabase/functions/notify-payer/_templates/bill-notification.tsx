@@ -72,14 +72,14 @@ export const BillNotificationEmail = ({
             {bills.map((bill, index) => {
               const markAsPaidUrl = `${SUPABASE_URL}/functions/v1/mark-bill-paid?billId=${bill.id}&token=${bill.token}`;
               const downloadUrl = bill.storage_path 
-                ? `${SUPABASE_URL}/storage/v1/object/public/bills/${bill.storage_path}`
+                ? `${SUPABASE_URL}/storage/v1/object/public/${bill.storage_path}`
                 : null;
               
               return (
                 <div key={index} style={invoiceItem}>
                   <Row style={{ backgroundColor: '#ffffff' }}>
-                    <Column style={{ width: '65%', paddingRight: '16px', verticalAlign: 'top', backgroundColor: '#ffffff' }}>
-                      <Text style={{ margin: '0', lineHeight: '1.8', color: '#1a1a1a', backgroundColor: '#ffffff' }}>
+                    <Column style={{ width: '100%', backgroundColor: '#ffffff' }}>
+                      <Text style={{ margin: '0 0 16px 0', lineHeight: '1.8', color: '#1a1a1a', backgroundColor: '#ffffff' }}>
                         {index + 1}) <strong>{bill.supplier_name}</strong><br />
                         Invoice: {bill.invoice_number || bill.bill_no || 'Not provided'}<br />
                         Amount: ${bill.total.toFixed(2)}<br />
@@ -90,16 +90,16 @@ export const BillNotificationEmail = ({
                         })}
                         {bill.projects && <><br />Project: {bill.projects.name}</>}
                       </Text>
-                    </Column>
-                    <Column style={{ width: '35%', verticalAlign: 'middle', backgroundColor: '#ffffff', paddingLeft: '8px' }}>
-                      {downloadUrl && (
-                        <Button href={downloadUrl} style={downloadButton}>
-                          📥 Download PDF
+                      <div style={{ width: '100%' }}>
+                        {downloadUrl && (
+                          <Button href={downloadUrl} style={downloadButton}>
+                            📥 Download Bill
+                          </Button>
+                        )}
+                        <Button href={markAsPaidUrl} style={markAsPaidButton}>
+                          ✓ Mark as Paid
                         </Button>
-                      )}
-                      <Button href={markAsPaidUrl} style={markAsPaidButton}>
-                        ✓ Mark as Paid
-                      </Button>
+                      </div>
                     </Column>
                   </Row>
                 </div>
@@ -260,34 +260,36 @@ const footerText = {
 const downloadButton = {
   backgroundColor: '#10b981',
   color: '#ffffff',
-  fontSize: '13px',
+  fontSize: '14px',
   fontWeight: '700' as const,
   borderRadius: '10px',
-  padding: '14px 20px',
+  padding: '16px 24px',
   textDecoration: 'none',
-  display: 'block',
+  display: 'inline-block',
   border: 'none',
   cursor: 'pointer',
   textAlign: 'center' as const,
   width: '100%',
-  marginBottom: '10px',
-  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+  marginBottom: '12px',
+  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.25)',
   letterSpacing: '0.3px',
+  maxWidth: '100%',
 };
 
 const markAsPaidButton = {
   backgroundColor: '#217BF4',
   color: '#ffffff',
-  fontSize: '13px',
+  fontSize: '14px',
   fontWeight: '700' as const,
   borderRadius: '10px',
-  padding: '14px 20px',
+  padding: '16px 24px',
   textDecoration: 'none',
-  display: 'block',
+  display: 'inline-block',
   border: 'none',
   cursor: 'pointer',
   textAlign: 'center' as const,
   width: '100%',
-  boxShadow: '0 4px 12px rgba(33, 123, 244, 0.3)',
+  boxShadow: '0 4px 16px rgba(33, 123, 244, 0.25)',
   letterSpacing: '0.3px',
+  maxWidth: '100%',
 };
