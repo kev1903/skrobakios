@@ -538,12 +538,24 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <Label className="text-xs">Upload Image</Label>
-                          <Input
-                            type="file"
-                            accept="image/jpeg,image/jpg,image/png"
-                            onChange={handleFileUpload}
-                            className="text-sm"
-                          />
+                          <div className="flex gap-2">
+                            <Input
+                              id="product-image-file"
+                              type="file"
+                              accept="image/jpeg,image/jpg,image/png"
+                              onChange={handleFileUpload}
+                              className="text-sm flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handlePasteFromClipboard}
+                              className="px-4 flex-shrink-0"
+                            >
+                              PASTE
+                            </Button>
+                          </div>
                           <p className="text-xs text-muted-foreground">
                             Upload a product image (JPG, JPEG, or PNG)
                           </p>
