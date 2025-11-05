@@ -351,7 +351,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
 
         {/* Add Product Dialog */}
         <Dialog open={showNewProductDialog} onOpenChange={setShowNewProductDialog}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-screen-2xl w-[95vw] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Product</DialogTitle>
             </DialogHeader>
@@ -513,6 +513,61 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                 <div className="bg-luxury-gold/10 border border-luxury-gold/30 rounded-lg p-6">
                   <h3 className="font-semibold text-sm mb-6 text-luxury-gold">Extracted Product Details</h3>
                   
+                  {/* Product Image Upload Section */}
+                  <div className="space-y-4 mb-6">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Product Image</h4>
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Image Preview */}
+                      <div className="space-y-3">
+                        {pastedImage ? (
+                          <div className="border border-border/30 rounded-lg p-4 bg-muted/10">
+                            <img 
+                              src={pastedImage} 
+                              alt="Product" 
+                              className="w-full h-64 object-contain rounded"
+                            />
+                          </div>
+                        ) : (
+                          <div className="border-2 border-dashed border-border/30 rounded-lg p-8 flex items-center justify-center bg-muted/5 h-64">
+                            <p className="text-sm text-muted-foreground">No image uploaded</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Upload Controls */}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Upload Image</Label>
+                          <Input
+                            type="file"
+                            accept="image/jpeg,image/jpg,image/png"
+                            onChange={handleFileUpload}
+                            className="text-sm"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Upload a product image (JPG, JPEG, or PNG)
+                          </p>
+                        </div>
+                        {pastedImage && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setPastedImage(null);
+                              setImageFileName('');
+                              setUploadedImageFile(null);
+                            }}
+                            className="w-full"
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Remove Image
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Basic Information */}
                   <div className="space-y-4 mb-6">
                     <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Basic Information</h4>
