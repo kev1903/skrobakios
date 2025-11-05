@@ -52,7 +52,7 @@ Return ONLY valid JSON with these fields (use null for truly unknown values, but
   "color": string | null,
   "finish": string | null (check for finishes like "Brushed", "Polished", "Matte", "Gloss", "Satin", etc.),
   "qty": "1",
-  "lead_time": string | null,
+  "price": string | null (extract the price as a number only, no currency symbols - look for the main selling price, retail price, or current price),
   "supplier": string | null,
   "url": string | null (the product page URL)
 }
@@ -107,6 +107,7 @@ Analyze the ENTIRE page content including:
 - Dimensions (convert to mm if in other units like cm or inches)
 - Materials and finishes (often in product name or description)
 - Color options
+- Price (extract as number only without currency symbol - look for retail price, selling price, or current price)
 - Shipping/delivery information for lead time
 - Brand/manufacturer information
 
