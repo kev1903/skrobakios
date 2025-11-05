@@ -222,7 +222,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                 }}
                 disabled={!productUrl && !pastedImage}
               >
-                Add Product
+                Import
               </Button>
             </DialogFooter>
           </DialogContent>
