@@ -83,17 +83,20 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
       }
 
       if (data.success && data.productData) {
-        // Ensure quantity defaults to "1" if not provided
+        // Ensure quantity defaults to "1" and include URL
         const productData = {
           ...data.productData,
-          qty: data.productData.qty || "1"
+          qty: data.productData.qty || "1",
+          url: data.productData.url || productUrl // Use extracted URL or fallback to input URL
         };
         setExtractedData(productData);
         setShowPreview(true);
         toast({
           title: "Analysis complete",
-          description: "Product details extracted successfully. Review and save.",
+          description: "Review and edit the extracted product details before saving.",
         });
+      } else {
+        throw new Error("Failed to extract product details");
       }
     } catch (error: any) {
       console.error('Error analyzing product:', error);
@@ -302,7 +305,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                     <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Basic Information</h4>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <Label className="text-xs">Product Code</Label>
+                        <Label className="text-xs">Product Code / SKU</Label>
                         <Input
                           value={extractedData?.product_code || ''}
                           onChange={(e) => setExtractedData({
@@ -322,6 +325,19 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                             product_name: e.target.value
                           })}
                           placeholder="Enter product name"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1 col-span-2">
+                        <Label className="text-xs">Product URL</Label>
+                        <Input
+                          value={extractedData?.url || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            url: e.target.value
+                          })}
+                          placeholder="https://example.com/product"
+                          type="url"
                           className="h-9"
                         />
                       </div>

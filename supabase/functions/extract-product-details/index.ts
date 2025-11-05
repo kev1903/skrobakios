@@ -41,24 +41,27 @@ Return ONLY valid JSON with these fields (use null for truly unknown values, but
   "product_name": string | null,
   "brand": string | null,
   "material": string | null (check product name, description, specs for material info like "Glass", "Metal", "Travertine", "Wood", etc.),
-  "width": string | null (in mm, number only),
-  "length": string | null (in mm, number only),
-  "height": string | null (in mm, number only),
-  "depth": string | null (in mm, number only),
+  "width": string | null (in mm, number only - check expandable sections, specification areas, and dimension tables),
+  "length": string | null (in mm, number only - check expandable sections, specification areas, and dimension tables),
+  "height": string | null (in mm, number only - check expandable sections, specification areas, and dimension tables),
+  "depth": string | null (in mm, number only - check expandable sections, specification areas, and dimension tables),
   "color": string | null,
   "finish": string | null (check for finishes like "Brushed", "Polished", "Matte", "Gloss", "Satin", etc.),
   "qty": "1",
   "lead_time": string | null,
-  "supplier": string | null
+  "supplier": string | null,
+  "url": string | null (the product page URL)
 }
 
 IMPORTANT: 
 - Product names often contain finish and material info - extract them!
+- CRITICAL: Look for dimensions in expandable sections, collapsible areas, specification tables, and technical details sections
+- Dimensions are often hidden in "DIMENSIONS", "Specifications", "Technical Details", or similar sections that may be collapsed by default
 - Example: "Hartley 8 Light 1.5m Linear Pendant in Brushed Nickel with Silver Travertine"
   - finish: "Brushed" (from "Brushed Nickel")
   - material: "Travertine" or "Metal, Travertine" (from the description)
   - color: "Brushed Nickel" or "Silver"
-- Always check product specifications, features, and technical details sections`
+- Always check product specifications, features, and technical details sections thoroughly`
       }
     ];
 
@@ -69,7 +72,7 @@ IMPORTANT:
         content: [
           {
             type: "text",
-            text: "Extract all product details from this image. Focus on product specifications, dimensions, materials, and brand information."
+            text: "Extract all product details from this image. Focus on product specifications, dimensions, materials, and brand information. Pay special attention to any dimension specifications shown."
           },
           {
             type: "image_url",
@@ -87,16 +90,21 @@ IMPORTANT:
 Analyze the ENTIRE page content including:
 - Product name and title
 - Full product description
-- Specifications and technical details
+- Specifications and technical details (INCLUDING expandable/collapsible sections)
+- CRITICAL: Check "DIMENSIONS" section, specification tables, and any expandable areas for dimensions
 - Features and attributes
-- Dimensions (convert to mm)
+- Dimensions (convert to mm if in other units like cm or inches)
 - Materials and finishes (often in product name or description)
 - Color options
 - SKU/product codes
 - Shipping/delivery information for lead time
 - Brand/manufacturer information
 
-Extract every detail you can find. Be thorough and comprehensive.`
+IMPORTANT: Many websites hide dimensions in expandable sections or specification areas. Make sure to check all sections thoroughly.
+
+Extract every detail you can find. Be thorough and comprehensive.
+
+Also include the URL in the response: ${url}`
       });
     }
 
