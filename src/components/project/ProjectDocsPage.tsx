@@ -676,6 +676,7 @@ export const ProjectDocsPage = ({
   if (selectedSchedule) {
     return (
       <ScheduleDetailPage
+        scheduleId={selectedSchedule.id}
         scheduleName={selectedSchedule.name}
         onBack={() => setSelectedSchedule(null)}
       />

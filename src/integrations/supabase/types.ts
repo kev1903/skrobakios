@@ -4798,6 +4798,112 @@ export type Database = {
           },
         ]
       }
+      schedule_items: {
+        Row: {
+          brand: string | null
+          color: string | null
+          created_at: string
+          depth: string | null
+          finish: string | null
+          height: string | null
+          id: string
+          lead_time: string | null
+          length: string | null
+          material: string | null
+          product_code: string | null
+          product_name: string | null
+          qty: string | null
+          section_id: string
+          status: string | null
+          supplier: string | null
+          updated_at: string
+          width: string | null
+        }
+        Insert: {
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          depth?: string | null
+          finish?: string | null
+          height?: string | null
+          id?: string
+          lead_time?: string | null
+          length?: string | null
+          material?: string | null
+          product_code?: string | null
+          product_name?: string | null
+          qty?: string | null
+          section_id: string
+          status?: string | null
+          supplier?: string | null
+          updated_at?: string
+          width?: string | null
+        }
+        Update: {
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          depth?: string | null
+          finish?: string | null
+          height?: string | null
+          id?: string
+          lead_time?: string | null
+          length?: string | null
+          material?: string | null
+          product_code?: string | null
+          product_name?: string | null
+          qty?: string | null
+          section_id?: string
+          status?: string | null
+          supplier?: string | null
+          updated_at?: string
+          width?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_items_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_sections: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          name: string
+          schedule_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name: string
+          schedule_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name?: string
+          schedule_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_sections_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "project_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_events: {
         Row: {
           created_at: string
