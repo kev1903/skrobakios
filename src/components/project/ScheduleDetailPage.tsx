@@ -83,7 +83,12 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
       }
 
       if (data.success && data.productData) {
-        setExtractedData(data.productData);
+        // Ensure quantity defaults to "1" if not provided
+        const productData = {
+          ...data.productData,
+          qty: data.productData.qty || "1"
+        };
+        setExtractedData(productData);
         setShowPreview(true);
         toast({
           title: "Analysis complete",

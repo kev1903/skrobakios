@@ -24,23 +24,41 @@ serve(async (req) => {
     const messages: any[] = [
       {
         role: "system",
-        content: `You are SkAI, an expert product data extraction assistant. Extract product details from images or URLs.
-Return ONLY valid JSON with these fields (use null for unknown values):
+        content: `You are SkAI, an expert product data extraction assistant. Your task is to meticulously analyze product pages or images and extract ALL available product details.
+
+EXTRACTION GUIDELINES:
+- Read the ENTIRE page/image carefully - check product descriptions, specifications, technical details, and any listed features
+- Extract dimensions from any format (convert to mm if needed)
+- Look for finish/material in product name, description, or specifications
+- Check for SKU, product code, or model numbers
+- Default qty to "1" if not found
+- Extract lead time from shipping/delivery information
+- Be thorough - don't miss details that are present
+
+Return ONLY valid JSON with these fields (use null for truly unknown values, but extract everything you can find):
 {
   "product_code": string | null,
   "product_name": string | null,
   "brand": string | null,
-  "material": string | null,
+  "material": string | null (check product name, description, specs for material info like "Glass", "Metal", "Travertine", "Wood", etc.),
   "width": string | null (in mm, number only),
   "length": string | null (in mm, number only),
   "height": string | null (in mm, number only),
   "depth": string | null (in mm, number only),
   "color": string | null,
-  "finish": string | null,
-  "qty": string | null (number only),
+  "finish": string | null (check for finishes like "Brushed", "Polished", "Matte", "Gloss", "Satin", etc.),
+  "qty": "1",
   "lead_time": string | null,
   "supplier": string | null
-}`
+}
+
+IMPORTANT: 
+- Product names often contain finish and material info - extract them!
+- Example: "Hartley 8 Light 1.5m Linear Pendant in Brushed Nickel with Silver Travertine"
+  - finish: "Brushed" (from "Brushed Nickel")
+  - material: "Travertine" or "Metal, Travertine" (from the description)
+  - color: "Brushed Nickel" or "Silver"
+- Always check product specifications, features, and technical details sections`
       }
     ];
 
@@ -64,7 +82,21 @@ Return ONLY valid JSON with these fields (use null for unknown values):
     } else if (url) {
       messages.push({
         role: "user",
-        content: `Extract product details from this URL: ${url}\n\nAnalyze the URL content and extract all relevant product information.`
+        content: `Extract ALL product details from this URL: ${url}
+
+Analyze the ENTIRE page content including:
+- Product name and title
+- Full product description
+- Specifications and technical details
+- Features and attributes
+- Dimensions (convert to mm)
+- Materials and finishes (often in product name or description)
+- Color options
+- SKU/product codes
+- Shipping/delivery information for lead time
+- Brand/manufacturer information
+
+Extract every detail you can find. Be thorough and comprehensive.`
       });
     }
 
