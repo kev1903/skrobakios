@@ -63,15 +63,14 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   };
 
   const handleAnalyzeProduct = async () => {
-    if (!productUrl && !pastedImage) return;
+    if (!productUrl) return;
     
     setIsAnalyzing(true);
     
     try {
       const { data, error } = await supabase.functions.invoke('extract-product-details', {
         body: { 
-          url: productUrl || null,
-          imageBase64: pastedImage || null
+          url: productUrl
         }
       });
 
@@ -359,155 +358,41 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
             </DialogHeader>
             {!showPreview ? (
               <div className="space-y-6 py-6">
-                {/* Combined Preview Area */}
-                <div className="space-y-4">
-                  {/* URL Preview */}
-                  {productUrl && (
-                    <div className="border border-border/30 rounded-lg p-4 bg-muted/10">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          <Label className="text-xs text-muted-foreground mb-2 block">Product URL</Label>
-                          <p className="text-sm break-all font-mono">{productUrl}</p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setProductUrl('')}
-                          className="flex-shrink-0"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Image Preview */}
-                  {pastedImage && (
-                    <div className="border border-border/30 rounded-lg p-4 bg-muted/10">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs text-muted-foreground">
-                            Product Image {imageFileName && `- ${imageFileName}`}
-                          </Label>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setPastedImage(null);
-                              setImageFileName('');
-                              setUploadedImageFile(null);
-                            }}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        <img 
-                          src={pastedImage} 
-                          alt="Product" 
-                          className="w-full h-auto max-h-64 object-contain rounded border border-border/20"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Empty State */}
-                  {!productUrl && !pastedImage && (
-                    <div className="border-2 border-dashed border-border/30 rounded-lg p-8 text-center bg-muted/5">
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Paste or upload a product URL and/or image to get started
-                      </p>
-                      <div className="flex gap-2 justify-center">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={handlePasteFromClipboard}
-                        >
-                          Paste from Clipboard
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => document.getElementById('product-image')?.click()}
-                        >
-                          Upload Image
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Divider */}
-                {(productUrl || pastedImage) && (
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-border/30" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">Add More</span>
-                    </div>
+                {/* URL Input Field */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Product URL</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="product-url-input"
+                      value={productUrl}
+                      onChange={(e) => setProductUrl(e.target.value)}
+                      placeholder="Paste product URL here (e.g., https://example.com/product)"
+                      className="flex-1"
+                      disabled={isAnalyzing}
+                    />
+                    <Button 
+                      type="button" 
+                      onClick={async () => {
+                        try {
+                          const text = await navigator.clipboard.readText();
+                          setProductUrl(text.trim());
+                        } catch (error) {
+                          toast({
+                            title: "Paste failed",
+                            description: "Could not read from clipboard. Please paste manually.",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                      variant="outline"
+                      disabled={isAnalyzing}
+                    >
+                      PASTE
+                    </Button>
                   </div>
-                )}
-
-                {/* Action Buttons - Always visible */}
-                <div className="grid grid-cols-2 gap-3">
-                  {/* URL Input */}
-                  <div className="space-y-2">
-                    <Label className="text-xs">Paste URL</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="product-url-input"
-                        value={productUrl}
-                        onChange={(e) => setProductUrl(e.target.value)}
-                        placeholder="https://..."
-                        className="flex-1 text-sm"
-                        disabled={isAnalyzing}
-                      />
-                      <Button 
-                        type="button" 
-                        onClick={async () => {
-                          try {
-                            const text = await navigator.clipboard.readText();
-                            setProductUrl(text.trim());
-                          } catch (error) {
-                            handlePasteFromClipboard();
-                          }
-                        }}
-                        variant="outline"
-                        size="sm"
-                        disabled={isAnalyzing}
-                      >
-                        PASTE
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Image Upload */}
-                  <div className="space-y-2">
-                    <Label className="text-xs">Upload Image</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="product-image"
-                        type="file"
-                        accept="image/jpeg,image/jpg"
-                        onChange={handleFileUpload}
-                        className="flex-1 text-sm"
-                        disabled={isAnalyzing}
-                      />
-                      <Button 
-                        type="button" 
-                        onClick={handlePasteFromClipboard}
-                        variant="outline"
-                        size="sm"
-                        disabled={isAnalyzing}
-                      >
-                        PASTE
-                      </Button>
-                    </div>
-                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Paste a URL to automatically extract product details
+                  </p>
                 </div>
               </div>
             ) : (
@@ -796,7 +681,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
               {!showPreview ? (
                 <Button 
                   onClick={handleAnalyzeProduct}
-                  disabled={(!productUrl && !pastedImage) || isAnalyzing}
+                  disabled={!productUrl || isAnalyzing}
                 >
                   {isAnalyzing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {isAnalyzing ? 'Analyzing...' : 'Import'}
