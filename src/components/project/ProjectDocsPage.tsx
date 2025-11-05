@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { ProjectSchedulesPage } from './ProjectSchedulesPage';
+import { useProjectSchedules } from '@/hooks/useProjectSchedules';
+import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
@@ -20,7 +25,7 @@ import { DocumentChatBar } from './DocumentChatBar';
 import { CategoryAIConfigDialog } from '../admin/skai/CategoryAIConfigDialog';
 import { ScopeGenerationDialog } from './ScopeGenerationDialog';
 
-import { FileText, Upload, ChevronDown, ChevronRight, ChevronLeft, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain, Package, ImageIcon, FileType } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, ChevronLeft, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain, Package, ImageIcon, FileType, MoreHorizontal, Layers } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -91,7 +96,12 @@ export const ProjectDocsPage = ({
   
   // Active tab tracking
   const [activeTab, setActiveTab] = useState<string>("docs");
-  const [showSchedules, setShowSchedules] = useState(false);
+  
+  // Schedules management
+  const { schedules, loading: schedulesLoading, createSchedule, updateSchedule, deleteSchedule } = useProjectSchedules(projectId || undefined);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<any | null>(null);
+  const [scheduleName, setScheduleName] = useState('');
   
   // Image preview dialog state
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
@@ -620,6 +630,36 @@ export const ProjectDocsPage = ({
     // Start fresh analysis
     await handleAnalyzeCategory(categoryId);
   };
+  const handleCreateSchedule = async () => {
+    const success = await createSchedule(scheduleName);
+    if (success) {
+      setScheduleDialogOpen(false);
+      setScheduleName('');
+    }
+  };
+
+  const handleUpdateSchedule = async () => {
+    if (!editingSchedule) return;
+    const success = await updateSchedule(editingSchedule.id, scheduleName);
+    if (success) {
+      setScheduleDialogOpen(false);
+      setEditingSchedule(null);
+      setScheduleName('');
+    }
+  };
+
+  const openCreateScheduleDialog = () => {
+    setEditingSchedule(null);
+    setScheduleName('');
+    setScheduleDialogOpen(true);
+  };
+
+  const openEditScheduleDialog = (schedule: any) => {
+    setEditingSchedule(schedule);
+    setScheduleName(schedule.name);
+    setScheduleDialogOpen(true);
+  };
+
   if (!project) {
     return <div className="flex items-center justify-center h-screen">
         <div className="text-center">
@@ -628,10 +668,6 @@ export const ProjectDocsPage = ({
           <Button onClick={() => onNavigate('projects')}>Back to Projects</Button>
         </div>
       </div>;
-  }
-
-  if (showSchedules) {
-    return <ProjectSchedulesPage projectId={projectId!} onBack={() => setShowSchedules(false)} />;
   }
   return <div className="flex bg-background min-h-screen">
       {/* Fixed Project Sidebar */}
@@ -919,107 +955,128 @@ export const ProjectDocsPage = ({
                     <h2 className="text-xl font-semibold text-foreground">Project Specification</h2>
                     <p className="text-sm text-muted-foreground">Project specifications and technical details</p>
                   </div>
-                  <Button onClick={() => setShowSchedules(true)}>
+                  <Button onClick={openCreateScheduleDialog}>
                     <Plus className="w-4 h-4 mr-2" />
                     Create Schedule
                   </Button>
                 </div>
 
-                {docsLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Loading specifications...
+                {/* Schedules Table */}
+                <div className="bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+                  {/* Table Header */}
+                  <div className="grid grid-cols-[2fr,1fr,1.5fr,1fr,2fr,auto] gap-4 px-6 py-4 bg-muted/30 border-b border-border/30">
+                    <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                      NAME
+                    </div>
+                    <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                      TYPE
+                    </div>
+                    <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                      SHARED WITH
+                    </div>
+                    <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                      STATUS
+                    </div>
+                    <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                      LAST UPDATED
+                    </div>
+                    <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                      ACTIONS
+                    </div>
                   </div>
-                ) : (
-                  <div className="grid gap-4">
-                    {documents
-                      .filter(doc => 
-                        doc.category_id && 
-                        documentCategories.find(cat => 
-                          (cat.dbId || cat.id) === doc.category_id && 
-                          cat.title.toLowerCase().includes('specification')
-                        )
-                      )
-                      .map(doc => (
+
+                  {/* Table Body */}
+                  {schedulesLoading ? (
+                    <div className="px-6 py-12 text-center text-muted-foreground">
+                      Loading schedules...
+                    </div>
+                  ) : schedules.length === 0 ? (
+                    <div className="px-6 py-12 text-center">
+                      <Layers className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                      <p className="text-sm text-muted-foreground">No schedules yet</p>
+                      <p className="text-xs text-muted-foreground mt-1">Click "Create Schedule" to get started</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-border/30">
+                      {schedules.map((schedule) => (
                         <div
-                          key={doc.id}
-                          className="group flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-accent/30 transition-all duration-200"
+                          key={schedule.id}
+                          className="grid grid-cols-[2fr,1fr,1.5fr,1fr,2fr,auto] gap-4 px-6 py-4 hover:bg-accent/30 transition-colors"
                         >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <FileType className="h-5 w-5 text-primary/80 flex-shrink-0" />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-foreground truncate">
-                                {doc.name}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-xs text-muted-foreground">
-                                  {formatFileSize(doc.file_size)}
-                                </span>
-                                {doc.processing_status === 'completed' && (
-                                  <Badge variant="outline" className="text-xs border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
-                                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                                    Analyzed
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
+                          {/* Name */}
+                          <div className="flex items-center gap-2">
+                            <Layers className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                            <span className="text-sm font-medium text-foreground truncate">
+                              {schedule.name}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedDocumentId(doc.id);
-                              }}
-                              className="h-8 w-8 p-0"
-                            >
-                              <Brain className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedDocument(doc);
-                                setEditDocDialogOpen(true);
-                              }}
-                              className="h-8 w-8 p-0"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => window.open(doc.file_url, '_blank')}
-                              className="h-8 w-8 p-0"
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteDocument(doc.id)}
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+
+                          {/* Type */}
+                          <div className="flex items-center">
+                            <span className="text-sm text-muted-foreground">
+                              {schedule.type}
+                            </span>
+                          </div>
+
+                          {/* Shared With */}
+                          <div className="flex items-center">
+                            {schedule.is_public ? (
+                              <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+                                Public
+                              </Badge>
+                            ) : schedule.shared_with && schedule.shared_with.length > 0 ? (
+                              <span className="text-sm text-muted-foreground">
+                                {schedule.shared_with.length} user(s)
+                              </span>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">Private</span>
+                            )}
+                          </div>
+
+                          {/* Status */}
+                          <div className="flex items-center">
+                            {schedule.status && (
+                              <Badge variant="outline">
+                                {schedule.status}
+                              </Badge>
+                            )}
+                          </div>
+
+                          {/* Last Updated */}
+                          <div className="flex items-center">
+                            <span className="text-sm text-muted-foreground">
+                              {formatDistanceToNow(new Date(schedule.updated_at), { addSuffix: true })}
+                              {(schedule.profiles?.first_name || schedule.profiles?.last_name) && (
+                                <> by {[schedule.profiles.first_name, schedule.profiles.last_name].filter(Boolean).join(' ')}</>
+                              )}
+                            </span>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center justify-end">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => openEditScheduleDialog(schedule)}>
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => deleteSchedule(schedule.id)} className="text-destructive">
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </div>
                       ))}
-                    
-                    {documents.filter(doc => 
-                      doc.category_id && 
-                      documentCategories.find(cat => 
-                        (cat.dbId || cat.id) === doc.category_id && 
-                        cat.title.toLowerCase().includes('specification')
-                      )
-                    ).length === 0 && (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <FileType className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                        <p className="text-sm">No specifications uploaded yet</p>
-                        <p className="text-xs mt-1">Click Upload Specification to add project specifications</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
               </div>
             </TabsContent>
 
@@ -1297,5 +1354,40 @@ export const ProjectDocsPage = ({
           documents={documents}
         />
       )}
+
+      {/* Create/Edit Schedule Dialog */}
+      <Dialog open={scheduleDialogOpen} onOpenChange={setScheduleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingSchedule ? 'Edit Schedule' : 'Create Schedule'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingSchedule 
+                ? 'Update the schedule name'
+                : 'Enter a name for your new schedule'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Schedule Name</Label>
+              <Input
+                id="name"
+                placeholder="Enter schedule name"
+                value={scheduleName}
+                onChange={(e) => setScheduleName(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setScheduleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={editingSchedule ? handleUpdateSchedule : handleCreateSchedule}>
+              {editingSchedule ? 'Update' : 'Create'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>;
 };
