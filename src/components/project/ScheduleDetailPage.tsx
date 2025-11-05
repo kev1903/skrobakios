@@ -102,10 +102,23 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
     }
   };
 
-  const handleSaveProduct = () => {
-    // Trigger the save by setting showPreview to true
-    // The SectionView component watches for productDataToSave changes
-    triggerSave();
+  const handleSaveProduct = async () => {
+    if (!currentSectionId || !extractedData) return;
+    
+    // Create the item directly using the hook
+    const { createItem } = useScheduleItems(currentSectionId);
+    await createItem(currentSectionId, {
+      ...extractedData,
+      status: 'Draft'
+    });
+    
+    // Close dialog and reset states
+    setShowNewProductDialog(false);
+    setShowPreview(false);
+    setExtractedData(null);
+    setProductUrl('');
+    setPastedImage(null);
+    setCurrentSectionId(null);
   };
 
   const handlePasteFromClipboard = async () => {
@@ -148,10 +161,6 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
     }
   };
 
-  const triggerSave = () => {
-    // This is a trigger that components will watch - we just toggle it
-    setShowPreview(true);
-  };
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -186,15 +195,6 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                 section={section} 
                 scheduleId={scheduleId}
                 onOpenAddProductDialog={handleOpenAddProductDialog}
-                onProductSaved={() => {
-                  setShowNewProductDialog(false);
-                  setShowPreview(false);
-                  setExtractedData(null);
-                  setProductUrl('');
-                  setPastedImage(null);
-                  setCurrentSectionId(null);
-                }}
-                productDataToSave={showPreview && currentSectionId === section.id ? extractedData : null}
               />
             ))
           )}
@@ -351,30 +351,12 @@ const SectionView = ({
   section, 
   scheduleId,
   onOpenAddProductDialog,
-  onProductSaved,
-  productDataToSave
 }: { 
   section: any; 
   scheduleId: string;
   onOpenAddProductDialog: (sectionId: string) => void;
-  onProductSaved: () => void;
-  productDataToSave: any;
 }) => {
   const { items, loading, createItem, updateItem, deleteItem } = useScheduleItems(section.id);
-
-  // Auto-save product when productDataToSave changes
-  useEffect(() => {
-    const saveProduct = async () => {
-      if (productDataToSave && Object.keys(productDataToSave).some(key => productDataToSave[key])) {
-        await createItem(section.id, {
-          ...productDataToSave,
-          status: 'Draft'
-        });
-        onProductSaved();
-      }
-    };
-    saveProduct();
-  }, [productDataToSave]);
 
   const handleAddProduct = async () => {
     onOpenAddProductDialog(section.id);
