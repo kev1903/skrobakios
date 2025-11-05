@@ -48,6 +48,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   const [extractedData, setExtractedData] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [imageFileName, setImageFileName] = useState<string>('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleOpenAddProductDialog = (sectionId: string) => {
     setCurrentSectionId(sectionId);
@@ -146,6 +147,9 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
         title: "Product saved",
         description: "Product has been added to the schedule successfully.",
       });
+      
+      // Trigger refresh of sections
+      setRefreshKey(prev => prev + 1);
       
       // Close dialog and reset states
       setShowNewProductDialog(false);
@@ -265,7 +269,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
           ) : (
             sections.map((section) => (
               <SectionView 
-                key={section.id} 
+                key={`${section.id}-${refreshKey}`}
                 section={section} 
                 scheduleId={scheduleId}
                 onOpenAddProductDialog={handleOpenAddProductDialog}
