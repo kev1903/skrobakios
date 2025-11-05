@@ -917,8 +917,8 @@ export const ProjectDocsPage = ({
                     setSelectedCategory(null);
                     setUploadDialogOpen(true);
                   }}>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload Specification
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Schedule
                   </Button>
                 </div>
 
