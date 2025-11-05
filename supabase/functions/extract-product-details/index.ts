@@ -35,8 +35,15 @@ EXTRACTION GUIDELINES:
   * Check in the product specifications section
   * Look for labels like "SKU:", "Product Code:", "Model:", "Item #", "Code:", "Article Number:", etc.
   * This is a HIGH PRIORITY field - extract it if it exists anywhere on the page
+- CRITICAL: For price field - this is ESSENTIAL and HIGH PRIORITY:
+  * Look for the main product price displayed prominently on the page
+  * Check for price labels like: "Price:", "$", "AUD", "NZD", "USD", "Price inc. GST", "Retail Price", "Our Price"
+  * Price is usually shown near the product title or in a pricing section
+  * Extract ONLY the numeric value (e.g., "299.99" not "$299.99")
+  * If multiple prices are shown (e.g., sale price vs regular price), extract the current/sale price
+  * Look for price in product metadata, JSON-LD data, or structured data
+  * Common locations: near "Add to Cart" button, in product info section, price display area
 - Default qty to "1" if not found
-- Extract lead time from shipping/delivery information
 - Be thorough - don't miss details that are present
 
 Return ONLY valid JSON with these fields (use null for truly unknown values, but extract everything you can find):
@@ -99,6 +106,13 @@ Analyze the ENTIRE page content including:
   * In specifications table
   * Look for labels: "SKU:", "Product Code:", "Model:", "Item #:", "Code:", "Article Number:", "Model Number:"
   * Check product metadata
+- CRITICAL PRIORITY: PRICE - this is ESSENTIAL:
+  * Look for the main displayed price on the page
+  * Check near product title, "Add to Cart" button, or price display section
+  * Price labels may include: "$", "AUD", "NZD", "Price:", "Price inc. GST", "Our Price", "Retail Price"
+  * Extract ONLY the numeric value (e.g., if you see "$49.99", extract "49.99")
+  * If there's a sale price and regular price, extract the current/active price
+  * Check for price in structured data or JSON-LD metadata
 - Product name and title
 - Full product description
 - Specifications and technical details (INCLUDING expandable/collapsible sections)
@@ -107,15 +121,14 @@ Analyze the ENTIRE page content including:
 - Dimensions (convert to mm if in other units like cm or inches)
 - Materials and finishes (often in product name or description)
 - Color options
-- Price (extract as number only without currency symbol - look for retail price, selling price, or current price)
-- Shipping/delivery information for lead time
 - Brand/manufacturer information
 
 IMPORTANT: 
 - Many websites hide dimensions in expandable sections or specification areas. Make sure to check all sections thoroughly.
 - Product Code/SKU is HIGH PRIORITY - search the entire page for any product identifier.
+- PRICE is CRITICAL and MANDATORY - look everywhere for the product price. It's usually prominently displayed on e-commerce pages.
 
-Extract every detail you can find. Be thorough and comprehensive.
+Extract every detail you can find. Be thorough and comprehensive. PRICE is especially important - don't leave it as null if a price exists on the page.
 
 Also include the URL in the response: ${url}`
       });
