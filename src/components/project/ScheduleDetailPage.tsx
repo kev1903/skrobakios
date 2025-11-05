@@ -146,7 +146,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
           color: extractedData.color,
           finish: extractedData.finish,
           qty: extractedData.qty,
-          lead_time: extractedData.lead_time,
+          price: extractedData.price,
           supplier: extractedData.supplier,
           url: extractedData.url,
           image_url: imageUrl,
@@ -633,7 +633,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                     </div>
                   </div>
 
-                  {/* Quantity & Lead Time */}
+                  {/* Quantity & Price */}
                   <div className="space-y-4">
                     <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Order Details</h4>
                     <div className="grid grid-cols-2 gap-4">
@@ -650,14 +650,16 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Lead Time</Label>
+                        <Label className="text-xs">Price (AUD $)</Label>
                         <Input
-                          value={extractedData?.lead_time || ''}
+                          type="number"
+                          step="0.01"
+                          value={extractedData?.price || ''}
                           onChange={(e) => setExtractedData({
                             ...extractedData,
-                            lead_time: e.target.value
+                            price: e.target.value
                           })}
-                          placeholder="Enter lead time"
+                          placeholder="0.00"
                           className="h-9"
                         />
                       </div>
