@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ProjectSchedulesPage } from './ProjectSchedulesPage';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -90,6 +91,7 @@ export const ProjectDocsPage = ({
   
   // Active tab tracking
   const [activeTab, setActiveTab] = useState<string>("docs");
+  const [showSchedules, setShowSchedules] = useState(false);
   
   // Image preview dialog state
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
@@ -627,6 +629,10 @@ export const ProjectDocsPage = ({
         </div>
       </div>;
   }
+
+  if (showSchedules) {
+    return <ProjectSchedulesPage projectId={projectId!} onBack={() => setShowSchedules(false)} />;
+  }
   return <div className="flex bg-background min-h-screen">
       {/* Fixed Project Sidebar */}
       <div className="fixed left-0 top-0 h-full w-40 z-40">
@@ -913,10 +919,7 @@ export const ProjectDocsPage = ({
                     <h2 className="text-xl font-semibold text-foreground">Project Specification</h2>
                     <p className="text-sm text-muted-foreground">Project specifications and technical details</p>
                   </div>
-                  <Button onClick={() => {
-                    setSelectedCategory(null);
-                    setUploadDialogOpen(true);
-                  }}>
+                  <Button onClick={() => setShowSchedules(true)}>
                     <Plus className="w-4 h-4 mr-2" />
                     Create Schedule
                   </Button>

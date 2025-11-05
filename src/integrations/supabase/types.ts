@@ -3986,6 +3986,67 @@ export type Database = {
           },
         ]
       }
+      project_schedules: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          project_id: string
+          shared_with: string[] | null
+          status: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          project_id: string
+          shared_with?: string[] | null
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          project_id?: string
+          shared_with?: string[] | null
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_schedules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "project_schedules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "safe_public_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "project_schedules_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           banner_image: string | null
