@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Plus, MoreHorizontal, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Plus, MoreHorizontal, Trash2, Edit, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +26,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { useScheduleSections } from '@/hooks/useScheduleSections';
 import { useScheduleItems } from '@/hooks/useScheduleItems';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface ScheduleDetailPageProps {
   scheduleId: string;
@@ -35,18 +37,74 @@ interface ScheduleDetailPageProps {
 
 export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: ScheduleDetailPageProps) => {
   const { sections, loading: sectionsLoading, createSection } = useScheduleSections(scheduleId);
+  const { toast } = useToast();
   const [showNewProductDialog, setShowNewProductDialog] = useState(false);
   const [showNewSectionDialog, setShowNewSectionDialog] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
   const [currentSectionId, setCurrentSectionId] = useState<string | null>(null);
   const [productUrl, setProductUrl] = useState('');
   const [pastedImage, setPastedImage] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [extractedData, setExtractedData] = useState<any>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleOpenAddProductDialog = (sectionId: string) => {
     setCurrentSectionId(sectionId);
     setProductUrl('');
     setPastedImage(null);
+    setExtractedData(null);
+    setShowPreview(false);
+    setIsAnalyzing(false);
     setShowNewProductDialog(true);
+  };
+
+  const handleAnalyzeProduct = async () => {
+    if (!productUrl && !pastedImage) return;
+    
+    setIsAnalyzing(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('extract-product-details', {
+        body: { 
+          url: productUrl || null,
+          imageBase64: pastedImage || null
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.error) {
+        toast({
+          title: "Analysis failed",
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.success && data.productData) {
+        setExtractedData(data.productData);
+        setShowPreview(true);
+        toast({
+          title: "Analysis complete",
+          description: "Product details extracted successfully. Review and save.",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error analyzing product:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to analyze product",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleSaveProduct = () => {
+    // Saving is handled by SectionView component
+    setShowPreview(true); // This triggers the save in SectionView
   };
 
   const handlePasteFromClipboard = async () => {
@@ -122,6 +180,14 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                 section={section} 
                 scheduleId={scheduleId}
                 onOpenAddProductDialog={handleOpenAddProductDialog}
+                onProductSaved={() => {
+                  setShowNewProductDialog(false);
+                  setShowPreview(false);
+                  setExtractedData(null);
+                  setProductUrl('');
+                  setPastedImage(null);
+                }}
+                productDataToSave={showPreview && currentSectionId === section.id ? extractedData : null}
               />
             ))
           )}
@@ -159,71 +225,112 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
             <DialogHeader>
               <DialogTitle>Add New Product</DialogTitle>
             </DialogHeader>
-            <div className="space-y-6 py-6">
-              {/* URL Input */}
-              <div className="space-y-3">
-                <Label htmlFor="product-url">Product URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="product-url"
-                    value={productUrl}
-                    onChange={(e) => {
-                      setProductUrl(e.target.value);
-                      setPastedImage(null);
-                    }}
-                    placeholder="Paste product URL here"
-                    className="flex-1"
-                  />
-                  <Button 
-                    type="button" 
-                    onClick={handlePasteFromClipboard}
-                    variant="outline"
-                    className="px-6"
-                  >
-                    PASTE
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Paste a product URL or an image (JPEG/JPG) from your clipboard
-                </p>
-              </div>
-
-              {/* Preview Area */}
-              {pastedImage && (
-                <div className="space-y-2">
-                  <Label>Pasted Image Preview</Label>
-                  <div className="border border-border/30 rounded-lg p-4 bg-muted/20">
-                    <img 
-                      src={pastedImage} 
-                      alt="Pasted product" 
-                      className="max-w-full h-auto max-h-64 mx-auto rounded"
+            {!showPreview ? (
+              <div className="space-y-6 py-6">
+                {/* URL Input */}
+                <div className="space-y-3">
+                  <Label htmlFor="product-url">Product URL</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="product-url"
+                      value={productUrl}
+                      onChange={(e) => {
+                        setProductUrl(e.target.value);
+                        setPastedImage(null);
+                      }}
+                      placeholder="Paste product URL here"
+                      className="flex-1"
+                      disabled={isAnalyzing}
                     />
+                    <Button 
+                      type="button" 
+                      onClick={handlePasteFromClipboard}
+                      variant="outline"
+                      className="px-6"
+                      disabled={isAnalyzing}
+                    >
+                      PASTE
+                    </Button>
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    Paste a product URL or an image (JPEG/JPG) from your clipboard
+                  </p>
                 </div>
-              )}
 
-              {productUrl && !pastedImage && (
-                <div className="space-y-2">
-                  <Label>Product URL</Label>
-                  <div className="border border-border/30 rounded-lg p-4 bg-muted/20">
-                    <p className="text-sm break-all">{productUrl}</p>
+                {/* Preview Area */}
+                {pastedImage && (
+                  <div className="space-y-2">
+                    <Label>Pasted Image Preview</Label>
+                    <div className="border border-border/30 rounded-lg p-4 bg-muted/20">
+                      <img 
+                        src={pastedImage} 
+                        alt="Pasted product" 
+                        className="max-w-full h-auto max-h-64 mx-auto rounded"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {productUrl && !pastedImage && (
+                  <div className="space-y-2">
+                    <Label>Product URL</Label>
+                    <div className="border border-border/30 rounded-lg p-4 bg-muted/20">
+                      <p className="text-sm break-all">{productUrl}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-6 py-6">
+                <div className="bg-luxury-gold/10 border border-luxury-gold/30 rounded-lg p-4">
+                  <h3 className="font-semibold text-sm mb-4 text-luxury-gold">Extracted Product Details</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {extractedData && Object.entries(extractedData).map(([key, value]) => (
+                      value && (
+                        <div key={key} className="space-y-1">
+                          <Label className="text-xs text-muted-foreground capitalize">
+                            {key.replace(/_/g, ' ')}
+                          </Label>
+                          <Input
+                            value={value as string}
+                            onChange={(e) => setExtractedData({
+                              ...extractedData,
+                              [key]: e.target.value
+                            })}
+                            className="h-9"
+                          />
+                        </div>
+                      )
+                    ))}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+            
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowNewProductDialog(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowNewProductDialog(false);
+                  setShowPreview(false);
+                  setExtractedData(null);
+                }}
+              >
                 Cancel
               </Button>
-              <Button 
-                onClick={() => {
-                  // TODO: Process the URL or image and add product
-                  setShowNewProductDialog(false);
-                }}
-                disabled={!productUrl && !pastedImage}
-              >
-                Import
-              </Button>
+              {!showPreview ? (
+                <Button 
+                  onClick={handleAnalyzeProduct}
+                  disabled={(!productUrl && !pastedImage) || isAnalyzing}
+                >
+                  {isAnalyzing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {isAnalyzing ? 'Analyzing...' : 'Import'}
+                </Button>
+              ) : (
+                <Button onClick={handleSaveProduct}>
+                  Save Product
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -236,13 +343,31 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
 const SectionView = ({ 
   section, 
   scheduleId,
-  onOpenAddProductDialog
+  onOpenAddProductDialog,
+  onProductSaved,
+  productDataToSave
 }: { 
   section: any; 
   scheduleId: string;
   onOpenAddProductDialog: (sectionId: string) => void;
+  onProductSaved: () => void;
+  productDataToSave: any;
 }) => {
   const { items, loading, createItem, updateItem, deleteItem } = useScheduleItems(section.id);
+
+  // Auto-save product when productDataToSave changes
+  useEffect(() => {
+    const saveProduct = async () => {
+      if (productDataToSave && Object.keys(productDataToSave).some(key => productDataToSave[key])) {
+        await createItem(section.id, {
+          ...productDataToSave,
+          status: 'Draft'
+        });
+        onProductSaved();
+      }
+    };
+    saveProduct();
+  }, [productDataToSave]);
 
   const handleAddProduct = async () => {
     onOpenAddProductDialog(section.id);

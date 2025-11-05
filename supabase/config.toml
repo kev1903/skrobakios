@@ -101,3 +101,6 @@ verify_jwt = true
 
 [functions.mark-bill-paid]
 verify_jwt = false
+
+[functions.extract-product-details]
+verify_jwt = true
