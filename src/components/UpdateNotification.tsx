@@ -12,8 +12,15 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const UpdateNotification = () => {
   const [showUpdate, setShowUpdate] = useState(false);
-  const [updateInfo, setUpdateInfo] = useState<{ oldVersion: string | null; newVersion: string; forceUpdate: boolean } | null>(null);
+  const [updateInfo, setUpdateInfo] = useState<{ 
+    oldVersion: string | null; 
+    newVersion: string; 
+    forceUpdate: boolean;
+    message?: string;
+    minCountdown?: number;
+  } | null>(null);
   const [countdown, setCountdown] = useState(10);
+  const [initialCountdown, setInitialCountdown] = useState(10);
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -67,13 +74,18 @@ export const UpdateNotification = () => {
       const result = await checkAndUpdateVersion();
       
       if (result.updated) {
+        const minCountdown = result.minCountdown || 10;
         const info = {
           oldVersion: result.oldVersion || null,
           newVersion: result.newVersion,
-          forceUpdate: result.forceUpdate || false
+          forceUpdate: result.forceUpdate || false,
+          message: result.message,
+          minCountdown
         };
         setUpdateInfo(info);
         setShowUpdate(true);
+        setCountdown(minCountdown);
+        setInitialCountdown(minCountdown);
         
         // If force update, start countdown immediately
         if (info.forceUpdate) {
@@ -84,8 +96,8 @@ export const UpdateNotification = () => {
 
     checkVersion();
 
-    // Check for updates every 24 hours
-    const interval = setInterval(checkVersion, 24 * 60 * 60 * 1000);
+    // Check for updates every 1 hour (aggressive auto-update strategy)
+    const interval = setInterval(checkVersion, 60 * 60 * 1000);
     
     return () => clearInterval(interval);
   }, []);
@@ -135,25 +147,64 @@ export const UpdateNotification = () => {
 
   if (!showUpdate || !isAuthenticated) return null;
 
+  const progress = initialCountdown > 0 ? ((initialCountdown - countdown) / initialCountdown) * 100 : 0;
+  const isCritical = updateInfo?.forceUpdate;
+
   return (
     <div className="fixed bottom-6 right-6 z-[9999] w-full max-w-md">
-      <Card className="bg-luxury-gold/95 backdrop-blur-xl border-white/20 shadow-elegant">
+      <Card className={`backdrop-blur-xl border-white/20 shadow-elegant transition-all duration-300 ${
+        isCritical 
+          ? 'bg-rose-500/95 animate-pulse' 
+          : 'bg-luxury-gold/95'
+      }`}>
         <div className="p-4 flex items-center gap-4">
-          <div className="flex-shrink-0">
-            <RefreshCw className="h-6 w-6 text-white animate-spin" />
+          <div className="flex-shrink-0 relative">
+            {isCountingDown && isCritical ? (
+              <div className="relative w-12 h-12">
+                <svg className="w-12 h-12 transform -rotate-90">
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                    className="text-white/20"
+                  />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                    strokeDasharray={`${2 * Math.PI * 20}`}
+                    strokeDashoffset={`${2 * Math.PI * 20 * (1 - progress / 100)}`}
+                    className="text-white transition-all duration-1000"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">{countdown}</span>
+                </div>
+              </div>
+            ) : (
+              <RefreshCw className={`h-6 w-6 text-white ${isCritical ? 'animate-spin' : 'animate-pulse'}`} />
+            )}
           </div>
           
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-white mb-1">
-              {updateInfo?.forceUpdate ? 'Critical Update Required' : 'Update Available'}
+              {isCritical ? '🚨 Critical Update Required' : '✨ Update Available'}
             </h3>
             <p className="text-xs text-white/90">
-              {isCountingDown 
-                ? `Updating in ${countdown} seconds...`
-                : updateInfo?.forceUpdate
-                  ? 'A critical update is required. The app will update automatically.'
-                  : 'A new version is available with the latest features and fixes.'
-              }
+              {updateInfo?.message || (
+                isCountingDown 
+                  ? `Updating in ${countdown} seconds...`
+                  : isCritical
+                    ? 'A critical update is required. The app will update automatically.'
+                    : 'A new version is available with the latest features and fixes.'
+              )}
             </p>
             {updateInfo?.oldVersion && (
               <p className="text-xs text-white/70 mt-1">
@@ -172,7 +223,7 @@ export const UpdateNotification = () => {
                 >
                   Update Now
                 </Button>
-                {!updateInfo?.forceUpdate && (
+                {!isCritical && (
                   <>
                     <Button
                       onClick={handleUpdateLater}
@@ -194,13 +245,25 @@ export const UpdateNotification = () => {
                 )}
               </>
             ) : (
-              <Button
-                onClick={handleUpdate}
-                size="sm"
-                className="bg-white text-luxury-gold hover:bg-white/90 shadow-md"
-              >
-                Update Now ({countdown}s)
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleUpdate}
+                  size="sm"
+                  className="bg-white text-luxury-gold hover:bg-white/90 shadow-md"
+                >
+                  Update Now
+                </Button>
+                {!isCritical && (
+                  <Button
+                    onClick={handlePostpone}
+                    size="sm"
+                    variant="ghost"
+                    className="text-white hover:bg-white/10"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         </div>

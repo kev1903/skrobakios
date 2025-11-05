@@ -1,6 +1,8 @@
 {
-  "version": "2.0.3",
-  "buildDate": "2025-01-29",
-  "description": "Update check interval changed to 24 hours",
-  "forceUpdate": false
+  "version": "2.0.4",
+  "buildDate": "2025-11-05",
+  "description": "Aggressive auto-update strategy: 1-hour checks, force updates, persistent notifications",
+  "forceUpdate": false,
+  "message": "",
+  "minCountdown": 10
 }

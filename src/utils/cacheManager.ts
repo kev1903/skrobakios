@@ -85,6 +85,8 @@ export const checkAndUpdateVersion = async () => {
         const data = await response.json();
         const serverVersion = data.version;
         const forceUpdate = data.forceUpdate || false;
+        const message = data.message || '';
+        const minCountdown = data.minCountdown || 10;
         
         console.log(`🔄 Server version available: ${APP_VERSION} → ${serverVersion}`);
         
@@ -92,7 +94,9 @@ export const checkAndUpdateVersion = async () => {
           updated: true, 
           oldVersion: APP_VERSION, 
           newVersion: serverVersion,
-          forceUpdate
+          forceUpdate,
+          message,
+          minCountdown
         };
       }
     } catch (error) {
