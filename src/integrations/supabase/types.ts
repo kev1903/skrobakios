@@ -4817,6 +4817,7 @@ export type Database = {
           status: string | null
           supplier: string | null
           updated_at: string
+          url: string | null
           width: string | null
         }
         Insert: {
@@ -4837,6 +4838,7 @@ export type Database = {
           status?: string | null
           supplier?: string | null
           updated_at?: string
+          url?: string | null
           width?: string | null
         }
         Update: {
@@ -4857,6 +4859,7 @@ export type Database = {
           status?: string | null
           supplier?: string | null
           updated_at?: string
+          url?: string | null
           width?: string | null
         }
         Relationships: [
