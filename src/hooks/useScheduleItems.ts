@@ -18,6 +18,8 @@ export interface ScheduleItem {
   finish: string | null;
   material: string | null;
   supplier: string | null;
+  url: string | null;
+  image_url: string | null;
   status: string | null;
   created_at: string;
   updated_at: string;

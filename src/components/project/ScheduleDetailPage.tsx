@@ -49,6 +49,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   const [showPreview, setShowPreview] = useState(false);
   const [imageFileName, setImageFileName] = useState<string>('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
 
   const handleOpenAddProductDialog = (sectionId: string) => {
     setCurrentSectionId(sectionId);
@@ -117,6 +118,19 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
     if (!currentSectionId || !extractedData) return;
     
     try {
+      // Upload image if there's one
+      let imageUrl = null;
+      if (uploadedImageFile) {
+        imageUrl = await uploadProductImage(uploadedImageFile);
+        if (!imageUrl) {
+          toast({
+            title: "Warning",
+            description: "Failed to upload product image, but product will be saved without image.",
+            variant: "destructive",
+          });
+        }
+      }
+
       // Save to database
       const { data, error } = await supabase
         .from('schedule_items')
@@ -136,6 +150,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
           lead_time: extractedData.lead_time,
           supplier: extractedData.supplier,
           url: extractedData.url,
+          image_url: imageUrl,
           status: 'Draft'
         })
         .select()
@@ -158,6 +173,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
       setProductUrl('');
       setPastedImage(null);
       setImageFileName('');
+      setUploadedImageFile(null);
       setCurrentSectionId(null);
     } catch (error: any) {
       console.error('Error saving product:', error);
@@ -222,6 +238,9 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
       return;
     }
     
+    // Store the file for later upload
+    setUploadedImageFile(file);
+    
     const reader = new FileReader();
     reader.onloadend = () => {
       setPastedImage(reader.result as string);
@@ -229,6 +248,33 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
       setImageFileName(file.name);
     };
     reader.readAsDataURL(file);
+  };
+
+  const uploadProductImage = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
   };
 
   const handleCreateSection = async () => {
@@ -760,8 +806,16 @@ const SectionView = ({
                   {/* Product Details */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-muted rounded flex items-center justify-center flex-shrink-0">
-                        <div className="w-8 h-6 bg-gradient-to-br from-muted-foreground/20 to-muted-foreground/10 rounded" />
+                      <div className="w-10 h-10 bg-muted rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {item.image_url ? (
+                          <img 
+                            src={item.image_url} 
+                            alt={item.product_name || 'Product'} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-6 bg-gradient-to-br from-muted-foreground/20 to-muted-foreground/10 rounded" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <Input 

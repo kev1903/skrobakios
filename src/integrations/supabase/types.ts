@@ -4807,6 +4807,7 @@ export type Database = {
           finish: string | null
           height: string | null
           id: string
+          image_url: string | null
           lead_time: string | null
           length: string | null
           material: string | null
@@ -4828,6 +4829,7 @@ export type Database = {
           finish?: string | null
           height?: string | null
           id?: string
+          image_url?: string | null
           lead_time?: string | null
           length?: string | null
           material?: string | null
@@ -4849,6 +4851,7 @@ export type Database = {
           finish?: string | null
           height?: string | null
           id?: string
+          image_url?: string | null
           lead_time?: string | null
           length?: string | null
           material?: string | null
