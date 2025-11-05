@@ -30,14 +30,18 @@ EXTRACTION GUIDELINES:
 - Read the ENTIRE page/image carefully - check product descriptions, specifications, technical details, and any listed features
 - Extract dimensions from any format (convert to mm if needed)
 - Look for finish/material in product name, description, or specifications
-- For product_code: look for SKU, product code, or model numbers (SKU and product code are the same thing)
+- CRITICAL: For product_code field - look for SKU, Product Code, Model Number, Item Code, or Article Number
+  * Check near the product title
+  * Check in the product specifications section
+  * Look for labels like "SKU:", "Product Code:", "Model:", "Item #", "Code:", "Article Number:", etc.
+  * This is a HIGH PRIORITY field - extract it if it exists anywhere on the page
 - Default qty to "1" if not found
 - Extract lead time from shipping/delivery information
 - Be thorough - don't miss details that are present
 
 Return ONLY valid JSON with these fields (use null for truly unknown values, but extract everything you can find):
 {
-  "product_code": string | null,
+  "product_code": string | null (CRITICAL - look for SKU, Product Code, Model Number, Item Code, Article Number),
   "product_name": string | null,
   "brand": string | null,
   "material": string | null (check product name, description, specs for material info like "Glass", "Metal", "Travertine", "Wood", etc.),
@@ -57,6 +61,7 @@ IMPORTANT:
 - Product names often contain finish and material info - extract them!
 - CRITICAL: Look for dimensions in expandable sections, collapsible areas, specification tables, and technical details sections
 - Dimensions are often hidden in "DIMENSIONS", "Specifications", "Technical Details", or similar sections that may be collapsed by default
+- PRIORITY: Product Code/SKU is essential - search thoroughly for any product identifier (SKU, Code, Model #, Item #, etc.)
 - Example: "Hartley 8 Light 1.5m Linear Pendant in Brushed Nickel with Silver Travertine"
   - finish: "Brushed" (from "Brushed Nickel")
   - material: "Travertine" or "Metal, Travertine" (from the description)
@@ -72,7 +77,7 @@ IMPORTANT:
         content: [
           {
             type: "text",
-            text: "Extract all product details from this image. Focus on product specifications, dimensions, materials, and brand information. Pay special attention to any dimension specifications shown."
+            text: "Extract all product details from this image. PRIORITY: Find the Product Code/SKU - look for any labels like 'SKU:', 'Code:', 'Model:', 'Item #:', etc. Also focus on product specifications, dimensions, materials, and brand information. Pay special attention to any dimension specifications shown."
           },
           {
             type: "image_url",
@@ -88,6 +93,12 @@ IMPORTANT:
         content: `Extract ALL product details from this URL: ${url}
 
 Analyze the ENTIRE page content including:
+- CRITICAL PRIORITY: Product Code/SKU - search everywhere:
+  * Near the product title (often displayed prominently)
+  * In product details/information section
+  * In specifications table
+  * Look for labels: "SKU:", "Product Code:", "Model:", "Item #:", "Code:", "Article Number:", "Model Number:"
+  * Check product metadata
 - Product name and title
 - Full product description
 - Specifications and technical details (INCLUDING expandable/collapsible sections)
@@ -96,11 +107,12 @@ Analyze the ENTIRE page content including:
 - Dimensions (convert to mm if in other units like cm or inches)
 - Materials and finishes (often in product name or description)
 - Color options
-- SKU/product codes
 - Shipping/delivery information for lead time
 - Brand/manufacturer information
 
-IMPORTANT: Many websites hide dimensions in expandable sections or specification areas. Make sure to check all sections thoroughly.
+IMPORTANT: 
+- Many websites hide dimensions in expandable sections or specification areas. Make sure to check all sections thoroughly.
+- Product Code/SKU is HIGH PRIORITY - search the entire page for any product identifier.
 
 Extract every detail you can find. Be thorough and comprehensive.
 
