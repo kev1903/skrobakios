@@ -30,7 +30,7 @@ EXTRACTION GUIDELINES:
 - Read the ENTIRE page/image carefully - check product descriptions, specifications, technical details, and any listed features
 - Extract dimensions from any format (convert to mm if needed)
 - Look for finish/material in product name, description, or specifications
-- Check for SKU, product code, or model numbers
+- For product_code: look for SKU, product code, or model numbers (SKU and product code are the same thing)
 - Default qty to "1" if not found
 - Extract lead time from shipping/delivery information
 - Be thorough - don't miss details that are present
