@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useProjectSchedules } from '@/hooks/useProjectSchedules';
 import { formatDistanceToNow } from 'date-fns';
+import { ScheduleDetailPage } from './ScheduleDetailPage';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -102,6 +103,7 @@ export const ProjectDocsPage = ({
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<any | null>(null);
   const [scheduleName, setScheduleName] = useState('');
+  const [selectedSchedule, setSelectedSchedule] = useState<any | null>(null);
   
   // Image preview dialog state
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
@@ -669,6 +671,16 @@ export const ProjectDocsPage = ({
         </div>
       </div>;
   }
+
+  // Show schedule detail page if a schedule is selected
+  if (selectedSchedule) {
+    return (
+      <ScheduleDetailPage
+        scheduleName={selectedSchedule.name}
+        onBack={() => setSelectedSchedule(null)}
+      />
+    );
+  }
   return <div className="flex bg-background min-h-screen">
       {/* Fixed Project Sidebar */}
       <div className="fixed left-0 top-0 h-full w-40 z-40">
@@ -1006,9 +1018,12 @@ export const ProjectDocsPage = ({
                           {/* Name */}
                           <div className="flex items-center gap-2">
                             <Layers className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <span className="text-sm font-medium text-foreground truncate">
+                            <button
+                              onClick={() => setSelectedSchedule(schedule)}
+                              className="text-sm font-medium text-foreground truncate hover:text-primary hover:underline transition-colors text-left"
+                            >
                               {schedule.name}
-                            </span>
+                            </button>
                           </div>
 
                           {/* Type */}
