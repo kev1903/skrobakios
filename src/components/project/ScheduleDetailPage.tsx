@@ -39,42 +39,46 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   const [showNewSectionDialog, setShowNewSectionDialog] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
   const [currentSectionId, setCurrentSectionId] = useState<string | null>(null);
-  const [newProductData, setNewProductData] = useState({
-    product_code: '',
-    product_name: '',
-    width: '',
-    length: '',
-    height: '',
-    depth: '',
-    qty: '',
-    lead_time: '',
-    brand: '',
-    color: '',
-    finish: '',
-    material: '',
-    supplier: '',
-    status: 'Draft'
-  });
+  const [productUrl, setProductUrl] = useState('');
+  const [pastedImage, setPastedImage] = useState<string | null>(null);
 
   const handleOpenAddProductDialog = (sectionId: string) => {
     setCurrentSectionId(sectionId);
-    setNewProductData({
-      product_code: '',
-      product_name: '',
-      width: '',
-      length: '',
-      height: '',
-      depth: '',
-      qty: '',
-      lead_time: '',
-      brand: '',
-      color: '',
-      finish: '',
-      material: '',
-      supplier: '',
-      status: 'Draft'
-    });
+    setProductUrl('');
+    setPastedImage(null);
     setShowNewProductDialog(true);
+  };
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      
+      for (const item of clipboardItems) {
+        // Check for image
+        const imageTypes = item.types.filter(type => type.startsWith('image/'));
+        if (imageTypes.length > 0) {
+          const blob = await item.getType(imageTypes[0]);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setPastedImage(reader.result as string);
+            setProductUrl('');
+          };
+          reader.readAsDataURL(blob);
+          return;
+        }
+        
+        // Check for text/URL
+        if (item.types.includes('text/plain')) {
+          const blob = await item.getType('text/plain');
+          const text = await blob.text();
+          setProductUrl(text.trim());
+          setPastedImage(null);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to read clipboard:', error);
+    }
   };
 
   const handleCreateSection = async () => {
@@ -118,27 +122,6 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                 section={section} 
                 scheduleId={scheduleId}
                 onOpenAddProductDialog={handleOpenAddProductDialog}
-                productDataToAdd={currentSectionId === section.id ? newProductData : null}
-                onProductAdded={() => {
-                  setShowNewProductDialog(false);
-                  setCurrentSectionId(null);
-                  setNewProductData({
-                    product_code: '',
-                    product_name: '',
-                    width: '',
-                    length: '',
-                    height: '',
-                    depth: '',
-                    qty: '',
-                    lead_time: '',
-                    brand: '',
-                    color: '',
-                    finish: '',
-                    material: '',
-                    supplier: '',
-                    status: 'Draft'
-                  });
-                }}
               />
             ))
           )}
@@ -172,185 +155,73 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
 
         {/* Add Product Dialog */}
         <Dialog open={showNewProductDialog} onOpenChange={setShowNewProductDialog}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add New Product</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 py-4">
-              {/* Product Code */}
-              <div className="space-y-2">
-                <Label htmlFor="product_code">Product Code</Label>
-                <Input
-                  id="product_code"
-                  value={newProductData.product_code}
-                  onChange={(e) => setNewProductData({ ...newProductData, product_code: e.target.value })}
-                  placeholder="Enter product code"
-                />
+            <div className="space-y-6 py-6">
+              {/* URL Input */}
+              <div className="space-y-3">
+                <Label htmlFor="product-url">Product URL</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="product-url"
+                    value={productUrl}
+                    onChange={(e) => {
+                      setProductUrl(e.target.value);
+                      setPastedImage(null);
+                    }}
+                    placeholder="Paste product URL here"
+                    className="flex-1"
+                  />
+                  <Button 
+                    type="button" 
+                    onClick={handlePasteFromClipboard}
+                    variant="outline"
+                    className="px-6"
+                  >
+                    PASTE
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Paste a product URL or an image (JPEG/JPG) from your clipboard
+                </p>
               </div>
 
-              {/* Product Name */}
-              <div className="space-y-2">
-                <Label htmlFor="product_name">Product Name</Label>
-                <Input
-                  id="product_name"
-                  value={newProductData.product_name}
-                  onChange={(e) => setNewProductData({ ...newProductData, product_name: e.target.value })}
-                  placeholder="Enter product name"
-                />
-              </div>
+              {/* Preview Area */}
+              {pastedImage && (
+                <div className="space-y-2">
+                  <Label>Pasted Image Preview</Label>
+                  <div className="border border-border/30 rounded-lg p-4 bg-muted/20">
+                    <img 
+                      src={pastedImage} 
+                      alt="Pasted product" 
+                      className="max-w-full h-auto max-h-64 mx-auto rounded"
+                    />
+                  </div>
+                </div>
+              )}
 
-              {/* Brand */}
-              <div className="space-y-2">
-                <Label htmlFor="brand">Brand</Label>
-                <Input
-                  id="brand"
-                  value={newProductData.brand}
-                  onChange={(e) => setNewProductData({ ...newProductData, brand: e.target.value })}
-                  placeholder="Enter brand"
-                />
-              </div>
-
-              {/* Material */}
-              <div className="space-y-2">
-                <Label htmlFor="material">Material</Label>
-                <Input
-                  id="material"
-                  value={newProductData.material}
-                  onChange={(e) => setNewProductData({ ...newProductData, material: e.target.value })}
-                  placeholder="Enter material"
-                />
-              </div>
-
-              {/* Width */}
-              <div className="space-y-2">
-                <Label htmlFor="width">Width (MM)</Label>
-                <Input
-                  id="width"
-                  type="number"
-                  value={newProductData.width}
-                  onChange={(e) => setNewProductData({ ...newProductData, width: e.target.value })}
-                  placeholder="Enter width"
-                />
-              </div>
-
-              {/* Length */}
-              <div className="space-y-2">
-                <Label htmlFor="length">Length (MM)</Label>
-                <Input
-                  id="length"
-                  type="number"
-                  value={newProductData.length}
-                  onChange={(e) => setNewProductData({ ...newProductData, length: e.target.value })}
-                  placeholder="Enter length"
-                />
-              </div>
-
-              {/* Height */}
-              <div className="space-y-2">
-                <Label htmlFor="height">Height (MM)</Label>
-                <Input
-                  id="height"
-                  type="number"
-                  value={newProductData.height}
-                  onChange={(e) => setNewProductData({ ...newProductData, height: e.target.value })}
-                  placeholder="Enter height"
-                />
-              </div>
-
-              {/* Depth */}
-              <div className="space-y-2">
-                <Label htmlFor="depth">Depth (MM)</Label>
-                <Input
-                  id="depth"
-                  type="number"
-                  value={newProductData.depth}
-                  onChange={(e) => setNewProductData({ ...newProductData, depth: e.target.value })}
-                  placeholder="Enter depth"
-                />
-              </div>
-
-              {/* Color */}
-              <div className="space-y-2">
-                <Label htmlFor="color">Color</Label>
-                <Input
-                  id="color"
-                  value={newProductData.color}
-                  onChange={(e) => setNewProductData({ ...newProductData, color: e.target.value })}
-                  placeholder="Enter color"
-                />
-              </div>
-
-              {/* Finish */}
-              <div className="space-y-2">
-                <Label htmlFor="finish">Finish</Label>
-                <Input
-                  id="finish"
-                  value={newProductData.finish}
-                  onChange={(e) => setNewProductData({ ...newProductData, finish: e.target.value })}
-                  placeholder="Enter finish"
-                />
-              </div>
-
-              {/* Quantity */}
-              <div className="space-y-2">
-                <Label htmlFor="qty">Quantity</Label>
-                <Input
-                  id="qty"
-                  type="number"
-                  value={newProductData.qty}
-                  onChange={(e) => setNewProductData({ ...newProductData, qty: e.target.value })}
-                  placeholder="Enter quantity"
-                />
-              </div>
-
-              {/* Lead Time */}
-              <div className="space-y-2">
-                <Label htmlFor="lead_time">Lead Time</Label>
-                <Input
-                  id="lead_time"
-                  value={newProductData.lead_time}
-                  onChange={(e) => setNewProductData({ ...newProductData, lead_time: e.target.value })}
-                  placeholder="e.g., 2 weeks"
-                />
-              </div>
-
-              {/* Supplier */}
-              <div className="space-y-2">
-                <Label htmlFor="supplier">Supplier</Label>
-                <Input
-                  id="supplier"
-                  value={newProductData.supplier}
-                  onChange={(e) => setNewProductData({ ...newProductData, supplier: e.target.value })}
-                  placeholder="Enter supplier name"
-                />
-              </div>
-
-              {/* Status */}
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select 
-                  value={newProductData.status}
-                  onValueChange={(value) => setNewProductData({ ...newProductData, status: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Draft">Draft</SelectItem>
-                    <SelectItem value="Approved">Approved</SelectItem>
-                    <SelectItem value="Ordered">Ordered</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {productUrl && !pastedImage && (
+                <div className="space-y-2">
+                  <Label>Product URL</Label>
+                  <div className="border border-border/30 rounded-lg p-4 bg-muted/20">
+                    <p className="text-sm break-all">{productUrl}</p>
+                  </div>
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowNewProductDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => {
-                // Trigger product addition by setting data, actual creation in SectionView
-                setShowNewProductDialog(false);
-              }}>
+              <Button 
+                onClick={() => {
+                  // TODO: Process the URL or image and add product
+                  setShowNewProductDialog(false);
+                }}
+                disabled={!productUrl && !pastedImage}
+              >
                 Add Product
               </Button>
             </DialogFooter>
@@ -365,28 +236,13 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
 const SectionView = ({ 
   section, 
   scheduleId,
-  onOpenAddProductDialog,
-  productDataToAdd,
-  onProductAdded
+  onOpenAddProductDialog
 }: { 
   section: any; 
   scheduleId: string;
   onOpenAddProductDialog: (sectionId: string) => void;
-  productDataToAdd: any;
-  onProductAdded: () => void;
 }) => {
   const { items, loading, createItem, updateItem, deleteItem } = useScheduleItems(section.id);
-
-  // Auto-add product when productDataToAdd changes
-  useEffect(() => {
-    const addProduct = async () => {
-      if (productDataToAdd && Object.keys(productDataToAdd).some(key => productDataToAdd[key])) {
-        await createItem(section.id, productDataToAdd);
-        onProductAdded();
-      }
-    };
-    addProduct();
-  }, [productDataToAdd]);
 
   const handleAddProduct = async () => {
     onOpenAddProductDialog(section.id);
