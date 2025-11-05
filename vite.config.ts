@@ -24,7 +24,8 @@ export default defineConfig(({ mode }) => ({
     })
   ].filter(Boolean),
   optimizeDeps: {
-    exclude: ['web-ifc']
+    exclude: ['web-ifc'],
+    force: true // Force re-bundle dependencies after React version fix
   },
   worker: {
     format: 'es'
