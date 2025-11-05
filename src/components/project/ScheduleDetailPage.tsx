@@ -744,42 +744,47 @@ const SectionView = ({
         <table className="w-full">
           <thead>
             <tr className="bg-muted/10 border-b border-border/30">
-              <th className="px-4 py-3 text-left min-w-[140px]">
+              <th className="px-4 py-3 text-center w-[50px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  #
+                </div>
+              </th>
+              <th className="px-4 py-3 text-center min-w-[140px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Product Details
                 </div>
               </th>
-              <th className="px-4 py-3 text-left min-w-[180px]">
+              <th className="px-4 py-3 text-center min-w-[180px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Product Name / Brand
                 </div>
               </th>
-              <th className="px-4 py-3 text-left min-w-[100px]">
+              <th className="px-4 py-3 text-center min-w-[100px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Dimensions
                 </div>
               </th>
-              <th className="px-4 py-3 text-left min-w-[120px]">
+              <th className="px-4 py-3 text-center min-w-[120px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Finish / Material
                 </div>
               </th>
-              <th className="px-4 py-3 text-left w-[80px]">
+              <th className="px-4 py-3 text-center w-[80px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   QTY
                 </div>
               </th>
-              <th className="px-4 py-3 text-left w-[100px]">
+              <th className="px-4 py-3 text-center w-[100px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Price
                 </div>
               </th>
-              <th className="px-4 py-3 text-left min-w-[120px]">
+              <th className="px-4 py-3 text-center min-w-[120px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Supplier
                 </div>
               </th>
-              <th className="px-4 py-3 text-left w-[100px]">
+              <th className="px-4 py-3 text-center w-[100px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Status
                 </div>
@@ -795,11 +800,18 @@ const SectionView = ({
                 </td>
               </tr>
             ) : items.length > 0 ? (
-              items.map((item) => (
+              items.map((item, index) => (
                 <tr key={item.id} className="border-b border-border/30 hover:bg-accent/30 transition-colors">
+                  {/* Number */}
+                  <td className="px-4 py-3 text-center">
+                    <div className="text-sm font-semibold text-muted-foreground">
+                      {index + 1}
+                    </div>
+                  </td>
+                  
                   {/* Product Details */}
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center gap-3">
                       <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border border-border/30">
                         {item.image_url ? (
                           <img 
@@ -831,41 +843,43 @@ const SectionView = ({
                             </a>
                           )}
                         </div>
-                        <div className="text-[10px] text-muted-foreground uppercase">Code</div>
+                        <div className="text-[10px] text-muted-foreground uppercase text-center">Code</div>
                       </div>
                     </div>
                   </td>
 
                   {/* Product Name / Brand */}
                   <td className="px-4 py-3">
-                    <Input 
-                      placeholder="Product name" 
-                      className="text-sm h-8 mb-1"
-                      defaultValue={item.product_name || ''}
-                      onBlur={(e) => handleFieldUpdate(item.id, 'product_name', e.target.value)}
-                    />
-                    <Input 
-                      placeholder="Brand" 
-                      className="text-xs h-7"
-                      defaultValue={item.brand || ''}
-                      onBlur={(e) => handleFieldUpdate(item.id, 'brand', e.target.value)}
-                    />
+                    <div className="flex flex-col items-center">
+                      <Input 
+                        placeholder="Product name" 
+                        className="text-sm h-8 mb-1 text-center"
+                        defaultValue={item.product_name || ''}
+                        onBlur={(e) => handleFieldUpdate(item.id, 'product_name', e.target.value)}
+                      />
+                      <Input 
+                        placeholder="Brand" 
+                        className="text-xs h-7 text-center"
+                        defaultValue={item.brand || ''}
+                        onBlur={(e) => handleFieldUpdate(item.id, 'brand', e.target.value)}
+                      />
+                    </div>
                   </td>
 
                   {/* Dimensions */}
                   <td className="px-4 py-3">
-                    <div className="space-y-1">
+                    <div className="space-y-1 flex flex-col items-center">
                       <div className="flex items-center gap-1">
                         <Input 
                           placeholder="W" 
-                          className="text-xs h-7 w-16"
+                          className="text-xs h-7 w-16 text-center"
                           defaultValue={item.width || ''}
                           onBlur={(e) => handleFieldUpdate(item.id, 'width', e.target.value)}
                         />
                         <span className="text-xs text-muted-foreground">×</span>
                         <Input 
                           placeholder="L" 
-                          className="text-xs h-7 w-16"
+                          className="text-xs h-7 w-16 text-center"
                           defaultValue={item.length || ''}
                           onBlur={(e) => handleFieldUpdate(item.id, 'length', e.target.value)}
                         />
@@ -873,89 +887,102 @@ const SectionView = ({
                       <div className="flex items-center gap-1">
                         <Input 
                           placeholder="H" 
-                          className="text-xs h-7 w-16"
+                          className="text-xs h-7 w-16 text-center"
                           defaultValue={item.height || ''}
                           onBlur={(e) => handleFieldUpdate(item.id, 'height', e.target.value)}
                         />
                         <span className="text-xs text-muted-foreground">×</span>
                         <Input 
                           placeholder="D" 
-                          className="text-xs h-7 w-16"
+                          className="text-xs h-7 w-16 text-center"
                           defaultValue={item.depth || ''}
                           onBlur={(e) => handleFieldUpdate(item.id, 'depth', e.target.value)}
                         />
                       </div>
-                      <div className="text-[10px] text-muted-foreground">W×L / H×D (mm)</div>
+                      <div className="text-[10px] text-muted-foreground text-center">W×L / H×D (mm)</div>
                     </div>
                   </td>
 
                   {/* Finish / Material */}
                   <td className="px-4 py-3">
-                    <Input 
-                      placeholder="Color" 
-                      className="text-xs h-7 mb-1"
-                      defaultValue={item.color || ''}
-                      onBlur={(e) => handleFieldUpdate(item.id, 'color', e.target.value)}
-                    />
-                    <Input 
-                      placeholder="Finish" 
-                      className="text-xs h-7 mb-1"
-                      defaultValue={item.finish || ''}
-                      onBlur={(e) => handleFieldUpdate(item.id, 'finish', e.target.value)}
-                    />
-                    <div className="text-[10px] text-muted-foreground truncate" title={item.material || ''}>
-                      {item.material || 'Material'}
+                    <div className="flex flex-col items-center">
+                      <Input 
+                        placeholder="Color" 
+                        className="text-xs h-7 mb-1 text-center"
+                        defaultValue={item.color || ''}
+                        onBlur={(e) => handleFieldUpdate(item.id, 'color', e.target.value)}
+                      />
+                      <Input 
+                        placeholder="Finish" 
+                        className="text-xs h-7 mb-1 text-center"
+                        defaultValue={item.finish || ''}
+                        onBlur={(e) => handleFieldUpdate(item.id, 'finish', e.target.value)}
+                      />
+                      <div className="text-[10px] text-muted-foreground truncate text-center" title={item.material || ''}>
+                        {item.material || 'Material'}
+                      </div>
                     </div>
                   </td>
 
                   {/* QTY */}
                   <td className="px-4 py-3">
-                    <Input 
-                      placeholder="0" 
-                      type="number"
-                      className="text-sm h-8 w-20"
-                      defaultValue={item.qty || ''}
-                      onBlur={(e) => handleFieldUpdate(item.id, 'qty', e.target.value)}
-                    />
+                    <div className="flex justify-center">
+                      <Input 
+                        placeholder="0" 
+                        type="number"
+                        className="text-sm h-8 w-20 text-center"
+                        defaultValue={item.qty || ''}
+                        onBlur={(e) => handleFieldUpdate(item.id, 'qty', e.target.value)}
+                      />
+                    </div>
                   </td>
 
                   {/* Price */}
                   <td className="px-4 py-3">
-                    <Input 
-                      placeholder="0.00" 
-                      type="number"
-                      step="0.01"
-                      className="text-sm h-8"
-                      defaultValue={item.price || ''}
-                      onBlur={(e) => handleFieldUpdate(item.id, 'price', e.target.value)}
-                    />
+                    <div className="flex justify-center">
+                      <div className="relative w-full max-w-[100px]">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                        <Input 
+                          placeholder="0.00" 
+                          type="number"
+                          step="0.01"
+                          className="text-sm h-8 pl-7 text-center"
+                          defaultValue={item.price || ''}
+                          onBlur={(e) => handleFieldUpdate(item.id, 'price', e.target.value)}
+                        />
+                      </div>
+                    </div>
                   </td>
 
                   {/* Supplier */}
                   <td className="px-4 py-3">
-                    <Input 
-                      placeholder="Supplier" 
-                      className="text-sm h-8"
-                      defaultValue={item.supplier || ''}
-                      onBlur={(e) => handleFieldUpdate(item.id, 'supplier', e.target.value)}
-                    />
+                    <div className="flex justify-center">
+                      <Input 
+                        placeholder="Supplier" 
+                        className="text-sm h-8 text-center"
+                        defaultValue={item.supplier || ''}
+                        onBlur={(e) => handleFieldUpdate(item.id, 'supplier', e.target.value)}
+                      />
+                    </div>
                   </td>
 
                   {/* Status */}
                   <td className="px-4 py-3">
-                    <Select 
-                      defaultValue={item.status || 'Draft'}
-                      onValueChange={(value) => handleFieldUpdate(item.id, 'status', value)}
-                    >
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Draft">Draft</SelectItem>
-                        <SelectItem value="Approved">Approved</SelectItem>
-                        <SelectItem value="Ordered">Ordered</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex justify-center">
+                      <Select 
+                        defaultValue={item.status || 'Draft'}
+                        onValueChange={(value) => handleFieldUpdate(item.id, 'status', value)}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Draft">Draft</SelectItem>
+                          <SelectItem value="Approved">Approved</SelectItem>
+                          <SelectItem value="Ordered">Ordered</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </td>
 
                   {/* Actions */}
