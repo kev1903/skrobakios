@@ -194,10 +194,14 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
         const imageTypes = item.types.filter(type => type.startsWith('image/'));
         if (imageTypes.length > 0) {
           const blob = await item.getType(imageTypes[0]);
+          
+          // Convert blob to File object for upload
+          const file = new File([blob], 'pasted-image.jpg', { type: blob.type });
+          setUploadedImageFile(file);
+          
           const reader = new FileReader();
           reader.onloadend = () => {
             setPastedImage(reader.result as string);
-            setProductUrl('');
             setImageFileName('Pasted Image');
           };
           reader.readAsDataURL(blob);
@@ -209,8 +213,6 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
           const blob = await item.getType('text/plain');
           const text = await blob.text();
           setProductUrl(text.trim());
-          setPastedImage(null);
-          setImageFileName('');
           return;
         }
       }
@@ -911,7 +913,7 @@ const SectionView = ({
                   {/* Product Details */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-muted rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border border-border/30">
                         {item.image_url ? (
                           <img 
                             src={item.image_url} 
@@ -919,7 +921,7 @@ const SectionView = ({
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-8 h-6 bg-gradient-to-br from-muted-foreground/20 to-muted-foreground/10 rounded" />
+                          <div className="w-12 h-10 bg-gradient-to-br from-muted-foreground/20 to-muted-foreground/10 rounded" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
