@@ -101,6 +101,7 @@ export const ProjectDocsPage = ({
   // Schedules management
   const { schedules, loading: schedulesLoading, createSchedule, updateSchedule, deleteSchedule } = useProjectSchedules(projectId || undefined);
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [editScheduleDialogOpen, setEditScheduleDialogOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<any | null>(null);
   const [scheduleName, setScheduleName] = useState('');
   const [selectedSchedule, setSelectedSchedule] = useState<any | null>(null);
@@ -640,25 +641,30 @@ export const ProjectDocsPage = ({
     }
   };
 
+  const openEditScheduleDialog = (schedule: any) => {
+    setEditingSchedule(schedule);
+    setScheduleName(schedule.name);
+    setEditScheduleDialogOpen(true);
+  };
+
   const handleUpdateSchedule = async () => {
-    if (!editingSchedule) return;
-    const success = await updateSchedule(editingSchedule.id, scheduleName);
-    if (success) {
-      setScheduleDialogOpen(false);
+    if (editingSchedule) {
+      await updateSchedule(editingSchedule.id, scheduleName);
+      setEditScheduleDialogOpen(false);
       setEditingSchedule(null);
       setScheduleName('');
+    }
+  };
+
+  const handleDeleteSchedule = async (scheduleId: string) => {
+    if (window.confirm('Are you sure you want to delete this schedule? This action cannot be undone.')) {
+      await deleteSchedule(scheduleId);
     }
   };
 
   const openCreateScheduleDialog = () => {
     setEditingSchedule(null);
     setScheduleName('');
-    setScheduleDialogOpen(true);
-  };
-
-  const openEditScheduleDialog = (schedule: any) => {
-    setEditingSchedule(schedule);
-    setScheduleName(schedule.name);
     setScheduleDialogOpen(true);
   };
 
@@ -1081,7 +1087,7 @@ export const ProjectDocsPage = ({
                                   <Edit className="w-4 h-4 mr-2" />
                                   Edit
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => deleteSchedule(schedule.id)} className="text-destructive">
+                                <DropdownMenuItem onClick={() => handleDeleteSchedule(schedule.id)} className="text-destructive">
                                   <Trash2 className="w-4 h-4 mr-2" />
                                   Delete
                                 </DropdownMenuItem>
@@ -1375,13 +1381,9 @@ export const ProjectDocsPage = ({
       <Dialog open={scheduleDialogOpen} onOpenChange={setScheduleDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editingSchedule ? 'Edit Schedule' : 'Create Schedule'}
-            </DialogTitle>
+            <DialogTitle>Create Schedule</DialogTitle>
             <DialogDescription>
-              {editingSchedule 
-                ? 'Update the schedule name'
-                : 'Enter a name for your new schedule'}
+              Enter a name for your new schedule
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -1399,8 +1401,39 @@ export const ProjectDocsPage = ({
             <Button variant="outline" onClick={() => setScheduleDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={editingSchedule ? handleUpdateSchedule : handleCreateSchedule}>
-              {editingSchedule ? 'Update' : 'Create'}
+            <Button onClick={handleCreateSchedule}>
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Schedule Dialog */}
+      <Dialog open={editScheduleDialogOpen} onOpenChange={setEditScheduleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Schedule</DialogTitle>
+            <DialogDescription>
+              Update the schedule name
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Schedule Name</Label>
+              <Input
+                id="edit-name"
+                placeholder="Enter schedule name"
+                value={scheduleName}
+                onChange={(e) => setScheduleName(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditScheduleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateSchedule}>
+              Update
             </Button>
           </DialogFooter>
         </DialogContent>
