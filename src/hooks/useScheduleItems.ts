@@ -94,20 +94,27 @@ export const useScheduleItems = (sectionId?: string) => {
 
   const updateItem = async (id: string, itemData: Partial<ScheduleItem>) => {
     try {
+      // Optimistically update local state
+      setItems(prevItems => 
+        prevItems.map(item => 
+          item.id === id ? { ...item, ...itemData } : item
+        )
+      );
+
       const { error } = await supabase
         .from('schedule_items')
         .update(itemData)
         .eq('id', id);
 
       if (error) throw error;
-      
-      await fetchItems();
     } catch (error: any) {
       toast({
         title: "Error updating product",
         description: error.message,
         variant: "destructive",
       });
+      // Refetch on error to revert optimistic update
+      await fetchItems();
     }
   };
 
