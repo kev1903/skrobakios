@@ -100,7 +100,7 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
         created_by: userData.user?.id || null,
         status: 'open',
         report_id: reportId || null,
-        rfi_number: '',
+        rfi_number: null,
         attachments: [], // Will be updated after creating issue if there are attachments
       };
 

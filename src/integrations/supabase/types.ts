@@ -2548,7 +2548,7 @@ export type Database = {
           project_id: string
           report_id: string | null
           resolved_date: string | null
-          rfi_number: string
+          rfi_number: string | null
           status: string
           title: string
           updated_at: string
@@ -2569,7 +2569,7 @@ export type Database = {
           project_id: string
           report_id?: string | null
           resolved_date?: string | null
-          rfi_number: string
+          rfi_number?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -2590,7 +2590,7 @@ export type Database = {
           project_id?: string
           report_id?: string | null
           resolved_date?: string | null
-          rfi_number?: string
+          rfi_number?: string | null
           status?: string
           title?: string
           updated_at?: string
