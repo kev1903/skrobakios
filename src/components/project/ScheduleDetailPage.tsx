@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Plus, MoreHorizontal, Trash2, Edit, Loader2, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Plus, MoreHorizontal, Trash2, Edit, Loader2, Link2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -833,7 +833,7 @@ const SectionView = ({
                               className="flex-shrink-0 p-1.5 hover:bg-accent rounded transition-colors"
                               title="View product page"
                             >
-                              <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                              <Link2 className="w-4 h-4 text-muted-foreground" />
                             </a>
                           )}
                         </div>
