@@ -41,18 +41,6 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   const [newSectionName, setNewSectionName] = useState('');
   const [sectionItems, setSectionItems] = useState<Record<string, any[]>>({});
 
-  // Initialize sections with default ones if empty
-  useEffect(() => {
-    const initializeSections = async () => {
-      if (sections.length === 0 && !sectionsLoading) {
-        await createSection('Moulding');
-        await createSection('Render');
-        await createSection('Balustrades');
-      }
-    };
-    initializeSections();
-  }, [sections.length, sectionsLoading]);
-
   const handleNewProduct = (sectionId: string) => {
     setSelectedSectionId(sectionId);
     setShowNewProductDialog(true);
