@@ -289,26 +289,191 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
               </div>
             ) : (
               <div className="space-y-6 py-6">
-                <div className="bg-luxury-gold/10 border border-luxury-gold/30 rounded-lg p-4">
-                  <h3 className="font-semibold text-sm mb-4 text-luxury-gold">Extracted Product Details</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {extractedData && Object.entries(extractedData).map(([key, value]) => (
-                      value && (
-                        <div key={key} className="space-y-1">
-                          <Label className="text-xs text-muted-foreground capitalize">
-                            {key.replace(/_/g, ' ')}
-                          </Label>
-                          <Input
-                            value={value as string}
-                            onChange={(e) => setExtractedData({
-                              ...extractedData,
-                              [key]: e.target.value
-                            })}
-                            className="h-9"
-                          />
-                        </div>
-                      )
-                    ))}
+                <div className="bg-luxury-gold/10 border border-luxury-gold/30 rounded-lg p-6">
+                  <h3 className="font-semibold text-sm mb-6 text-luxury-gold">Extracted Product Details</h3>
+                  
+                  {/* Basic Information */}
+                  <div className="space-y-4 mb-6">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Basic Information</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Product Code</Label>
+                        <Input
+                          value={extractedData?.product_code || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            product_code: e.target.value
+                          })}
+                          placeholder="Enter product code"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1 col-span-2">
+                        <Label className="text-xs">Product Name *</Label>
+                        <Input
+                          value={extractedData?.product_name || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            product_name: e.target.value
+                          })}
+                          placeholder="Enter product name"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Brand</Label>
+                        <Input
+                          value={extractedData?.brand || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            brand: e.target.value
+                          })}
+                          placeholder="Enter brand"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Supplier</Label>
+                        <Input
+                          value={extractedData?.supplier || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            supplier: e.target.value
+                          })}
+                          placeholder="Enter supplier"
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dimensions */}
+                  <div className="space-y-4 mb-6">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Dimensions (mm)</h4>
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Width</Label>
+                        <Input
+                          value={extractedData?.width || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            width: e.target.value
+                          })}
+                          placeholder="Width"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Length</Label>
+                        <Input
+                          value={extractedData?.length || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            length: e.target.value
+                          })}
+                          placeholder="Length"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Height</Label>
+                        <Input
+                          value={extractedData?.height || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            height: e.target.value
+                          })}
+                          placeholder="Height"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Depth</Label>
+                        <Input
+                          value={extractedData?.depth || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            depth: e.target.value
+                          })}
+                          placeholder="Depth"
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Material & Finish */}
+                  <div className="space-y-4 mb-6">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Material & Finish</h4>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Material</Label>
+                        <Input
+                          value={extractedData?.material || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            material: e.target.value
+                          })}
+                          placeholder="Enter material"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Color</Label>
+                        <Input
+                          value={extractedData?.color || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            color: e.target.value
+                          })}
+                          placeholder="Enter color"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Finish</Label>
+                        <Input
+                          value={extractedData?.finish || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            finish: e.target.value
+                          })}
+                          placeholder="Enter finish"
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quantity & Lead Time */}
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Order Details</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Quantity</Label>
+                        <Input
+                          value={extractedData?.qty || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            qty: e.target.value
+                          })}
+                          placeholder="Enter quantity"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Lead Time</Label>
+                        <Input
+                          value={extractedData?.lead_time || ''}
+                          onChange={(e) => setExtractedData({
+                            ...extractedData,
+                            lead_time: e.target.value
+                          })}
+                          placeholder="Enter lead time"
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
