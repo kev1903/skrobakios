@@ -47,6 +47,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [extractedData, setExtractedData] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [imageFileName, setImageFileName] = useState<string>('');
 
   const handleOpenAddProductDialog = (sectionId: string) => {
     setCurrentSectionId(sectionId);
@@ -55,6 +56,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
     setExtractedData(null);
     setShowPreview(false);
     setIsAnalyzing(false);
+    setImageFileName('');
     setShowNewProductDialog(true);
   };
 
@@ -142,6 +144,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
           reader.onloadend = () => {
             setPastedImage(reader.result as string);
             setProductUrl('');
+            setImageFileName('Pasted Image');
           };
           reader.readAsDataURL(blob);
           return;
@@ -153,12 +156,41 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
           const text = await blob.text();
           setProductUrl(text.trim());
           setPastedImage(null);
+          setImageFileName('');
           return;
         }
       }
     } catch (error) {
       console.error('Failed to read clipboard:', error);
+      toast({
+        title: "Paste failed",
+        description: "Could not read from clipboard. Please try uploading a file instead.",
+        variant: "destructive",
+      });
     }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Check if it's a JPG/JPEG file
+    if (!file.type.match(/^image\/(jpeg|jpg)$/i)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a JPG or JPEG image.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPastedImage(reader.result as string);
+      setProductUrl('');
+      setImageFileName(file.name);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleCreateSection = async () => {
@@ -252,10 +284,11 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                       onChange={(e) => {
                         setProductUrl(e.target.value);
                         setPastedImage(null);
+                        setImageFileName('');
                       }}
                       placeholder="Paste product URL here"
                       className="flex-1"
-                      disabled={isAnalyzing}
+                      disabled={isAnalyzing || !!pastedImage}
                     />
                     <Button 
                       type="button" 
@@ -268,21 +301,70 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Paste a product URL or an image (JPEG/JPG) from your clipboard
+                    Paste a product URL from your clipboard
+                  </p>
+                </div>
+
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border/30" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">OR</span>
+                  </div>
+                </div>
+
+                {/* Image Upload */}
+                <div className="space-y-3">
+                  <Label htmlFor="product-image">Upload Product Image</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="product-image"
+                      type="file"
+                      accept="image/jpeg,image/jpg"
+                      onChange={handleFileUpload}
+                      className="flex-1"
+                      disabled={isAnalyzing || !!productUrl}
+                    />
+                    <Button 
+                      type="button" 
+                      onClick={handlePasteFromClipboard}
+                      variant="outline"
+                      className="px-6"
+                      disabled={isAnalyzing || !!productUrl}
+                    >
+                      PASTE IMAGE
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Upload or paste a JPG/JPEG image from your clipboard
                   </p>
                 </div>
 
                 {/* Preview Area */}
                 {pastedImage && (
                   <div className="space-y-2">
-                    <Label>Pasted Image Preview</Label>
+                    <Label>Image Preview {imageFileName && `- ${imageFileName}`}</Label>
                     <div className="border border-border/30 rounded-lg p-4 bg-muted/20">
                       <img 
                         src={pastedImage} 
-                        alt="Pasted product" 
+                        alt="Product" 
                         className="max-w-full h-auto max-h-64 mx-auto rounded"
                       />
                     </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setPastedImage(null);
+                        setImageFileName('');
+                      }}
+                      className="w-full"
+                    >
+                      Clear Image
+                    </Button>
                   </div>
                 )}
 
@@ -292,6 +374,15 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                     <div className="border border-border/30 rounded-lg p-4 bg-muted/20">
                       <p className="text-sm break-all">{productUrl}</p>
                     </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setProductUrl('')}
+                      className="w-full"
+                    >
+                      Clear URL
+                    </Button>
                   </div>
                 )}
               </div>
