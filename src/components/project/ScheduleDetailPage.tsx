@@ -115,20 +115,54 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   const handleSaveProduct = async () => {
     if (!currentSectionId || !extractedData) return;
     
-    // Create the item directly using the hook
-    const { createItem } = useScheduleItems(currentSectionId);
-    await createItem(currentSectionId, {
-      ...extractedData,
-      status: 'Draft'
-    });
-    
-    // Close dialog and reset states
-    setShowNewProductDialog(false);
-    setShowPreview(false);
-    setExtractedData(null);
-    setProductUrl('');
-    setPastedImage(null);
-    setCurrentSectionId(null);
+    try {
+      // Save to database
+      const { data, error } = await supabase
+        .from('schedule_items')
+        .insert({
+          section_id: currentSectionId,
+          product_code: extractedData.product_code,
+          product_name: extractedData.product_name,
+          brand: extractedData.brand,
+          material: extractedData.material,
+          width: extractedData.width,
+          length: extractedData.length,
+          height: extractedData.height,
+          depth: extractedData.depth,
+          color: extractedData.color,
+          finish: extractedData.finish,
+          qty: extractedData.qty,
+          lead_time: extractedData.lead_time,
+          supplier: extractedData.supplier,
+          url: extractedData.url,
+          status: 'Draft'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Product saved",
+        description: "Product has been added to the schedule successfully.",
+      });
+      
+      // Close dialog and reset states
+      setShowNewProductDialog(false);
+      setShowPreview(false);
+      setExtractedData(null);
+      setProductUrl('');
+      setPastedImage(null);
+      setImageFileName('');
+      setCurrentSectionId(null);
+    } catch (error: any) {
+      console.error('Error saving product:', error);
+      toast({
+        title: "Error saving product",
+        description: error.message || "Failed to save product to schedule",
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePasteFromClipboard = async () => {
