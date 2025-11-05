@@ -4811,6 +4811,7 @@ export type Database = {
           lead_time: string | null
           length: string | null
           material: string | null
+          price: number | null
           product_code: string | null
           product_name: string | null
           qty: string | null
@@ -4833,6 +4834,7 @@ export type Database = {
           lead_time?: string | null
           length?: string | null
           material?: string | null
+          price?: number | null
           product_code?: string | null
           product_name?: string | null
           qty?: string | null
@@ -4855,6 +4857,7 @@ export type Database = {
           lead_time?: string | null
           length?: string | null
           material?: string | null
+          price?: number | null
           product_code?: string | null
           product_name?: string | null
           qty?: string | null

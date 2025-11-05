@@ -20,6 +20,7 @@ export interface ScheduleItem {
   supplier: string | null;
   url: string | null;
   image_url: string | null;
+  price: number | null;
   status: string | null;
   created_at: string;
   updated_at: string;

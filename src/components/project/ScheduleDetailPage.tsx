@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Plus, MoreHorizontal, Trash2, Edit, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, MoreHorizontal, Trash2, Edit, Loader2, ExternalLink } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -775,6 +775,11 @@ const SectionView = ({
                   QTY
                 </div>
               </th>
+              <th className="px-4 py-3 text-left w-[100px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  Price
+                </div>
+              </th>
               <th className="px-4 py-3 text-left min-w-[100px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Lead Time
@@ -796,7 +801,7 @@ const SectionView = ({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={11} className="px-4 py-12 text-center text-muted-foreground">
+                <td colSpan={12} className="px-4 py-12 text-center text-muted-foreground">
                   Loading...
                 </td>
               </tr>
@@ -818,12 +823,25 @@ const SectionView = ({
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <Input 
-                          placeholder="Product Code" 
-                          className="text-sm h-8 mb-1"
-                          defaultValue={item.product_code || ''}
-                          onBlur={(e) => handleFieldUpdate(item.id, 'product_code', e.target.value)}
-                        />
+                        <div className="flex items-center gap-2">
+                          <Input 
+                            placeholder="Product Code" 
+                            className="text-sm h-8 mb-1 flex-1"
+                            defaultValue={item.product_code || ''}
+                            onBlur={(e) => handleFieldUpdate(item.id, 'product_code', e.target.value)}
+                          />
+                          {item.url && (
+                            <a 
+                              href={item.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex-shrink-0 p-1.5 hover:bg-accent rounded transition-colors"
+                              title="View product page"
+                            >
+                              <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                            </a>
+                          )}
+                        </div>
                         <div className="text-[10px] text-muted-foreground uppercase">Code</div>
                       </div>
                     </div>
@@ -909,6 +927,18 @@ const SectionView = ({
                       className="text-sm h-8 w-20"
                       defaultValue={item.qty || ''}
                       onBlur={(e) => handleFieldUpdate(item.id, 'qty', e.target.value)}
+                    />
+                  </td>
+
+                  {/* Price */}
+                  <td className="px-4 py-3">
+                    <Input 
+                      placeholder="0.00" 
+                      type="number"
+                      step="0.01"
+                      className="text-sm h-8"
+                      defaultValue={item.price || ''}
+                      onBlur={(e) => handleFieldUpdate(item.id, 'price', e.target.value)}
                     />
                   </td>
 
