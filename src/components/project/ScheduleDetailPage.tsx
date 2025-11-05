@@ -774,7 +774,7 @@ const SectionView = ({
                   QTY
                 </div>
               </th>
-              <th className="px-4 py-3 text-center w-[100px]">
+              <th className="px-4 py-3 text-center w-[140px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Price
                 </div>
@@ -940,13 +940,13 @@ const SectionView = ({
                   {/* Price */}
                   <td className="px-4 py-3">
                     <div className="flex justify-center">
-                      <div className="relative w-full max-w-[100px]">
+                      <div className="relative w-full max-w-[130px]">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                         <Input 
                           placeholder="0.00" 
                           type="number"
                           step="0.01"
-                          className="text-sm h-8 pl-7 text-center"
+                          className="text-sm h-8 pl-7 pr-3 text-center"
                           defaultValue={item.price || ''}
                           onBlur={(e) => handleFieldUpdate(item.id, 'price', e.target.value)}
                         />
