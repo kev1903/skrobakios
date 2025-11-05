@@ -1,7 +1,7 @@
 {
-  "version": "2.0.4",
+  "version": "2.0.5",
   "buildDate": "2025-11-05",
-  "description": "Aggressive auto-update strategy: 1-hour checks, force updates, persistent notifications",
+  "description": "Update notification relocated to menu bar as compact indicator",
   "forceUpdate": false,
   "message": "",
   "minCountdown": 10

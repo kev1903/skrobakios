@@ -4,7 +4,7 @@
  */
 
 // App version - increment this when you want to force cache refresh
-export const APP_VERSION = '2.0.3';
+export const APP_VERSION = '2.0.5';
 const VERSION_KEY = 'app_version';
 
 /**

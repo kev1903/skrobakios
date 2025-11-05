@@ -26,6 +26,7 @@ import { AiChatSidebar } from '@/components/AiChatSidebar';
 import { VoiceInterface } from '@/components/VoiceInterface';
 import { useSkaiVoiceChat } from '@/hooks/useSkaiVoiceChat';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { UpdateIndicator } from '@/components/UpdateIndicator';
 export const MenuBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -667,6 +668,9 @@ const barRef = useRef<HTMLDivElement>(null);
                     <ClipboardList className="w-4 h-4" />
                   </Link>
                 )}
+                
+                {/* Update Indicator */}
+                <UpdateIndicator />
                 
                 {/* Notifications */}
                 <NotificationDropdown>
