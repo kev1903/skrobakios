@@ -780,11 +780,6 @@ const SectionView = ({
                   Price
                 </div>
               </th>
-              <th className="px-4 py-3 text-left min-w-[100px]">
-                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  Lead Time
-                </div>
-              </th>
               <th className="px-4 py-3 text-left min-w-[120px]">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Supplier
@@ -801,7 +796,7 @@ const SectionView = ({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={12} className="px-4 py-12 text-center text-muted-foreground">
+                <td colSpan={11} className="px-4 py-12 text-center text-muted-foreground">
                   Loading...
                 </td>
               </tr>
@@ -939,16 +934,6 @@ const SectionView = ({
                       className="text-sm h-8"
                       defaultValue={item.price || ''}
                       onBlur={(e) => handleFieldUpdate(item.id, 'price', e.target.value)}
-                    />
-                  </td>
-
-                  {/* Lead Time */}
-                  <td className="px-4 py-3">
-                    <Input 
-                      placeholder="Lead time" 
-                      className="text-sm h-8"
-                      defaultValue={item.lead_time || ''}
-                      onBlur={(e) => handleFieldUpdate(item.id, 'lead_time', e.target.value)}
                     />
                   </td>
 
