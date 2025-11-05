@@ -419,57 +419,47 @@ const SectionView = ({
         <table className="w-full">
           <thead>
             <tr className="bg-muted/10 border-b border-border/30">
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+              <th className="px-4 py-3 text-left min-w-[140px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Product Details
                 </div>
               </th>
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  Product Name
+              <th className="px-4 py-3 text-left min-w-[180px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  Product Name / Brand
                 </div>
               </th>
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  Width (MM)
+              <th className="px-4 py-3 text-left min-w-[100px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  Dimensions
                 </div>
               </th>
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  Length (MM)
+              <th className="px-4 py-3 text-left min-w-[120px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  Finish / Material
                 </div>
               </th>
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  Height (MM)
-                </div>
-              </th>
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  Depth (MM)
-                </div>
-              </th>
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+              <th className="px-4 py-3 text-left w-[80px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   QTY
                 </div>
               </th>
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+              <th className="px-4 py-3 text-left min-w-[100px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Lead Time
                 </div>
               </th>
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+              <th className="px-4 py-3 text-left min-w-[120px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Supplier
                 </div>
               </th>
-              <th className="px-4 py-3 text-left">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+              <th className="px-4 py-3 text-left w-[100px]">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Status
                 </div>
               </th>
-              <th className="px-4 py-3"></th>
+              <th className="px-4 py-3 w-[100px]"></th>
             </tr>
           </thead>
           <tbody>
@@ -482,142 +472,134 @@ const SectionView = ({
             ) : items.length > 0 ? (
               items.map((item) => (
                 <tr key={item.id} className="border-b border-border/30 hover:bg-accent/30 transition-colors">
-                  <td className="px-4 py-6">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 h-12 bg-muted rounded flex items-center justify-center">
-                          <div className="w-12 h-8 bg-gradient-to-br from-muted-foreground/20 to-muted-foreground/10 rounded" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-foreground">{item.product_code || '-'}</div>
-                          <div className="text-xs text-muted-foreground">PRODUCT DETAILS</div>
-                        </div>
+                  {/* Product Details */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-6 bg-gradient-to-br from-muted-foreground/20 to-muted-foreground/10 rounded" />
                       </div>
-                      <Input 
-                        placeholder="Enter Doc Code" 
-                        className="text-xs h-8"
-                        defaultValue={item.product_code || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'product_code', e.target.value)}
-                      />
+                      <div className="flex-1 min-w-0">
+                        <Input 
+                          placeholder="Product Code" 
+                          className="text-sm h-8 mb-1"
+                          defaultValue={item.product_code || ''}
+                          onBlur={(e) => handleFieldUpdate(item.id, 'product_code', e.target.value)}
+                        />
+                        <div className="text-[10px] text-muted-foreground uppercase">Code</div>
+                      </div>
                     </div>
                   </td>
-                  <td className="px-4 py-6">
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.product_name || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'product_name', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">PRODUCT NAME</div>
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.brand || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'brand', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">BRAND</div>
+
+                  {/* Product Name / Brand */}
+                  <td className="px-4 py-3">
+                    <Input 
+                      placeholder="Product name" 
+                      className="text-sm h-8 mb-1"
+                      defaultValue={item.product_name || ''}
+                      onBlur={(e) => handleFieldUpdate(item.id, 'product_name', e.target.value)}
+                    />
+                    <Input 
+                      placeholder="Brand" 
+                      className="text-xs h-7"
+                      defaultValue={item.brand || ''}
+                      onBlur={(e) => handleFieldUpdate(item.id, 'brand', e.target.value)}
+                    />
+                  </td>
+
+                  {/* Dimensions */}
+                  <td className="px-4 py-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1">
+                        <Input 
+                          placeholder="W" 
+                          className="text-xs h-7 w-16"
+                          defaultValue={item.width || ''}
+                          onBlur={(e) => handleFieldUpdate(item.id, 'width', e.target.value)}
+                        />
+                        <span className="text-xs text-muted-foreground">×</span>
+                        <Input 
+                          placeholder="L" 
+                          className="text-xs h-7 w-16"
+                          defaultValue={item.length || ''}
+                          onBlur={(e) => handleFieldUpdate(item.id, 'length', e.target.value)}
+                        />
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Input 
+                          placeholder="H" 
+                          className="text-xs h-7 w-16"
+                          defaultValue={item.height || ''}
+                          onBlur={(e) => handleFieldUpdate(item.id, 'height', e.target.value)}
+                        />
+                        <span className="text-xs text-muted-foreground">×</span>
+                        <Input 
+                          placeholder="D" 
+                          className="text-xs h-7 w-16"
+                          defaultValue={item.depth || ''}
+                          onBlur={(e) => handleFieldUpdate(item.id, 'depth', e.target.value)}
+                        />
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">W×L / H×D (mm)</div>
                     </div>
                   </td>
-                  <td className="px-4 py-6">
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.width || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'width', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">WIDTH (MM)</div>
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.color || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'color', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">COLOUR</div>
+
+                  {/* Finish / Material */}
+                  <td className="px-4 py-3">
+                    <Input 
+                      placeholder="Color" 
+                      className="text-xs h-7 mb-1"
+                      defaultValue={item.color || ''}
+                      onBlur={(e) => handleFieldUpdate(item.id, 'color', e.target.value)}
+                    />
+                    <Input 
+                      placeholder="Finish" 
+                      className="text-xs h-7 mb-1"
+                      defaultValue={item.finish || ''}
+                      onBlur={(e) => handleFieldUpdate(item.id, 'finish', e.target.value)}
+                    />
+                    <div className="text-[10px] text-muted-foreground truncate" title={item.material || ''}>
+                      {item.material || 'Material'}
                     </div>
                   </td>
-                  <td className="px-4 py-6">
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.length || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'length', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">LENGTH (MM)</div>
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.finish || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'finish', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">FINISH</div>
-                    </div>
+
+                  {/* QTY */}
+                  <td className="px-4 py-3">
+                    <Input 
+                      placeholder="0" 
+                      type="number"
+                      className="text-sm h-8 w-20"
+                      defaultValue={item.qty || ''}
+                      onBlur={(e) => handleFieldUpdate(item.id, 'qty', e.target.value)}
+                    />
                   </td>
-                  <td className="px-4 py-6">
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.height || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'height', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">HEIGHT (MM)</div>
-                    </div>
+
+                  {/* Lead Time */}
+                  <td className="px-4 py-3">
+                    <Input 
+                      placeholder="Lead time" 
+                      className="text-sm h-8"
+                      defaultValue={item.lead_time || ''}
+                      onBlur={(e) => handleFieldUpdate(item.id, 'lead_time', e.target.value)}
+                    />
                   </td>
-                  <td className="px-4 py-6">
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.depth || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'depth', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">DEPTH (MM)</div>
-                    </div>
+
+                  {/* Supplier */}
+                  <td className="px-4 py-3">
+                    <Input 
+                      placeholder="Supplier" 
+                      className="text-sm h-8"
+                      defaultValue={item.supplier || ''}
+                      onBlur={(e) => handleFieldUpdate(item.id, 'supplier', e.target.value)}
+                    />
                   </td>
-                  <td className="px-4 py-6">
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.qty || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'qty', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">QTY</div>
-                      <div className="text-xs text-foreground">Options: {item.material || '-'}</div>
-                      <div className="text-[10px] uppercase text-muted-foreground">MATERIAL</div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-6">
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="-" 
-                        className="text-xs h-8"
-                        defaultValue={item.lead_time || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'lead_time', e.target.value)}
-                      />
-                      <div className="text-[10px] uppercase text-muted-foreground">LEAD TIME</div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-6">
-                    <div className="space-y-2">
-                      <div className="text-sm text-muted-foreground">Supplier</div>
-                      <Input 
-                        placeholder="Click to add supplier" 
-                        className="text-xs h-8"
-                        defaultValue={item.supplier || ''}
-                        onBlur={(e) => handleFieldUpdate(item.id, 'supplier', e.target.value)}
-                      />
-                    </div>
-                  </td>
-                  <td className="px-4 py-6">
+
+                  {/* Status */}
+                  <td className="px-4 py-3">
                     <Select 
                       defaultValue={item.status || 'Draft'}
                       onValueChange={(value) => handleFieldUpdate(item.id, 'status', value)}
                     >
-                      <SelectTrigger className="w-28 h-8">
+                      <SelectTrigger className="h-8 text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -627,41 +609,35 @@ const SectionView = ({
                       </SelectContent>
                     </Select>
                   </td>
-                  <td className="px-4 py-6">
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" className="h-8">
-                        Details
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-8">
-                        Quote
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={() => deleteItem(item.id)}
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+
+                  {/* Actions */}
+                  <td className="px-4 py-3">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => deleteItem(item.id)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={11} className="px-4 py-12 text-center text-muted-foreground">
+                <td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">
                   No items in this section yet. Click "Add Product" to get started.
                 </td>
               </tr>
