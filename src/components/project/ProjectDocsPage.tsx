@@ -19,7 +19,7 @@ import { DocumentChatBar } from './DocumentChatBar';
 import { CategoryAIConfigDialog } from '../admin/skai/CategoryAIConfigDialog';
 import { ScopeGenerationDialog } from './ScopeGenerationDialog';
 
-import { FileText, Upload, ChevronDown, ChevronRight, ChevronLeft, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain, Package, ImageIcon } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, ChevronLeft, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain, Package, ImageIcon, FileType } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -646,6 +646,10 @@ export const ProjectDocsPage = ({
                 <Link className="h-4 w-4" />
                 Project Links
               </TabsTrigger>
+              <TabsTrigger value="specification" className="flex items-center gap-2">
+                <FileType className="h-4 w-4" />
+                Specification
+              </TabsTrigger>
               <TabsTrigger value="gallery" className="flex items-center gap-2">
                 <ImageIcon className="h-4 w-4" />
                 Gallery
@@ -901,6 +905,121 @@ export const ProjectDocsPage = ({
               </div>
             </TabsContent>
 
+            {/* Specification Tab */}
+            <TabsContent value="specification" className="flex-1 overflow-auto">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-foreground">Project Specification</h2>
+                    <p className="text-sm text-muted-foreground">Project specifications and technical details</p>
+                  </div>
+                  <Button onClick={() => {
+                    setSelectedCategory(null);
+                    setUploadDialogOpen(true);
+                  }}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Specification
+                  </Button>
+                </div>
+
+                {docsLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading specifications...
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {documents
+                      .filter(doc => 
+                        doc.category_id && 
+                        documentCategories.find(cat => 
+                          (cat.dbId || cat.id) === doc.category_id && 
+                          cat.title.toLowerCase().includes('specification')
+                        )
+                      )
+                      .map(doc => (
+                        <div
+                          key={doc.id}
+                          className="group flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-accent/30 transition-all duration-200"
+                        >
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <FileType className="h-5 w-5 text-primary/80 flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {doc.name}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs text-muted-foreground">
+                                  {formatFileSize(doc.file_size)}
+                                </span>
+                                {doc.processing_status === 'completed' && (
+                                  <Badge variant="outline" className="text-xs border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+                                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                                    Analyzed
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedDocumentId(doc.id);
+                              }}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Brain className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedDocument(doc);
+                                setEditDocDialogOpen(true);
+                              }}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open(doc.file_url, '_blank')}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteDocument(doc.id)}
+                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    
+                    {documents.filter(doc => 
+                      doc.category_id && 
+                      documentCategories.find(cat => 
+                        (cat.dbId || cat.id) === doc.category_id && 
+                        cat.title.toLowerCase().includes('specification')
+                      )
+                    ).length === 0 && (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <FileType className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                        <p className="text-sm">No specifications uploaded yet</p>
+                        <p className="text-xs mt-1">Click Upload Specification to add project specifications</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
             {/* Smart Gallery Tab */}
             <TabsContent value="gallery">
               <div className="mb-4 flex items-center justify-between">
@@ -1027,7 +1146,7 @@ export const ProjectDocsPage = ({
         isOpen={documentChatOpen}
         onClose={() => setDocumentChatOpen(false)}
         currentPage="Project Docs"
-        currentTab={activeTab === 'docs' ? 'Project Docs' : activeTab === 'links' ? 'Project Links' : 'Gallery'}
+        currentTab={activeTab === 'docs' ? 'Project Docs' : activeTab === 'links' ? 'Project Links' : activeTab === 'specification' ? 'Specification' : 'Gallery'}
         projectId={projectId || undefined}
         projectName={project?.name}
       />
