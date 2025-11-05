@@ -28,8 +28,6 @@ serve(async (req) => {
 
 EXTRACTION GUIDELINES:
 - Read the ENTIRE page/image carefully - check product descriptions, specifications, technical details, and any listed features
-- Extract dimensions from any format (convert to mm if needed)
-- Look for finish/material in product name, description, or specifications
 - CRITICAL: For product_code field - look for SKU, Product Code, Model Number, Item Code, or Article Number
   * Check near the product title
   * Check in the product specifications section
@@ -43,6 +41,24 @@ EXTRACTION GUIDELINES:
   * If multiple prices are shown (e.g., sale price vs regular price), extract the current/sale price
   * Look for price in product metadata, JSON-LD data, or structured data
   * Common locations: near "Add to Cart" button, in product info section, price display area
+- CRITICAL: For DIMENSIONS - this is HIGH PRIORITY:
+  * FIRST: Check the product name/title - dimensions are often included directly in product names
+  * Common formats in product names:
+    - "125 x 6 x 22.23mm" (width x thickness x bore for discs/wheels)
+    - "1500mm x 120mm" or "1500 x 120" (length x width)
+    - "150 x 50 x 25mm" (width x height x depth)
+    - Single dimensions: "125mm", "1500mm diameter"
+  * THEN: Check specification sections, dimension tables, technical details (may be expandable/collapsible)
+  * Look for labels: "Dimensions:", "Size:", "Measurements:", "Diameter:", "Length:", "Width:", "Height:", "Depth:"
+  * For circular/disc products: diameter → width, thickness → height, bore → depth
+  * For rectangular products: map to width, height, depth/length appropriately
+  * Convert ALL dimensions to millimeters (mm): cm × 10, inches × 25.4
+  * Extract ONLY numeric values (e.g., "125" not "125mm")
+  * Examples:
+    - Product: "Makita 125 x 6 x 22.23mm Metal Grinding Disc" → width: "125", height: "6", depth: "22.23"
+    - Product: "1500mm x 120mm Timber Board" → width: "1500", height: "120"
+    - Spec: "Diameter: 5 inches" → width: "127" (5 × 25.4mm)
+- Look for finish/material in product name, description, or specifications
 - Default qty to "1" if not found
 - Be thorough - don't miss details that are present
 
@@ -84,7 +100,7 @@ IMPORTANT:
         content: [
           {
             type: "text",
-            text: "Extract all product details from this image. PRIORITY: Find the Product Code/SKU - look for any labels like 'SKU:', 'Code:', 'Model:', 'Item #:', etc. Also focus on product specifications, dimensions, materials, and brand information. Pay special attention to any dimension specifications shown."
+            text: "Extract all product details from this image. CRITICAL PRIORITIES: 1) Product Code/SKU - look for labels like 'SKU:', 'Code:', 'Model:', 'Item #:', etc. 2) DIMENSIONS - parse from product name first (e.g., '125 x 6 x 22.23mm'), then check specification areas. 3) PRICE - extract the main price. Focus on product specifications, dimensions, materials, and brand information."
           },
           {
             type: "image_url",
@@ -113,22 +129,32 @@ Analyze the ENTIRE page content including:
   * Extract ONLY the numeric value (e.g., if you see "$49.99", extract "49.99")
   * If there's a sale price and regular price, extract the current/active price
   * Check for price in structured data or JSON-LD metadata
+- CRITICAL PRIORITY: DIMENSIONS - HIGH PRIORITY:
+  * FIRST: Parse dimensions directly from the product name/title (most common for hardware, tools, building materials)
+  * Look for patterns like: "125 x 6 x 22.23mm", "1500 x 120", "150mm x 50mm x 25mm"
+  * THEN: Check "Dimensions:", "Specifications", "Technical Details", "Size:", "Measurements:" sections
+  * These sections may be expandable/collapsible - make sure to check them
+  * For circular products (discs, wheels): diameter → width, thickness → height, bore/arbor → depth
+  * For rectangular products: appropriately map to width, height, depth/length
+  * Convert all to mm (cm × 10, inches × 25.4), extract numeric values only
+  * Examples:
+    - "Makita 125 x 6 x 22.23mm Disc" → width: "125", height: "6", depth: "22.23"
+    - "1500mm x 120mm Board" → width: "1500", height: "120"
 - Product name and title
 - Full product description
 - Specifications and technical details (INCLUDING expandable/collapsible sections)
-- CRITICAL: Check "DIMENSIONS" section, specification tables, and any expandable areas for dimensions
 - Features and attributes
-- Dimensions (convert to mm if in other units like cm or inches)
 - Materials and finishes (often in product name or description)
 - Color options
 - Brand/manufacturer information
 
 IMPORTANT: 
+- DIMENSIONS are often in the product name itself - parse them first before checking specification sections
 - Many websites hide dimensions in expandable sections or specification areas. Make sure to check all sections thoroughly.
 - Product Code/SKU is HIGH PRIORITY - search the entire page for any product identifier.
 - PRICE is CRITICAL and MANDATORY - look everywhere for the product price. It's usually prominently displayed on e-commerce pages.
 
-Extract every detail you can find. Be thorough and comprehensive. PRICE is especially important - don't leave it as null if a price exists on the page.
+Extract every detail you can find. Be thorough and comprehensive. DIMENSIONS, PRICE, and PRODUCT CODE are especially important.
 
 Also include the URL in the response: ${url}`
       });
