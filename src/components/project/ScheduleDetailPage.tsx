@@ -103,8 +103,9 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   };
 
   const handleSaveProduct = () => {
-    // Saving is handled by SectionView component
-    setShowPreview(true); // This triggers the save in SectionView
+    // Trigger the save by setting showPreview to true
+    // The SectionView component watches for productDataToSave changes
+    triggerSave();
   };
 
   const handlePasteFromClipboard = async () => {
@@ -147,6 +148,11 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
     }
   };
 
+  const triggerSave = () => {
+    // This is a trigger that components will watch - we just toggle it
+    setShowPreview(true);
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-[1800px] mx-auto">
@@ -186,6 +192,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                   setExtractedData(null);
                   setProductUrl('');
                   setPastedImage(null);
+                  setCurrentSectionId(null);
                 }}
                 productDataToSave={showPreview && currentSectionId === section.id ? extractedData : null}
               />
@@ -328,7 +335,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                 </Button>
               ) : (
                 <Button onClick={handleSaveProduct}>
-                  Save Product
+                  Save
                 </Button>
               )}
             </DialogFooter>
