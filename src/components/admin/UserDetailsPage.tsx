@@ -218,7 +218,7 @@ export const UserDetailsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className={`${minHeightClasses} bg-gradient-to-br from-background via-background to-muted/20 ${spacingClasses}`}>
+      <div className={`h-screen overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20 ${spacingClasses}`}>
         <div className="container mx-auto p-6">
           <div className="animate-pulse space-y-6">
             <div className="flex items-center gap-4">
@@ -237,7 +237,7 @@ export const UserDetailsPage: React.FC = () => {
 
   if (!user) {
     return (
-      <div className={`${minHeightClasses} bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center ${spacingClasses}`}>
+      <div className={`h-screen overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center ${spacingClasses}`}>
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
             <AlertCircle className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
@@ -262,8 +262,8 @@ export const UserDetailsPage: React.FC = () => {
   }, {} as Record<string, UserPermission[]>);
 
   return (
-    <div className={`${minHeightClasses} bg-gradient-to-br from-background via-background to-muted/20 ${spacingClasses}`}>
-      <div className="container mx-auto p-6 space-y-8 max-w-6xl">
+    <div className={`h-screen overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20 ${spacingClasses}`}>
+      <div className="container mx-auto p-6 space-y-8 max-w-6xl pb-12">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
