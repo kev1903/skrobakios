@@ -266,13 +266,12 @@ const IssueEditPageWrapper = () => {
 // Wrapper to provide UserPermissions with company context
 const UserPermissionsProviderWrapper = ({ children }: { children: React.ReactNode }) => {
   const { currentCompany } = useCompany();
+  const { user } = useAuth();
   
-  if (!currentCompany?.id) {
-    return <>{children}</>;
-  }
-  
+  // ALWAYS provide the context to prevent fallback to granting all permissions
+  // If no company, still provide context but with no permissions
   return (
-    <UserPermissionsProvider companyId={currentCompany.id}>
+    <UserPermissionsProvider companyId={currentCompany?.id || ''} userId={user?.id}>
       {children}
     </UserPermissionsProvider>
   );

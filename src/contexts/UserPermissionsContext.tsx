@@ -84,21 +84,23 @@ export const UserPermissionsProvider: React.FC<UserPermissionsProviderProps> = (
   }, [companyId, userId]);
 
   const hasModuleAccess = (moduleId: string): boolean => {
+    // SECURITY: Deny access by default if no permissions are defined
     const modulePermissions = permissions.filter(p => p.module_id === moduleId);
     
     if (modulePermissions.length === 0) {
-      return true;
+      return false; // DENY access by default for security
     }
 
     return modulePermissions.some(p => p.access_level !== 'no_access');
   };
 
   const hasSubModuleAccess = (moduleId: string, subModuleId: string): 'no_access' | 'can_view' | 'can_edit' => {
+    // SECURITY: Deny access by default if no permission is defined
     const permission = permissions.find(
       p => p.module_id === moduleId && p.sub_module_id === subModuleId
     );
 
-    return permission?.access_level || 'can_view';
+    return permission?.access_level || 'no_access'; // DENY access by default
   };
 
   const canEditSubModule = (moduleId: string, subModuleId: string): boolean => {
@@ -131,18 +133,18 @@ export const UserPermissionsProvider: React.FC<UserPermissionsProviderProps> = (
 export const useUserPermissionsContext = () => {
   const context = useContext(UserPermissionsContext);
   
-  // If context is undefined (no provider), return a safe default that grants all access
-  // This allows components to work gracefully when permissions aren't loaded yet
+  // SECURITY: If context is undefined, DENY all access by default
+  // This prevents security breaches when the provider is missing
   if (context === undefined) {
-    console.warn('useUserPermissionsContext used outside UserPermissionsProvider - returning default permissions');
+    console.error('SECURITY WARNING: useUserPermissionsContext used outside UserPermissionsProvider - DENYING all access');
     return {
       permissions: [],
       loading: false,
-      error: null,
-      hasModuleAccess: () => true, // Grant access by default when no provider
-      hasSubModuleAccess: () => 'can_edit' as const, // Grant full access by default
-      canEditSubModule: () => true,
-      canViewSubModule: () => true,
+      error: 'Permission context not available',
+      hasModuleAccess: () => false, // DENY access by default for security
+      hasSubModuleAccess: () => 'no_access' as const, // DENY access by default
+      canEditSubModule: () => false,
+      canViewSubModule: () => false,
       refetch: async () => {}
     };
   }
