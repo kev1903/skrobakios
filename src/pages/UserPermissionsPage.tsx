@@ -269,6 +269,24 @@ export const UserPermissionsPage = () => {
             name: 'Settings',
             description: 'Project configuration and settings',
             accessLevel: getEffectiveAccessLevel('projects', 'settings', getAccessLevel(userData.role, ['owner', 'admin']))
+          },
+          {
+            id: 'create_project',
+            name: 'Create Project',
+            description: 'Create new projects',
+            accessLevel: getEffectiveAccessLevel('projects', 'create_project', getAccessLevel(userData.role, ['owner', 'admin']))
+          },
+          {
+            id: 'edit_project',
+            name: 'Edit Project',
+            description: 'Edit existing projects',
+            accessLevel: getEffectiveAccessLevel('projects', 'edit_project', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
+          },
+          {
+            id: 'delete_project',
+            name: 'Delete Project',
+            description: 'Delete projects',
+            accessLevel: getEffectiveAccessLevel('projects', 'delete_project', getAccessLevel(userData.role, ['owner', 'admin']))
           }
         ]
       },
