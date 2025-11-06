@@ -216,6 +216,12 @@ export const UserPermissionsPage = () => {
             accessLevel: getEffectiveAccessLevel('projects', 'qa_qc', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
           },
           {
+            id: 'docs',
+            name: 'Docs',
+            description: 'Document management and file storage',
+            accessLevel: getEffectiveAccessLevel('projects', 'docs', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
+          },
+          {
             id: 'task',
             name: 'Task',
             description: 'Task management and assignments',
@@ -244,33 +250,6 @@ export const UserPermissionsPage = () => {
             name: 'Settings',
             description: 'Project configuration and settings',
             accessLevel: getEffectiveAccessLevel('projects', 'settings', getAccessLevel(userData.role, ['owner', 'admin']))
-          }
-        ]
-      },
-      {
-        id: 'docs',
-        name: 'Docs',
-        description: 'Document management and file storage',
-        icon: 'FileText',
-        accessLevel: getEffectiveAccessLevel('docs', 'documents', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])),
-        subModules: [
-          {
-            id: 'documents',
-            name: 'Documents',
-            description: 'Project documents and files',
-            accessLevel: getEffectiveAccessLevel('docs', 'documents', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
-          },
-          {
-            id: 'drawings',
-            name: 'Drawings',
-            description: 'Technical drawings and plans',
-            accessLevel: getEffectiveAccessLevel('docs', 'drawings', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
-          },
-          {
-            id: 'specifications',
-            name: 'Specifications',
-            description: 'Project specifications and requirements',
-            accessLevel: getEffectiveAccessLevel('docs', 'specifications', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
           }
         ]
       },
