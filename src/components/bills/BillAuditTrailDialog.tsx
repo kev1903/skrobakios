@@ -38,6 +38,13 @@ export const BillAuditTrailDialog = ({ isOpen, onClose, billId, billNumber }: Bi
   const loadAuditTrail = async () => {
     setLoading(true);
     try {
+      // Fetch the bill to get creation info
+      const { data: bill } = await supabase
+        .from('bills')
+        .select('created_at, created_by')
+        .eq('id', billId)
+        .single();
+
       // Fetch audit logs for this bill
       const { data: logs, error } = await supabase
         .from('audit_logs')
@@ -48,9 +55,26 @@ export const BillAuditTrailDialog = ({ isOpen, onClose, billId, billNumber }: Bi
 
       if (error) throw error;
 
+      let allLogs = logs || [];
+
+      // If there's no "created" audit log but we have the bill's creation timestamp, add it
+      const hasCreatedLog = allLogs.some(log => log.action === 'created' || log.action === 'upload');
+      if (!hasCreatedLog && bill) {
+        const createdLog = {
+          id: 'bill-creation',
+          user_id: bill.created_by || '',
+          action: 'created',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: {},
+          created_at: bill.created_at
+        };
+        allLogs = [...allLogs, createdLog];
+      }
+
       // Fetch user information for each log
-      if (logs && logs.length > 0) {
-        const userIds = [...new Set(logs.map(log => log.user_id))];
+      if (allLogs.length > 0) {
+        const userIds = [...new Set(allLogs.map(log => log.user_id).filter(Boolean))];
         const { data: profiles } = await supabase
           .from('profiles')
           .select('id, email, first_name, last_name')
@@ -58,7 +82,7 @@ export const BillAuditTrailDialog = ({ isOpen, onClose, billId, billNumber }: Bi
 
         const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
 
-        const enrichedLogs = logs.map(log => {
+        const enrichedLogs = allLogs.map(log => {
           const profile = profileMap.get(log.user_id);
           const userName = profile?.first_name && profile?.last_name 
             ? `${profile.first_name} ${profile.last_name}`
@@ -71,6 +95,8 @@ export const BillAuditTrailDialog = ({ isOpen, onClose, billId, billNumber }: Bi
           };
         });
 
+        // Sort by created_at descending
+        enrichedLogs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         setAuditLogs(enrichedLogs);
       } else {
         setAuditLogs([]);
