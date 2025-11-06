@@ -30,8 +30,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
-import { Search, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, User, UserPlus, Plus, Settings } from 'lucide-react';
+import { Search, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, User, UserPlus, Plus, Settings, Info, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -51,6 +58,7 @@ interface CompanyMember {
   status: 'active' | 'invited' | 'inactive';
   joined_at: string;
   isSuperAdmin?: boolean;
+  moduleAccessCount?: number;
 }
 
 interface AvailableUser {
@@ -169,10 +177,36 @@ export const EnhancedCompanyUserManagement = ({
         }
       }
 
+      // Fetch module permissions count for each user
+      let moduleAccessMap = new Map<string, number>();
+      if (userIds.length > 0) {
+        const { data: permissions, error: permissionsError } = await supabase
+          .from('user_module_permissions')
+          .select('user_id, module_id')
+          .eq('company_id', companyId)
+          .in('user_id', userIds)
+          .neq('access_level', 'none');
+
+        if (!permissionsError && permissions) {
+          // Count unique modules per user
+          const countsMap = new Map<string, Set<string>>();
+          permissions.forEach((p: any) => {
+            if (!countsMap.has(p.user_id)) {
+              countsMap.set(p.user_id, new Set());
+            }
+            countsMap.get(p.user_id)?.add(p.module_id);
+          });
+          countsMap.forEach((modules, userId) => {
+            moduleAccessMap.set(userId, modules.size);
+          });
+        }
+      }
+
       // Merge members with profile data and role data
       const transformedMembers = (memberRows || []).map((member: any) => {
         const profile = profilesMap.get(member.user_id) || {};
         const userRoles = userRolesMap.get(member.user_id) || [];
+        const moduleCount = moduleAccessMap.get(member.user_id) || 0;
         
         // Fallback logic for missing profile data
         const firstName = profile.first_name || '';
@@ -191,6 +225,7 @@ export const EnhancedCompanyUserManagement = ({
           status: member.status,
           joined_at: member.joined_at,
           isSuperAdmin: userRoles.includes('superadmin'),
+          moduleAccessCount: moduleCount,
         } as CompanyMember & { isSuperAdmin: boolean };
       });
 
@@ -487,6 +522,14 @@ export const EnhancedCompanyUserManagement = ({
 
   return (
     <div className="space-y-6">
+      <Alert className="bg-muted/50 border-primary/20">
+        <Info className="h-4 w-4" />
+        <AlertDescription className="text-sm">
+          <strong>Two-Level Access System:</strong> Team membership controls <em>who</em> can access this business. 
+          Click on any member's name to configure <em>which modules</em> they can access (Projects, Finance, Sales, etc.).
+        </AlertDescription>
+      </Alert>
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -537,7 +580,8 @@ export const EnhancedCompanyUserManagement = ({
                 <TableRow>
                   <TableHead>Member</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
+                  <TableHead>Company Role</TableHead>
+                  <TableHead>Module Access</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead>Actions</TableHead>
@@ -546,13 +590,13 @@ export const EnhancedCompanyUserManagement = ({
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={7} className="text-center py-8">
                       Loading members...
                     </TableCell>
                   </TableRow>
                 ) : filteredMembers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={7} className="text-center py-8">
                       No members found.
                     </TableCell>
                   </TableRow>
@@ -568,22 +612,36 @@ export const EnhancedCompanyUserManagement = ({
                             </AvatarFallback>
                           </Avatar>
                            <div>
-                               <div 
-                                 className={`font-medium ${
-                                   currentUserRole === 'admin' || currentUserRole === 'owner' 
-                                     ? 'cursor-pointer hover:text-primary hover:underline' 
-                                     : ''
-                                 }`}
-                                 onClick={() => {
-                                   if (currentUserRole === 'admin' || currentUserRole === 'owner') {
-                                     handleMemberClick(member.user_id);
-                                   }
-                                 }}
-                               >
-                                {(member.first_name && member.last_name) ? 
-                                  `${member.first_name} ${member.last_name}` : 
-                                  member.email || 'Unknown User'}
-                              </div>
+                               <TooltipProvider>
+                                 <Tooltip>
+                                   <TooltipTrigger asChild>
+                                     <div 
+                                       className={`font-medium flex items-center gap-1 ${
+                                         currentUserRole === 'admin' || currentUserRole === 'owner' 
+                                           ? 'cursor-pointer hover:text-primary hover:underline' 
+                                           : ''
+                                       }`}
+                                       onClick={() => {
+                                         if (currentUserRole === 'admin' || currentUserRole === 'owner') {
+                                           handleMemberClick(member.user_id);
+                                         }
+                                       }}
+                                     >
+                                      {(member.first_name && member.last_name) ? 
+                                        `${member.first_name} ${member.last_name}` : 
+                                        member.email || 'Unknown User'}
+                                      {(currentUserRole === 'admin' || currentUserRole === 'owner') && (
+                                        <Lock className="h-3 w-3 text-muted-foreground" />
+                                      )}
+                                    </div>
+                                   </TooltipTrigger>
+                                   {(currentUserRole === 'admin' || currentUserRole === 'owner') && (
+                                     <TooltipContent>
+                                       <p className="text-xs">Click to manage module permissions</p>
+                                     </TooltipContent>
+                                   )}
+                                 </Tooltip>
+                               </TooltipProvider>
                               {member.phone && (
                                 <div className="text-sm text-muted-foreground">
                                   {member.phone}
@@ -593,7 +651,7 @@ export const EnhancedCompanyUserManagement = ({
                         </div>
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
-                        <TableCell className="align-middle">
+                      <TableCell className="align-middle">
                          {canChangeRoles && member.role !== 'owner' && member.role !== 'team_member' && member.role !== 'admin' ? (
                            <Select
                              value={getDropdownValue(member.role, member.isSuperAdmin)}
@@ -627,6 +685,39 @@ export const EnhancedCompanyUserManagement = ({
                               >{getDisplayRole(member.role, member.isSuperAdmin)}</Badge>
                            </div>
                          )}
+                       </TableCell>
+                       <TableCell>
+                         <TooltipProvider>
+                           <Tooltip>
+                             <TooltipTrigger asChild>
+                               <div className="flex items-center gap-2">
+                                 <Badge 
+                                   variant={member.moduleAccessCount === 0 ? "outline" : "secondary"}
+                                   className={member.moduleAccessCount === 0 ? "text-muted-foreground" : ""}
+                                 >
+                                   {member.moduleAccessCount || 0} modules
+                                 </Badge>
+                                 {(currentUserRole === 'admin' || currentUserRole === 'owner') && (
+                                   <Button 
+                                     variant="ghost" 
+                                     size="sm" 
+                                     className="h-6 px-2"
+                                     onClick={() => handleMemberClick(member.user_id)}
+                                   >
+                                     <Settings className="h-3 w-3" />
+                                   </Button>
+                                 )}
+                               </div>
+                             </TooltipTrigger>
+                             <TooltipContent>
+                               <p className="text-xs">
+                                 {member.moduleAccessCount === 0 
+                                   ? 'No module access configured' 
+                                   : `Has access to ${member.moduleAccessCount} module${member.moduleAccessCount === 1 ? '' : 's'}`}
+                               </p>
+                             </TooltipContent>
+                           </Tooltip>
+                         </TooltipProvider>
                        </TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(member.status)}>
