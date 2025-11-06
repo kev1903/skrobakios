@@ -171,7 +171,7 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
                 variant="ghost" 
                 size="sm" 
                 onClick={onClose}
-                className="ml-1 text-muted-foreground hover:text-foreground"
+                className="ml-4 text-muted-foreground hover:text-foreground"
               >
                 <X className="w-4 h-4" />
               </Button>
