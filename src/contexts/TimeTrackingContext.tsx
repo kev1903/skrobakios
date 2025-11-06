@@ -10,7 +10,7 @@ interface TimeTrackingContextValue {
   loadTimeEntries: (date?: string, endDate?: string) => Promise<void>;
   loadCategories: () => Promise<void>;
   addCategory: (categoryName: string) => Promise<void>;
-  startTimer: (taskActivity: string, category?: string, projectName?: string) => Promise<void>;
+  startTimer: (taskActivity: string, projectId?: string, category?: string) => Promise<void>;
   stopTimer: () => Promise<void>;
   pauseTimer: () => Promise<void>;
   resumeTimer: () => Promise<void>;

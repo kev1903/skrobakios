@@ -6346,7 +6346,7 @@ export type Database = {
       }
       time_entries: {
         Row: {
-          category: string
+          category: string | null
           company_id: string
           created_at: string
           duration: number | null
@@ -6363,7 +6363,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          category?: string
+          category?: string | null
           company_id: string
           created_at?: string
           duration?: number | null
@@ -6380,7 +6380,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          category?: string
+          category?: string | null
           company_id?: string
           created_at?: string
           duration?: number | null

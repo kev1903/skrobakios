@@ -39,8 +39,6 @@ export const MenuBar = () => {
     pauseTimer,
     resumeTimer,
     startTimer,
-    categories,
-    addCategory,
     settings,
     loading
   } = useTimeTracking();
@@ -91,9 +89,7 @@ const barRef = useRef<HTMLDivElement>(null);
   // Timer creation form state
   const [isFormExpanded, setIsFormExpanded] = useState(false);
   const [taskActivity, setTaskActivity] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedProject, setSelectedProject] = useState('');
-  const [categoryOpen, setCategoryOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
   const [projects, setProjects] = useState<Array<{
     id: string;
@@ -412,7 +408,7 @@ const barRef = useRef<HTMLDivElement>(null);
     }
     try {
       const projectName = selectedProject && selectedProject !== 'none' ? projects.find(p => p.id === selectedProject)?.name : undefined;
-      await startTimer(taskActivity, selectedCategory || undefined, projectName);
+      await startTimer(taskActivity, selectedProject && selectedProject !== 'none' ? selectedProject : undefined);
       toast({
         title: "Timer Started",
         description: `Started tracking "${taskActivity}"`
@@ -436,7 +432,6 @@ const barRef = useRef<HTMLDivElement>(null);
       });
       // Clear form after successful stop
       setTaskActivity('');
-      setSelectedCategory('');
       setSelectedProject('');
       setCurrentDuration(0);
     } catch (error) {
@@ -770,7 +765,7 @@ const barRef = useRef<HTMLDivElement>(null);
                 </Button>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {/* Task Description */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Task Description</label>
@@ -779,50 +774,6 @@ const barRef = useRef<HTMLDivElement>(null);
                   handleStartTimer();
                 }
               }} />
-                </div>
-
-                {/* Category */}
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Category</label>
-                  <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" role="combobox" aria-expanded={categoryOpen} className="mt-1 w-full h-8 justify-between text-left overflow-hidden">
-                        <span className="truncate flex-1 min-w-0 text-xs">
-                          {selectedCategory || "Select category..."}
-                        </span>
-                        <ChevronsUpDown className="ml-2 w-4 h-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0 bg-popover border border-border shadow-lg z-50">
-                      <Command>
-                        <CommandInput placeholder="Search or type new category..." value={selectedCategory} onValueChange={setSelectedCategory} />
-                        <CommandList>
-                          <CommandEmpty>
-                            <div className="p-2">
-                              <Button variant="ghost" className="w-full justify-start text-xs" onClick={async () => {
-                            if (selectedCategory && !categories.includes(selectedCategory)) {
-                              await addCategory(selectedCategory);
-                            }
-                            setCategoryOpen(false);
-                          }}>
-                                <Check className="mr-2 w-4 h-4" />
-                                Add "{selectedCategory}"
-                              </Button>
-                            </div>
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {categories.map(category => <CommandItem key={category} value={category} onSelect={currentValue => {
-                          setSelectedCategory(currentValue === selectedCategory ? "" : currentValue);
-                          setCategoryOpen(false);
-                        }}>
-                                <Check className={cn("mr-2 w-4 h-4", selectedCategory === category ? "opacity-100" : "opacity-0")} />
-                                {category}
-                              </CommandItem>)}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
                 </div>
 
                 {/* Project */}

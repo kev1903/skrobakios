@@ -302,7 +302,7 @@ export const useTimeTracking = () => {
     }
   };
 
-  const startTimer = async (taskActivity: string, category: string = 'Other', projectName?: string) => {
+  const startTimer = async (taskActivity: string, projectId?: string, category?: string) => {
     if (!currentCompany?.id) {
       toast({
         title: "Error",
@@ -327,7 +327,8 @@ export const useTimeTracking = () => {
         start_time: new Date().toISOString(),
         task_activity: taskActivity,
         category: category || null,
-        project_name: projectName || null,
+        project_id: projectId && projectId !== 'none' ? projectId : null,
+        project_name: null, // Will be populated by database if project_id is set
         status: 'running'
       };
 
