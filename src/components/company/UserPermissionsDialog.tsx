@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Building2, Shield, ArrowLeft } from 'lucide-react';
+import { Building2, Shield, ArrowLeft, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -41,6 +41,8 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
   const [businessModules, setBusinessModules] = useState<BusinessModule[]>([]);
   const [otherFeatures, setOtherFeatures] = useState<BusinessModule[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     console.log('Dialog effect - open:', open, 'userId:', userId, 'companyId:', companyId);
@@ -252,7 +254,7 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
     }
   };
 
-  const handlePermissionChange = async (moduleId: string, value: string) => {
+  const handlePermissionChange = (moduleId: string, value: string) => {
     // Update the local state for business modules
     setBusinessModules(modules => 
       modules.map(module => 
@@ -261,14 +263,10 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
           : module
       )
     );
-    
-    toast({
-      title: "Permission Updated",
-      description: `Access level updated for ${moduleId}`,
-    });
+    setHasUnsavedChanges(true);
   };
 
-  const handleFeaturePermissionChange = async (featureId: string, value: string) => {
+  const handleFeaturePermissionChange = (featureId: string, value: string) => {
     // Update the local state for other features
     setOtherFeatures(features => 
       features.map(feature => 
@@ -277,11 +275,55 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
           : feature
       )
     );
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSave = async () => {
+    if (!userId || !companyId) return;
     
-    toast({
-      title: "Permission Updated",
-      description: `Access level updated for ${featureId}`,
-    });
+    setSaving(true);
+    try {
+      // Save all business module permissions
+      for (const module of businessModules) {
+        const { error } = await supabase.rpc('handle_user_permission_upsert', {
+          p_user_id: userId,
+          p_company_id: companyId,
+          p_module_id: module.id,
+          p_sub_module_id: null,
+          p_access_level: module.access
+        });
+
+        if (error) throw error;
+      }
+
+      // Save all feature permissions
+      for (const feature of otherFeatures) {
+        const { error } = await supabase.rpc('handle_user_permission_upsert', {
+          p_user_id: userId,
+          p_company_id: companyId,
+          p_module_id: feature.id,
+          p_sub_module_id: null,
+          p_access_level: feature.access
+        });
+
+        if (error) throw error;
+      }
+
+      setHasUnsavedChanges(false);
+      toast({
+        title: "Permissions Saved",
+        description: "User permissions have been successfully updated.",
+      });
+    } catch (error) {
+      console.error('Error saving permissions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save permissions. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -447,10 +489,28 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
 
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4" />
-              <span>Click on each module to cycle through permission levels. Changes are saved automatically.</span>
+              <span>Click on each module to cycle through permission levels.</span>
             </div>
           </div>
         </div>
+
+        <DialogFooter className="px-6 py-4 border-t shrink-0">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={saving}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={!hasUnsavedChanges || saving}
+            className="gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {saving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
