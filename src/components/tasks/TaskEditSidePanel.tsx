@@ -179,7 +179,6 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId, updateTask
             : '!w-[800px] !max-w-[800px] sm:!w-[800px] sm:!max-w-[800px]'
         } overflow-y-auto bg-background border-l border-border p-0`}
         side={isMobile ? "bottom" : "right"}
-        hideCloseButton={true}
       >
         {/* Redesigned Header Section */}
         <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-20">

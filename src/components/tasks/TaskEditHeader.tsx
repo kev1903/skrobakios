@@ -153,16 +153,6 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
               <Save className="w-4 h-4 mr-1" />
               Save
             </Button>
-            {onClose && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={onClose}
-                className="ml-4 text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            )}
           </div>
         </div>
 
