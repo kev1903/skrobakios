@@ -329,7 +329,7 @@ export const CreateUserForBusinessDialog = ({
                   variant="outline"
                   role="combobox"
                   aria-expanded={openCombobox}
-                  className="w-full justify-between"
+                  className="w-full justify-between h-auto min-h-[40px]"
                 >
                   {selectedUser ? (
                     <div className="flex items-center gap-2">
@@ -339,16 +339,16 @@ export const CreateUserForBusinessDialog = ({
                           {selectedUser.first_name?.charAt(0)}{selectedUser.last_name?.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <span>{selectedUser.first_name} {selectedUser.last_name} ({selectedUser.email})</span>
+                      <span className="truncate">{selectedUser.first_name} {selectedUser.last_name} ({selectedUser.email})</span>
                     </div>
                   ) : (
-                    "Search by name or email..."
+                    <span className="text-muted-foreground">Search by name or email...</span>
                   )}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0" align="start">
-                <Command>
+              <PopoverContent className="w-[600px] p-0 pointer-events-auto" align="start" side="bottom">
+                <Command shouldFilter={false}>
                   <CommandInput 
                     placeholder="Type to search users..." 
                     value={searchValue}
@@ -364,7 +364,7 @@ export const CreateUserForBusinessDialog = ({
                       {filteredUsers.map((user) => (
                         <CommandItem
                           key={user.user_id}
-                          value={user.email}
+                          value={`${user.first_name} ${user.last_name} ${user.email}`}
                           onSelect={() => {
                             setSelectedUser(user);
                             setSearchValue('');
@@ -378,6 +378,7 @@ export const CreateUserForBusinessDialog = ({
                               password: ''
                             }));
                           }}
+                          className="cursor-pointer"
                         >
                           <Check
                             className={cn(
