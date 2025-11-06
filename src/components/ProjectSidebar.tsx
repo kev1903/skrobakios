@@ -36,7 +36,7 @@ const PROJECT_CONTROL = [{
 const CORE_MODULES = [{
   id: 'specification',
   key: 'specification',
-  label: 'Project Control',
+  label: 'Specification',
   icon: File,
   page: 'project-specification'
 }, {

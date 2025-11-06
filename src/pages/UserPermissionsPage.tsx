@@ -199,10 +199,10 @@ export const UserPermissionsPage = () => {
             accessLevel: getEffectiveAccessLevel('projects', 'dashboard', getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager']))
           },
           {
-            id: 'project_control',
-            name: 'Project Control',
-            description: 'Project planning and control systems',
-            accessLevel: getEffectiveAccessLevel('projects', 'project_control', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
+            id: 'bim',
+            name: 'BIM',
+            description: 'Building Information Modeling',
+            accessLevel: getEffectiveAccessLevel('projects', 'bim', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
           },
           {
             id: 'cost',
