@@ -202,7 +202,6 @@ const handleNavigateAndClose = (page: string) => {
                   <ModuleWrapper
                     key={item.id}
                     moduleId={item.moduleId}
-                    subModuleId={item.subModuleId}
                     companyId={currentCompany?.id || ''}
                     fallback={null} // Don't show anything if no access
                   >
