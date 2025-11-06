@@ -306,22 +306,33 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const handleUpload = () => fileInputRef.current?.click();
 
   const uploadToStorage = async (file: File) => {
+    console.log('🔍 Upload to storage - Company ID:', currentCompany?.id);
+    console.log('🔍 Upload to storage - Project ID:', project?.id);
+    
     if (!currentCompany?.id || !project?.id) {
-      throw new Error('Company or project not found');
+      const error = `Company or project not found. Company: ${currentCompany?.id}, Project: ${project?.id}`;
+      console.error('❌', error);
+      throw new Error(error);
     }
 
     const uploadToast = toast.loading("Uploading IFC file...");
     
     try {
       const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('User not authenticated');
+      if (!userData.user) {
+        console.error('❌ User not authenticated');
+        throw new Error('User not authenticated');
+      }
+      console.log('✅ User authenticated:', userData.user.id);
 
       // Create unique file path
       const timestamp = Date.now();
       const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
       const filePath = `${currentCompany.id}/${project.id}/${timestamp}-${sanitizedFileName}`;
+      console.log('📁 File path:', filePath);
 
       // Upload to storage
+      console.log('⬆️ Uploading to storage bucket: ifc-models');
       const { error: uploadError } = await supabase.storage
         .from('ifc-models')
         .upload(filePath, file, {
@@ -329,9 +340,14 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           upsert: false
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('❌ Storage upload error:', uploadError);
+        throw uploadError;
+      }
+      console.log('✅ File uploaded to storage');
 
       // Save metadata to database
+      console.log('💾 Saving metadata to database...');
       const { data: modelData, error: dbError } = await supabase
         .from('ifc_models')
         .insert({
@@ -350,7 +366,11 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         .select()
         .single();
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('❌ Database insert error:', dbError);
+        throw dbError;
+      }
+      console.log('✅ Metadata saved to database:', modelData);
 
       toast.dismiss(uploadToast);
       toast.success("IFC file uploaded successfully");
@@ -361,6 +381,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       return { filePath, modelData };
     } catch (error: any) {
       toast.dismiss(uploadToast);
+      console.error('❌ Upload failed:', error);
       toast.error(`Upload failed: ${error.message}`);
       throw error;
     }
@@ -431,17 +452,38 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     const file = event.target.files?.[0];
     if (!file || !viewer || !ifcLoader) return;
 
+    console.log('📁 File selected:', file.name, 'Size:', file.size);
+    console.log('🏢 Current Company:', currentCompany?.id);
+    console.log('📋 Project:', project?.id);
+
+    // Check if we have required data
+    if (!currentCompany?.id) {
+      toast.error('Company information not available. Please refresh the page.');
+      console.error('❌ Missing company ID');
+      return;
+    }
+
+    if (!project?.id) {
+      toast.error('Project information not available. Please refresh the page.');
+      console.error('❌ Missing project ID');
+      return;
+    }
+
     try {
+      console.log('⬆️ Starting upload to storage...');
       // Upload to storage and database
       const { filePath } = await uploadToStorage(file);
+      console.log('✅ Upload successful, file path:', filePath);
 
+      console.log('📥 Loading model from storage...');
       // Load the uploaded model
       await loadModelFromStorage(filePath, file.name);
       
       // Clear the file input
       event.target.value = '';
-    } catch (error) {
-      console.error('Error handling file upload:', error);
+    } catch (error: any) {
+      console.error('❌ Error handling file upload:', error);
+      toast.error(`Failed to save model: ${error.message || 'Unknown error'}`);
     }
   };
 
