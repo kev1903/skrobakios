@@ -323,13 +323,20 @@ export const CreateUserForBusinessDialog = ({
           {/* User Search Combobox */}
           <div className="space-y-2">
             <Label>Search Existing User</Label>
-            <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+            <Popover open={openCombobox} onOpenChange={(open) => {
+              console.log('🔍 Popover open state:', open);
+              setOpenCombobox(open);
+            }} modal={false}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   role="combobox"
                   aria-expanded={openCombobox}
                   className="w-full justify-between h-auto min-h-[40px]"
+                  onClick={() => {
+                    console.log('🖱️ Button clicked, available users:', availableUsers.length);
+                    setOpenCombobox(true);
+                  }}
                 >
                   {selectedUser ? (
                     <div className="flex items-center gap-2">
@@ -348,17 +355,19 @@ export const CreateUserForBusinessDialog = ({
                 </Button>
               </PopoverTrigger>
               <PopoverContent 
-                className="w-[600px] p-0 pointer-events-auto z-[100]" 
+                className="w-[600px] p-0 bg-background border shadow-lg z-[100]" 
                 align="start" 
                 side="bottom"
-                onOpenAutoFocus={(e) => e.preventDefault()}
+                sideOffset={4}
               >
-                <Command shouldFilter={false} className="pointer-events-auto">
+                <Command shouldFilter={false} className="bg-background">
                   <CommandInput 
                     placeholder="Type to search users..." 
                     value={searchValue}
-                    onValueChange={setSearchValue}
-                    className="pointer-events-auto"
+                    onValueChange={(value) => {
+                      console.log('✏️ Typing:', value);
+                      setSearchValue(value);
+                    }}
                     autoFocus
                   />
                   <CommandList className="max-h-[300px]">
@@ -373,6 +382,7 @@ export const CreateUserForBusinessDialog = ({
                           key={user.user_id}
                           value={`${user.first_name} ${user.last_name} ${user.email}`}
                           onSelect={() => {
+                            console.log('👤 User selected:', user.email);
                             setSelectedUser(user);
                             setSearchValue('');
                             setOpenCombobox(false);
