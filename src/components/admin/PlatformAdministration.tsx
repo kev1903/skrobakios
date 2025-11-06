@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Server, Building2, Shield, Activity, AlertTriangle, Users, Brain } from "lucide-react";
+import { Settings, Server, Building2, Shield, Activity, AlertTriangle, Brain } from "lucide-react";
 import { PlatformSettingsPanel } from './PlatformSettingsPanel';
 import { SkAiPanel } from './SkAiPanel';
 
 import { SystemMonitoringPanel } from './SystemMonitoringPanel';
 import { CompanyManagementPanel } from './CompanyManagementPanel';
 import { SecurityOverviewPanel } from './SecurityOverviewPanel';
-import { UserManagementPanel } from './UserManagementPanel';
 import { AuditLogsPanel } from './AuditLogsPanel';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -21,25 +20,6 @@ interface PlatformAdministrationProps {
 
 export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ onNavigate }) => {
   const { isSuperAdmin } = useUserRole();
-  const [userCount, setUserCount] = useState<number>(0);
-
-  useEffect(() => {
-    if (isSuperAdmin()) {
-      fetchUserCount();
-    }
-  }, [isSuperAdmin]);
-
-  const fetchUserCount = async () => {
-    try {
-      const { data, error } = await supabase.rpc('get_user_count');
-      
-      if (error) throw error;
-      setUserCount(data || 0);
-    } catch (error) {
-      console.error('Error fetching user count:', error);
-      setUserCount(0);
-    }
-  };
 
   if (!isSuperAdmin()) {
     return (
@@ -60,7 +40,7 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
       <Tabs defaultValue="settings" className="space-y-6">
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text-foreground whitespace-nowrap">Platform Administration</h1>
-          <TabsList className="flex-1 grid grid-cols-7 bg-card border border-border rounded-lg">
+          <TabsList className="flex-1 grid grid-cols-6 bg-card border border-border rounded-lg">
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Settings
@@ -72,15 +52,6 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
           <TabsTrigger value="companies" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             Businesses
-          </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Users
-            {userCount > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">
-                {userCount}
-              </Badge>
-            )}
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
@@ -108,10 +79,6 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
 
         <TabsContent value="companies" className="space-y-6">
           <CompanyManagementPanel />
-        </TabsContent>
-
-        <TabsContent value="users" className="space-y-6">
-          <UserManagementPanel />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">

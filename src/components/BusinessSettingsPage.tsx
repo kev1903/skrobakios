@@ -3,7 +3,7 @@ import { ArrowLeft, Building2, Settings, Users, Plug, CheckCircle, XCircle, Exte
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { EnhancedCompanyUserManagement } from '@/components/company/EnhancedCompanyUserManagement';
+import { UserManagementPanel } from '@/components/admin/UserManagementPanel';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from "@/integrations/supabase/client";
@@ -627,26 +627,9 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
         );
 
       case 'teams':
-        if (!currentCompany) {
-          return (
-            <Card className="backdrop-blur-sm bg-card/60 border-border/30">
-              <CardHeader>
-                <CardTitle>Teams</CardTitle>
-                <CardDescription>No company selected</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Please select a company to manage team members.</p>
-              </CardContent>
-            </Card>
-          );
-        }
-        
         return (
           <div className="space-y-6">
-            <EnhancedCompanyUserManagement
-              companyId={currentCompany.id}
-              companyName={currentCompany.name}
-            />
+            <UserManagementPanel />
           </div>
         );
 
