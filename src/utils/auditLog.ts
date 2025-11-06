@@ -26,13 +26,17 @@ export const logBillAudit = async (
       return;
     }
 
-    await supabase.from('audit_logs').insert({
+    const { error } = await supabase.from('audit_logs').insert({
       user_id: user.id,
       action,
       resource_type: 'bill',
       resource_id: billId,
       metadata: metadata || {},
     });
+
+    if (error) {
+      console.error('Error inserting audit log:', error);
+    }
   } catch (error) {
     console.error('Error logging audit trail:', error);
     // Don't throw - audit logging should not break the main operation

@@ -78,6 +78,8 @@ export const BillAuditTrailDialog = ({ isOpen, onClose, billId, billNumber }: Bi
       // Fetch user information for each log
       if (allLogs.length > 0) {
         const userIds = [...new Set(allLogs.map(log => log.user_id).filter(Boolean))];
+        
+        // Fetch profiles
         const { data: profiles } = await supabase
           .from('profiles')
           .select('id, email, first_name, last_name')
@@ -87,13 +89,24 @@ export const BillAuditTrailDialog = ({ isOpen, onClose, billId, billNumber }: Bi
 
         const enrichedLogs = allLogs.map(log => {
           const profile = profileMap.get(log.user_id);
-          const userName = profile?.first_name && profile?.last_name 
-            ? `${profile.first_name} ${profile.last_name}`
-            : profile?.first_name || profile?.last_name || 'Unknown User';
+          
+          let userName: string;
+          let userEmail: string;
+          
+          if (profile) {
+            userName = profile.first_name && profile.last_name 
+              ? `${profile.first_name} ${profile.last_name}`
+              : profile.first_name || profile.last_name || 'System User';
+            userEmail = profile.email || 'No email';
+          } else {
+            // If no profile, show user ID prefix (first 8 chars)
+            userName = `User (${log.user_id.substring(0, 8)})`;
+            userEmail = 'No profile';
+          }
           
           return {
             ...log,
-            user_email: profile?.email || 'Unknown',
+            user_email: userEmail,
             user_name: userName
           };
         });
