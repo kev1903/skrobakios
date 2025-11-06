@@ -248,8 +248,35 @@ export const UserPermissionsPage = () => {
         ]
       },
       {
+        id: 'docs',
+        name: 'Docs',
+        description: 'Document management and file storage',
+        icon: 'FileText',
+        accessLevel: getEffectiveAccessLevel('docs', 'documents', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])),
+        subModules: [
+          {
+            id: 'documents',
+            name: 'Documents',
+            description: 'Project documents and files',
+            accessLevel: getEffectiveAccessLevel('docs', 'documents', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
+          },
+          {
+            id: 'drawings',
+            name: 'Drawings',
+            description: 'Technical drawings and plans',
+            accessLevel: getEffectiveAccessLevel('docs', 'drawings', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
+          },
+          {
+            id: 'specifications',
+            name: 'Specifications',
+            description: 'Project specifications and requirements',
+            accessLevel: getEffectiveAccessLevel('docs', 'specifications', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
+          }
+        ]
+      },
+      {
         id: 'sales',
-        name: 'Sales',  
+        name: 'Sales',
         description: 'Lead management and customer relationship management',
         icon: 'TrendingUp',
         accessLevel: getEffectiveAccessLevel('sales', 'leads', getAccessLevel(userData.role, ['owner', 'admin', 'manager'])),
