@@ -548,8 +548,8 @@ export const UserPermissionsPage = () => {
   if (loading) {
     return (
       <PageShell>
-        <div className="min-h-screen bg-background p-6">
-          <div className="max-w-4xl mx-auto">
+        <div className="h-screen bg-background overflow-y-auto">
+          <div className="max-w-4xl mx-auto p-6">
             <div className="flex items-center gap-4 mb-6">
             <Button
               variant="outline"
@@ -581,8 +581,8 @@ export const UserPermissionsPage = () => {
   if (!userData && !loading) {
     return (
       <PageShell>
-        <div className="min-h-screen bg-background p-6">
-          <div className="max-w-4xl mx-auto">
+        <div className="h-screen bg-background overflow-y-auto">
+          <div className="max-w-4xl mx-auto p-6">
             <div className="flex items-center gap-4 mb-6">
             <Button
               variant="outline"
@@ -609,8 +609,8 @@ export const UserPermissionsPage = () => {
 
   return (
     <PageShell>
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-5xl mx-auto">
+      <div className="h-screen bg-background overflow-y-auto">
+        <div className="max-w-5xl mx-auto p-6">
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <Button
