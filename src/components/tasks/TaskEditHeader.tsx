@@ -111,19 +111,6 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
     <>
       {/* Streamlined Header */}
       <div className="p-4">
-        {/* Back to Tasks Button */}
-        {onBack && (
-          <Button
-            onClick={onBack}
-            variant="ghost"
-            size="sm"
-            className="flex items-center gap-2 mb-4 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Tasks
-          </Button>
-        )}
-        
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <Button
