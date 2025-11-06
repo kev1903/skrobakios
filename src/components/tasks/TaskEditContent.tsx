@@ -97,6 +97,16 @@ export const TaskEditContent = ({
                 <Save className="w-4 h-4 mr-2" />
                 Save Changes
               </Button>
+              {isDialog && onClose && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={onClose}
+                  className="ml-2"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
 
