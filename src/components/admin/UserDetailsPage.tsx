@@ -241,7 +241,7 @@ export const UserDetailsPage: React.FC = () => {
   if (loading) {
     return (
       <div className={`h-screen overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20 ${spacingClasses}`}>
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-6 pb-32">
           <div className="animate-pulse space-y-6">
             <div className="flex items-center gap-4">
               <div className="h-10 bg-muted rounded w-20"></div>
@@ -297,7 +297,7 @@ export const UserDetailsPage: React.FC = () => {
 
   return (
     <div className={`h-screen overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20 ${spacingClasses}`}>
-      <div className="container mx-auto p-6 space-y-8 max-w-6xl pb-12">
+      <div className="container mx-auto p-6 space-y-8 max-w-6xl pb-32">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
