@@ -33,6 +33,18 @@ import { toast } from 'sonner';
 
 interface AddStakeholderDialogProps {
   onStakeholderAdded: () => void;
+  editStakeholder?: {
+    id: string;
+    display_name: string;
+    category: 'client' | 'subcontractor' | 'supplier' | 'consultant';
+    trade_industry?: string;
+    primary_contact_name?: string;
+    primary_email?: string;
+    primary_phone?: string;
+    tags?: string[] | null;
+    notes?: string;
+  };
+  onClose?: () => void;
 }
 
 interface StakeholderFormData {
@@ -46,20 +58,45 @@ interface StakeholderFormData {
   notes?: string;
 }
 
-export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onStakeholderAdded }) => {
+export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ 
+  onStakeholderAdded,
+  editStakeholder,
+  onClose
+}) => {
   const { currentCompany } = useCompany();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!!editStakeholder);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
-  const [formData, setFormData] = useState<StakeholderFormData>({
-    display_name: '',
-    category: 'client',
-    primary_email: '',
-    primary_phone: '',
-    tags: [],
-    notes: ''
+  const [formData, setFormData] = useState<StakeholderFormData>(() => {
+    if (editStakeholder) {
+      return {
+        display_name: editStakeholder.display_name,
+        category: editStakeholder.category,
+        trade_industry: editStakeholder.trade_industry,
+        primary_contact_name: editStakeholder.primary_contact_name,
+        primary_email: editStakeholder.primary_email,
+        primary_phone: editStakeholder.primary_phone,
+        tags: editStakeholder.tags || [],
+        notes: editStakeholder.notes
+      };
+    }
+    return {
+      display_name: '',
+      category: 'client',
+      primary_email: '',
+      primary_phone: '',
+      tags: [],
+      notes: ''
+    };
   });
   const [newTag, setNewTag] = useState('');
+
+  // Handle edit mode dialog control
+  React.useEffect(() => {
+    if (editStakeholder) {
+      setOpen(true);
+    }
+  }, [editStakeholder]);
 
   const resetForm = () => {
     setFormData({
@@ -178,53 +215,84 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
 
       const finalTags = [...new Set([...autoTags, ...formData.tags])];
 
-      const { error } = await supabase
-        .from('stakeholders')
-        .insert({
-          company_id: currentCompany.id,
-          display_name: formData.display_name.trim(),
-          category: formData.category,
-          trade_industry: formData.trade_industry?.trim() || null,
-          primary_contact_name: formData.primary_contact_name?.trim() || null,
-          primary_email: formData.primary_email?.trim() || null,
-          primary_phone: formData.primary_phone?.trim() || null,
-          status: 'active',
-          compliance_status: 'valid',
-          tags: finalTags,
-          notes: formData.notes?.trim() || null
-        });
+      const stakeholderData = {
+        company_id: currentCompany.id,
+        display_name: formData.display_name.trim(),
+        category: formData.category,
+        trade_industry: formData.trade_industry?.trim() || null,
+        primary_contact_name: formData.primary_contact_name?.trim() || null,
+        primary_email: formData.primary_email?.trim() || null,
+        primary_phone: formData.primary_phone?.trim() || null,
+        status: 'active' as const,
+        compliance_status: 'valid' as const,
+        tags: finalTags,
+        notes: formData.notes?.trim() || null
+      };
 
-      if (error) {
-        console.error('Error adding stakeholder:', error);
-        toast.error('Failed to add stakeholder');
-        return;
+      if (editStakeholder) {
+        // Update existing stakeholder
+        const { error } = await supabase
+          .from('stakeholders')
+          .update(stakeholderData)
+          .eq('id', editStakeholder.id);
+
+        if (error) {
+          console.error('Error updating stakeholder:', error);
+          toast.error('Failed to update stakeholder');
+          return;
+        }
+
+        toast.success('Stakeholder updated successfully');
+      } else {
+        // Insert new stakeholder
+        const { error } = await supabase
+          .from('stakeholders')
+          .insert(stakeholderData);
+
+        if (error) {
+          console.error('Error adding stakeholder:', error);
+          toast.error('Failed to add stakeholder');
+          return;
+        }
+
+        toast.success('Stakeholder added successfully');
       }
 
-      toast.success('Stakeholder added successfully');
       resetForm();
       setOpen(false);
+      if (onClose) onClose();
       onStakeholderAdded();
     } catch (error) {
       console.error('Submit error:', error);
-      toast.error('Failed to add stakeholder');
+      toast.error(editStakeholder ? 'Failed to update stakeholder' : 'Failed to add stakeholder');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" className="gap-1.5">
-          <Plus className="h-4 w-4" />
-          Add Stakeholder
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      setOpen(newOpen);
+      if (!newOpen) {
+        resetForm();
+        if (onClose) onClose();
+      }
+    }}>
+      {!editStakeholder && (
+        <DialogTrigger asChild>
+          <Button size="sm" className="gap-1.5">
+            <Plus className="h-4 w-4" />
+            Add Stakeholder
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Stakeholder</DialogTitle>
+          <DialogTitle>{editStakeholder ? 'Edit Stakeholder' : 'Add New Stakeholder'}</DialogTitle>
           <DialogDescription>
-            Add a new stakeholder by filling out the form or uploading a contact card image.
+            {editStakeholder 
+              ? 'Update stakeholder information below.' 
+              : 'Add a new stakeholder by filling out the form or uploading a contact card image.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -342,12 +410,15 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => {
+                  setOpen(false);
+                  if (onClose) onClose();
+                }}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Add Stakeholder
+                  {editStakeholder ? 'Update Stakeholder' : 'Add Stakeholder'}
                 </Button>
               </DialogFooter>
             </form>
@@ -446,12 +517,15 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
                     </div>
 
                     <DialogFooter>
-                      <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                      <Button type="button" variant="outline" onClick={() => {
+                        setOpen(false);
+                        if (onClose) onClose();
+                      }}>
                         Cancel
                       </Button>
                       <Button type="submit" disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Add Stakeholder
+                        {editStakeholder ? 'Update Stakeholder' : 'Add Stakeholder'}
                       </Button>
                     </DialogFooter>
                   </form>

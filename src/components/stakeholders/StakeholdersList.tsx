@@ -36,7 +36,9 @@ import {
   Phone,
   FileText,
   Download,
-  Upload
+  Upload,
+  Edit,
+  Trash2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
@@ -85,6 +87,9 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
   const [selectedStakeholders, setSelectedStakeholders] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [editingStakeholder, setEditingStakeholder] = useState<Stakeholder | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [deletingStakeholderId, setDeletingStakeholderId] = useState<string | null>(null);
 
   useEffect(() => {
     if (currentCompany) {
@@ -405,6 +410,39 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
     }
   };
 
+  const handleEditStakeholder = (stakeholder: Stakeholder, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingStakeholder(stakeholder);
+    setShowEditDialog(true);
+  };
+
+  const handleDeleteStakeholder = async (stakeholderId: string, stakeholderName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!confirm(`Are you sure you want to delete "${stakeholderName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setDeletingStakeholderId(stakeholderId);
+    
+    try {
+      const { error } = await supabase
+        .from('stakeholders')
+        .delete()
+        .eq('id', stakeholderId);
+
+      if (error) throw error;
+
+      toast.success('Stakeholder deleted successfully');
+      fetchStakeholders();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Failed to delete stakeholder');
+    } finally {
+      setDeletingStakeholderId(null);
+    }
+  };
+
   const renderAvatar = (name: string, category: string) => {
     const IconComponent = CATEGORY_ICONS[category as keyof typeof CATEGORY_ICONS] || Building2;
     const initials = name
@@ -493,6 +531,20 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
             </div>
           )}
           <AddStakeholderDialog onStakeholderAdded={fetchStakeholders} />
+          {showEditDialog && editingStakeholder && (
+            <AddStakeholderDialog 
+              onStakeholderAdded={() => {
+                fetchStakeholders();
+                setShowEditDialog(false);
+                setEditingStakeholder(null);
+              }} 
+              editStakeholder={editingStakeholder}
+              onClose={() => {
+                setShowEditDialog(false);
+                setEditingStakeholder(null);
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -715,6 +767,19 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
                       <DropdownMenuItem onClick={() => onStakeholderSelect(stakeholder.id)}>
                         View Details
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => handleEditStakeholder(stakeholder, e as any)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={(e) => handleDeleteStakeholder(stakeholder.id, stakeholder.display_name, e as any)}
+                        className="text-destructive focus:text-destructive"
+                        disabled={deletingStakeholderId === stakeholder.id}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        {deletingStakeholderId === stakeholder.id ? 'Deleting...' : 'Delete'}
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -900,6 +965,19 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => onStakeholderSelect(stakeholder.id)}>
                             View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => handleEditStakeholder(stakeholder, e as any)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={(e) => handleDeleteStakeholder(stakeholder.id, stakeholder.display_name, e as any)}
+                            className="text-destructive focus:text-destructive"
+                            disabled={deletingStakeholderId === stakeholder.id}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            {deletingStakeholderId === stakeholder.id ? 'Deleting...' : 'Delete'}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
