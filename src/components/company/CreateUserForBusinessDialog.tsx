@@ -347,14 +347,21 @@ export const CreateUserForBusinessDialog = ({
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[600px] p-0 pointer-events-auto" align="start" side="bottom">
-                <Command shouldFilter={false}>
+              <PopoverContent 
+                className="w-[600px] p-0 pointer-events-auto z-[100]" 
+                align="start" 
+                side="bottom"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+              >
+                <Command shouldFilter={false} className="pointer-events-auto">
                   <CommandInput 
                     placeholder="Type to search users..." 
                     value={searchValue}
                     onValueChange={setSearchValue}
+                    className="pointer-events-auto"
+                    autoFocus
                   />
-                  <CommandList>
+                  <CommandList className="max-h-[300px]">
                     <CommandEmpty>
                       {availableUsers.length === 0 
                         ? "Loading users..." 
