@@ -60,16 +60,19 @@ export const BillAuditTrailDialog = ({ isOpen, onClose, billId, billNumber }: Bi
       // If there's no "created" audit log but we have the bill's creation timestamp, add it
       const hasCreatedLog = allLogs.some(log => log.action === 'created' || log.action === 'upload');
       if (!hasCreatedLog && bill) {
-        const createdLog = {
-          id: 'bill-creation',
-          user_id: bill.created_by || '',
-          action: 'created',
-          resource_type: 'bill',
-          resource_id: billId,
-          metadata: {},
-          created_at: bill.created_at
-        };
-        allLogs = [...allLogs, createdLog];
+        // Only add synthetic log if we have a valid user_id
+        if (bill.created_by) {
+          const createdLog = {
+            id: 'bill-creation',
+            user_id: bill.created_by,
+            action: 'created',
+            resource_type: 'bill',
+            resource_id: billId,
+            metadata: {},
+            created_at: bill.created_at
+          };
+          allLogs = [...allLogs, createdLog];
+        }
       }
 
       // Fetch user information for each log

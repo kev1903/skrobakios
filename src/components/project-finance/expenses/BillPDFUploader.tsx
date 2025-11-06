@@ -481,6 +481,13 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       // Get storage path from extractedData if available
       const storagePath = extractedData?.storage_path || null;
 
+      // Get current user for created_by field
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       // Generate public URL for the attachment
       let fileAttachments = null;
       if (storagePath) {
@@ -505,6 +512,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
         .insert({
           project_id: projectId,
           company_id: projectData.company_id,
+          created_by: user.id,
           supplier_name: editableData.supplier_name || 'Unknown Supplier',
           supplier_email: editableData.supplier_email || null,
           bill_no: editableData.bill_no || `BILL-${Date.now()}`,
@@ -528,21 +536,18 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
       if (!createErr && created) {
         // Log audit trail
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await supabase.from('audit_logs').insert({
-            user_id: user.id,
-            action: 'created',
-            resource_type: 'bill',
-            resource_id: created.id,
-            metadata: {
-              supplier_name: editableData.supplier_name || 'Unknown Supplier',
-              bill_no: editableData.bill_no || `BILL-${Date.now()}`,
-              total: editableData.total || 0,
-              status: 'draft'
-            }
-          });
-        }
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'created',
+          resource_type: 'bill',
+          resource_id: created.id,
+          metadata: {
+            supplier_name: editableData.supplier_name || 'Unknown Supplier',
+            bill_no: editableData.bill_no || `BILL-${Date.now()}`,
+            total: editableData.total || 0,
+            status: 'draft'
+          }
+        });
       }
 
       if (createErr) throw createErr;
