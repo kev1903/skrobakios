@@ -36,6 +36,7 @@ interface CompanyBillPDFUploaderProps {
   isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
+  projectId?: string; // Optional: auto-link bill to project when provided
 }
 
 interface ExtractedBillData {
@@ -62,7 +63,7 @@ interface ExtractedBillData {
   }>;
 }
 
-export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBillPDFUploaderProps) => {
+export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved, projectId }: CompanyBillPDFUploaderProps) => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [originalPdfFile, setOriginalPdfFile] = useState<File | null>(null); // Keep original PDF separate
   const [uploading, setUploading] = useState(false);
@@ -507,7 +508,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         .insert({
           company_id: companyId,
           created_by: user.id,
-          project_id: editableData.project_id || null,
+          project_id: projectId || editableData.project_id || null, // Use prop projectId if provided
           wbs_activity_id: editableData.wbs_activity_id || null,
           supplier_name: editableData.supplier_name,
           supplier_email: editableData.supplier_email || null,

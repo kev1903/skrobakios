@@ -526,6 +526,7 @@ export const ProjectCostPage = ({
         isOpen={isPDFUploaderOpen}
         onClose={() => setIsPDFUploaderOpen(false)}
         onSaved={refreshData}
+        projectId={project.id}
       />
 
       {/* Invoice PDF Uploader */}
