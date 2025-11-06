@@ -766,16 +766,6 @@ const barRef = useRef<HTMLDivElement>(null);
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                {/* Task Description */}
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Task Description</label>
-                  <Input placeholder="What are you working on?" value={taskActivity} onChange={e => setTaskActivity(e.target.value)} className="mt-1 h-8" onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  handleStartTimer();
-                }
-              }} />
-                </div>
-
                 {/* Project */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Project</label>
@@ -790,6 +780,16 @@ const barRef = useRef<HTMLDivElement>(null);
                         </SelectItem>)}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Task Description */}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Task Description</label>
+                  <Input placeholder="What are you working on?" value={taskActivity} onChange={e => setTaskActivity(e.target.value)} className="mt-1 h-8" onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleStartTimer();
+                }
+              }} />
                 </div>
               </div>
 
