@@ -77,6 +77,21 @@ export const AwaitingPaymentsTable: React.FC<AwaitingPaymentsTableProps> = ({
         .eq('id', billId);
 
       if (error) throw error;
+
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'status_changed',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { 
+            old_status: 'approved',
+            new_status: 'paid'
+          }
+        });
+      }
       
       // Refresh the bills list
       fetchApprovedBills();

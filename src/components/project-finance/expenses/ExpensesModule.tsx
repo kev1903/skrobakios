@@ -164,6 +164,18 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         payload: { approved_by: 'current_user', status: 'awaiting_payment' }
       });
 
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'approved',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { new_status: 'scheduled' }
+        });
+      }
+
       toast({
         title: "Success",
         description: "Invoice approved and moved to Awaiting Payment"
@@ -192,6 +204,18 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         .eq('id', billId);
 
       if (error) throw error;
+
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'status_changed',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { new_status: 'approved' }
+        });
+      }
 
       toast({
         title: "Success",
@@ -226,6 +250,21 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
 
       if (error) throw error;
 
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'payment',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { 
+            new_status: 'paid',
+            paid_amount: bill.total
+          }
+        });
+      }
+
       toast({
         title: "Success",
         description: "Bill marked as paid"
@@ -259,6 +298,18 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
 
       if (error) throw error;
 
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'status_changed',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { new_status: 'voided' }
+        });
+      }
+
       toast({
         title: "Success",
         description: "Bill has been voided"
@@ -287,6 +338,21 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         .eq('id', billId);
 
       if (error) throw error;
+
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'status_changed',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { 
+            new_status: 'approved',
+            reimbursement_requested: true 
+          }
+        });
+      }
 
       toast({
         title: "Success",
@@ -317,6 +383,18 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
 
       if (error) throw error;
 
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'status_changed',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { new_status: 'draft' }
+        });
+      }
+
       toast({
         title: "Success",
         description: "Bill marked as draft"
@@ -345,6 +423,21 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         .eq('id', billId);
 
       if (error) throw error;
+
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'status_changed',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { 
+            new_status: 'draft',
+            change_requested: true 
+          }
+        });
+      }
 
       toast({
         title: "Success",
@@ -462,6 +555,18 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     }
 
     try {
+      // Log audit trail before deletion
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'deleted',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: {}
+        });
+      }
+
       // Delete the bill from the database
       const { error } = await supabase
         .from('bills')
@@ -496,6 +601,21 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
 
       if (error) throw error;
 
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'updated',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { 
+            new_stakeholder: toPay,
+            field: 'to_pay'
+          }
+        });
+      }
+
       toast({
         title: "Success",
         description: "Payment responsibility updated"
@@ -520,6 +640,21 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         .eq('id', billId);
 
       if (error) throw error;
+
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'updated',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { 
+            new_activity: activityId,
+            field: 'wbs_activity_id'
+          }
+        });
+      }
 
       toast({
         title: "Success",

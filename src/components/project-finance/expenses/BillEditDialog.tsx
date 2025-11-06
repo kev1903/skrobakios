@@ -80,6 +80,22 @@ export const BillEditDialog = ({ isOpen, onClose, bill, onSaved }: BillEditDialo
 
       if (error) throw error;
 
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'updated',
+          resource_type: 'bill',
+          resource_id: bill.id,
+          metadata: {
+            supplier_name: editableData.supplier_name,
+            bill_no: editableData.bill_no,
+            total: editableData.total
+          }
+        });
+      }
+
       toast({
         title: "Success",
         description: "Invoice has been updated successfully!"

@@ -526,6 +526,25 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
         .select('id')
         .single();
 
+      if (!createErr && created) {
+        // Log audit trail
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('audit_logs').insert({
+            user_id: user.id,
+            action: 'created',
+            resource_type: 'bill',
+            resource_id: created.id,
+            metadata: {
+              supplier_name: editableData.supplier_name || 'Unknown Supplier',
+              bill_no: editableData.bill_no || `BILL-${Date.now()}`,
+              total: editableData.total || 0,
+              status: 'draft'
+            }
+          });
+        }
+      }
+
       if (createErr) throw createErr;
 
       // Insert bill line items

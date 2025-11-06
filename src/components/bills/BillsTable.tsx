@@ -158,6 +158,18 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
         return;
       }
 
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'updated',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { to_pay: toPay }
+        });
+      }
+
       console.log(`Bill ${billId} payer saved to database: ${toPay}`);
       toast({
         title: "Payer Updated",
@@ -176,6 +188,18 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
 
   const handleDeleteBill = async (billId: string) => {
     try {
+      // Log audit trail before deletion
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'deleted',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: {}
+        });
+      }
+
       // Delete from database
       const { error } = await supabase
         .from('bills')
@@ -222,6 +246,8 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
 
     // Save to database
     try {
+      const oldBill = bills.find(b => b.id === billId);
+      
       const { error } = await supabase
         .from('bills')
         .update({ status })
@@ -237,6 +263,21 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
         // Revert local state on error
         fetchBills();
         return;
+      }
+
+      // Log audit trail
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'status_changed',
+          resource_type: 'bill',
+          resource_id: billId,
+          metadata: { 
+            old_status: oldBill?.status,
+            new_status: status 
+          }
+        });
       }
 
       console.log(`Bill ${billId} status updated to: ${status}`);

@@ -529,6 +529,22 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
         .select()
         .single();
 
+      if (!billError && billData) {
+        // Log audit trail
+        await supabase.from('audit_logs').insert({
+          user_id: user.id,
+          action: 'created',
+          resource_type: 'bill',
+          resource_id: billData.id,
+          metadata: {
+            supplier_name: editableData.supplier_name,
+            bill_no: editableData.bill_no,
+            total: editableData.total,
+            status: 'draft'
+          }
+        });
+      }
+
       if (billError) throw billError;
 
       // Insert line items if any
