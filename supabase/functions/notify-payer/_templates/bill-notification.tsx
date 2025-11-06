@@ -70,7 +70,11 @@ export const BillNotificationEmail = ({
               Summary of Invoices:
             </Heading>
             {bills.map((bill, index) => {
-              const markAsPaidUrl = `${SUPABASE_URL}/functions/v1/mark-bill-paid?billId=${bill.id}&token=${bill.token}`;
+              // Construct the mark-as-paid URL with billId and verification token
+              const markAsPaidUrl = bill.token 
+                ? `${SUPABASE_URL}/functions/v1/mark-bill-paid?billId=${bill.id}&token=${bill.token}`
+                : '#';
+              
               // Storage path is relative to bucket, so we need to add "bills/" prefix
               const downloadUrl = bill.storage_path 
                 ? `${SUPABASE_URL}/storage/v1/object/public/bills/${bill.storage_path}`
@@ -97,9 +101,11 @@ export const BillNotificationEmail = ({
                             📥 Download Bill
                           </Button>
                         )}
-                        <Button href={markAsPaidUrl} style={markAsPaidButton}>
-                          ✓ Mark as Paid
-                        </Button>
+                        {bill.token && (
+                          <Button href={markAsPaidUrl} style={markAsPaidButton}>
+                            ✓ Mark as Paid
+                          </Button>
+                        )}
                       </div>
                     </Column>
                   </Row>
