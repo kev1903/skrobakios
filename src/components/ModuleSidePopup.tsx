@@ -59,7 +59,34 @@ export const ModuleSidePopup = ({ isOpen, onClose, moduleData, onNavigate }: Mod
           query = supabase.from('leads').select('*').eq('company_id', currentCompany.id);
           break;
         case 'projects':
-          query = supabase.from('projects').select('*').eq('company_id', currentCompany.id);
+          // SECURITY: Only show projects where user is a member
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            throw new Error('User not authenticated');
+          }
+          
+          // Get project IDs where user is a member
+          const { data: memberProjects, error: memberError } = await supabase
+            .from('project_members')
+            .select('project_id')
+            .eq('user_id', user.id)
+            .eq('status', 'active');
+          
+          if (memberError) throw memberError;
+          
+          const projectIds = memberProjects?.map(m => m.project_id) || [];
+          
+          if (projectIds.length === 0) {
+            setItems([]);
+            setLoading(false);
+            return;
+          }
+          
+          query = supabase
+            .from('projects')
+            .select('*')
+            .eq('company_id', currentCompany.id)
+            .in('id', projectIds);
           break;
         case 'project_costs':
           query = supabase.from('project_costs').select('*').eq('company_id', currentCompany.id);

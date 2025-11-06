@@ -175,11 +175,31 @@ export const useProjects = () => {
         return [];
       }
 
-      // Fetch projects with explicit company filtering for security
+      // SECURITY: First, get project IDs where user is a member
+      const { data: memberProjects, error: memberError } = await supabase
+        .from('project_members')
+        .select('project_id')
+        .eq('user_id', user.user.id)
+        .eq('status', 'active');
+
+      if (memberError) throw memberError;
+
+      const projectIds = memberProjects?.map(m => m.project_id) || [];
+      
+      console.log("📋 User is member of projects:", projectIds);
+
+      // If user is not a member of any projects, return empty array
+      if (projectIds.length === 0) {
+        console.log("🚫 User is not a member of any projects");
+        return [];
+      }
+
+      // Fetch only projects where user is a member AND belongs to current company
       const { data, error } = await supabase
         .from('projects')
         .select('*')
         .eq('company_id', currentCompany.id)
+        .in('id', projectIds)
         .order('created_at', { ascending: false })
         .abortSignal(abortControllerRef.current.signal);
 
