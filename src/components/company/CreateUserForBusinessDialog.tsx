@@ -284,12 +284,20 @@ export const CreateUserForBusinessDialog = ({
 
   const filteredUsers = availableUsers.filter(user => {
     const search = searchValue.toLowerCase();
-    return (
+    const matches = (
       user.email.toLowerCase().includes(search) ||
       user.first_name.toLowerCase().includes(search) ||
       user.last_name.toLowerCase().includes(search)
     );
+    return matches;
   });
+
+  console.log('🔍 Search value:', searchValue);
+  console.log('📊 Available users:', availableUsers.length);
+  console.log('✅ Filtered users:', filteredUsers.length);
+  if (searchValue.length > 0) {
+    console.log('🎯 Filtered results:', filteredUsers.map(u => u.email));
+  }
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
