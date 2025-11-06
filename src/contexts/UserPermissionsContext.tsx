@@ -106,20 +106,6 @@ export const UserPermissionsProvider: React.FC<UserPermissionsProviderProps> = (
     // SECURITY: Deny access by default if no permissions are defined
     const modulePermissions = permissions.filter(p => p.module_id === moduleId);
     
-    // Debug logging for projects
-    if (moduleId === 'projects') {
-      console.log("🔍 hasModuleAccess - Projects Check:", {
-        moduleId,
-        totalPermissions: permissions.length,
-        modulePermissionsCount: modulePermissions.length,
-        modulePermissions: modulePermissions.map(p => ({ 
-          sub_module_id: p.sub_module_id, 
-          access_level: p.access_level 
-        })),
-        hasAnyAccess: modulePermissions.some(p => p.access_level !== 'no_access')
-      });
-    }
-    
     if (modulePermissions.length === 0) {
       return false; // DENY access by default for security
     }
