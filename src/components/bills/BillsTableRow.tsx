@@ -15,10 +15,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, MoreHorizontal, Trash2, ChevronDown, StickyNote } from "lucide-react";
+import { AlertTriangle, MoreHorizontal, Trash2, ChevronDown, StickyNote, History } from "lucide-react";
 import { StakeholderCombobox } from "./StakeholderCombobox";
 import { Badge } from "@/components/ui/badge";
 import { BillNotesDialog } from "./BillNotesDialog";
+import { BillAuditTrailDialog } from "./BillAuditTrailDialog";
 import { useState } from "react";
 
 interface Bill {
@@ -54,6 +55,7 @@ const cashInAccounts = [
 
 export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange, onToPayChange, onDelete, onStatusChange }: BillsTableRowProps) => {
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+  const [auditTrailOpen, setAuditTrailOpen] = useState(false);
   
   const getStatusLabel = (status: string | undefined) => {
     switch (status) {
@@ -188,6 +190,13 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
           billId={bill.id}
           billNumber={bill.billNumber}
         />
+        
+        <BillAuditTrailDialog
+          isOpen={auditTrailOpen}
+          onClose={() => setAuditTrailOpen(false)}
+          billId={bill.id}
+          billNumber={bill.billNumber}
+        />
       </TableCell>
       <TableCell className="py-1.5">
         <DropdownMenu>
@@ -197,6 +206,10 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setAuditTrailOpen(true)}>
+              <History className="w-4 h-4 mr-2" />
+              Audit Trail
+            </DropdownMenuItem>
             <DropdownMenuItem 
               className="text-destructive focus:text-destructive"
               onClick={() => onDelete(bill.id)}

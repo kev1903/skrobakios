@@ -12,11 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, MoreVertical, Trash2, ChevronDown, StickyNote } from "lucide-react";
+import { AlertTriangle, MoreVertical, Trash2, ChevronDown, StickyNote, History } from "lucide-react";
 import { StakeholderCombobox } from "./StakeholderCombobox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BillNotesDialog } from "./BillNotesDialog";
+import { BillAuditTrailDialog } from "./BillAuditTrailDialog";
 import { useState } from "react";
 
 interface Bill {
@@ -60,6 +61,7 @@ export const BillsMobileCard = ({
   onStatusChange
 }: BillsMobileCardProps) => {
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+  const [auditTrailOpen, setAuditTrailOpen] = useState(false);
   
   const getStatusLabel = (status: string | undefined) => {
     switch (status) {
@@ -122,6 +124,10 @@ export const BillsMobileCard = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setAuditTrailOpen(true)}>
+              <History className="w-4 h-4 mr-2" />
+              Audit Trail
+            </DropdownMenuItem>
             <DropdownMenuItem 
               className="text-destructive focus:text-destructive"
               onClick={() => onDelete(bill.id)}
@@ -234,6 +240,13 @@ export const BillsMobileCard = ({
       <BillNotesDialog
         isOpen={notesDialogOpen}
         onClose={() => setNotesDialogOpen(false)}
+        billId={bill.id}
+        billNumber={bill.billNumber}
+      />
+      
+      <BillAuditTrailDialog
+        isOpen={auditTrailOpen}
+        onClose={() => setAuditTrailOpen(false)}
         billId={bill.id}
         billNumber={bill.billNumber}
       />
