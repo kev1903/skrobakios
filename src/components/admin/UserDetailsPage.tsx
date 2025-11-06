@@ -254,10 +254,23 @@ export const UserDetailsPage: React.FC = () => {
   }
 
   const groupedPermissions = userPermissions.reduce((acc, permission) => {
-    if (!acc[permission.category]) {
-      acc[permission.category] = [];
+    // Only include Business Modules and Settings
+    const allowedKeys = [
+      'business_map', 'projects', 'sales', 'finance', 'stakeholders', 'settings',
+      'dashboard', 'manage_company_settings' // Include for backwards compatibility
+    ];
+    
+    if (allowedKeys.includes(permission.permission_key)) {
+      // Group under "BUSINESS MODULES" or "ADDITIONAL FEATURES"
+      const category = permission.permission_key === 'settings' || permission.permission_key === 'manage_company_settings'
+        ? 'ADDITIONAL FEATURES'
+        : 'BUSINESS MODULES';
+      
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(permission);
     }
-    acc[permission.category].push(permission);
     return acc;
   }, {} as Record<string, UserPermission[]>);
 
@@ -391,9 +404,11 @@ export const UserDetailsPage: React.FC = () => {
           <CardContent className="space-y-5">
             {Object.entries(groupedPermissions).map(([category, permissions]) => (
               <div key={category} className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-base text-foreground">{category}</h3>
-                  <div className="h-px flex-1 bg-border"></div>
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    {category}
+                  </div>
+                  <div className="h-px bg-border"></div>
                 </div>
                 
                  <div className="grid gap-2">
