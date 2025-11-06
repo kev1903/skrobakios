@@ -286,15 +286,19 @@ export const CreateUserForBusinessDialog = ({
   };
 
   const handleEmailSearch = (email: string) => {
-    if (!email.trim()) {
+    if (!email.trim() || email.trim().length < 2) {
       setMatchingUsers([]);
       setEmailSearched(false);
       setSelectedUser('');
       return;
     }
 
+    // Search for partial matches in email, first name, or last name
+    const searchTerm = email.toLowerCase().trim();
     const matches = availableUsers.filter(user => 
-      user.email.toLowerCase() === email.toLowerCase().trim()
+      user.email.toLowerCase().includes(searchTerm) ||
+      user.first_name?.toLowerCase().includes(searchTerm) ||
+      user.last_name?.toLowerCase().includes(searchTerm)
     );
     
     setMatchingUsers(matches);
