@@ -216,10 +216,28 @@ export const UserPermissionsPage = () => {
             accessLevel: getEffectiveAccessLevel('projects', 'qa_qc', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
           },
           {
-            id: 'docs',
-            name: 'Docs',
-            description: 'Document management and file storage',
-            accessLevel: getEffectiveAccessLevel('projects', 'docs', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
+            id: 'project_docs',
+            name: 'Project Docs',
+            description: 'Project documents and files',
+            accessLevel: getEffectiveAccessLevel('projects', 'project_docs', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
+          },
+          {
+            id: 'project_links',
+            name: 'Project Links',
+            description: 'External links and references',
+            accessLevel: getEffectiveAccessLevel('projects', 'project_links', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
+          },
+          {
+            id: 'specification',
+            name: 'Specification',
+            description: 'Project specifications and requirements',
+            accessLevel: getEffectiveAccessLevel('projects', 'specification', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
+          },
+          {
+            id: 'gallery',
+            name: 'Gallery',
+            description: 'Project images and media',
+            accessLevel: getEffectiveAccessLevel('projects', 'gallery', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
           },
           {
             id: 'task',
