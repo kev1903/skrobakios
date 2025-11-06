@@ -238,21 +238,29 @@ const handleNavigateAndClose = (page: string) => {
                 const Icon = item.icon;
                 const isActive = currentPage === item.id;
                 
-                // Settings should always be visible
+                // Settings - check permission before displaying
                 if (item.id === "settings") {
                   return (
-                    <button 
-                      key={item.id} 
-                      onMouseDown={(e) => { e.preventDefault(); handleNavigateAndClose(item.id); }} 
-                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left ${
-                        isActive 
-                          ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                          : "text-gray-700 hover:bg-gray-100"
-                      }`}
+                    <ModuleWrapper
+                      key={item.id}
+                      moduleId="settings"
+                      subModuleId="general"
+                      companyId={currentCompany?.id || ''}
+                      fallback={null} // Hide if no access
+                      showLoading={false}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
-                      {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-                    </button>
+                      <button 
+                        onMouseDown={(e) => { e.preventDefault(); handleNavigateAndClose(item.id); }} 
+                        className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left ${
+                          isActive 
+                            ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
+                            : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <Icon className={`w-4 h-4 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
+                        {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+                      </button>
+                    </ModuleWrapper>
                   );
                 }
                 
