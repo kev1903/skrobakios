@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useUserDetails } from '@/hooks/useUserDetails';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { Button } from '@/components/ui/button';
@@ -132,6 +132,7 @@ const getAccessBadgeVariant = (accessLevel: string) => {
 
 export const UserPermissionsPage = () => {
   const { userId, companyId } = useParams<{ userId: string; companyId: string }>();
+  const navigate = useNavigate();
   const { userData, loading: userLoading, error } = useUserDetails(userId || '', companyId || '');
   const { permissions, loading: permissionsLoading, hasSubModuleAccess, refetch: refetchPermissions } = useUserPermissions(companyId || '', userId || '');
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
@@ -505,10 +506,8 @@ export const UserPermissionsPage = () => {
             <div className="flex items-center gap-4 mb-6">
             <Button
               variant="outline"
-              size="icon"
-              onClick={() => {
-                window.location.href = '/?page=settings&section=teams';
-              }}
+              size="icon"  
+              onClick={() => navigate('/?page=settings&section=teams')}
               className="glass button-ghost"
             >
               <ArrowLeft className="w-4 h-4" />
