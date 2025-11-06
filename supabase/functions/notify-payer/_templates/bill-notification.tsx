@@ -70,11 +70,6 @@ export const BillNotificationEmail = ({
               Summary of Invoices:
             </Heading>
             {bills.map((bill, index) => {
-              // Construct the mark-as-paid URL with billId and verification token
-              const markAsPaidUrl = bill.token 
-                ? `${SUPABASE_URL}/functions/v1/mark-bill-paid?billId=${bill.id}&token=${bill.token}`
-                : '#';
-              
               // Storage path is relative to bucket, so we need to add "bills/" prefix
               const downloadUrl = bill.storage_path 
                 ? `${SUPABASE_URL}/storage/v1/object/public/bills/${bill.storage_path}`
@@ -99,11 +94,6 @@ export const BillNotificationEmail = ({
                         {downloadUrl && (
                           <Button href={downloadUrl} style={downloadButton}>
                             📥 Download Bill
-                          </Button>
-                        )}
-                        {bill.token && (
-                          <Button href={markAsPaidUrl} style={markAsPaidButton}>
-                            ✓ Mark as Paid
                           </Button>
                         )}
                       </div>
@@ -279,23 +269,5 @@ const downloadButton = {
   flex: '1',
   minWidth: '140px',
   boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
-  letterSpacing: '0.2px',
-};
-
-const markAsPaidButton = {
-  backgroundColor: 'rgba(33, 123, 244, 0.95)',
-  color: '#ffffff',
-  fontSize: '12px',
-  fontWeight: '600' as const,
-  borderRadius: '8px',
-  padding: '10px 18px',
-  textDecoration: 'none',
-  display: 'inline-block',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-  cursor: 'pointer',
-  textAlign: 'center' as const,
-  flex: '1',
-  minWidth: '140px',
-  boxShadow: '0 2px 8px rgba(33, 123, 244, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
   letterSpacing: '0.2px',
 };
