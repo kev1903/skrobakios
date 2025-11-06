@@ -319,7 +319,7 @@ export const UserPermissionsPage = () => {
     ];
   }, [userData, permissions, permissionChanges, hasSubModuleAccess]);
 
-  // Other features that don't fit into main business modules
+  // Settings feature
   const otherFeatures = useMemo(() => {
     if (!userData) return [];
     
@@ -338,122 +338,17 @@ export const UserPermissionsPage = () => {
 
     return [
       {
-        id: 'notifications',
-        name: 'Notifications',
-        description: 'Email and push notification settings',
-        icon: 'MessageCircle',
-        accessLevel: getEffectiveAccessLevel('other_features', 'notifications', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])),
-        subModules: [
-          {
-            id: 'notifications',
-            name: 'Notifications',
-            description: 'Email and push notification settings',
-            accessLevel: getEffectiveAccessLevel('other_features', 'notifications', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
-          }
-        ]
-      },
-      {
-        id: 'integrations',
-        name: 'Integrations',
-        description: 'Third-party app connections and APIs',
+        id: 'settings',
+        name: 'Settings',
+        description: 'Application configuration and preferences',
         icon: 'Settings',
-        accessLevel: getEffectiveAccessLevel('other_features', 'integrations', getAccessLevel(userData.role, ['owner', 'admin'])),
+        accessLevel: getEffectiveAccessLevel('settings', 'general', getAccessLevel(userData.role, ['owner', 'admin'])),
         subModules: [
           {
-            id: 'integrations',
-            name: 'Integrations',
-            description: 'Third-party app connections and APIs',
-            accessLevel: getEffectiveAccessLevel('other_features', 'integrations', getAccessLevel(userData.role, ['owner', 'admin']))
-          }
-        ]
-      },
-      {
-        id: 'backup_restore',
-        name: 'Backup & Restore',
-        description: 'Data backup and restoration tools',
-        icon: 'Archive',
-        accessLevel: getEffectiveAccessLevel('other_features', 'backup_restore', getAccessLevel(userData.role, ['owner', 'admin'])),
-        subModules: [
-          {
-            id: 'backup_restore',
-            name: 'Backup & Restore',
-            description: 'Data backup and restoration tools',
-            accessLevel: getEffectiveAccessLevel('other_features', 'backup_restore', getAccessLevel(userData.role, ['owner', 'admin']))
-          }
-        ]
-      },
-      {
-        id: 'audit_logs',
-        name: 'Audit Logs',
-        description: 'System activity and security logs',
-        icon: 'FileCheck',
-        accessLevel: getEffectiveAccessLevel('other_features', 'audit_logs', getAccessLevel(userData.role, ['owner', 'admin'])),
-        subModules: [
-          {
-            id: 'audit_logs',
-            name: 'Audit Logs',
-            description: 'System activity and security logs',
-            accessLevel: getEffectiveAccessLevel('other_features', 'audit_logs', getAccessLevel(userData.role, ['owner', 'admin']))
-          }
-        ]
-      },
-      {
-        id: 'custom_fields',
-        name: 'Custom Fields',
-        description: 'Create and manage custom data fields',
-        icon: 'Settings',
-        accessLevel: getEffectiveAccessLevel('other_features', 'custom_fields', getAccessLevel(userData.role, ['owner', 'admin', 'manager'])),
-        subModules: [
-          {
-            id: 'custom_fields',
-            name: 'Custom Fields',
-            description: 'Create and manage custom data fields',
-            accessLevel: getEffectiveAccessLevel('other_features', 'custom_fields', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
-          }
-        ]
-      },
-      {
-        id: 'templates',
-        name: 'Templates',
-        description: 'Document and project templates',
-        icon: 'FileText',
-        accessLevel: getEffectiveAccessLevel('other_features', 'templates', getAccessLevel(userData.role, ['owner', 'admin', 'manager'])),
-        subModules: [
-          {
-            id: 'templates',
-            name: 'Templates',
-            description: 'Document and project templates',
-            accessLevel: getEffectiveAccessLevel('other_features', 'templates', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
-          }
-        ]
-      },
-      {
-        id: 'mobile_app',
-        name: 'Mobile App Access',
-        description: 'Access to mobile applications',
-        icon: 'Settings',
-        accessLevel: getEffectiveAccessLevel('other_features', 'mobile_app', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])),
-        subModules: [
-          {
-            id: 'mobile_app',
-            name: 'Mobile App Access',
-            description: 'Access to mobile applications',
-            accessLevel: getEffectiveAccessLevel('other_features', 'mobile_app', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
-          }
-        ]
-      },
-      {
-        id: 'api_access',
-        name: 'API Access',
-        description: 'Programmatic access via REST API',
-        icon: 'Settings',
-        accessLevel: getEffectiveAccessLevel('other_features', 'api_access', getAccessLevel(userData.role, ['owner', 'admin'])),
-        subModules: [
-          {
-            id: 'api_access',
-            name: 'API Access',
-            description: 'Programmatic access via REST API',
-            accessLevel: getEffectiveAccessLevel('other_features', 'api_access', getAccessLevel(userData.role, ['owner', 'admin']))
+            id: 'general',
+            name: 'General Settings',
+            description: 'Basic application settings',
+            accessLevel: getEffectiveAccessLevel('settings', 'general', getAccessLevel(userData.role, ['owner', 'admin']))
           }
         ]
       }
