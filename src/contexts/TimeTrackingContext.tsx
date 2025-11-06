@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useTimeTracking as useTimeTrackingHook, TimeEntry, TimeTrackingSettings } from '@/hooks/useTimeTracking';
 
-interface TimeTrackingContextValue {
+export interface TimeTrackingContextValue {
   timeEntries: TimeEntry[];
   settings: TimeTrackingSettings | null;
   activeTimer: TimeEntry | null;
@@ -22,7 +22,8 @@ interface TimeTrackingContextValue {
   getDailyStats: (entries: TimeEntry[]) => any;
 }
 
-const TimeTrackingContext = createContext<TimeTrackingContextValue | undefined>(undefined);
+// Create context with a more explicit default
+const TimeTrackingContext = createContext<TimeTrackingContextValue | null>(null);
 
 interface TimeTrackingProviderProps {
   children: ReactNode;
@@ -38,10 +39,15 @@ export const TimeTrackingProvider: React.FC<TimeTrackingProviderProps> = ({ chil
   );
 };
 
-export const useTimeTracking = () => {
+export const useTimeTracking = (): TimeTrackingContextValue => {
   const context = useContext(TimeTrackingContext);
-  if (context === undefined) {
+  
+  if (context === null || context === undefined) {
     throw new Error('useTimeTracking must be used within a TimeTrackingProvider');
   }
+  
   return context;
 };
+
+// Re-export types for convenience
+export type { TimeEntry, TimeTrackingSettings };
