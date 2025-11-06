@@ -284,11 +284,26 @@ export const CreateUserForBusinessDialog = ({
 
   const filteredUsers = availableUsers.filter(user => {
     const search = searchValue.toLowerCase();
-    const matches = (
-      user.email.toLowerCase().includes(search) ||
-      user.first_name.toLowerCase().includes(search) ||
-      user.last_name.toLowerCase().includes(search)
-    );
+    const emailMatch = user.email?.toLowerCase().includes(search);
+    const firstNameMatch = user.first_name?.toLowerCase().includes(search);
+    const lastNameMatch = user.last_name?.toLowerCase().includes(search);
+    
+    const matches = emailMatch || firstNameMatch || lastNameMatch;
+    
+    // Detailed logging for debugging
+    if (searchValue.length > 0) {
+      console.log(`🔎 Checking user:`, {
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        searchTerm: search,
+        emailMatch,
+        firstNameMatch,
+        lastNameMatch,
+        finalMatch: matches
+      });
+    }
+    
     return matches;
   });
 
