@@ -24,6 +24,7 @@ export const useUserPermissions = (companyId?: string, userId?: string) => {
   const [permissions, setPermissions] = useState<UserPermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   // Get current user ID if not provided
   const getCurrentUserId = async () => {
@@ -47,6 +48,21 @@ export const useUserPermissions = (companyId?: string, userId?: string) => {
       const currentUserId = await getCurrentUserId();
       
       if (!currentUserId) {
+        setLoading(false);
+        return;
+      }
+
+      // Check if user is superadmin - they get full access to everything
+      const { data: superAdminCheck } = await supabase.rpc('has_role_secure', {
+        _role: 'superadmin',
+        _user_id: currentUserId
+      });
+      
+      setIsSuperAdmin(superAdminCheck || false);
+
+      // If superadmin, no need to fetch module permissions
+      if (superAdminCheck) {
+        setPermissions([]);
         setLoading(false);
         return;
       }
@@ -82,6 +98,9 @@ export const useUserPermissions = (companyId?: string, userId?: string) => {
 
   // Check if user has access to a specific module
   const hasModuleAccess = (moduleId: string): boolean => {
+    // Superadmins have access to everything
+    if (isSuperAdmin) return true;
+    
     const modulePermissions = permissions.filter(p => p.module_id === moduleId);
     
     // If no permissions are set, default to allowing access (for backward compatibility)
@@ -95,6 +114,9 @@ export const useUserPermissions = (companyId?: string, userId?: string) => {
 
   // Check if user has access to a specific submodule
   const hasSubModuleAccess = (moduleId: string, subModuleId: string): 'no_access' | 'can_view' | 'can_edit' => {
+    // Superadmins have full edit access to everything
+    if (isSuperAdmin) return 'can_edit';
+    
     const permission = permissions.find(
       p => p.module_id === moduleId && p.sub_module_id === subModuleId
     );
@@ -105,11 +127,13 @@ export const useUserPermissions = (companyId?: string, userId?: string) => {
 
   // Check if user can edit a specific submodule
   const canEditSubModule = (moduleId: string, subModuleId: string): boolean => {
+    if (isSuperAdmin) return true;
     return hasSubModuleAccess(moduleId, subModuleId) === 'can_edit';
   };
 
   // Check if user can view a specific submodule
   const canViewSubModule = (moduleId: string, subModuleId: string): boolean => {
+    if (isSuperAdmin) return true;
     const accessLevel = hasSubModuleAccess(moduleId, subModuleId);
     return accessLevel === 'can_view' || accessLevel === 'can_edit';
   };

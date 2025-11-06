@@ -37,6 +37,7 @@ export const UserPermissionsProvider: React.FC<UserPermissionsProviderProps> = (
   const [permissions, setPermissions] = useState<UserPermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   const getCurrentUserId = async () => {
     if (userId) return userId;
@@ -50,6 +51,21 @@ export const UserPermissionsProvider: React.FC<UserPermissionsProviderProps> = (
       const currentUserId = await getCurrentUserId();
       
       if (!currentUserId) {
+        setLoading(false);
+        return;
+      }
+
+      // Check if user is superadmin - they get full access to everything
+      const { data: superAdminCheck } = await supabase.rpc('has_role_secure', {
+        _role: 'superadmin',
+        _user_id: currentUserId
+      });
+      
+      setIsSuperAdmin(superAdminCheck || false);
+
+      // If superadmin, no need to fetch module permissions
+      if (superAdminCheck) {
+        setPermissions([]);
         setLoading(false);
         return;
       }
@@ -84,6 +100,9 @@ export const UserPermissionsProvider: React.FC<UserPermissionsProviderProps> = (
   }, [companyId, userId]);
 
   const hasModuleAccess = (moduleId: string): boolean => {
+    // Superadmins have access to everything
+    if (isSuperAdmin) return true;
+    
     // SECURITY: Deny access by default if no permissions are defined
     const modulePermissions = permissions.filter(p => p.module_id === moduleId);
     
@@ -95,6 +114,9 @@ export const UserPermissionsProvider: React.FC<UserPermissionsProviderProps> = (
   };
 
   const hasSubModuleAccess = (moduleId: string, subModuleId: string): 'no_access' | 'can_view' | 'can_edit' => {
+    // Superadmins have full edit access to everything
+    if (isSuperAdmin) return 'can_edit';
+    
     // SECURITY: Deny access by default if no permission is defined
     const permission = permissions.find(
       p => p.module_id === moduleId && p.sub_module_id === subModuleId
@@ -104,10 +126,12 @@ export const UserPermissionsProvider: React.FC<UserPermissionsProviderProps> = (
   };
 
   const canEditSubModule = (moduleId: string, subModuleId: string): boolean => {
+    if (isSuperAdmin) return true;
     return hasSubModuleAccess(moduleId, subModuleId) === 'can_edit';
   };
 
   const canViewSubModule = (moduleId: string, subModuleId: string): boolean => {
+    if (isSuperAdmin) return true;
     const accessLevel = hasSubModuleAccess(moduleId, subModuleId);
     return accessLevel === 'can_view' || accessLevel === 'can_edit';
   };
