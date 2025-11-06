@@ -513,7 +513,7 @@ export const UserPermissionsPage = () => {
       <div className="h-screen bg-background overflow-y-auto">
         <div className="max-w-5xl mx-auto p-6">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-4">
             <Button
               variant="outline"
               size="icon"  
@@ -525,16 +525,16 @@ export const UserPermissionsPage = () => {
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
-              <h1 className="font-inter text-3xl font-bold text-foreground">User Permissions</h1>
-              <p className="text-muted-foreground mt-1 body-md">Manage access levels for business modules</p>
+              <h1 className="font-inter text-2xl font-bold text-foreground">User Permissions</h1>
+              <p className="text-muted-foreground text-sm">Manage access levels for business modules</p>
             </div>
           </div>
 
           {/* User Info Card */}
-          <Card className="glass-card mb-8">
-            <CardContent className="p-8">
+          <Card className="glass-card mb-5">
+            <CardContent className="p-5">
               {/* Save Button */}
-              <div className="flex justify-end mb-6">
+              <div className="flex justify-end mb-4">
                 <Button
                   onClick={savePermissions}
                   disabled={!hasUnsavedChanges || isSaving}
@@ -546,23 +546,23 @@ export const UserPermissionsPage = () => {
                 </Button>
               </div>
               
-              <div className="flex items-start gap-6">
-                <Avatar className="w-20 h-20 border-4 border-background shadow-lg">
+              <div className="flex items-start gap-4">
+                <Avatar className="w-16 h-16 border-2 border-background shadow-md">
                   <AvatarImage src={userData.avatar} alt={userData.name} />
-                  <AvatarFallback className="text-xl font-bold bg-primary/10 text-primary">
+                  <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
                     {userData.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <div className="flex items-center gap-4 mb-3">
-                    <h2 className="font-inter text-xl font-semibold text-foreground">{userData.name}</h2>
-                    <Badge variant={getRoleBadgeVariant(userData.role)} className="flex items-center gap-2 text-sm font-medium px-3 py-1">
+                  <div className="flex items-center gap-3 mb-1.5">
+                    <h2 className="font-inter text-lg font-semibold text-foreground">{userData.name}</h2>
+                    <Badge variant={getRoleBadgeVariant(userData.role)} className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5">
                       {getRoleIcon(userData.role)}
                       {userData.role.charAt(0).toUpperCase() + userData.role.slice(1).replace('_', ' ')}
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground text-lg mb-2 body-md">{userData.email}</p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground font-inter">
+                  <p className="text-muted-foreground text-sm mb-1">{userData.email}</p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground font-inter">
                     <span>Member since</span>
                     <span className="font-medium">March 2024</span>
                   </div>
@@ -572,14 +572,14 @@ export const UserPermissionsPage = () => {
           </Card>
 
           {/* Business Modules */}
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 BUSINESS MODULES
               </div>
               <div className="flex items-center justify-between">
-                <h3 className="font-inter text-xl font-semibold text-foreground">Module Access Control</h3>
-                <div className="text-sm text-muted-foreground">
+                <h3 className="font-inter text-lg font-semibold text-foreground">Module Access Control</h3>
+                <div className="text-xs text-muted-foreground">
                   {businessModules.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
                   {businessModules.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
                   {businessModules.filter(m => m.accessLevel === 'no_access').length} No Access
