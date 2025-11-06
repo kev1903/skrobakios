@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, Shield, Settings, Save, Mail, Building2, Calendar, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, Shield, Settings, Save, Mail, Building2, Calendar, CheckCircle2, XCircle, AlertCircle, ChevronDown, ChevronRight } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface UserDetails {
   id: string;
@@ -24,6 +25,23 @@ interface UserDetails {
   company_id: string;
 }
 
+interface SubModule {
+  key: string;
+  name: string;
+  description: string;
+  granted: boolean;
+}
+
+interface ModulePermission {
+  permission_key: string;
+  name: string;
+  description: string;
+  category: string;
+  granted: boolean;
+  is_available: boolean;
+  submodules?: SubModule[];
+}
+
 interface UserPermission {
   permission_key: string;
   name: string;
@@ -33,17 +51,53 @@ interface UserPermission {
   is_available: boolean;
 }
 
+// Module hierarchy definition
+const MODULE_HIERARCHY: Record<string, SubModule[]> = {
+  business_map: [
+    { key: 'business_map.dashboard', name: 'Dashboard', description: 'View business overview', granted: false },
+    { key: 'business_map.analytics', name: 'Analytics', description: 'View analytics and insights', granted: false },
+  ],
+  projects: [
+    { key: 'projects.view', name: 'View Projects', description: 'View project list and details', granted: false },
+    { key: 'projects.create', name: 'Create Projects', description: 'Create new projects', granted: false },
+    { key: 'projects.edit', name: 'Edit Projects', description: 'Edit project information', granted: false },
+    { key: 'projects.delete', name: 'Delete Projects', description: 'Delete projects', granted: false },
+    { key: 'projects.schedule', name: 'Schedule', description: 'Manage project schedules', granted: false },
+    { key: 'projects.tasks', name: 'Tasks', description: 'Manage project tasks', granted: false },
+    { key: 'projects.files', name: 'Files', description: 'Access project files', granted: false },
+    { key: 'projects.team', name: 'Team', description: 'Manage project team', granted: false },
+  ],
+  sales: [
+    { key: 'sales.leads', name: 'Leads', description: 'Manage sales leads', granted: false },
+    { key: 'sales.opportunities', name: 'Opportunities', description: 'Manage opportunities', granted: false },
+    { key: 'sales.quotes', name: 'Quotes', description: 'Create and manage quotes', granted: false },
+    { key: 'sales.contacts', name: 'Contacts', description: 'Manage customer contacts', granted: false },
+  ],
+  finance: [
+    { key: 'finance.invoices', name: 'Invoices', description: 'Create and manage invoices', granted: false },
+    { key: 'finance.estimates', name: 'Estimates', description: 'Create project estimates', granted: false },
+    { key: 'finance.expenses', name: 'Expenses', description: 'Track expenses', granted: false },
+    { key: 'finance.reports', name: 'Reports', description: 'View financial reports', granted: false },
+  ],
+  stakeholders: [
+    { key: 'stakeholders.clients', name: 'Clients', description: 'Manage client information', granted: false },
+    { key: 'stakeholders.vendors', name: 'Vendors', description: 'Manage vendor relationships', granted: false },
+    { key: 'stakeholders.contractors', name: 'Contractors', description: 'Manage contractors', granted: false },
+  ],
+};
+
 export const UserDetailsPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { spacingClasses, minHeightClasses } = useMenuBarSpacing();
   const [user, setUser] = useState<UserDetails | null>(null);
-  const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
+  const [userPermissions, setUserPermissions] = useState<ModulePermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [companies, setCompanies] = useState<{ company_id: string; company_name: string; membership_status: string }[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (userId) {
@@ -139,20 +193,25 @@ export const UserDetailsPage: React.FC = () => {
         { key: 'settings', name: 'Settings', description: 'Application configuration and preferences', category: 'Additional Features' }
       ];
 
-      coreModules.forEach(module => {
-        if (!permissions.find(p => p.permission_key === module.key)) {
-          permissions.push({
-            permission_key: module.key,
-            name: module.name,
-            description: module.description,
-            category: module.category,
-            granted: false,
-            is_available: true
-          });
-        }
+      const modulesWithSubmodules: ModulePermission[] = coreModules.map(module => {
+        const existingPerm = permissions.find(p => p.permission_key === module.key);
+        const submodules = MODULE_HIERARCHY[module.key]?.map(sub => ({
+          ...sub,
+          granted: permissions.find(p => p.permission_key === sub.key)?.granted || false
+        })) || [];
+        
+        return {
+          permission_key: module.key,
+          name: module.name,
+          description: module.description,
+          category: module.category,
+          granted: existingPerm?.granted || false,
+          is_available: existingPerm?.is_available ?? true,
+          submodules
+        };
       });
 
-      setUserPermissions(permissions);
+      setUserPermissions(modulesWithSubmodules);
     } catch (error: any) {
       console.error('Error loading permissions:', error);
       toast({
@@ -174,14 +233,61 @@ export const UserDetailsPage: React.FC = () => {
     setHasUnsavedChanges(true);
   };
 
+  const toggleSubmodulePermission = (moduleKey: string, submoduleKey: string) => {
+    setUserPermissions(prev => 
+      prev.map(perm => {
+        if (perm.permission_key === moduleKey && perm.submodules) {
+          return {
+            ...perm,
+            submodules: perm.submodules.map(sub =>
+              sub.key === submoduleKey
+                ? { ...sub, granted: !sub.granted }
+                : sub
+            )
+          };
+        }
+        return perm;
+      })
+    );
+    setHasUnsavedChanges(true);
+  };
+
+  const toggleModuleExpansion = (moduleKey: string) => {
+    setExpandedModules(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(moduleKey)) {
+        newSet.delete(moduleKey);
+      } else {
+        newSet.add(moduleKey);
+      }
+      return newSet;
+    });
+  };
+
   const savePermissions = async () => {
     if (!user) return;
 
     try {
-      const permissionsData = userPermissions.map(perm => ({
-        permission_key: perm.permission_key,
-        granted: perm.granted
-      }));
+      // Collect all permissions including parent modules and submodules
+      const permissionsData: { permission_key: string; granted: boolean }[] = [];
+      
+      userPermissions.forEach(perm => {
+        // Add parent module permission
+        permissionsData.push({
+          permission_key: perm.permission_key,
+          granted: perm.granted
+        });
+        
+        // Add submodule permissions
+        if (perm.submodules) {
+          perm.submodules.forEach(sub => {
+            permissionsData.push({
+              permission_key: sub.key,
+              granted: sub.granted
+            });
+          });
+        }
+      });
 
       const { data, error } = await supabase.rpc('set_user_permissions', {
         target_user_id: user.id,
@@ -293,7 +399,7 @@ export const UserDetailsPage: React.FC = () => {
     }
     
     return acc;
-  }, {} as Record<string, UserPermission[]>);
+  }, {} as Record<string, ModulePermission[]>);
 
   return (
     <div className={`h-screen overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20 ${spacingClasses}`}>
@@ -433,38 +539,95 @@ export const UserDetailsPage: React.FC = () => {
                 </div>
                 
                  <div className="grid gap-2">
-                   {permissions.map((permission) => (
-                     <div 
-                       key={permission.permission_key}
-                       className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
-                     >
-                       <div className="flex-1 min-w-0">
-                         <div className="flex items-center gap-3">
-                           <div className={`p-1.5 rounded-md ${
-                             permission.granted 
-                               ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
-                               : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
-                           }`}>
-                             {permission.granted ? (
-                               <CheckCircle2 className="h-3 w-3" />
-                             ) : (
-                               <XCircle className="h-3 w-3" />
+                   {permissions.map((permission) => {
+                     const isExpanded = expandedModules.has(permission.permission_key);
+                     const hasSubmodules = permission.submodules && permission.submodules.length > 0;
+                     
+                     return (
+                       <div key={permission.permission_key} className="space-y-1">
+                         {/* Parent Module */}
+                         <div className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors">
+                           <div className="flex-1 min-w-0 flex items-center gap-2">
+                             {hasSubmodules && permission.granted && (
+                               <button
+                                 onClick={() => toggleModuleExpansion(permission.permission_key)}
+                                 className="p-0.5 hover:bg-muted rounded transition-colors"
+                               >
+                                 {isExpanded ? (
+                                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                 ) : (
+                                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                 )}
+                               </button>
                              )}
+                             {(!hasSubmodules || !permission.granted) && (
+                               <div className="w-5" />
+                             )}
+                             <div className="flex items-center gap-3 flex-1">
+                               <div className={`p-1.5 rounded-md ${
+                                 permission.granted 
+                                   ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
+                                   : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                               }`}>
+                                 {permission.granted ? (
+                                   <CheckCircle2 className="h-3 w-3" />
+                                 ) : (
+                                   <XCircle className="h-3 w-3" />
+                                 )}
+                               </div>
+                               <div className="min-w-0 flex-1">
+                                 <p className="font-medium text-sm text-foreground">{permission.name}</p>
+                                 <p className="text-xs text-muted-foreground">{permission.description}</p>
+                               </div>
+                             </div>
                            </div>
-                           <div className="min-w-0 flex-1">
-                             <p className="font-medium text-sm text-foreground">{permission.name}</p>
-                             <p className="text-xs text-muted-foreground">{permission.description}</p>
-                           </div>
+                           <Switch
+                             checked={permission.granted}
+                             onCheckedChange={() => togglePermission(permission.permission_key)}
+                             className="ml-3"
+                             disabled={!permission.is_available}
+                           />
                          </div>
+
+                         {/* Submodules (shown when parent is active and expanded) */}
+                         {hasSubmodules && permission.granted && isExpanded && (
+                           <div className="ml-7 space-y-1 pl-4 border-l-2 border-border/30">
+                             {permission.submodules!.map((submodule) => (
+                               <div
+                                 key={submodule.key}
+                                 className="flex items-center justify-between p-2.5 rounded-lg border bg-background/60 hover:bg-muted/20 transition-colors"
+                               >
+                                 <div className="flex-1 min-w-0">
+                                   <div className="flex items-center gap-2.5">
+                                     <div className={`p-1 rounded ${
+                                       submodule.granted 
+                                         ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
+                                         : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                                     }`}>
+                                       {submodule.granted ? (
+                                         <CheckCircle2 className="h-2.5 w-2.5" />
+                                       ) : (
+                                         <XCircle className="h-2.5 w-2.5" />
+                                       )}
+                                     </div>
+                                     <div className="min-w-0 flex-1">
+                                       <p className="font-medium text-xs text-foreground">{submodule.name}</p>
+                                       <p className="text-[11px] text-muted-foreground">{submodule.description}</p>
+                                     </div>
+                                   </div>
+                                 </div>
+                                 <Switch
+                                   checked={submodule.granted}
+                                   onCheckedChange={() => toggleSubmodulePermission(permission.permission_key, submodule.key)}
+                                   className="ml-2 scale-90"
+                                 />
+                               </div>
+                             ))}
+                           </div>
+                         )}
                        </div>
-                       <Switch
-                         checked={permission.granted}
-                         onCheckedChange={() => togglePermission(permission.permission_key)}
-                         className="ml-3"
-                         disabled={!permission.is_available}
-                       />
-                     </div>
-                   ))}
+                     );
+                   })}
                 </div>
               </div>
             ))}
