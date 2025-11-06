@@ -3,13 +3,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Eye, EyeOff, RefreshCw, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, RefreshCw, UserPlus, Check, ChevronsUpDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface CreateUserForBusinessDialogProps {
   open: boolean;
@@ -38,10 +39,10 @@ export const CreateUserForBusinessDialog = ({
   const { user } = useAuth();
   const [isCreating, setIsCreating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<string>('');
+  const [selectedUser, setSelectedUser] = useState<AvailableUser | null>(null);
   const [availableUsers, setAvailableUsers] = useState<AvailableUser[]>([]);
-  const [matchingUsers, setMatchingUsers] = useState<AvailableUser[]>([]);
-  const [emailSearched, setEmailSearched] = useState(false);
+  const [openCombobox, setOpenCombobox] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -72,6 +73,8 @@ export const CreateUserForBusinessDialog = ({
         return;
       }
 
+      console.log('Fetched profiles:', profiles?.length);
+
       // Get user roles for all users
       const userIds = profiles?.map(p => p.user_id).filter(Boolean) || [];
       const { data: userRoles } = await supabase
@@ -88,13 +91,14 @@ export const CreateUserForBusinessDialog = ({
       // Transform profiles to available users format
       const eligibleUsers = (profiles || []).map((profile) => ({
         user_id: profile.user_id,
-        email: profile.email,
-        first_name: profile.first_name,
-        last_name: profile.last_name,
+        email: profile.email || '',
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
         avatar_url: profile.avatar_url,
         current_role: roleMap.get(profile.user_id) || 'user'
       }));
 
+      console.log('Available users loaded:', eligibleUsers.length);
       setAvailableUsers(eligibleUsers);
     } catch (error) {
       console.error('Error fetching available users:', error);
@@ -222,7 +226,7 @@ export const CreateUserForBusinessDialog = ({
         .from('company_members')
         .upsert({
           company_id: companyId,
-          user_id: selectedUser,
+          user_id: selectedUser.user_id,
           role: formData.role,
           status: 'active'
         });
@@ -233,7 +237,7 @@ export const CreateUserForBusinessDialog = ({
 
       // All assigned users get "user" app role
       const { data: roleResult, error: roleError } = await supabase.rpc('set_user_primary_role', {
-        target_user_id: selectedUser,
+        target_user_id: selectedUser.user_id,
         new_role: 'user'
       });
 
@@ -242,16 +246,16 @@ export const CreateUserForBusinessDialog = ({
         console.warn('Failed to update app role, but assigned to company');
       }
 
-      const selectedUserInfo = availableUsers.find(u => u.user_id === selectedUser);
       const roleLabel = 'Team Member';
 
       toast({
         title: "Success",
-        description: `${selectedUserInfo?.first_name} ${selectedUserInfo?.last_name} assigned as ${roleLabel} to ${companyName}`,
+        description: `${selectedUser.first_name} ${selectedUser.last_name} assigned as ${roleLabel} to ${companyName}`,
       });
 
       // Reset form and close dialog
-      setSelectedUser('');
+      setSelectedUser(null);
+      setSearchValue('');
       setFormData({
         email: '',
         password: '',
@@ -278,63 +282,30 @@ export const CreateUserForBusinessDialog = ({
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // If email field is being changed, search for existing users
-    if (field === 'email') {
-      handleEmailSearch(value);
-    }
   };
 
-  const handleEmailSearch = (email: string) => {
-    if (!email.trim() || email.trim().length < 2) {
-      setMatchingUsers([]);
-      setEmailSearched(false);
-      setSelectedUser('');
-      return;
-    }
-
-    // Search for partial matches in email, first name, or last name
-    const searchTerm = email.toLowerCase().trim();
-    const matches = availableUsers.filter(user => 
-      user.email.toLowerCase().includes(searchTerm) ||
-      user.first_name?.toLowerCase().includes(searchTerm) ||
-      user.last_name?.toLowerCase().includes(searchTerm)
+  const filteredUsers = availableUsers.filter(user => {
+    const search = searchValue.toLowerCase();
+    return (
+      user.email.toLowerCase().includes(search) ||
+      user.first_name.toLowerCase().includes(search) ||
+      user.last_name.toLowerCase().includes(search)
     );
-    
-    setMatchingUsers(matches);
-    setEmailSearched(true);
-    
-    // If we have matches, clear new user fields and auto-select if only one match
-    if (matches.length > 0) {
-      if (matches.length === 1) {
-        setSelectedUser(matches[0].user_id);
-      }
-      // Clear new user fields since we found existing users
-      setFormData(prev => ({ 
-        ...prev, 
-        firstName: '', 
-        lastName: '', 
-        password: '' 
-      }));
-    } else {
-      setSelectedUser('');
-    }
-  };
+  });
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
       onOpenChange(open);
       if (!open) {
-        setSelectedUser('');
+        setSelectedUser(null);
+        setSearchValue('');
         setFormData({
-        email: '',
-        password: '',
-        firstName: '',
-        lastName: '',
-        role: 'team_member'
+          email: '',
+          password: '',
+          firstName: '',
+          lastName: '',
+          role: 'team_member'
         });
-        setMatchingUsers([]);
-        setEmailSearched(false);
       }
     }}>
       <DialogContent className="sm:max-w-4xl">
@@ -344,123 +315,211 @@ export const CreateUserForBusinessDialog = ({
             Add Team Member to {companyName}
           </DialogTitle>
           <DialogDescription>
-            Add an existing user or create a new user account for this business.
+            Search for an existing user or create a new user account for this business.
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
-          {/* Email field at the top */}
-          <div>
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder="Enter email address"
-              required
-            />
-          </div>
-
-          {/* Show existing users if found */}
-          {emailSearched && matchingUsers.length > 0 && (
-            <div className="border rounded-lg p-4 bg-blue-50 dark:bg-blue-950/20">
-              <Label className="text-blue-700 dark:text-blue-300">Existing Users Found</Label>
-              <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
-                We found existing users with this email. Select one to add them to the company:
-              </p>
-              
-              <Select value={selectedUser} onValueChange={setSelectedUser}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an existing user" />
-                </SelectTrigger>
-                <SelectContent>
-                  {matchingUsers.map((user) => (
-                    <SelectItem key={user.user_id} value={user.user_id}>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={user.avatar_url || ''} />
-                          <AvatarFallback className="text-xs">
-                            {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{user.first_name} {user.last_name}</div>
-                          <div className="text-xs text-muted-foreground">{user.email}</div>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {/* New user fields - show if no email entered yet OR no matching users found */}
-          {(!emailSearched || matchingUsers.length === 0) && (
-            <form onSubmit={handleCreateUser} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">First Name *</Label>
-                  <Input
-                    id="firstName"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    placeholder="John"
-                    required={emailSearched && matchingUsers.length === 0}
+          {/* User Search Combobox */}
+          <div className="space-y-2">
+            <Label>Search Existing User</Label>
+            <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openCombobox}
+                  className="w-full justify-between"
+                >
+                  {selectedUser ? (
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={selectedUser.avatar_url || ''} />
+                        <AvatarFallback className="text-xs">
+                          {selectedUser.first_name?.charAt(0)}{selectedUser.last_name?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>{selectedUser.first_name} {selectedUser.last_name} ({selectedUser.email})</span>
+                    </div>
+                  ) : (
+                    "Search by name or email..."
+                  )}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="start">
+                <Command>
+                  <CommandInput 
+                    placeholder="Type to search users..." 
+                    value={searchValue}
+                    onValueChange={setSearchValue}
                   />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    placeholder="Doe"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="password">Password *</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    placeholder="Enter secure password"
-                    className="pr-20"
-                    required={emailSearched && matchingUsers.length === 0}
-                  />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="h-8 w-8 p-0"
-                      title={showPassword ? "Hide Password" : "Show Password"}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={generatePassword}
-                      className="h-8 w-8 p-0"
-                      title="Generate Password"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
+                  <CommandList>
+                    <CommandEmpty>
+                      {availableUsers.length === 0 
+                        ? "Loading users..." 
+                        : "No user found. Create a new user below."}
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {filteredUsers.map((user) => (
+                        <CommandItem
+                          key={user.user_id}
+                          value={user.email}
+                          onSelect={() => {
+                            setSelectedUser(user);
+                            setSearchValue('');
+                            setOpenCombobox(false);
+                            // Clear new user form fields
+                            setFormData(prev => ({
+                              ...prev,
+                              email: user.email,
+                              firstName: '',
+                              lastName: '',
+                              password: ''
+                            }));
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedUser?.user_id === user.user_id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <Avatar className="h-8 w-8 mr-2">
+                            <AvatarImage src={user.avatar_url || ''} />
+                            <AvatarFallback className="text-xs">
+                              {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{user.first_name} {user.last_name}</span>
+                            <span className="text-xs text-muted-foreground">{user.email}</span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            
+            {selectedUser && (
+              <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={selectedUser.avatar_url || ''} />
+                    <AvatarFallback>
+                      {selectedUser.first_name?.charAt(0)}{selectedUser.last_name?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{selectedUser.first_name} {selectedUser.last_name}</p>
+                    <p className="text-sm text-muted-foreground">{selectedUser.email}</p>
                   </div>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedUser(null);
+                    setFormData(prev => ({ ...prev, email: '' }));
+                  }}
+                >
+                  Clear
+                </Button>
               </div>
-            </form>
-          )}
+            )}
+          </div>
 
-          {/* All users will be added as Team Members with USER app role */}
+          {/* Divider */}
+          {!selectedUser && (
+            <>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or create new user
+                  </span>
+                </div>
+              </div>
+
+              {/* New user fields */}
+              <form onSubmit={handleCreateUser} className="space-y-4">
+                <div>
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="Enter email address"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      placeholder="John"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      placeholder="Doe"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="password">Password *</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
+                      placeholder="Enter secure password"
+                      className="pr-20"
+                      required
+                    />
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="h-8 w-8 p-0"
+                        title={showPassword ? "Hide Password" : "Show Password"}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={generatePassword}
+                        className="h-8 w-8 p-0"
+                        title="Generate Password"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </>
+          )}
 
           {/* Action buttons */}
           <DialogFooter>
@@ -468,15 +527,14 @@ export const CreateUserForBusinessDialog = ({
               Cancel
             </Button>
             
-            {/* Show appropriate action button based on context */}
-            {emailSearched && matchingUsers.length > 0 ? (
-              <Button onClick={assignExistingUser} disabled={!selectedUser || isCreating}>
-                {isCreating ? 'Adding...' : 'Add User'}
+            {selectedUser ? (
+              <Button onClick={assignExistingUser} disabled={isCreating}>
+                {isCreating ? 'Adding...' : 'Add User to Company'}
               </Button>
             ) : (
               <Button 
                 onClick={handleCreateUser} 
-                disabled={isCreating || !formData.email || (emailSearched && matchingUsers.length === 0 && (!formData.firstName || !formData.password))}
+                disabled={isCreating || !formData.email || !formData.firstName || !formData.password}
               >
                 {isCreating ? 'Creating...' : 'Create User'}
               </Button>
