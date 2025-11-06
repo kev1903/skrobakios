@@ -161,47 +161,69 @@ export const useProjects = () => {
       if (!user.user) throw new Error('User not authenticated');
       console.log("👤 User authenticated:", user.user.id);
 
-      // Check company membership status
-      const { data: membershipData } = await supabase
-        .from('company_members')
-        .select('*')
-        .eq('user_id', user.user.id);
-      
-      console.log("👥 User memberships:", membershipData);
-
       // SECURITY: Only fetch projects for the current company - never fetch all projects
       if (!currentCompany) {
         console.log("🚫 No current company - cannot fetch projects");
         return [];
       }
 
-      // SECURITY: First, get project IDs where user is a member
-      const { data: memberProjects, error: memberError } = await supabase
-        .from('project_members')
-        .select('project_id')
-        .eq('user_id', user.user.id)
-        .eq('status', 'active');
+      // Check if user is a superadmin
+      const { data: isSuperadmin } = await supabase
+        .rpc('has_role_secure', { 
+          _user_id: user.user.id, 
+          _role: 'superadmin' 
+        });
 
-      if (memberError) throw memberError;
+      console.log("👑 Is superadmin:", isSuperadmin);
 
-      const projectIds = memberProjects?.map(m => m.project_id) || [];
-      
-      console.log("📋 User is member of projects:", projectIds);
+      let data, error;
 
-      // If user is not a member of any projects, return empty array
-      if (projectIds.length === 0) {
-        console.log("🚫 User is not a member of any projects");
-        return [];
+      if (isSuperadmin) {
+        // Superadmin: Fetch ALL projects for current company
+        console.log("👑 Superadmin detected - fetching all projects for company");
+        const result = await supabase
+          .from('projects')
+          .select('*')
+          .eq('company_id', currentCompany.id)
+          .order('created_at', { ascending: false })
+          .abortSignal(abortControllerRef.current.signal);
+        
+        data = result.data;
+        error = result.error;
+      } else {
+        // Regular user: Fetch only projects where user is a member
+        console.log("👤 Regular user - fetching member projects only");
+        
+        const { data: memberProjects, error: memberError } = await supabase
+          .from('project_members')
+          .select('project_id')
+          .eq('user_id', user.user.id)
+          .eq('status', 'active');
+
+        if (memberError) throw memberError;
+
+        const projectIds = memberProjects?.map(m => m.project_id) || [];
+        
+        console.log("📋 User is member of projects:", projectIds);
+
+        // If user is not a member of any projects, return empty array
+        if (projectIds.length === 0) {
+          console.log("🚫 User is not a member of any projects");
+          return [];
+        }
+
+        // Fetch only projects where user is a member AND belongs to current company
+        const result = await supabase
+          .from('projects')
+          .select('*')
+          .eq('company_id', currentCompany.id)
+          .in('id', projectIds)
+          .order('created_at', { ascending: false })
+          .abortSignal(abortControllerRef.current.signal);
+        
+        data = result.data;
+        error = result.error;
       }
-
-      // Fetch only projects where user is a member AND belongs to current company
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('company_id', currentCompany.id)
-        .in('id', projectIds)
-        .order('created_at', { ascending: false })
-        .abortSignal(abortControllerRef.current.signal);
 
       if (error) throw error;
       
