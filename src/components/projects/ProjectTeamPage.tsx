@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Project } from "@/hooks/useProjects";
@@ -14,7 +15,6 @@ import { Settings, Shield, Users, Clock, UserX, KeyRound } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useProjectUsers, formatUserName, getUserInitials, getUserAvatar, ProjectUser } from '@/hooks/useProjectUsers';
 import { useCompanyMembers, formatMemberName, getMemberInitials, CompanyMember } from '@/hooks/useCompanyMembers';
-import { UserPermissionsDialog } from '@/components/company/UserPermissionsDialog';
 
 interface ProjectTeamPageProps {
   project: Project;
@@ -31,11 +31,10 @@ const roleOptions = [
 
 export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) => {
   const { currentCompany } = useCompany();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isBusinessAdmin, isProjectAdmin, loading: roleLoading } = useUserRole();
   const [selectedRoles, setSelectedRoles] = useState<Record<string, string>>({});
-  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   
   // Check if user can manage team (Business Admin or Project Admin)
   const canManageTeam = isBusinessAdmin() || isProjectAdmin();
@@ -377,10 +376,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          setSelectedUserId(member.user_id!);
-                          setPermissionsDialogOpen(true);
-                        }}
+                        onClick={() => navigate(`/admin/user/${member.user_id}`)}
                         className="flex items-center gap-1"
                       >
                         <KeyRound className="w-4 h-4" />
@@ -486,16 +482,6 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Permission Management Dialog */}
-      {selectedUserId && currentCompany && (
-        <UserPermissionsDialog
-          open={permissionsDialogOpen}
-          onOpenChange={setPermissionsDialogOpen}
-          userId={selectedUserId}
-          companyId={currentCompany.id}
-        />
       )}
     </div>
   );
