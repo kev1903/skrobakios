@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2, Check, Ban, Receipt, FileEdit, ChevronDown, StickyNote } from 'lucide-react';
+import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2, Check, Ban, Receipt, FileEdit, ChevronDown, StickyNote, History } from 'lucide-react';
 import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 import { BillEditDialog } from './BillEditDialog';
@@ -15,6 +15,7 @@ import { BillDetailsDialog } from './BillDetailsDialog';
 import { StakeholderCombobox } from '@/components/bills/StakeholderCombobox';
 import { WBSActivitySelect } from './WBSActivitySelect';
 import { BillNotesDialog } from '@/components/bills/BillNotesDialog';
+import { BillAuditTrailDialog } from '@/components/bills/BillAuditTrailDialog';
 import { invokeEdge } from '@/lib/invokeEdge';
 
 interface Bill {
@@ -61,6 +62,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [isBillDetailsOpen, setIsBillDetailsOpen] = useState(false);
   const [notesDialogBill, setNotesDialogBill] = useState<{ id: string; billNo: string } | null>(null);
+  const [auditTrailBill, setAuditTrailBill] = useState<{ id: string; billNo: string } | null>(null);
   const { toast } = useToast();
 
   const loadBills = async () => {
@@ -727,6 +729,10 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Invoice
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setAuditTrailBill({ id: bill.id, billNo: bill.bill_no })}>
+                            <History className="h-4 w-4 mr-2" />
+                            Audit Trail
+                          </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleDeleteBill(bill.id)}
                             className="text-red-600 focus:text-red-600"
@@ -802,6 +808,15 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
           onClose={() => setNotesDialogBill(null)}
           billId={notesDialogBill.id}
           billNumber={notesDialogBill.billNo}
+        />
+      )}
+
+      {auditTrailBill && (
+        <BillAuditTrailDialog
+          isOpen={!!auditTrailBill}
+          onClose={() => setAuditTrailBill(null)}
+          billId={auditTrailBill.id}
+          billNumber={auditTrailBill.billNo}
         />
       )}
     </div>
