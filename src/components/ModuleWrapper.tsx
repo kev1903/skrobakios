@@ -34,7 +34,20 @@ export const ModuleWrapper: React.FC<ModuleWrapperProps> = ({
   loadingComponent = <div className="animate-pulse bg-muted rounded h-8 w-32" />,
   requireEditAccess = false
 }) => {
-  const { hasModuleAccess, hasSubModuleAccess, canEditSubModule, canViewSubModule, loading } = useUserPermissionsContext();
+  const { hasModuleAccess, hasSubModuleAccess, canEditSubModule, canViewSubModule, loading, permissions } = useUserPermissionsContext();
+
+  // Debug logging for Projects module
+  if (moduleId === 'projects') {
+    console.log("🔍 ModuleWrapper - Projects Access Check:", {
+      moduleId,
+      subModuleId,
+      companyId,
+      loading,
+      permissionsCount: permissions.length,
+      projectPermissions: permissions.filter(p => p.module_id === 'projects'),
+      hasAccess: hasModuleAccess(moduleId)
+    });
+  }
 
   if (loading && showLoading) {
     return <>{loadingComponent}</>;
@@ -45,7 +58,14 @@ export const ModuleWrapper: React.FC<ModuleWrapperProps> = ({
   }
 
   // Check module-level access first
-  if (!hasModuleAccess(moduleId)) {
+  const moduleAccess = hasModuleAccess(moduleId);
+  
+  // Debug logging
+  if (moduleId === 'projects') {
+    console.log("🔍 ModuleWrapper - hasModuleAccess result:", moduleAccess);
+  }
+  
+  if (!moduleAccess) {
     return <>{fallback}</>;
   }
 

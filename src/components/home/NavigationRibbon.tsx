@@ -198,14 +198,24 @@ const handleNavigateAndClose = (page: string) => {
                 const Icon = item.icon;
                 const isActive = currentPage === item.id;
                 
+                // Debug logging for Projects module
+                if (item.id === "projects") {
+                  console.log("🔍 Projects Module Debug:", {
+                    moduleId: item.moduleId,
+                    companyId: currentCompany?.id,
+                    hasCompany: !!currentCompany?.id
+                  });
+                }
+                
                 return (
                   <ModuleWrapper
                     key={item.id}
                     moduleId={item.moduleId}
                     companyId={currentCompany?.id || ''}
                     fallback={null} // Don't show anything if no access
+                    showLoading={false}
                   >
-                    <button 
+                    <button
                       onMouseDown={(e) => {
                         e.preventDefault();
                         if (item.id === "projects") {
