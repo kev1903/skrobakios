@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("Notify payer function called - v3 (fixed column names)");
+    console.log("Notify payer function called - v4 (with project filter support)");
 
     // SECURITY: Get auth token from request to respect RLS and company isolation
     const authHeader = req.headers.get('Authorization');
@@ -44,6 +44,14 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ error: "Missing authorization header" }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
+    }
+
+    // Parse request body for optional projectId
+    const requestBody = req.method === 'POST' ? await req.json() : {};
+    const projectIdFilter = requestBody.projectId || null;
+    
+    if (projectIdFilter) {
+      console.log(`Filtering bills for project: ${projectIdFilter}`);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -93,13 +101,20 @@ const handler = async (req: Request): Promise<Response> => {
 
     // SECURITY: RLS automatically filters bills by company through company_members table
     // Users can only see bills from companies they are active members of
-    const { data: bills, error: billsError } = await supabase
+    let billsQuery = supabase
       .from("bills")
       .select("id, storage_path, to_pay, payment_status, reference_number, bill_no, supplier_name, total, due_date, projects(name, project_id)")
       .eq("payment_status", "unpaid")
       .not("to_pay", "is", null);
+    
+    // Apply project filter if provided
+    if (projectIdFilter) {
+      billsQuery = billsQuery.eq("project_id", projectIdFilter);
+    }
+    
+    const { data: bills, error: billsError } = await billsQuery;
 
-    console.log(`User ${user.id} has access to ${bills?.length || 0} unpaid bills (RLS filtered by company)`);
+    console.log(`User ${user.id} has access to ${bills?.length || 0} unpaid bills${projectIdFilter ? ' for project ' + projectIdFilter : ''} (RLS filtered by company)`);
 
     if (billsError) {
       console.error("Error fetching bills:", billsError);
@@ -191,7 +206,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResults = [];
 
     for (const [payerEmail, payerBills] of Object.entries(billsByPayer)) {
-      console.log(`Processing ${payerBills.length} bills for ${payerEmail}`);
+      console.log(`Processing ${payerBills.length} bills for ${payerEmail}${projectIdFilter ? ' (project: ' + projectIdFilter + ')' : ''}`);
 
       // Get payer name from stakeholder or use email
       let payerName = payerEmail.split('@')[0]; // Default to email username
@@ -293,7 +308,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Notification emails sent to ${emailResults.length} payers`,
+        message: `Notification emails sent to ${emailResults.length} payers${projectIdFilter ? ' for project ' + projectIdFilter : ''}`,
         results: emailResults 
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }

@@ -4,12 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, Settings, Upload, Plus, Filter, ChevronDown } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, Settings, Upload, Plus, Filter, ChevronDown, Mail } from 'lucide-react';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { useProjectSettings } from '@/hooks/useProjectSettings';
 import { Project } from '@/hooks/useProjects';
 import { useUser } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { ProjectSidebar } from '../ProjectSidebar';
 import { ProjectPageHeader } from '../project/ProjectPageHeader';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
@@ -63,6 +64,8 @@ export const ProjectCostPage = ({
   const [isInvoicePDFUploaderOpen, setIsInvoicePDFUploaderOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isNotifyingPayers, setIsNotifyingPayers] = useState(false);
+  const { toast } = useToast();
 
   const toggleExpenseFilter = (filter: string) => {
     setExpenseStatusFilters(prev => 
@@ -97,6 +100,43 @@ export const ProjectCostPage = ({
     loadIncomeData();
     loadExpenseData();
     setRefreshTrigger(prev => prev + 1); // Trigger refresh in ExpensesModule
+  };
+
+  // Handle notify payers for this project only
+  const handleNotifyPayers = async () => {
+    setIsNotifyingPayers(true);
+    try {
+      console.log('Sending payer notifications for project:', project.id);
+      
+      const { data, error } = await supabase.functions.invoke('notify-payer', {
+        body: { projectId: project.id }
+      });
+
+      if (error) {
+        console.error('Error sending payer notifications:', error);
+        toast({
+          title: 'Notification Failed',
+          description: 'Failed to send payer notifications.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      console.log('Payer notifications sent successfully:', data);
+      toast({
+        title: 'Notifications Sent',
+        description: data.message || 'Payment notifications sent successfully.',
+      });
+    } catch (error) {
+      console.error('Exception sending payer notifications:', error);
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsNotifyingPayers(false);
+    }
   };
 
   // Use the central tasks hook to get real data from the database
@@ -417,6 +457,15 @@ export const ProjectCostPage = ({
                           </DropdownMenuContent>
                         </DropdownMenu>
                         <div className="flex items-center gap-2">
+                          <Button 
+                            variant="outline"
+                            className="flex items-center gap-2 hover:bg-accent"
+                            onClick={handleNotifyPayers}
+                            disabled={isNotifyingPayers}
+                          >
+                            <Mail className="h-4 w-4" />
+                            {isNotifyingPayers ? 'Sending...' : 'Notify Payers'}
+                          </Button>
                           <Button 
                             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                             onClick={() => setIsPDFUploaderOpen(true)}
