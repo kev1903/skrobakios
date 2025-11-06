@@ -63,20 +63,6 @@ export const TaskEditContent = ({
                   <div className="h-4 w-px bg-border/50" />
                 </>
               )}
-              {isDialog && (
-                <>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={onClose} 
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Close
-                  </Button>
-                  <div className="h-4 w-px bg-border/50" />
-                </>
-              )}
               <h2 className="text-lg font-semibold text-foreground">
                 {task.taskName}
               </h2>
