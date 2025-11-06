@@ -129,6 +129,29 @@ export const UserDetailsPage: React.FC = () => {
         is_available: perm.is_available
       })) || [];
 
+      // Add core business modules if they don't exist in the database
+      const coreModules = [
+        { key: 'business_map', name: 'Business Map', description: 'Dashboard overview and business intelligence', category: 'Business Modules' },
+        { key: 'projects', name: 'Projects', description: 'Manage construction projects, timelines, and resources', category: 'Business Modules' },
+        { key: 'sales', name: 'Sales', description: 'Lead management and customer relationship management', category: 'Business Modules' },
+        { key: 'finance', name: 'Finance', description: 'Invoicing, estimates, costs, and financial reporting', category: 'Business Modules' },
+        { key: 'stakeholders', name: 'Stakeholders', description: 'Manage vendors, clients, and business relationships', category: 'Business Modules' },
+        { key: 'settings', name: 'Settings', description: 'Application configuration and preferences', category: 'Additional Features' }
+      ];
+
+      coreModules.forEach(module => {
+        if (!permissions.find(p => p.permission_key === module.key)) {
+          permissions.push({
+            permission_key: module.key,
+            name: module.name,
+            description: module.description,
+            category: module.category,
+            granted: false,
+            is_available: true
+          });
+        }
+      });
+
       setUserPermissions(permissions);
     } catch (error: any) {
       console.error('Error loading permissions:', error);
@@ -253,23 +276,22 @@ export const UserDetailsPage: React.FC = () => {
   }
 
   const groupedPermissions = userPermissions.reduce((acc, permission) => {
-    // Only include Business Modules and Settings
-    const allowedKeys = [
-      'business_map', 'projects', 'sales', 'finance', 'stakeholders', 'settings',
-      'dashboard', 'manage_company_settings' // Include for backwards compatibility
-    ];
+    // Only include the 6 core modules
+    const businessModuleKeys = ['business_map', 'projects', 'sales', 'finance', 'stakeholders'];
+    const additionalFeaturesKeys = ['settings', 'manage_company_settings'];
     
-    if (allowedKeys.includes(permission.permission_key)) {
-      // Group under "BUSINESS MODULES" or "ADDITIONAL FEATURES"
-      const category = permission.permission_key === 'settings' || permission.permission_key === 'manage_company_settings'
-        ? 'ADDITIONAL FEATURES'
-        : 'BUSINESS MODULES';
-      
-      if (!acc[category]) {
-        acc[category] = [];
+    if (businessModuleKeys.includes(permission.permission_key)) {
+      if (!acc['BUSINESS MODULES']) {
+        acc['BUSINESS MODULES'] = [];
       }
-      acc[category].push(permission);
+      acc['BUSINESS MODULES'].push(permission);
+    } else if (additionalFeaturesKeys.includes(permission.permission_key)) {
+      if (!acc['ADDITIONAL FEATURES']) {
+        acc['ADDITIONAL FEATURES'] = [];
+      }
+      acc['ADDITIONAL FEATURES'].push(permission);
     }
+    
     return acc;
   }, {} as Record<string, UserPermission[]>);
 
