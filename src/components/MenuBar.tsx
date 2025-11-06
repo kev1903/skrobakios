@@ -622,7 +622,7 @@ const barRef = useRef<HTMLDivElement>(null);
                 </div>
               </PopoverTrigger>
               <PopoverContent className="w-[400px] p-0 bg-white/95 backdrop-blur-xl border border-border/30 shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-xl z-[12000]" align="start">
-                <Command>
+                <Command shouldFilter={false}>
                   <CommandInput 
                     placeholder="Search projects..." 
                     value={projectSearchQuery}
