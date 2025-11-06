@@ -282,20 +282,34 @@ export const CreateUserForBusinessDialog = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Debug: Log raw available users data
+  if (searchValue.length > 0 && availableUsers.length > 0) {
+    console.log('🔍 RAW AVAILABLE USERS DATA:', JSON.stringify(availableUsers.slice(0, 2), null, 2));
+  }
+
   const filteredUsers = availableUsers.filter(user => {
+    if (!user) {
+      console.warn('⚠️ Null/undefined user in availableUsers');
+      return false;
+    }
+
     const search = searchValue.toLowerCase();
-    const emailMatch = user.email?.toLowerCase().includes(search);
-    const firstNameMatch = user.first_name?.toLowerCase().includes(search);
-    const lastNameMatch = user.last_name?.toLowerCase().includes(search);
+    const email = user.email || '';
+    const firstName = user.first_name || '';
+    const lastName = user.last_name || '';
+    
+    const emailMatch = email.toLowerCase().includes(search);
+    const firstNameMatch = firstName.toLowerCase().includes(search);
+    const lastNameMatch = lastName.toLowerCase().includes(search);
     
     const matches = emailMatch || firstNameMatch || lastNameMatch;
     
     // Detailed logging for debugging
     if (searchValue.length > 0) {
       console.log(`🔎 Checking user:`, {
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
+        email,
+        firstName,
+        lastName,
         searchTerm: search,
         emailMatch,
         firstNameMatch,
