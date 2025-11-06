@@ -427,11 +427,22 @@ export const UserPermissionsPage = () => {
       for (const [subModuleId, accessLevel] of Object.entries(permissionChanges)) {
         // Find the module that contains this submodule
         let moduleId = '';
+        
+        // Search in business modules
         businessModules.forEach(module => {
           if (module.subModules?.some(sub => sub.id === subModuleId)) {
             moduleId = module.id;
           }
         });
+        
+        // Also search in other features if not found
+        if (!moduleId) {
+          otherFeatures.forEach(feature => {
+            if (feature.subModules?.some(sub => sub.id === subModuleId)) {
+              moduleId = feature.id;
+            }
+          });
+        }
 
         // Use the RPC function (cast to any to bypass TypeScript type issue)
         const { error } = await (supabase as any).rpc('handle_user_permission_upsert', {
