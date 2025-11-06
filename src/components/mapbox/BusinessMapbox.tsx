@@ -3,13 +3,14 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Globe, Layers } from 'lucide-react';
+import { Building, Globe, Layers, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useProjects as useProjectsHook } from '@/hooks/useProjects';
 import { toast } from 'sonner';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface Project {
   id: string;
@@ -35,6 +36,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   const [mapReady, setMapReady] = useState(false);
   
   const navigate = useNavigate();
+  const { hasModuleAccess, loading: permissionsLoading } = useUserPermissions(currentCompany?.id || '');
   
 
 
@@ -431,12 +433,29 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     };
   }, [projects, mapReady]); // Update markers when projects or map readiness changes
 
-  if (loading) {
+  if (loading || permissionsLoading) {
     return (
       <div className={`w-full h-full bg-background flex items-center justify-center ${className}`}>
         <div className="text-center">
           <Globe className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
           <p className="text-muted-foreground">Loading Mapbox...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasModuleAccess('projects')) {
+    return (
+      <div className={`w-full h-full bg-background flex items-center justify-center ${className}`}>
+        <div className="text-center p-8">
+          <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">Access Denied</h3>
+          <p className="text-sm text-muted-foreground">
+            You don't have permission to view the Project Map.
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Contact your administrator to request access to the Projects module.
+          </p>
         </div>
       </div>
     );

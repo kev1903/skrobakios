@@ -4,7 +4,8 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { useNavigate } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { MapPin, Building2, Calendar, DollarSign } from 'lucide-react';
+import { MapPin, Building2, Calendar, DollarSign, Lock } from 'lucide-react';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface Project {
   id: string;
@@ -34,6 +35,7 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
   const [loading, setLoading] = useState(true);
   const { currentCompany } = useCompany();
   const navigate = useNavigate();
+  const { hasModuleAccess, loading: permissionsLoading } = useUserPermissions(currentCompany?.id || '');
 
   // Fetch Mapbox token
   useEffect(() => {
@@ -251,13 +253,30 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
     }
   }, [projects]);
 
-  if (loading) {
+  if (loading || permissionsLoading) {
     return (
       <div className={`${className} flex items-center justify-center bg-slate-100 rounded-lg`}>
         <div className="text-center p-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <h3 className="text-lg font-semibold text-slate-700 mb-2">Loading Victoria Project Map</h3>
           <p className="text-sm text-slate-500">Fetching your projects and locations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasModuleAccess('projects')) {
+    return (
+      <div className={`${className} flex items-center justify-center bg-slate-100 rounded-lg`}>
+        <div className="text-center p-8">
+          <Lock className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-slate-700 mb-2">Access Denied</h3>
+          <p className="text-sm text-slate-500">
+            You don't have permission to view the Project Map.
+          </p>
+          <p className="text-xs text-slate-400 mt-2">
+            Contact your administrator to request access to the Projects module.
+          </p>
         </div>
       </div>
     );
