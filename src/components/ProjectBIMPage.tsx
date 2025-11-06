@@ -6,6 +6,8 @@ import { ObjectTree } from "@/components/Viewer/ObjectTree";
 import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useCompany } from "@/contexts/CompanyContext";
 
 interface ProjectBIMPageProps {
   project: any;
@@ -13,6 +15,7 @@ interface ProjectBIMPageProps {
 }
 
 export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => {
+  const { currentCompany } = useCompany();
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan">("select");
   const [loadedModel, setLoadedModel] = useState<any>(null);
@@ -23,6 +26,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [isPropertiesCollapsed, setIsPropertiesCollapsed] = useState(true);
   const [isStructurePinned, setIsStructurePinned] = useState(false);
   const [isPropertiesPinned, setIsPropertiesPinned] = useState(false);
+  const [savedModels, setSavedModels] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const assemblyCache = useRef<Record<string, any>>({});
 
@@ -275,75 +279,170 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     setIfcLoader(loaderInstance);
   }, [collectAssemblyEntities]);
 
+  // Load saved IFC models on mount
+  useEffect(() => {
+    const loadSavedModels = async () => {
+      if (!project?.id || !currentCompany?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('ifc_models')
+          .select('*')
+          .eq('project_id', project.id)
+          .eq('company_id', currentCompany.id)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setSavedModels(data || []);
+      } catch (error) {
+        console.error('Error loading saved models:', error);
+      }
+    };
+
+    loadSavedModels();
+  }, [project?.id, currentCompany?.id]);
+
   const handleUpload = () => fileInputRef.current?.click();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !viewer || !ifcLoader) return;
-
-    if (loadedModel) {
-      loadedModel.destroy();
-      setLoadedModel(null);
+  const uploadToStorage = async (file: File) => {
+    if (!currentCompany?.id || !project?.id) {
+      throw new Error('Company or project not found');
     }
 
-    const loadingToast = toast.loading("Loading IFC model...");
-    const reader = new FileReader();
+    const uploadToast = toast.loading("Uploading IFC file...");
+    
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('User not authenticated');
 
-    reader.onload = (e) => {
-      const arrayBuffer = e.target?.result as ArrayBuffer;
-      if (!arrayBuffer) {
-        toast.dismiss(loadingToast);
-        toast.error("Failed to read file");
-        return;
+      // Create unique file path
+      const timestamp = Date.now();
+      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filePath = `${currentCompany.id}/${project.id}/${timestamp}-${sanitizedFileName}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('ifc-models')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Save metadata to database
+      const { data: modelData, error: dbError } = await supabase
+        .from('ifc_models')
+        .insert({
+          project_id: project.id,
+          company_id: currentCompany.id,
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          uploaded_by: userData.user.id,
+          metadata: {
+            original_name: file.name,
+            mime_type: file.type,
+            upload_date: new Date().toISOString()
+          }
+        })
+        .select()
+        .single();
+
+      if (dbError) throw dbError;
+
+      toast.dismiss(uploadToast);
+      toast.success("IFC file uploaded successfully");
+      
+      // Refresh saved models list
+      setSavedModels(prev => [modelData, ...prev]);
+      
+      return { filePath, modelData };
+    } catch (error: any) {
+      toast.dismiss(uploadToast);
+      toast.error(`Upload failed: ${error.message}`);
+      throw error;
+    }
+  };
+
+  const loadModelFromStorage = async (filePath: string, fileName: string) => {
+    if (!viewer || !ifcLoader) return;
+
+    const loadingToast = toast.loading(`Loading ${fileName}...`);
+
+    try {
+      // Download file from storage
+      const { data, error } = await supabase.storage
+        .from('ifc-models')
+        .download(filePath);
+
+      if (error) throw error;
+
+      // Convert blob to array buffer
+      const arrayBuffer = await data.arrayBuffer();
+
+      if (loadedModel) {
+        loadedModel.destroy();
+        setLoadedModel(null);
       }
 
-      try {
-        const model = ifcLoader.load({
-          id: file.name,
-          ifc: arrayBuffer,
-          edges: true,
-          excludeTypes: ["IfcSpace"]
-        });
+      const model = ifcLoader.load({
+        id: fileName,
+        ifc: arrayBuffer,
+        edges: true,
+        excludeTypes: ["IfcSpace"]
+      });
 
-        model.on("loaded", () => {
-          toast.dismiss(loadingToast);
-          toast.success(`Model loaded: ${file.name}`);
-          setLoadedModel(model);
-          
-          if (viewer) {
-            setTimeout(() => {
-              buildAssemblyCache(viewer);
-            }, 500);
-          }
-          
+      model.on("loaded", () => {
+        toast.dismiss(loadingToast);
+        toast.success(`Model loaded: ${fileName}`);
+        setLoadedModel(model);
+        
+        if (viewer) {
           setTimeout(() => {
-            if (viewer?.scene?.aabb) {
-              viewer.cameraFlight.flyTo({ 
-                aabb: viewer.scene.aabb, 
-                duration: 1 
-              });
-            }
-          }, 300);
-        });
+            buildAssemblyCache(viewer);
+          }, 500);
+        }
+        
+        setTimeout(() => {
+          if (viewer?.scene?.aabb) {
+            viewer.cameraFlight.flyTo({ 
+              aabb: viewer.scene.aabb, 
+              duration: 1 
+            });
+          }
+        }, 300);
+      });
 
-        model.on("error", (error: any) => {
-          toast.dismiss(loadingToast);
-          toast.error(`Failed to load model: ${error.message || "Unknown error"}`);
-          console.error("Model loading error:", error);
-        });
-      } catch (error: any) {
+      model.on("error", (error: any) => {
         toast.dismiss(loadingToast);
         toast.error(`Failed to load model: ${error.message || "Unknown error"}`);
         console.error("Model loading error:", error);
-      }
-    };
-
-    reader.onerror = () => {
+      });
+    } catch (error: any) {
       toast.dismiss(loadingToast);
-      toast.error("Failed to read file");
-    };
+      toast.error(`Failed to load model: ${error.message}`);
+      console.error("Error loading model:", error);
+    }
+  };
 
-    reader.readAsArrayBuffer(file);
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !viewer || !ifcLoader) return;
+
+    try {
+      // Upload to storage and database
+      const { filePath } = await uploadToStorage(file);
+
+      // Load the uploaded model
+      await loadModelFromStorage(filePath, file.name);
+      
+      // Clear the file input
+      event.target.value = '';
+    } catch (error) {
+      console.error('Error handling file upload:', error);
+    }
   };
 
   return (

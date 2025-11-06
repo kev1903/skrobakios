@@ -2151,6 +2151,69 @@ export type Database = {
           },
         ]
       }
+      ifc_models: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          project_id: string
+          updated_at: string
+          uploaded_by: string
+          version: number | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          project_id: string
+          updated_at?: string
+          uploaded_by: string
+          version?: number | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          project_id?: string
+          updated_at?: string
+          uploaded_by?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ifc_models_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ifc_models_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       impersonation_sessions: {
         Row: {
           admin_user_id: string
