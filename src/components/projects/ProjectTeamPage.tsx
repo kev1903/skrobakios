@@ -10,10 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Settings, Shield, Users, Clock, UserX } from "lucide-react";
+import { Settings, Shield, Users, Clock, UserX, KeyRound } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useProjectUsers, formatUserName, getUserInitials, getUserAvatar, ProjectUser } from '@/hooks/useProjectUsers';
 import { useCompanyMembers, formatMemberName, getMemberInitials, CompanyMember } from '@/hooks/useCompanyMembers';
+import { UserPermissionsDialog } from '@/components/company/UserPermissionsDialog';
 
 interface ProjectTeamPageProps {
   project: Project;
@@ -33,6 +34,8 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
   const queryClient = useQueryClient();
   const { isBusinessAdmin, isProjectAdmin, loading: roleLoading } = useUserRole();
   const [selectedRoles, setSelectedRoles] = useState<Record<string, string>>({});
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   
   // Check if user can manage team (Business Admin or Project Admin)
   const canManageTeam = isBusinessAdmin() || isProjectAdmin();
@@ -370,6 +373,19 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                         {member.role}
                       </Badge>
                     </div>
+                    {canManageTeam && member.user_id && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedUserId(member.user_id!);
+                          setPermissionsDialogOpen(true);
+                        }}
+                        className="flex items-center gap-1"
+                      >
+                        <KeyRound className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -426,26 +442,60 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                                 )}
                               </div>
                             </div>
-                            <Button
-                              size="sm"
-                              onClick={() => addMemberToProjectMutation.mutate({
-                                companyMemberId: member.id,
-                                role: 'member'
-                              })}
-                              disabled={addMemberToProjectMutation.isPending}
-                            >
-                              Add to Project
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Select
+                                value={selectedRoles[member.id] || "member"}
+                                onValueChange={(role) => {
+                                  setSelectedRoles(prev => ({
+                                    ...prev,
+                                    [member.id]: role
+                                  }));
+                                }}
+                              >
+                                <SelectTrigger className="w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {roleOptions.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                onClick={() => {
+                                  addMemberToProjectMutation.mutate({
+                                    companyMemberId: member.id,
+                                    role: selectedRoles[member.id] || "member"
+                                  });
+                                }}
+                                disabled={addMemberToProjectMutation.isPending}
+                                size="sm"
+                              >
+                                {addMemberToProjectMutation.isPending ? "Adding..." : "Add to Project"}
+                              </Button>
+                            </div>
                           </div>
-                         ))}
-                       </div>
-                     </div>
-                   </DialogContent>
-                 </Dialog>
-               )}
+                        ))}
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Permission Management Dialog */}
+      {selectedUserId && currentCompany && (
+        <UserPermissionsDialog
+          open={permissionsDialogOpen}
+          onOpenChange={setPermissionsDialogOpen}
+          userId={selectedUserId}
+          companyId={currentCompany.id}
+        />
       )}
     </div>
   );
