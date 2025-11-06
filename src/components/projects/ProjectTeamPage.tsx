@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Project } from "@/hooks/useProjects";
@@ -11,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Settings, Shield, Users, Clock, UserX, KeyRound } from "lucide-react";
+import { Settings, Shield, Users, Clock, UserX } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useProjectUsers, formatUserName, getUserInitials, getUserAvatar, ProjectUser } from '@/hooks/useProjectUsers';
 import { useCompanyMembers, formatMemberName, getMemberInitials, CompanyMember } from '@/hooks/useCompanyMembers';
@@ -31,7 +30,6 @@ const roleOptions = [
 
 export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) => {
   const { currentCompany } = useCompany();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isBusinessAdmin, isProjectAdmin, loading: roleLoading } = useUserRole();
   const [selectedRoles, setSelectedRoles] = useState<Record<string, string>>({});
@@ -372,16 +370,6 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                         {member.role}
                       </Badge>
                     </div>
-                    {canManageTeam && member.user_id && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/admin/user/${member.user_id}`)}
-                        className="flex items-center gap-1"
-                      >
-                        <KeyRound className="w-4 h-4" />
-                      </Button>
-                    )}
                     <Button
                       variant="ghost"
                       size="sm"
