@@ -534,6 +534,52 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     }
   };
 
+  const handleDownloadBill = async (bill: Bill) => {
+    try {
+      if (!bill.storage_path) {
+        toast({
+          title: "Error",
+          description: "No file attached to this bill",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get signed URL for the file
+      const { data: urlData, error: urlError } = await supabase.storage
+        .from('bills')
+        .createSignedUrl(bill.storage_path, 60);
+
+      if (urlError || !urlData) {
+        throw new Error('Failed to generate download link');
+      }
+
+      // Download the file
+      const response = await fetch(urlData.signedUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${bill.bill_no || 'bill'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Success",
+        description: "Bill downloaded successfully",
+      });
+    } catch (error) {
+      console.error('Error downloading bill:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download bill",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleEditBill = (billId: string) => {
     const bill = bills.find(b => b.id === billId);
     if (bill) {
@@ -863,6 +909,10 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                           <DropdownMenuItem onClick={() => handleEditBill(bill.id)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Invoice
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDownloadBill(bill)}>
+                            <Download className="h-4 w-4 mr-2" />
+                            Download Bill
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setAuditTrailBill({ id: bill.id, billNo: bill.bill_no })}>
                             <History className="h-4 w-4 mr-2" />
