@@ -508,6 +508,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
           company_id: companyId,
           created_by: user.id,
           project_id: editableData.project_id || null,
+          wbs_activity_id: editableData.wbs_activity_id || null,
           supplier_name: editableData.supplier_name,
           supplier_email: editableData.supplier_email || null,
           bill_no: editableData.bill_no,
