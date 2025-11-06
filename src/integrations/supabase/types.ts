@@ -8250,6 +8250,10 @@ export type Database = {
         Args: { project_id_param: string; user_id_param: string }
         Returns: boolean
       }
+      user_can_see_project: {
+        Args: { project_id_param: string; user_id_param: string }
+        Returns: boolean
+      }
       user_can_view_lead_contacts: {
         Args: { company_id: string; user_id: string }
         Returns: boolean
