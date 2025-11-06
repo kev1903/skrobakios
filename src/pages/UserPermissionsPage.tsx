@@ -672,12 +672,17 @@ export const UserPermissionsPage = () => {
 
           {/* Business Modules */}
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="font-inter text-xl font-semibold text-foreground">Business Module Access</h3>
-              <div className="text-sm text-muted-foreground">
-                {businessModules.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
-                {businessModules.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
-                {businessModules.filter(m => m.accessLevel === 'no_access').length} No Access
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                BUSINESS MODULES
+              </div>
+              <div className="flex items-center justify-between">
+                <h3 className="font-inter text-xl font-semibold text-foreground">Module Access Control</h3>
+                <div className="text-sm text-muted-foreground">
+                  {businessModules.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
+                  {businessModules.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
+                  {businessModules.filter(m => m.accessLevel === 'no_access').length} No Access
+                </div>
               </div>
             </div>
             
@@ -759,14 +764,19 @@ export const UserPermissionsPage = () => {
             </div>
           </div>
 
-          {/* Other Features */}
+          {/* Additional Features */}
           <div className="space-y-6 mt-8">
-            <div className="flex items-center justify-between">
-              <h3 className="font-inter text-xl font-semibold text-foreground">Other Features</h3>
-              <div className="text-sm text-muted-foreground">
-                {otherFeatures.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
-                {otherFeatures.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
-                {otherFeatures.filter(m => m.accessLevel === 'no_access').length} No Access
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                ADDITIONAL FEATURES
+              </div>
+              <div className="flex items-center justify-between">
+                <h3 className="font-inter text-xl font-semibold text-foreground">Extended Capabilities</h3>
+                <div className="text-sm text-muted-foreground">
+                  {otherFeatures.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
+                  {otherFeatures.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
+                  {otherFeatures.filter(m => m.accessLevel === 'no_access').length} No Access
+                </div>
               </div>
             </div>
             
