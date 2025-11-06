@@ -24,7 +24,7 @@ interface Bill {
   reference_number: string | null;
   bill_date: string;
   due_date: string;
-  status: 'draft' | 'submitted' | 'scheduled' | 'approved' | 'paid' | 'cancelled';
+  status: 'draft' | 'approved' | 'paid' | 'voided';
   payment_status?: string;
   subtotal: number;
   tax: number;
@@ -113,12 +113,10 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         return <Badge className="bg-green-100 text-green-800 border-green-200">Paid</Badge>;
       case 'approved':
         return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Approved</Badge>;
-      case 'submitted':
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending Approval</Badge>;
-      case 'scheduled':
-        return <Badge className="bg-purple-100 text-purple-800 border-purple-200">Scheduled</Badge>;
       case 'draft':
         return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Draft</Badge>;
+      case 'voided':
+        return <Badge className="bg-red-100 text-red-800 border-red-200">Voided</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -133,14 +131,10 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     switch (bill.status) {
       case 'paid':
         return 'Paid';
-      case 'cancelled':
+      case 'voided':
         return 'Voided';
       case 'approved':
         return 'Approved';
-      case 'scheduled':
-        return 'Scheduled';
-      case 'submitted':
-        return 'Pending';
       case 'draft':
         return 'Draft';
       default:
@@ -177,6 +171,35 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
       toast({
         title: "Error",
         description: "Failed to approve invoice",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleMarkAsApproved = async (billId: string) => {
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ 
+          status: 'approved',
+          reimbursement_requested: false,
+          change_requested: false
+        })
+        .eq('id', billId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Bill approved"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error approving bill:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve bill",
         variant: "destructive"
       });
     }
@@ -224,7 +247,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
       const { error } = await supabase
         .from('bills')
         .update({ 
-          status: 'cancelled',
+          status: 'voided',
           reimbursement_requested: false,
           change_requested: false
         })
@@ -527,11 +550,11 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
   const filterBillsByStatus = (status: string) => {
     switch (status) {
       case 'inbox':
-        return bills.filter(bill => bill.status === 'draft' || bill.status === 'submitted');
+        return bills.filter(bill => bill.status === 'draft' || bill.status === 'approved');
       case 'pending':
-        return bills.filter(bill => bill.status === 'submitted');
+        return bills.filter(bill => bill.status === 'draft');
       case 'scheduled':
-        return bills.filter(bill => bill.status === 'scheduled');
+        return bills.filter(bill => bill.status === 'approved');
       case 'paid':
         return bills.filter(bill => bill.status === 'paid');
       case 'all':
@@ -545,7 +568,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     totalBills: bills.reduce((sum, bill) => sum + bill.total, 0),
     totalPaid: bills.reduce((sum, bill) => sum + bill.paid_to_date, 0),
     outstanding: bills.reduce((sum, bill) => sum + (bill.total - bill.paid_to_date), 0),
-    pending: bills.filter(bill => bill.status === 'submitted').length,
+    pending: bills.filter(bill => bill.status === 'draft').length,
   };
 
   const filteredBills = filterBillsByStatus(statusFilter);
@@ -632,16 +655,16 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                             Draft
                           </DropdownMenuItem>
                           <DropdownMenuItem 
+                            onClick={() => handleMarkAsApproved(bill.id)}
+                          >
+                            <CheckCircle className="h-4 w-4 mr-2 text-blue-600" />
+                            Approved
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
                             onClick={() => handleMarkAsPaid(bill.id)}
                           >
                             <Check className="h-4 w-4 mr-2 text-green-600" />
                             Paid
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleRequestChange(bill.id)}
-                          >
-                            <FileEdit className="h-4 w-4 mr-2 text-orange-600" />
-                            Request Change
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleVoidBill(bill.id)}
@@ -677,7 +700,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
-                          {bill.status === 'submitted' && (
+                          {bill.status === 'draft' && (
                             <DropdownMenuItem onClick={() => handleApproveBill(bill.id)}>
                               <Check className="h-4 w-4 mr-2 text-green-600" />
                               Approve

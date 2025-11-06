@@ -32,7 +32,7 @@ interface Bill {
   hasWarning: boolean;
   linkedCashInAccount: string;
   toPay?: string;
-  status?: 'draft' | 'submitted' | 'scheduled' | 'approved' | 'paid' | 'cancelled';
+  status?: 'draft' | 'approved' | 'paid' | 'voided';
 }
 
 interface BillsTableRowProps {
@@ -61,16 +61,12 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
         return 'Paid';
       case 'approved':
         return 'Approved';
-      case 'submitted':
-        return 'Pending';
-      case 'scheduled':
-        return 'Scheduled';
       case 'draft':
         return 'Draft';
-      case 'cancelled':
-        return 'Cancelled';
+      case 'voided':
+        return 'Voided';
       default:
-        return 'Pending';
+        return 'Draft';
     }
   };
 
@@ -80,12 +76,10 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
         return 'default';
       case 'approved':
         return 'default';
-      case 'submitted':
-        return 'secondary';
-      case 'scheduled':
-        return 'secondary';
-      case 'cancelled':
+      case 'voided':
         return 'destructive';
+      case 'draft':
+        return 'outline';
       default:
         return 'outline';
     }
@@ -133,24 +127,18 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange,
                 <ChevronDown className="h-2.5 w-2.5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
               <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'draft')}>
                 Draft
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'submitted')}>
-                Pending
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'approved')}>
                 Approved
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'scheduled')}>
-                Scheduled
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'paid')}>
                 Paid
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'cancelled')}>
-                Cancelled
+              <DropdownMenuItem onClick={() => onStatusChange(bill.id, 'voided')}>
+                Voided
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

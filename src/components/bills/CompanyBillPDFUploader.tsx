@@ -519,7 +519,7 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved }: CompanyBill
           subtotal: editableData.subtotal,
           tax: editableData.tax,
           total: editableData.total,
-          status: 'submitted',
+          status: 'draft',
           payment_status: 'unpaid',
           paid_to_date: 0,
           storage_path: storagePath,

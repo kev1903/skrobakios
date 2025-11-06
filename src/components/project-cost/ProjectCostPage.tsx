@@ -156,7 +156,7 @@ export const ProjectCostPage = ({
         const totalBills = bills.reduce((sum, bill) => sum + bill.total, 0);
         const totalPaid = bills.reduce((sum, bill) => sum + bill.paid_to_date, 0);
         const outstanding = bills.reduce((sum, bill) => sum + (bill.total - bill.paid_to_date), 0);
-        const pending = bills.filter(bill => bill.status === 'submitted').length;
+        const pending = bills.filter(bill => bill.status === 'draft').length;
         const totalItems = bills.length;
         
         setExpenseData({ totalBills, totalPaid, outstanding, pending, totalItems });

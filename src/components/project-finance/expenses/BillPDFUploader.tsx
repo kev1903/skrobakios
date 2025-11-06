@@ -515,7 +515,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
           tax: editableData.tax || 0,
           total: editableData.total || 0,
           paid_to_date: 0,
-          status: 'submitted',
+          status: 'draft',
           payment_status: 'unpaid',
           notes: editableData.notes || null,
           storage_path: storagePath,

@@ -86,7 +86,7 @@ export const BillsTable = ({ refreshTrigger }: BillsTableProps) => {
         hasWarning: new Date(bill.due_date) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) && bill.payment_status === 'unpaid',
         linkedCashInAccount: "",
         toPay: bill.to_pay || "",
-        status: bill.status || 'submitted',
+        status: bill.status || 'draft',
       }));
 
       setBills(transformedBills);
