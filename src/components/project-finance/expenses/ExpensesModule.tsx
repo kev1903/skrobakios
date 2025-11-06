@@ -7,13 +7,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2, Check, Ban, Receipt, FileEdit, ChevronDown } from 'lucide-react';
+import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2, Check, Ban, Receipt, FileEdit, ChevronDown, StickyNote } from 'lucide-react';
 import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 import { BillEditDialog } from './BillEditDialog';
 import { BillDetailsDialog } from './BillDetailsDialog';
 import { StakeholderCombobox } from '@/components/bills/StakeholderCombobox';
 import { WBSActivitySelect } from './WBSActivitySelect';
+import { BillNotesDialog } from '@/components/bills/BillNotesDialog';
 import { invokeEdge } from '@/lib/invokeEdge';
 
 interface Bill {
@@ -59,6 +60,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [isBillDetailsOpen, setIsBillDetailsOpen] = useState(false);
+  const [notesDialogBill, setNotesDialogBill] = useState<{ id: string; billNo: string } | null>(null);
   const { toast } = useToast();
 
   const loadBills = async () => {
@@ -600,6 +602,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                 <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Status</th>
                 <th className="text-left p-2 font-medium w-56 text-foreground text-xs">Activity</th>
                 <th className="text-left p-2 font-medium w-48 text-foreground text-xs">To Pay</th>
+                <th className="text-left p-2 font-medium w-12 text-foreground text-xs text-center">Notes</th>
                 <th className="text-left p-2 font-medium w-12 text-xs"></th>
               </tr>
             </thead>
@@ -692,6 +695,16 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                      />
                    </div>
                  </td>
+                 <td className="p-2 text-center">
+                   <Button
+                     variant="ghost"
+                     size="sm"
+                     className="h-6 w-6 p-0 hover:bg-accent"
+                     onClick={() => setNotesDialogBill({ id: bill.id, billNo: bill.bill_no })}
+                   >
+                     <StickyNote className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                   </Button>
+                 </td>
                    <td className="p-2">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -782,6 +795,15 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
           </div>
         </DialogContent>
       </Dialog>
+
+      {notesDialogBill && (
+        <BillNotesDialog
+          isOpen={!!notesDialogBill}
+          onClose={() => setNotesDialogBill(null)}
+          billId={notesDialogBill.id}
+          billNumber={notesDialogBill.billNo}
+        />
+      )}
     </div>
   );
 };
