@@ -363,9 +363,51 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
 
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex-shrink-0">
         <ViewerToolbar
-          onZoomIn={() => {}}
-          onZoomOut={() => {}}
-          onFitView={() => {}}
+          onZoomIn={() => {
+            if (viewer?.scene?.camera) {
+              const camera = viewer.scene.camera as any;
+              const currentEye = camera.eye;
+              const currentLook = camera.look;
+              const direction = [
+                currentEye[0] - currentLook[0],
+                currentEye[1] - currentLook[1],
+                currentEye[2] - currentLook[2]
+              ];
+              const length = Math.sqrt(direction[0] ** 2 + direction[1] ** 2 + direction[2] ** 2);
+              const zoomFactor = 0.9;
+              camera.eye = [
+                currentLook[0] + (direction[0] / length) * length * zoomFactor,
+                currentLook[1] + (direction[1] / length) * length * zoomFactor,
+                currentLook[2] + (direction[2] / length) * length * zoomFactor
+              ];
+            }
+          }}
+          onZoomOut={() => {
+            if (viewer?.scene?.camera) {
+              const camera = viewer.scene.camera as any;
+              const currentEye = camera.eye;
+              const currentLook = camera.look;
+              const direction = [
+                currentEye[0] - currentLook[0],
+                currentEye[1] - currentLook[1],
+                currentEye[2] - currentLook[2]
+              ];
+              const length = Math.sqrt(direction[0] ** 2 + direction[1] ** 2 + direction[2] ** 2);
+              const zoomFactor = 1.1;
+              camera.eye = [
+                currentLook[0] + (direction[0] / length) * length * zoomFactor,
+                currentLook[1] + (direction[1] / length) * length * zoomFactor,
+                currentLook[2] + (direction[2] / length) * length * zoomFactor
+              ];
+            }
+          }}
+          onFitView={() => {
+            if (viewer?.cameraFlight) {
+              viewer.cameraFlight.flyTo({
+                aabb: viewer.scene.aabb
+              });
+            }
+          }}
           onUpload={handleUpload}
           onMeasure={() => {}}
           activeMode={activeMode}
