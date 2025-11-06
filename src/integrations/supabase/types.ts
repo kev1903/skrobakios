@@ -8143,10 +8143,6 @@ export type Database = {
         Args: { target_project_id: string; target_user_id: string }
         Returns: boolean
       }
-      is_project_member_secure: {
-        Args: { target_project_id: string; target_user_id: string }
-        Returns: boolean
-      }
       is_superadmin: { Args: { target_user_id?: string }; Returns: boolean }
       is_user_company_admin: {
         Args: { target_company_id: string; target_user_id: string }
