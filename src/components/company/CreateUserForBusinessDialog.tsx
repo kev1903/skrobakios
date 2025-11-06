@@ -3,10 +3,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Eye, EyeOff, RefreshCw, UserPlus, Check, ChevronsUpDown } from 'lucide-react';
+import { Eye, EyeOff, RefreshCw, UserPlus, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -323,103 +321,61 @@ export const CreateUserForBusinessDialog = ({
           {/* User Search Combobox */}
           <div className="space-y-2">
             <Label>Search Existing User</Label>
-            <Popover open={openCombobox} onOpenChange={(open) => {
-              console.log('🔍 Popover open state:', open);
-              setOpenCombobox(open);
-            }} modal={false}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openCombobox}
-                  className="w-full justify-between h-auto min-h-[40px]"
-                  onClick={() => {
-                    console.log('🖱️ Button clicked, available users:', availableUsers.length);
-                    setOpenCombobox(true);
-                  }}
-                >
-                  {selectedUser ? (
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={selectedUser.avatar_url || ''} />
+            <div className="relative">
+              <Input
+                placeholder="Search by name or email..."
+                value={searchValue}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  console.log('✏️ Typing:', value);
+                  setSearchValue(value);
+                  setOpenCombobox(value.length > 0);
+                }}
+                onFocus={() => {
+                  console.log('🔍 Input focused');
+                  if (searchValue.length > 0) setOpenCombobox(true);
+                }}
+                className="w-full"
+              />
+              
+              {openCombobox && filteredUsers.length > 0 && (
+                <div className="absolute w-full mt-1 bg-background border rounded-lg shadow-lg z-[100] max-h-[300px] overflow-auto">
+                  {filteredUsers.map((user) => (
+                    <div
+                      key={user.user_id}
+                      onClick={() => {
+                        console.log('👤 User selected:', user.email);
+                        setSelectedUser(user);
+                        setSearchValue('');
+                        setOpenCombobox(false);
+                        setFormData(prev => ({
+                          ...prev,
+                          email: user.email,
+                          firstName: '',
+                          lastName: '',
+                          password: ''
+                        }));
+                      }}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-accent cursor-pointer transition-colors"
+                    >
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={user.avatar_url || ''} />
                         <AvatarFallback className="text-xs">
-                          {selectedUser.first_name?.charAt(0)}{selectedUser.last_name?.charAt(0)}
+                          {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="truncate">{selectedUser.first_name} {selectedUser.last_name} ({selectedUser.email})</span>
+                      <div className="flex flex-col flex-1">
+                        <span className="font-medium">{user.first_name} {user.last_name}</span>
+                        <span className="text-xs text-muted-foreground">{user.email}</span>
+                      </div>
+                      {selectedUser?.user_id === user.user_id && (
+                        <Check className="h-4 w-4 text-primary" />
+                      )}
                     </div>
-                  ) : (
-                    <span className="text-muted-foreground">Search by name or email...</span>
-                  )}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent 
-                className="w-[600px] p-0 bg-background border shadow-lg z-[100]" 
-                align="start" 
-                side="bottom"
-                sideOffset={4}
-              >
-                <Command shouldFilter={false} className="bg-background">
-                  <CommandInput 
-                    placeholder="Type to search users..." 
-                    value={searchValue}
-                    onValueChange={(value) => {
-                      console.log('✏️ Typing:', value);
-                      setSearchValue(value);
-                    }}
-                    autoFocus
-                  />
-                  <CommandList className="max-h-[300px]">
-                    <CommandEmpty>
-                      {availableUsers.length === 0 
-                        ? "Loading users..." 
-                        : "No user found. Create a new user below."}
-                    </CommandEmpty>
-                    <CommandGroup>
-                      {filteredUsers.map((user) => (
-                        <CommandItem
-                          key={user.user_id}
-                          value={`${user.first_name} ${user.last_name} ${user.email}`}
-                          onSelect={() => {
-                            console.log('👤 User selected:', user.email);
-                            setSelectedUser(user);
-                            setSearchValue('');
-                            setOpenCombobox(false);
-                            // Clear new user form fields
-                            setFormData(prev => ({
-                              ...prev,
-                              email: user.email,
-                              firstName: '',
-                              lastName: '',
-                              password: ''
-                            }));
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedUser?.user_id === user.user_id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          <Avatar className="h-8 w-8 mr-2">
-                            <AvatarImage src={user.avatar_url || ''} />
-                            <AvatarFallback className="text-xs">
-                              {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{user.first_name} {user.last_name}</span>
-                            <span className="text-xs text-muted-foreground">{user.email}</span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+                  ))}
+                </div>
+              )}
+            </div>
             
             {selectedUser && (
               <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border">
