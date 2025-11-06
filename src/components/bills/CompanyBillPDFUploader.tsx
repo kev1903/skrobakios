@@ -750,24 +750,33 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved, projectId }: 
                    {/* Project & WBS Assignment */}
                    <div className="space-y-4 p-4 bg-muted/30 rounded-xl border border-border/30">
                      <div className="flex items-center gap-2">
-                       <Label className="text-sm font-semibold">SkAi Assignment</Label>
+                       <Label className="text-sm font-semibold">Project Assignment {!projectId && <span className="text-rose-500">*</span>}</Label>
                        {(editableData.project_match_reason || editableData.wbs_match_reason) && (
                          <Info className="w-4 h-4 text-muted-foreground" />
                        )}
                      </div>
                      
+                     {!projectId && (
+                       <Alert className="bg-blue-50 border-blue-200">
+                         <Info className="h-4 w-4 text-blue-600" />
+                         <AlertDescription className="text-xs text-blue-900">
+                           <strong>Tip:</strong> Select a project to make this bill appear in that project's Expense tab.
+                         </AlertDescription>
+                       </Alert>
+                     )}
+                     
                      {editableData.project_match_reason && (
                        <Alert className="bg-blue-50 border-blue-200">
                          <Info className="h-4 w-4 text-blue-600" />
                          <AlertDescription className="text-xs text-blue-900">
-                           <strong>Project Match:</strong> {editableData.project_match_reason}
+                           <strong>SkAi Match:</strong> {editableData.project_match_reason}
                          </AlertDescription>
                        </Alert>
                      )}
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Project</Label>
+                          <Label>Project {!projectId && <span className="text-rose-500">*</span>}</Label>
                           <Select
                             value={editableData.project_id || 'none'}
                             onValueChange={(value) => {
@@ -778,9 +787,9 @@ export const CompanyBillPDFUploader = ({ isOpen, onClose, onSaved, projectId }: 
                                 wbs_activity_id: value === 'none' ? null : editableData.wbs_activity_id // Clear WBS if project cleared
                               });
                             }}
-                            disabled={loadingProjects}
+                            disabled={loadingProjects || !!projectId}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className={!projectId && !editableData.project_id ? "border-rose-300" : ""}>
                               <SelectValue placeholder={loadingProjects ? "Loading projects..." : "Select project..."} />
                             </SelectTrigger>
                             <SelectContent>
