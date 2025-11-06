@@ -653,6 +653,21 @@ const barRef = useRef<HTMLDivElement>(null);
             </Popover>
           </div>
 
+          {/* Center - Active Timer Display */}
+          {activeTimer && (
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3 px-5 py-2 bg-luxury-gold/10 backdrop-blur-md border border-luxury-gold/30 rounded-full shadow-md">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-luxury-gold rounded-full animate-pulse"></div>
+                <span className="text-sm font-semibold text-foreground">
+                  {formatDuration(currentDuration)}
+                </span>
+              </div>
+              <span className="text-xs text-muted-foreground max-w-[200px] truncate">
+                {activeTimer.task_activity || 'No description'}
+              </span>
+            </div>
+          )}
+
           {/* Right side - Navigation icons and actions */}
           <div className="flex items-center gap-2">
             {/* Navigation Icons */}
