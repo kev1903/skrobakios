@@ -6,6 +6,7 @@ import { ObjectTree } from "@/components/Viewer/ObjectTree";
 import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
 import { CommentDialog } from "@/components/Viewer/CommentDialog";
 import { CommentMarker } from "@/components/Viewer/CommentMarker";
+import { CommentsList } from "@/components/Viewer/CommentsList";
 import { useIfcComments } from "@/hooks/useIfcComments";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -889,35 +890,72 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             ))}
           </div>
           
-          {/* Properties Panel */}
-          <div 
-            className={`absolute right-0 top-0 bottom-0 glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
-              isPropertiesCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
-            }`}
-          >
-            <PropertiesPanel 
-              selectedObject={selectedObject}
-              isPinned={isPropertiesPinned}
-              onPinToggle={() => setIsPropertiesPinned(!isPropertiesPinned)}
-            />
-          </div>
+          {/* Comments List Panel (shows when comment mode is active) */}
+          {activeMode === "comment" && (
+            <div className="absolute right-0 top-0 bottom-0 w-80 flex-shrink-0 z-10">
+              <CommentsList
+                comments={comments}
+                onCommentSelect={(comment) => {
+                  console.log('Comment selected from list:', comment);
+                  if (comment.object_id && viewer) {
+                    const entity = viewer.scene.objects[comment.object_id];
+                    if (entity) {
+                      viewer.scene.setObjectsSelected(viewer.scene.selectedObjectIds, false);
+                      viewer.scene.setObjectsSelected([comment.object_id], true);
+                    }
+                  }
+                  // Zoom to comment position if available
+                  if (comment.position && viewer) {
+                    viewer.cameraFlight.flyTo({
+                      eye: [
+                        comment.position.x + 5,
+                        comment.position.y + 5,
+                        comment.position.z + 5
+                      ],
+                      look: [comment.position.x, comment.position.y, comment.position.z],
+                      up: [0, 0, 1],
+                      duration: 1.0
+                    });
+                  }
+                }}
+                onClose={() => setActiveMode("select")}
+              />
+            </div>
+          )}
+
+          {/* Properties Panel (shows when not in comment mode) */}
+          {activeMode !== "comment" && (
+            <div 
+              className={`absolute right-0 top-0 bottom-0 glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
+                isPropertiesCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
+              }`}
+            >
+              <PropertiesPanel 
+                selectedObject={selectedObject}
+                isPinned={isPropertiesPinned}
+                onPinToggle={() => setIsPropertiesPinned(!isPropertiesPinned)}
+              />
+            </div>
+          )}
           
-          {/* Toggle Button for Properties */}
-          <button
-            onClick={() => setIsPropertiesCollapsed(!isPropertiesCollapsed)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full p-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
-            title={isPropertiesCollapsed ? "Show Properties" : "Hide Properties"}
-          >
-            {isPropertiesCollapsed ? (
-              <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            ) : (
-              <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            )}
-          </button>
+          {/* Toggle Button for Properties (hide when in comment mode) */}
+          {activeMode !== "comment" && (
+            <button
+              onClick={() => setIsPropertiesCollapsed(!isPropertiesCollapsed)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full p-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
+              title={isPropertiesCollapsed ? "Show Properties" : "Hide Properties"}
+            >
+              {isPropertiesCollapsed ? (
+                <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>
