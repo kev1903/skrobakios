@@ -98,7 +98,7 @@ export const ObjectTree = ({
               modelData: savedModel,
               level: 0,
               isModel: true,
-              isLoadedModel: model?.id === savedModel.id || model?.fileName === savedModel.file_name,
+              isLoadedModel: model?.id === savedModel.file_name || model?.fileName === savedModel.file_name,
               children: []
             };
             
