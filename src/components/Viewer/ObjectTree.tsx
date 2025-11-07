@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronRight, ChevronDown, Box, Eye, EyeOff, Loader2, Pin } from "lucide-react";
+import { ChevronRight, ChevronDown, Box, Eye, EyeOff, Loader2, Pin, Package } from "lucide-react";
 import { toast } from "sonner";
 
 interface ObjectTreeProps {
@@ -8,111 +8,178 @@ interface ObjectTreeProps {
   ifcLoader: any;
   isPinned?: boolean;
   onPinToggle?: () => void;
-  viewer?: any; // Add viewer to access metaScene
+  viewer?: any;
+  savedModels?: any[]; // Add saved models list
+  onModelLoad?: (filePath: string, fileName: string) => void; // Callback to load a different model
 }
 
-export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, viewer }: ObjectTreeProps) => {
+export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, viewer, savedModels = [], onModelLoad }: ObjectTreeProps) => {
   const [treeData, setTreeData] = useState<any[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [visibleNodes, setVisibleNodes] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!model || !viewer) {
-      setTreeData([]);
-      return;
-    }
-
     const buildTree = async () => {
       setIsLoading(true);
       
       try {
-        const modelID = model.id;
-        
-        console.log("Building tree for model:", modelID);
-        
-        // Get entities from viewer's scene
-        const sceneObjects = viewer.scene.objects;
-        
-        if (!sceneObjects || Object.keys(sceneObjects).length === 0) {
-          console.log("No objects found in viewer scene");
-          setTreeData([]);
-          setIsLoading(false);
-          return;
-        }
-
-        console.log(`Found ${Object.keys(sceneObjects).length} objects in scene`);
-        
-        // Get metadata from viewer's metaScene
-        const metaObjects = viewer.metaScene?.metaObjects || {};
-        
-        // Group entities by IFC type from metadata
-        const elementsByType = new Map<string, any[]>();
+        // Build tree with models at the top level
+        const modelNodes: any[] = [];
         const visibleSet = new Set<string>();
-        let processedCount = 0;
-        const MAX_OBJECTS = 500;
         
-        for (const [entityId, sceneObject] of Object.entries(sceneObjects)) {
-          if (processedCount >= MAX_OBJECTS) break;
-          
-          try {
-            // Get metadata for this entity
-            const metaObject = metaObjects[entityId];
-            const ifcType = metaObject?.type || (sceneObject as any).type || "Unknown";
-            const entityName = metaObject?.name || (sceneObject as any).name || `${ifcType} ${processedCount + 1}`;
+        // If we have saved models, show them at the top level
+        if (savedModels.length > 0) {
+          for (const savedModel of savedModels) {
+            const modelId = `model-${savedModel.id}`;
+            visibleSet.add(modelId);
             
-            if (!elementsByType.has(ifcType)) {
-              elementsByType.set(ifcType, []);
+            const modelNode: any = {
+              id: modelId,
+              name: savedModel.file_name,
+              modelData: savedModel,
+              level: 0,
+              isModel: true,
+              isLoadedModel: model?.id === savedModel.id || model?.fileName === savedModel.file_name,
+              children: []
+            };
+            
+            // If this is the currently loaded model and we have viewer data, build the schema
+            if (modelNode.isLoadedModel && viewer && model) {
+              const sceneObjects = viewer.scene.objects;
+              
+              if (sceneObjects && Object.keys(sceneObjects).length > 0) {
+                const metaObjects = viewer.metaScene?.metaObjects || {};
+                const elementsByType = new Map<string, any[]>();
+                let processedCount = 0;
+                const MAX_OBJECTS = 500;
+                
+                for (const [entityId, sceneObject] of Object.entries(sceneObjects)) {
+                  if (processedCount >= MAX_OBJECTS) break;
+                  
+                  try {
+                    const metaObject = metaObjects[entityId];
+                    const ifcType = metaObject?.type || (sceneObject as any).type || "Unknown";
+                    const entityName = metaObject?.name || (sceneObject as any).name || `${ifcType} ${processedCount + 1}`;
+                    
+                    if (!elementsByType.has(ifcType)) {
+                      elementsByType.set(ifcType, []);
+                    }
+                    
+                    const nodeId = `entity-${entityId}`;
+                    elementsByType.get(ifcType)!.push({
+                      id: nodeId,
+                      name: entityName,
+                      entity: sceneObject,
+                      entityId: entityId,
+                      level: 2
+                    });
+                    
+                    visibleSet.add(nodeId);
+                    processedCount++;
+                    
+                    if (processedCount % 50 === 0) {
+                      await new Promise(resolve => setTimeout(resolve, 0));
+                    }
+                  } catch (error) {
+                    console.warn(`Error processing entity ${entityId}:`, error);
+                  }
+                }
+                
+                // Convert types to tree nodes
+                const typeNodes: any[] = [];
+                for (const [typeName, elements] of elementsByType.entries()) {
+                  const typeId = `type-${modelId}-${typeName}`;
+                  visibleSet.add(typeId);
+                  
+                  typeNodes.push({
+                    id: typeId,
+                    name: typeName,
+                    count: elements.length,
+                    type: typeName,
+                    level: 1,
+                    children: elements
+                  });
+                }
+                
+                typeNodes.sort((a, b) => a.type.localeCompare(b.type));
+                modelNode.children = typeNodes;
+                
+                if (Object.keys(sceneObjects).length > MAX_OBJECTS) {
+                  toast.info(`Showing first ${MAX_OBJECTS} of ${Object.keys(sceneObjects).length} objects`);
+                }
+              }
             }
             
-            const nodeId = `entity-${entityId}`;
-            elementsByType.get(ifcType)!.push({
-              id: nodeId,
-              name: entityName,
-              entity: sceneObject,
-              entityId: entityId,
-              level: 1
-            });
-            
-            visibleSet.add(nodeId);
-            processedCount++;
-            
-            if (processedCount % 50 === 0) {
-              await new Promise(resolve => setTimeout(resolve, 0));
-            }
-          } catch (error) {
-            console.warn(`Error processing entity ${entityId}:`, error);
+            modelNodes.push(modelNode);
           }
-        }
-        // Convert to tree structure
-        const nodes: any[] = [];
-        
-        for (const [typeName, elements] of elementsByType.entries()) {
-          const typeId = `type-${typeName}`;
-          visibleSet.add(typeId);
+        } else if (model && viewer) {
+          // Fallback to old behavior if no saved models
+          const sceneObjects = viewer.scene.objects;
           
-          nodes.push({
-            id: typeId,
-            name: typeName,
-            count: elements.length,
-            type: typeName,
-            level: 0,
-            children: elements
-          });
+          if (!sceneObjects || Object.keys(sceneObjects).length === 0) {
+            setTreeData([]);
+            setIsLoading(false);
+            return;
+          }
+
+          const metaObjects = viewer.metaScene?.metaObjects || {};
+          const elementsByType = new Map<string, any[]>();
+          let processedCount = 0;
+          const MAX_OBJECTS = 500;
+          
+          for (const [entityId, sceneObject] of Object.entries(sceneObjects)) {
+            if (processedCount >= MAX_OBJECTS) break;
+            
+            try {
+              const metaObject = metaObjects[entityId];
+              const ifcType = metaObject?.type || (sceneObject as any).type || "Unknown";
+              const entityName = metaObject?.name || (sceneObject as any).name || `${ifcType} ${processedCount + 1}`;
+              
+              if (!elementsByType.has(ifcType)) {
+                elementsByType.set(ifcType, []);
+              }
+              
+              const nodeId = `entity-${entityId}`;
+              elementsByType.get(ifcType)!.push({
+                id: nodeId,
+                name: entityName,
+                entity: sceneObject,
+                entityId: entityId,
+                level: 1
+              });
+              
+              visibleSet.add(nodeId);
+              processedCount++;
+              
+              if (processedCount % 50 === 0) {
+                await new Promise(resolve => setTimeout(resolve, 0));
+              }
+            } catch (error) {
+              console.warn(`Error processing entity ${entityId}:`, error);
+            }
+          }
+          
+          for (const [typeName, elements] of elementsByType.entries()) {
+            const typeId = `type-${typeName}`;
+            visibleSet.add(typeId);
+            
+            modelNodes.push({
+              id: typeId,
+              name: typeName,
+              count: elements.length,
+              type: typeName,
+              level: 0,
+              children: elements
+            });
+          }
+          
+          modelNodes.sort((a, b) => (a.type || a.name).localeCompare(b.type || b.name));
         }
         
-        // Sort alphabetically
-        nodes.sort((a, b) => a.type.localeCompare(b.type));
-        
-        console.log(`Tree built with ${nodes.length} types, ${processedCount} total objects`);
-        
-        setTreeData(nodes);
+        setTreeData(modelNodes);
         setVisibleNodes(visibleSet);
         setIsLoading(false);
-        
-        if (Object.keys(sceneObjects).length > MAX_OBJECTS) {
-          toast.info(`Showing first ${MAX_OBJECTS} of ${Object.keys(sceneObjects).length} objects`);
-        }
       } catch (error) {
         console.error("Error building tree:", error);
         toast.error("Failed to build object tree");
@@ -122,7 +189,7 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, vi
     };
 
     buildTree();
-  }, [model, viewer]);
+  }, [model, viewer, savedModels]);
 
   const toggleNode = (nodeId: string) => {
     const newExpanded = new Set(expandedNodes);
@@ -174,24 +241,32 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, vi
     return (
       <div key={node.id}>
         <div
-          className="flex items-center gap-2 px-6 py-3 hover:bg-accent/30 cursor-pointer transition-all duration-200 group"
+          className={`flex items-center gap-2 px-6 py-3 hover:bg-accent/30 cursor-pointer transition-all duration-200 group ${
+            node.isModel && node.isLoadedModel ? 'bg-luxury-gold/10 border-l-4 border-l-luxury-gold' : ''
+          }`}
           style={{ paddingLeft: `${level * 16 + 24}px` }}
+          onClick={() => {
+            if (node.isModel && !node.isLoadedModel && onModelLoad && node.modelData) {
+              onModelLoad(node.modelData.file_path, node.modelData.file_name);
+            } else if (hasChildren) {
+              toggleNode(node.id);
+            }
+          }}
         >
-          <div 
-            className="flex items-center gap-2 flex-1 min-w-0"
-            onClick={() => hasChildren && toggleNode(node.id)}
-          >
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             {hasChildren ? (
               isExpanded ? (
                 <ChevronDown className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-transform duration-200" />
               ) : (
                 <ChevronRight className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-transform duration-200" />
               )
+            ) : node.isModel ? (
+              <Package className="h-3.5 w-3.5 text-luxury-gold flex-shrink-0" />
             ) : (
               <Box className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
             )}
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="text-sm font-medium text-foreground truncate">
+              <span className={`text-sm font-medium truncate ${node.isModel ? 'text-luxury-gold' : 'text-foreground'}`}>
                 {node.name}
               </span>
               {node.count !== undefined && (
@@ -199,19 +274,26 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, vi
                   ({node.count})
                 </span>
               )}
+              {node.isModel && node.isLoadedModel && (
+                <span className="text-xs bg-luxury-gold/20 text-luxury-gold px-2 py-0.5 rounded-full font-medium">
+                  Loaded
+                </span>
+              )}
             </div>
           </div>
-          <button
-            onClick={(e) => toggleVisibility(node, e)}
-            className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
-            title={isVisible ? "Hide" : "Show"}
-          >
-            {isVisible ? (
-              <Eye className="h-3.5 w-3.5 text-luxury-gold" />
-            ) : (
-              <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-            )}
-          </button>
+          {node.entity && (
+            <button
+              onClick={(e) => toggleVisibility(node, e)}
+              className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
+              title={isVisible ? "Hide" : "Show"}
+            >
+              {isVisible ? (
+                <Eye className="h-3.5 w-3.5 text-luxury-gold" />
+              ) : (
+                <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+              )}
+            </button>
+          )}
         </div>
         {hasChildren && isExpanded && (
           <div>

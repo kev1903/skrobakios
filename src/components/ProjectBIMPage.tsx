@@ -622,6 +622,8 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               viewer={viewer}
               isPinned={isStructurePinned}
               onPinToggle={() => setIsStructurePinned(!isStructurePinned)}
+              savedModels={savedModels}
+              onModelLoad={loadModelFromStorage}
             />
           </div>
           
