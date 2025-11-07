@@ -17,6 +17,7 @@ interface ObjectTreeProps {
   viewer?: any;
   savedModels?: any[];
   onModelLoad?: (filePath: string, fileName: string) => void;
+  onModelUnload?: () => void;
   onModelRename?: (modelId: string, currentName: string) => void;
   onModelReplace?: (modelId: string) => void;
   onModelDelete?: (modelId: string, fileName: string) => void;
@@ -30,6 +31,7 @@ export const ObjectTree = ({
   viewer, 
   savedModels = [], 
   onModelLoad,
+  onModelUnload,
   onModelRename,
   onModelReplace,
   onModelDelete
@@ -304,7 +306,26 @@ export const ObjectTree = ({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            {(node.entity || node.isModel) && (
+            {node.isModel ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (node.isLoadedModel && onModelUnload) {
+                    onModelUnload();
+                  } else if (!node.isLoadedModel && onModelLoad && node.modelData) {
+                    onModelLoad(node.modelData.file_path, node.modelData.file_name);
+                  }
+                }}
+                className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
+                title={node.isLoadedModel ? "Unload model" : "Load model"}
+              >
+                {node.isLoadedModel ? (
+                  <Eye className="h-3.5 w-3.5 text-luxury-gold" />
+                ) : (
+                  <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                )}
+              </button>
+            ) : node.entity && (
               <button
                 onClick={(e) => toggleVisibility(node, e)}
                 className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"

@@ -806,6 +806,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               onPinToggle={() => setIsStructurePinned(!isStructurePinned)}
               savedModels={savedModels}
               onModelLoad={loadModelFromStorage}
+              onModelUnload={() => {
+                if (viewer) {
+                  viewer.scene.clear();
+                  setLoadedModel(null);
+                  toast.success("Model unloaded");
+                }
+              }}
               onModelRename={handleModelRename}
               onModelReplace={handleModelReplace}
               onModelDelete={handleModelDelete}
