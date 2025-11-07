@@ -2151,6 +2151,70 @@ export type Database = {
           },
         ]
       }
+      ifc_comments: {
+        Row: {
+          comment: string
+          company_id: string
+          created_at: string
+          id: string
+          ifc_model_id: string | null
+          object_id: string | null
+          position: Json | null
+          project_id: string
+          updated_at: string
+          user_id: string | null
+          user_name: string
+        }
+        Insert: {
+          comment: string
+          company_id: string
+          created_at?: string
+          id?: string
+          ifc_model_id?: string | null
+          object_id?: string | null
+          position?: Json | null
+          project_id: string
+          updated_at?: string
+          user_id?: string | null
+          user_name: string
+        }
+        Update: {
+          comment?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          ifc_model_id?: string | null
+          object_id?: string | null
+          position?: Json | null
+          project_id?: string
+          updated_at?: string
+          user_id?: string | null
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ifc_comments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ifc_comments_ifc_model_id_fkey"
+            columns: ["ifc_model_id"]
+            isOneToOne: false
+            referencedRelation: "ifc_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ifc_comments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ifc_models: {
         Row: {
           company_id: string
@@ -2937,6 +3001,60 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "fk_model_3d_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      model_comments: {
+        Row: {
+          comment_text: string
+          created_at: string
+          created_by: string
+          id: string
+          model_id: string
+          object_id: string
+          object_name: string | null
+          position: Json | null
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          comment_text: string
+          created_at?: string
+          created_by: string
+          id?: string
+          model_id: string
+          object_id: string
+          object_name?: string | null
+          position?: Json | null
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          comment_text?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          model_id?: string
+          object_id?: string
+          object_name?: string | null
+          position?: Json | null
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_comments_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "ifc_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "model_comments_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"

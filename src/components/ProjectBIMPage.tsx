@@ -5,6 +5,8 @@ import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
 import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
 import { CommentDialog } from "@/components/Viewer/CommentDialog";
+import { CommentMarker } from "@/components/Viewer/CommentMarker";
+import { useIfcComments } from "@/hooks/useIfcComments";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/contexts/CompanyContext";
@@ -58,6 +60,12 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; modelId: string; fileName: string }>({ open: false, modelId: '', fileName: '' });
   const [replaceModelId, setReplaceModelId] = useState<string | null>(null);
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+
+  // Comments
+  const { comments, addComment: addIfcComment, deleteComment, loadComments } = useIfcComments(
+    project?.id,
+    loadedModel?.id
+  );
 
   // Auto-collapse Project Structure after 5 seconds (unless pinned)
   useEffect(() => {
@@ -621,9 +629,28 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           y: viewer.scene.camera.eye[1],
           z: viewer.scene.camera.eye[2]
         } : undefined}
-        onSave={(comment) => {
-          console.log('Comment saved:', comment);
-          toast.success('Comment added successfully');
+        onSave={async (comment) => {
+          if (!currentCompany?.id || !project?.id) {
+            toast.error('Company or project not found');
+            return;
+          }
+
+          try {
+            await addIfcComment({
+              project_id: project.id,
+              company_id: currentCompany.id,
+              ifc_model_id: loadedModel?.id,
+              object_id: comment.objectId,
+              position: comment.position,
+              comment: comment.text,
+              user_name: comment.userName,
+            });
+            toast.success('Comment added successfully');
+            setCommentDialogOpen(false);
+          } catch (error) {
+            console.error('Error saving comment:', error);
+            toast.error('Failed to save comment');
+          }
         }}
       />
 
@@ -792,6 +819,34 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           
           <div className="absolute inset-0 overflow-hidden">
             <ViewerCanvas onViewerReady={handleViewerReady} />
+            
+            {/* Comment Markers */}
+            {viewer && comments.map(comment => (
+              <CommentMarker
+                key={comment.id}
+                comment={comment}
+                viewer={viewer}
+                onDelete={async (commentId) => {
+                  try {
+                    await deleteComment(commentId);
+                    toast.success('Comment deleted');
+                  } catch (error) {
+                    console.error('Error deleting comment:', error);
+                    toast.error('Failed to delete comment');
+                  }
+                }}
+                onSelect={(comment) => {
+                  console.log('Comment selected:', comment);
+                  if (comment.object_id && viewer) {
+                    const entity = viewer.scene.objects[comment.object_id];
+                    if (entity) {
+                      viewer.scene.setObjectsSelected(viewer.scene.selectedObjectIds, false);
+                      viewer.scene.setObjectsSelected([comment.object_id], true);
+                    }
+                  }
+                }}
+              />
+            ))}
           </div>
           
           {/* Properties Panel */}
