@@ -17,7 +17,26 @@ interface PropertiesPanelProps {
   onPinToggle?: () => void;
 }
 
+const findAssemblyNumber = (selectedObject: any): string | null => {
+  // First check in attributes
+  if (selectedObject.attributes?.ASSEMBLY_POS) {
+    return selectedObject.attributes.ASSEMBLY_POS;
+  }
+  
+  // Then check in property sets
+  if (selectedObject.propertySets) {
+    for (const propSet of selectedObject.propertySets) {
+      if (propSet.properties?.ASSEMBLY_POS) {
+        return propSet.properties.ASSEMBLY_POS;
+      }
+    }
+  }
+  
+  return null;
+};
+
 export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle }: PropertiesPanelProps) => {
+  const assemblyNumber = selectedObject ? findAssemblyNumber(selectedObject) : null;
   return (
     <div className="h-full flex flex-col">
       <div className="px-6 py-4 border-b border-border/30 flex items-center justify-between">
@@ -55,13 +74,19 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle 
               </div>
             </div>
 
-            {/* Key Properties - Tag and Reference */}
-            {(selectedObject.attributes?.Tag || selectedObject.attributes?.Reference) && (
+            {/* Key Properties - Assembly Number, Tag and Reference */}
+            {(assemblyNumber || selectedObject.attributes?.Tag || selectedObject.attributes?.Reference) && (
               <div className="space-y-3 pb-4 border-b border-border/30">
                 <h5 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">
                   Key Properties
                 </h5>
                 <div className="grid grid-cols-1 gap-2">
+                  {assemblyNumber && (
+                    <div className="flex items-center justify-between p-3 bg-luxury-gold/10 rounded-lg border border-luxury-gold/20">
+                      <span className="text-xs font-medium text-muted-foreground">Assembly Number</span>
+                      <span className="text-sm font-semibold text-luxury-gold font-mono">{assemblyNumber}</span>
+                    </div>
+                  )}
                   {selectedObject.attributes.Tag && (
                     <div className="flex items-center justify-between p-3 bg-luxury-gold/10 rounded-lg border border-luxury-gold/20">
                       <span className="text-xs font-medium text-muted-foreground">Tag</span>
