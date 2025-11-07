@@ -41,6 +41,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const { currentCompany } = useCompany();
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan" | "comment">("select");
+  const activeModeRef = useRef<"select" | "measure" | "pan" | "comment">("select");
   const [loadedModel, setLoadedModel] = useState<any>(null);
   const [ifcLoader, setIfcLoader] = useState<WebIFCLoaderPlugin | null>(null);
   const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
@@ -167,7 +168,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       });
 
       // Check if we're in comment mode
-      if (activeMode === "comment") {
+      if (activeModeRef.current === "comment") {
         if (hit && hit.worldPos) {
           // Store the clicked position and object for comment
           const commentData = {
@@ -180,7 +181,8 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           };
           setPendingCommentData(commentData);
           setCommentDialogOpen(true);
-          setActiveMode("select"); // Return to select mode
+          setActiveMode("select");
+          activeModeRef.current = "select";
         }
         return;
       }
@@ -788,6 +790,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             activeMode={activeMode}
             onModeChange={(mode) => {
               setActiveMode(mode);
+              activeModeRef.current = mode;
               if (mode === "comment") {
                 toast.info("Click on the model to place your comment");
               }
