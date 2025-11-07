@@ -21,16 +21,52 @@ export const CommentMarker = ({ comment, viewer, onDelete, onSelect }: CommentMa
 
       const worldPos = [comment.position.x, comment.position.y, comment.position.z];
       const canvas = viewer.scene.canvas.canvas;
-      const canvasPos = viewer.scene.camera.project.worldToCanvas(worldPos);
-
-      if (canvasPos) {
-        const rect = canvas.getBoundingClientRect();
-        markerRef.current.style.left = `${rect.left + canvasPos[0]}px`;
-        markerRef.current.style.top = `${rect.top + canvasPos[1]}px`;
-        markerRef.current.style.display = 'block';
-      } else {
+      const camera = viewer.scene.camera;
+      
+      // Manually project world coordinates to canvas coordinates
+      // Using xeokit's camera view and projection matrices
+      const viewMat = camera.viewMatrix;
+      const projMat = camera.projMatrix;
+      
+      // Transform world to view space
+      const viewPos = [
+        viewMat[0] * worldPos[0] + viewMat[4] * worldPos[1] + viewMat[8] * worldPos[2] + viewMat[12],
+        viewMat[1] * worldPos[0] + viewMat[5] * worldPos[1] + viewMat[9] * worldPos[2] + viewMat[13],
+        viewMat[2] * worldPos[0] + viewMat[6] * worldPos[1] + viewMat[10] * worldPos[2] + viewMat[14],
+        viewMat[3] * worldPos[0] + viewMat[7] * worldPos[1] + viewMat[11] * worldPos[2] + viewMat[15]
+      ];
+      
+      // Transform view to clip space
+      const clipPos = [
+        projMat[0] * viewPos[0] + projMat[4] * viewPos[1] + projMat[8] * viewPos[2] + projMat[12] * viewPos[3],
+        projMat[1] * viewPos[0] + projMat[5] * viewPos[1] + projMat[9] * viewPos[2] + projMat[13] * viewPos[3],
+        projMat[2] * viewPos[0] + projMat[6] * viewPos[1] + projMat[10] * viewPos[2] + projMat[14] * viewPos[3],
+        projMat[3] * viewPos[0] + projMat[7] * viewPos[1] + projMat[11] * viewPos[2] + projMat[15] * viewPos[3]
+      ];
+      
+      // Perspective divide
+      const ndc = [
+        clipPos[0] / clipPos[3],
+        clipPos[1] / clipPos[3],
+        clipPos[2] / clipPos[3]
+      ];
+      
+      // Check if behind camera or outside frustum
+      if (ndc[2] < -1 || ndc[2] > 1 || ndc[0] < -1 || ndc[0] > 1 || ndc[1] < -1 || ndc[1] > 1) {
         markerRef.current.style.display = 'none';
+        return;
       }
+      
+      // Convert NDC to canvas coordinates
+      const canvasWidth = canvas.width / window.devicePixelRatio;
+      const canvasHeight = canvas.height / window.devicePixelRatio;
+      const canvasX = (ndc[0] + 1) * 0.5 * canvasWidth;
+      const canvasY = (1 - ndc[1]) * 0.5 * canvasHeight;
+      
+      const rect = canvas.getBoundingClientRect();
+      markerRef.current.style.left = `${rect.left + canvasX}px`;
+      markerRef.current.style.top = `${rect.top + canvasY}px`;
+      markerRef.current.style.display = 'block';
     };
 
     // Update position on camera changes
