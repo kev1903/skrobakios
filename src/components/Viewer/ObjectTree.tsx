@@ -207,27 +207,29 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, vi
     const newVisible = new Set(visibleNodes);
     const isVisible = visibleNodes.has(node.id);
     
-    if (isVisible) {
-      newVisible.delete(node.id);
-      if (node.children) {
-        node.children.forEach((child: any) => {
-          newVisible.delete(child.id);
-          if (child.entity) {
-            child.entity.visible = false;
-          }
+    // Recursive function to toggle visibility of all descendants
+    const toggleNodeAndChildren = (n: any, visible: boolean) => {
+      if (visible) {
+        newVisible.add(n.id);
+      } else {
+        newVisible.delete(n.id);
+      }
+      
+      // If it has an entity, toggle its visibility
+      if (n.entity) {
+        n.entity.visible = visible;
+      }
+      
+      // Recursively toggle children
+      if (n.children) {
+        n.children.forEach((child: any) => {
+          toggleNodeAndChildren(child, visible);
         });
       }
-    } else {
-      newVisible.add(node.id);
-      if (node.children) {
-        node.children.forEach((child: any) => {
-          newVisible.add(child.id);
-          if (child.entity) {
-            child.entity.visible = true;
-          }
-        });
-      }
-    }
+    };
+    
+    // Toggle this node and all its descendants
+    toggleNodeAndChildren(node, !isVisible);
     
     setVisibleNodes(newVisible);
   };
@@ -281,7 +283,7 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, vi
               )}
             </div>
           </div>
-          {node.entity && (
+          {(node.entity || node.isModel) && (
             <button
               onClick={(e) => toggleVisibility(node, e)}
               className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
