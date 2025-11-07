@@ -183,8 +183,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           };
           setPendingCommentData(commentData);
           setCommentDialogOpen(true);
-          setActiveMode("select");
-          activeModeRef.current = "select";
+          // Stay in comment mode
         }
         return;
       }
