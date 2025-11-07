@@ -851,7 +851,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           </button>
           
           <div className="absolute inset-0 overflow-hidden">
-            <ViewerCanvas onViewerReady={handleViewerReady} />
+            <div className={`h-full w-full ${activeMode === "comment" ? "cursor-crosshair" : ""}`}>
+              <ViewerCanvas onViewerReady={handleViewerReady} />
+            </div>
             
             {/* Comment Markers */}
             {viewer && comments.map(comment => (
