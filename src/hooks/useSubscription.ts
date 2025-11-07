@@ -76,6 +76,14 @@ export const useSubscription = () => {
     }
 
     try {
+      // Ensure we have a valid session before calling the edge function
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        console.warn('No valid session found, skipping subscription check');
+        setCurrentSubscription(null);
+        return;
+      }
+
       const { data, error: functionError } = await supabase.functions.invoke('check-subscription');
 
       if (functionError) throw functionError;
