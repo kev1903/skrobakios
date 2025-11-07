@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { MessageSquare, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { IfcComment } from "@/hooks/useIfcComments";
 
 interface CommentMarkerProps {
@@ -84,6 +85,15 @@ export const CommentMarker = ({ comment, viewer, onDelete, onSelect }: CommentMa
 
   if (!comment.position) return null;
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div
       ref={markerRef}
@@ -91,14 +101,19 @@ export const CommentMarker = ({ comment, viewer, onDelete, onSelect }: CommentMa
       style={{ transform: 'translate(-50%, -100%)' }}
     >
       <div className="relative group">
-        <Button
-          size="icon"
-          variant="ghost"
+        <button
           onClick={() => onSelect?.(comment)}
-          className="h-8 w-8 rounded-full bg-luxury-gold/90 backdrop-blur-xl border border-white/30 shadow-lg hover:bg-luxury-gold hover:scale-110 transition-all duration-200"
+          className="block rounded-full hover:scale-110 transition-all duration-200 shadow-lg hover:shadow-xl ring-2 ring-luxury-gold/50 hover:ring-luxury-gold"
         >
-          <MessageSquare className="h-4 w-4 text-white" />
-        </Button>
+          <Avatar className="h-8 w-8 border-2 border-white">
+            {comment.avatar_url && (
+              <AvatarImage src={comment.avatar_url} alt={comment.user_name} />
+            )}
+            <AvatarFallback className="bg-luxury-gold text-white text-xs font-semibold">
+              {getInitials(comment.user_name)}
+            </AvatarFallback>
+          </Avatar>
+        </button>
 
         {/* Tooltip on hover */}
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
