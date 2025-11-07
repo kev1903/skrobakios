@@ -29,7 +29,7 @@ export const useIfcComments = (projectId: string, modelId?: string) => {
         .from('ifc_comments')
         .select(`
           *,
-          profiles!ifc_comments_user_id_fkey(avatar_url)
+          profiles(avatar_url)
         `)
         .eq('project_id', projectId)
         .order('created_at', { ascending: true });
