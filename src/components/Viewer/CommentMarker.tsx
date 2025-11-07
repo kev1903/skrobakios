@@ -78,8 +78,11 @@ export const CommentMarker = ({ comment, viewer, onDelete, onSelect }: CommentMa
     updateMarkerPosition();
 
     return () => {
-      viewer.scene.camera.off("viewMatrix", updateMarkerPosition);
-      viewer.scene.camera.off("projMatrix", updateMarkerPosition);
+      // Check if viewer and camera still exist before cleaning up
+      if (viewer?.scene?.camera) {
+        viewer.scene.camera.off("viewMatrix", updateMarkerPosition);
+        viewer.scene.camera.off("projMatrix", updateMarkerPosition);
+      }
     };
   }, [viewer, comment.position]);
 
