@@ -1,105 +1,91 @@
-// Service Worker for aggressive cache management
-const CACHE_VERSION = 'v2.0.1';
-const CACHE_NAME = `skrobaki-${CACHE_VERSION}`;
+// Service Worker for Skrobaki PM
+const CACHE_NAME = 'skrobaki-pm-v1';
+const RUNTIME_CACHE = 'runtime-cache-v1';
 
-// Install event - clean up old caches
+// Install event - cache essential resources
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing new service worker');
+  console.log('[SW] Installing service worker...');
+  self.skipWaiting(); // Activate immediately
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating service worker...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((cacheName) => cacheName !== CACHE_NAME)
-          .map((cacheName) => {
-            console.log('[SW] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
+          .filter((name) => name !== CACHE_NAME && name !== RUNTIME_CACHE)
+          .map((name) => {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
           })
       );
-    }).then(() => self.skipWaiting())
+    }).then(() => self.clients.claim())
   );
 });
 
-// Activate event - take control immediately
-self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating new service worker');
-  event.waitUntil(
-    self.clients.claim().then(() => {
-      console.log('[SW] Service worker activated and ready');
-    })
-  );
-});
-
-// Fetch event - network-first strategy with version checking
+// Fetch event - network first, then cache
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') {
-    return;
-  }
-  
-  // For version.json, always fetch fresh from network
-  if (url.pathname.includes('version.json')) {
-    event.respondWith(
-      fetch(event.request, {
-        cache: 'no-cache',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
-      })
-    );
-    return;
-  }
-  
-  // For HTML files, always try network first
-  if (url.pathname.endsWith('.html') || url.pathname === '/' || !url.pathname.includes('.')) {
-    event.respondWith(
-      fetch(event.request, {
-        cache: 'no-cache'
-      }).catch(() => {
-        return caches.match(event.request);
-      })
-    );
-    return;
-  }
-  
-  // For static assets (JS, CSS, images), use cache-first but validate
-  event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => {
-      return fetch(event.request).then((response) => {
-        // Clone the response before caching
-        cache.put(event.request, response.clone());
-        return response;
-      }).catch(() => {
-        // If network fails, try cache
-        return cache.match(event.request);
-      });
-    })
-  );
-});
+  const { request } = event;
+  const url = new URL(request.url);
 
-// Listen for messages from clients
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] Received SKIP_WAITING message');
-    self.skipWaiting();
+  // Skip cross-origin requests and chrome-extension requests
+  if (url.origin !== location.origin || url.protocol === 'chrome-extension:') {
+    return;
   }
-  
-  if (event.data && event.data.type === 'CLEAR_CACHE') {
-    console.log('[SW] Clearing all caches');
-    event.waitUntil(
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => caches.delete(cacheName))
-        );
-      }).then(() => {
-        // Notify client that caches are cleared
-        self.clients.matchAll().then(clients => {
-          clients.forEach(client => {
-            client.postMessage({ type: 'CACHE_CLEARED' });
+
+  // Skip Supabase and API calls - always go to network
+  if (
+    url.hostname.includes('supabase.co') ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/rest/') ||
+    url.pathname.startsWith('/auth/') ||
+    url.pathname.startsWith('/functions/')
+  ) {
+    return;
+  }
+
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        // Cache successful responses
+        if (response && response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch((error) => {
+        console.log('[SW] Fetch failed, trying cache:', request.url);
+        // Try to get from cache
+        return caches.match(request).then((response) => {
+          if (response) {
+            return response;
+          }
+          // Return a basic error response instead of throwing
+          return new Response('Network error occurred', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: new Headers({
+              'Content-Type': 'text/plain',
+            }),
           });
         });
+      })
+  );
+});
+
+// Handle messages from the main thread
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(cacheNames.map((name) => caches.delete(name)));
+      }).then(() => {
+        event.ports[0].postMessage({ type: 'CACHE_CLEARED' });
       })
     );
   }

@@ -62,16 +62,48 @@ const findMappedProperty = (selectedObject: any, searchKeys: string[]): string |
   return null;
 };
 
+// Debug helper to log all available properties
+const logAllProperties = (selectedObject: any) => {
+  console.log('🔍 IFC Object Debug Info:');
+  console.log('- ID:', selectedObject.id);
+  console.log('- Name:', selectedObject.name);
+  console.log('- Type:', selectedObject.type);
+  console.log('- Attributes:', selectedObject.attributes);
+  
+  if (selectedObject.propertySets && Array.isArray(selectedObject.propertySets)) {
+    console.log('- Property Sets:');
+    selectedObject.propertySets.forEach((propSet: any, index: number) => {
+      console.log(`  ${index + 1}. ${propSet.name || 'Unnamed Property Set'}:`);
+      if (propSet.properties && Array.isArray(propSet.properties)) {
+        propSet.properties.forEach((prop: any) => {
+          if (prop && prop.name) {
+            console.log(`     - ${prop.name}: ${prop.value}`);
+          }
+        });
+      }
+    });
+  } else {
+    console.log('- No property sets found');
+  }
+};
+
 const getAllMappedProperties = (selectedObject: any) => {
   const mapping = getPropertyMapping();
   
-  return {
+  // Log all properties for debugging
+  logAllProperties(selectedObject);
+  
+  const props = {
     assemblyNumber: findMappedProperty(selectedObject, mapping.assemblyNumber),
     elementId: findMappedProperty(selectedObject, mapping.elementId),
     tag: findMappedProperty(selectedObject, mapping.tag),
     reference: findMappedProperty(selectedObject, mapping.reference),
     mark: findMappedProperty(selectedObject, mapping.mark),
   };
+  
+  console.log('📋 Mapped Properties Result:', props);
+  
+  return props;
 };
 
 export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle, viewer, onElementSelect }: PropertiesPanelProps) => {
