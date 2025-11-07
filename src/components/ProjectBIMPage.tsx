@@ -892,25 +892,36 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                 const model = loadedModels.get(modelDbId);
                 if (!model || !viewer) return;
 
-                setVisibleModels(prev => {
-                  const newSet = new Set(prev);
-                  const isVisible = newSet.has(modelDbId);
-                  
-                  if (isVisible) {
-                    newSet.delete(modelDbId);
-                    // Hide the model using xeokit's built-in method
-                    model.visible = false;
-                    toast.success("Model hidden");
-                  } else {
-                    newSet.add(modelDbId);
-                    // Show the model using xeokit's built-in method
-                    model.visible = true;
-                    toast.success("Model shown");
-                  }
-                  
-                  return newSet;
-                });
-                setLoadedModelDbId(modelDbId);
+                try {
+                  setVisibleModels(prev => {
+                    const newSet = new Set(prev);
+                    const isVisible = newSet.has(modelDbId);
+                    
+                    // Check if model is destroyed or not ready
+                    if (model.destroyed || !model.scene) {
+                      console.warn('Model not ready for visibility toggle');
+                      return prev;
+                    }
+                    
+                    if (isVisible) {
+                      newSet.delete(modelDbId);
+                      // Hide the model using xeokit's built-in method
+                      model.visible = false;
+                      toast.success("Model hidden");
+                    } else {
+                      newSet.add(modelDbId);
+                      // Show the model using xeokit's built-in method
+                      model.visible = true;
+                      toast.success("Model shown");
+                    }
+                    
+                    return newSet;
+                  });
+                  setLoadedModelDbId(modelDbId);
+                } catch (error) {
+                  console.error('Error toggling model visibility:', error);
+                  toast.error('Failed to toggle model visibility');
+                }
               }}
               onModelRename={handleModelRename}
               onModelReplace={handleModelReplace}
