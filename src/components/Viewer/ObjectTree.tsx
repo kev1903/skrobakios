@@ -107,6 +107,13 @@ export const ObjectTree = ({
               const sceneObjects = viewer.scene.objects;
               
               if (sceneObjects && Object.keys(sceneObjects).length > 0) {
+                // If we have scene objects but a saved state with very few nodes,
+                // it's likely an incomplete save - ignore it and show everything
+                if (savedVisibilitySet && savedVisibilitySet.size < 10) {
+                  console.log('⚠️ Ignoring incomplete visibility state, showing all objects');
+                  savedVisibilitySet = null;
+                }
+                
                 const metaObjects = viewer.metaScene?.metaObjects || {};
                 const elementsByType = new Map<string, any[]>();
                 let processedCount = 0;

@@ -456,16 +456,21 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       model.on("loaded", () => {
         toast.dismiss(loadingToast);
         toast.success(`Model loaded: ${fileName}`);
-        setLoadedModel(model);
         
+        // Wait a bit for objects to populate in the scene before setting the loaded model
         setTimeout(() => {
-          if (viewer?.scene?.aabb) {
-            viewer.cameraFlight.flyTo({ 
-              aabb: viewer.scene.aabb, 
-              duration: 1 
-            });
-          }
-        }, 300);
+          setLoadedModel(model);
+          
+          // Then fly to show the model
+          setTimeout(() => {
+            if (viewer?.scene?.aabb) {
+              viewer.cameraFlight.flyTo({ 
+                aabb: viewer.scene.aabb, 
+                duration: 1 
+              });
+            }
+          }, 100);
+        }, 200);
       });
 
       model.on("error", (error: any) => {
