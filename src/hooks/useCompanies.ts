@@ -6,6 +6,12 @@ import { Company, CreateCompanyData, UserCompany } from '@/types/company';
 const companiesCache = new Map();
 const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
 
+// Clear cache on initial load to ensure fresh data
+if (typeof window !== 'undefined') {
+  companiesCache.clear();
+  console.log('🧹 Cleared companies cache on module load');
+}
+
 export const useCompanies = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

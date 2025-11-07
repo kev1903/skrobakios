@@ -22,16 +22,16 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
   const { user, isAuthenticated } = useAuth();
 
   const refreshCompanies = useCallback(async () => {
+    console.log('🔵 refreshCompanies called, user?.id:', user?.id);
+    if (!user?.id) {
+      console.log('⚠️ No user ID available for refreshCompanies');
+      return;
+    }
+    
     try {
-      console.log('🏢 Refreshing companies...');
-      console.log('🔐 Current user:', user?.id, user?.email);
-      console.log('✅ Is authenticated:', isAuthenticated);
-      
-      // Add a small delay to ensure auth is fully ready
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      console.log('🏢 Fetching companies for user:', user.id);
       const userCompanies = await getUserCompanies({ bypassCache: true });
-      console.log('📊 Fetched user companies:', userCompanies);
+      console.log('✅ Fetched companies:', userCompanies);
       
       setCompanies(userCompanies);
       
@@ -98,7 +98,7 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     }
-  }, [getUserCompanies, user?.id]);
+  }, [getUserCompanies, user?.id, isAuthenticated]);
 
   const switchCompany = async (companyId: string) => {
     const company = companies.find(c => c.id === companyId);
@@ -162,42 +162,19 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Load companies when auth state changes
   useEffect(() => {
-    // Load companies and restore selected company from localStorage
-    const loadCompanies = async () => {
-      if (!isAuthenticated || !user?.id) {
-        console.log('🚫 Not authenticated or no user, skipping company load');
-        return;
-      }
-      
-      console.log('👤 User authenticated, loading companies for user:', user.id);
-      
-      // Try loading companies with retry mechanism
-      let retryCount = 0;
-      const maxRetries = 2; // Reduced retries to prevent excessive calls
-      
-      while (retryCount < maxRetries) {
-        try {
-          await refreshCompanies();
-          break; // Success, exit retry loop
-        } catch (error) {
-          retryCount++;
-          console.log(`💔 Company load attempt ${retryCount} failed:`, error);
-          
-          if (retryCount < maxRetries) {
-            // Wait longer for each retry
-            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
-          } else {
-            console.error('💥 Failed to load companies after all retries');
-          }
-        }
-      }
-    };
-
-    // Debounce the loading to prevent rapid successive calls
-    const timeoutId = setTimeout(loadCompanies, 100);
-    return () => clearTimeout(timeoutId);
-  }, [isAuthenticated, user?.id]);
+    console.log('🔵 CompanyContext useEffect triggered:', { isAuthenticated, userId: user?.id });
+    
+    if (isAuthenticated && user?.id) {
+      console.log('🔄 Calling refreshCompanies for user:', user.id);
+      refreshCompanies();
+    } else {
+      console.log('⚠️ Not authenticated, clearing companies');
+      setCompanies([]);
+      setCurrentCompany(null);
+    }
+  }, [isAuthenticated, user?.id, refreshCompanies]);
 
   // Update current company when companies list changes
   useEffect(() => {
