@@ -23,20 +23,58 @@ interface PropertiesPanelProps {
 }
 
 const findAssemblyNumber = (selectedObject: any): string | null => {
+  // Debug: Log all available properties
+  console.log('🔍 Searching for ASSEMBLY_POS in selectedObject:', selectedObject);
+  
   // First check in attributes
   if (selectedObject.attributes?.ASSEMBLY_POS) {
+    console.log('✅ Found ASSEMBLY_POS in attributes:', selectedObject.attributes.ASSEMBLY_POS);
     return selectedObject.attributes.ASSEMBLY_POS;
   }
   
-  // Then check in property sets
-  if (selectedObject.propertySets) {
+  // Then check in property sets (from IfcRelDefinesByProperties)
+  if (selectedObject.propertySets && Array.isArray(selectedObject.propertySets)) {
+    console.log('🔍 Checking property sets:', selectedObject.propertySets);
+    
     for (const propSet of selectedObject.propertySets) {
-      if (propSet.properties?.ASSEMBLY_POS) {
-        return propSet.properties.ASSEMBLY_POS;
+      console.log('🔍 Property set:', propSet.name, 'Properties:', propSet.properties);
+      
+      if (propSet.properties) {
+        // Search for ASSEMBLY_POS and common alternatives
+        const searchKeys = [
+          'ASSEMBLY_POS', 
+          'Assembly_Pos',
+          'ASSEMBLY_NUMBER',
+          'AssemblyNumber',
+          'Mark',
+          'Tag',
+          'Position',
+          'PieceMark',
+          'ElementMark'
+        ];
+        
+        for (const key of searchKeys) {
+          if (propSet.properties[key]) {
+            console.log('✅ Found Assembly Number in property set:', propSet.name, 'Key:', key, 'Value:', propSet.properties[key]);
+            return String(propSet.properties[key]);
+          }
+        }
+        
+        // Also check case-insensitive
+        const allKeys = Object.keys(propSet.properties);
+        for (const actualKey of allKeys) {
+          if (actualKey.toUpperCase().includes('ASSEMBLY') || 
+              actualKey.toUpperCase().includes('MARK') ||
+              actualKey.toUpperCase().includes('POS')) {
+            console.log('✅ Found potential Assembly Number (case-insensitive):', propSet.name, 'Key:', actualKey, 'Value:', propSet.properties[actualKey]);
+            return String(propSet.properties[actualKey]);
+          }
+        }
       }
     }
   }
   
+  console.log('❌ ASSEMBLY_POS not found in any property set');
   return null;
 };
 
