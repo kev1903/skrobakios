@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Upload, MousePointer, Hand, Ruler, ZoomIn, ZoomOut, Maximize, ArrowLeft } from "lucide-react";
+import { Upload, MousePointer, Hand, Ruler, ZoomIn, ZoomOut, Maximize, ArrowLeft, MessageSquare } from "lucide-react";
 
 interface ViewerToolbarProps {
   onZoomIn: () => void;
@@ -49,16 +49,15 @@ export const ViewerToolbar = ({
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => onModeChange("select")}
-                className={
+                className={`h-8 w-8 rounded-full ${
                   activeMode === "select"
                     ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
-                    : "hover:bg-accent/30 text-muted-foreground"
-                }
+                    : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
+                }`}
               >
-                <MousePointer className="h-4 w-4 mr-2" />
-                <span className="text-sm font-medium">Select</span>
+                <MousePointer className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Select objects</TooltipContent>
@@ -68,16 +67,15 @@ export const ViewerToolbar = ({
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => onModeChange("pan")}
-                className={
+                className={`h-8 w-8 rounded-full ${
                   activeMode === "pan"
                     ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
-                    : "hover:bg-accent/30 text-muted-foreground"
-                }
+                    : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
+                }`}
               >
-                <Hand className="h-4 w-4 mr-2" />
-                <span className="text-sm font-medium">Pan</span>
+                <Hand className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Pan view</TooltipContent>
@@ -87,22 +85,34 @@ export const ViewerToolbar = ({
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => {
                   onModeChange("measure");
                   onMeasure();
                 }}
-                className={
+                className={`h-8 w-8 rounded-full ${
                   activeMode === "measure"
                     ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
-                    : "hover:bg-accent/30 text-muted-foreground"
-                }
+                    : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
+                }`}
               >
-                <Ruler className="h-4 w-4 mr-2" />
-                <span className="text-sm font-medium">Measure</span>
+                <Ruler className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Measure distance</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full hover:bg-accent/30 text-muted-foreground hover:text-foreground"
+              >
+                <MessageSquare className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Add comment</TooltipContent>
           </Tooltip>
         </div>
 
@@ -156,12 +166,11 @@ export const ViewerToolbar = ({
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={onUpload}
-              className="ml-auto bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 font-medium"
+              className="ml-auto bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Upload IFC
+              <Upload className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Upload IFC File</TooltipContent>
