@@ -463,11 +463,13 @@ const IFCViewerPage = () => {
           }`}
         >
           <ObjectTree 
-            model={loadedModel} 
+            loadedModels={loadedModel ? new Map([[loadedModel.id, loadedModel]]) : new Map()}
+            visibleModels={loadedModel ? new Set([loadedModel.id]) : new Set()}
             ifcLoader={ifcLoader}
             viewer={viewer}
             isPinned={isStructurePinned}
             onPinToggle={() => setIsStructurePinned(!isStructurePinned)}
+            savedModels={loadedModel ? [{ id: loadedModel.id, file_name: loadedModel.id, file_path: '' }] : []}
           />
         </div>
         

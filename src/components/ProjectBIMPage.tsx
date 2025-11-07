@@ -43,8 +43,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan" | "comment">("select");
   const activeModeRef = useRef<"select" | "measure" | "pan" | "comment">("select");
-  const [loadedModel, setLoadedModel] = useState<any>(null);
-  const [loadedModelDbId, setLoadedModelDbId] = useState<string | null>(null);
+  const [loadedModels, setLoadedModels] = useState<Map<string, any>>(new Map()); // Map of modelDbId -> model instance
+  const [visibleModels, setVisibleModels] = useState<Set<string>>(new Set()); // Set of visible modelDbIds
+  const [loadedModelDbId, setLoadedModelDbId] = useState<string | null>(null); // For comments, tracks active model
   const [ifcLoader, setIfcLoader] = useState<WebIFCLoaderPlugin | null>(null);
   const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
@@ -351,19 +352,26 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       // Update local state
       setSavedModels(prev => prev.filter(m => m.id !== deleteDialog.modelId));
 
-      // If this was the loaded model, clear it
-      if (loadedModel?.id === deleteDialog.modelId || loadedModel?.fileName === deleteDialog.fileName) {
-        if (loadedModel) {
-          try {
-            if (loadedModel.destroyed === false) {
-              loadedModel.destroy();
-            }
-          } catch (destroyError) {
-            console.warn("Error destroying model during delete:", destroyError);
+      // If this was a loaded model, remove it from loaded models
+      const model = loadedModels.get(deleteDialog.modelId);
+      if (model) {
+        try {
+          if (model.destroyed === false) {
+            model.destroy();
           }
-          setLoadedModel(null);
-          setLoadedModelDbId(null);
+        } catch (destroyError) {
+          console.warn("Error destroying model during delete:", destroyError);
         }
+        setLoadedModels(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(deleteDialog.modelId);
+          return newMap;
+        });
+        setVisibleModels(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(deleteDialog.modelId);
+          return newSet;
+        });
       }
 
       toast.success('Model deleted successfully');
@@ -457,7 +465,14 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   };
 
   const loadModelFromStorage = async (filePath: string, fileName: string, modelDbId?: string) => {
-    if (!viewer || !ifcLoader) return;
+    if (!viewer || !ifcLoader || !modelDbId) return;
+
+    // Check if model is already loaded
+    if (loadedModels.has(modelDbId)) {
+      // Model already loaded, just toggle visibility will be handled by the eye icon
+      toast.info(`Model ${fileName} is already loaded`);
+      return;
+    }
 
     const loadingToast = toast.loading(`Loading ${fileName}...`);
 
@@ -472,19 +487,6 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       // Convert blob to array buffer
       const arrayBuffer = await data.arrayBuffer();
 
-      // Safely destroy existing model
-      if (loadedModel) {
-        try {
-          if (loadedModel.destroyed === false) {
-            loadedModel.destroy();
-          }
-        } catch (destroyError) {
-          console.warn("Error destroying previous model:", destroyError);
-        }
-        setLoadedModel(null);
-        setLoadedModelDbId(null);
-      }
-
       const model = ifcLoader.load({
         id: fileName,
         ifc: arrayBuffer,
@@ -496,12 +498,20 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         toast.dismiss(loadingToast);
         toast.success(`Model loaded: ${fileName}`);
         
-        // Wait a bit for objects to populate in the scene before setting the loaded model
+        // Wait a bit for objects to populate in the scene
         setTimeout(() => {
-          setLoadedModel(model);
-          setLoadedModelDbId(modelDbId || null);
+          // Add to loaded models
+          setLoadedModels(prev => {
+            const newMap = new Map(prev);
+            newMap.set(modelDbId, model);
+            return newMap;
+          });
+
+          // Make visible
+          setVisibleModels(prev => new Set([...prev, modelDbId]));
+          setLoadedModelDbId(modelDbId);
           
-          // Then fly to show the model
+          // Fly to show all visible models
           setTimeout(() => {
             if (viewer?.scene?.aabb) {
               viewer.cameraFlight.flyTo({ 
@@ -521,7 +531,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     } catch (error: any) {
       toast.dismiss(loadingToast);
       toast.error(`Failed to load model: ${error.message}`);
-      console.error("Error loading model:", error);
+      console.error("Error in loadModelFromStorage:", error);
     }
   };
 
@@ -628,9 +638,29 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       toast.dismiss(replacingToast);
       toast.success('Model replaced successfully');
 
-      // If this was the loaded model, reload it
-      if (loadedModel?.id === replaceModelId || loadedModel?.fileName === modelToReplace.file_name) {
-        await loadModelFromStorage(filePath, file.name);
+      // If this was a loaded model, reload it
+      const model = loadedModels.get(replaceModelId);
+      if (model) {
+        try {
+          if (model.destroyed === false) {
+            model.destroy();
+          }
+        } catch (destroyError) {
+          console.warn("Error destroying model during replace:", destroyError);
+        }
+        setLoadedModels(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(replaceModelId);
+          return newMap;
+        });
+        setVisibleModels(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(replaceModelId);
+          return newSet;
+        });
+        
+        // Load the new model
+        await loadModelFromStorage(filePath, file.name, replaceModelId);
       }
 
       // Clear states
@@ -850,26 +880,49 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             }`}
           >
             <ObjectTree 
-              model={loadedModel} 
+              loadedModels={loadedModels}
+              visibleModels={visibleModels}
               ifcLoader={ifcLoader}
               viewer={viewer}
               isPinned={isStructurePinned}
               onPinToggle={() => setIsStructurePinned(!isStructurePinned)}
               savedModels={savedModels}
               onModelLoad={loadModelFromStorage}
-              onModelUnload={() => {
-                if (viewer && loadedModel) {
-                  try {
-                    if (loadedModel.destroyed === false) {
-                      loadedModel.destroy();
+              onModelToggleVisibility={(modelDbId) => {
+                const model = loadedModels.get(modelDbId);
+                if (!model) return;
+
+                setVisibleModels(prev => {
+                  const newSet = new Set(prev);
+                  const isVisible = newSet.has(modelDbId);
+                  
+                  if (isVisible) {
+                    newSet.delete(modelDbId);
+                    // Hide all objects of this model
+                    if (viewer && model) {
+                      const modelObjects = Object.keys(viewer.scene.objects).filter(id => {
+                        const obj = viewer.scene.objects[id];
+                        return obj && typeof obj.id === 'string' && obj.id.startsWith(String(model.id));
+                      });
+                      viewer.scene.setObjectsVisible(modelObjects, false);
                     }
-                  } catch (destroyError) {
-                    console.warn("Error destroying model:", destroyError);
+                    toast.success("Model hidden");
+                  } else {
+                    newSet.add(modelDbId);
+                    // Show all objects of this model
+                    if (viewer && model) {
+                      const modelObjects = Object.keys(viewer.scene.objects).filter(id => {
+                        const obj = viewer.scene.objects[id];
+                        return obj && typeof obj.id === 'string' && obj.id.startsWith(String(model.id));
+                      });
+                      viewer.scene.setObjectsVisible(modelObjects, true);
+                    }
+                    toast.success("Model shown");
                   }
-                  setLoadedModel(null);
-                  setLoadedModelDbId(null);
-                  toast.success("Model unloaded");
-                }
+                  
+                  return newSet;
+                });
+                setLoadedModelDbId(modelDbId);
               }}
               onModelRename={handleModelRename}
               onModelReplace={handleModelReplace}
