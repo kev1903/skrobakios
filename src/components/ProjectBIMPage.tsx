@@ -194,6 +194,10 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           }));
         }
 
+        if (metaObject.attributes) {
+          properties.attributes = metaObject.attributes;
+        }
+
         if (entity.matrix) {
           properties.position = entity.matrix.slice(12, 15);
         }

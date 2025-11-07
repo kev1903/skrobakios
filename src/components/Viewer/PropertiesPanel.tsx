@@ -55,10 +55,40 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle 
               </div>
             </div>
 
+            {/* Key Properties - Tag and Reference */}
+            {(selectedObject.attributes?.Tag || selectedObject.attributes?.Reference) && (
+              <div className="space-y-3 pb-4 border-b border-border/30">
+                <h5 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">
+                  Key Properties
+                </h5>
+                <div className="grid grid-cols-1 gap-2">
+                  {selectedObject.attributes.Tag && (
+                    <div className="flex items-center justify-between p-3 bg-luxury-gold/10 rounded-lg border border-luxury-gold/20">
+                      <span className="text-xs font-medium text-muted-foreground">Tag</span>
+                      <span className="text-sm font-semibold text-luxury-gold font-mono">{selectedObject.attributes.Tag}</span>
+                    </div>
+                  )}
+                  {selectedObject.attributes.Reference && (
+                    <div className="flex items-center justify-between p-3 bg-luxury-gold/10 rounded-lg border border-luxury-gold/20">
+                      <span className="text-xs font-medium text-muted-foreground">Reference</span>
+                      <span className="text-sm font-semibold text-luxury-gold font-mono">{selectedObject.attributes.Reference}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* IFC Property Sets */}
             {selectedObject.propertySets && selectedObject.propertySets.length > 0 ? (
               <div className="space-y-4">
-                {selectedObject.propertySets.map((propSet: any, idx: number) => (
+                {selectedObject.propertySets
+                  .filter((propSet: any) => {
+                    const name = propSet.name.toLowerCase();
+                    return !name.includes('statendpoints') && 
+                           !name.includes('centreofgravity') && 
+                           !name.includes('tekla common');
+                  })
+                  .map((propSet: any, idx: number) => (
                   <div key={idx} className="space-y-3">
                     <h5 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">
                       {propSet.name}
