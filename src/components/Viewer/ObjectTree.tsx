@@ -382,7 +382,7 @@ export const ObjectTree = ({
                     onModelLoad(node.modelData.file_path, node.modelData.file_name);
                   }
                 }}
-                className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
+                className="transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
                 title={node.isLoadedModel ? "Unload model" : "Load model"}
               >
                 {node.isLoadedModel ? (
@@ -394,7 +394,7 @@ export const ObjectTree = ({
             ) : node.entity && (
               <button
                 onClick={(e) => toggleVisibility(node, e)}
-                className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
+                className="transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
                 title={isVisible ? "Hide" : "Show"}
               >
                 {isVisible ? (
@@ -410,7 +410,7 @@ export const ObjectTree = ({
                 <DropdownMenuTrigger asChild>
                   <button
                     onClick={(e) => e.stopPropagation()}
-                    className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
+                    className="transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
                     title="Model actions"
                   >
                     <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
