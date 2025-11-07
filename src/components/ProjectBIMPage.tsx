@@ -890,32 +890,36 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               onModelLoad={loadModelFromStorage}
               onModelToggleVisibility={(modelDbId) => {
                 const model = loadedModels.get(modelDbId);
-                if (!model) return;
+                if (!model || !viewer) return;
 
                 setVisibleModels(prev => {
                   const newSet = new Set(prev);
                   const isVisible = newSet.has(modelDbId);
                   
+                  // Get all entity IDs from the scene that belong to this model
+                  const entityIds: string[] = [];
+                  const sceneObjects = viewer.scene.objects;
+                  
+                  for (const entityId in sceneObjects) {
+                    const entity = sceneObjects[entityId];
+                    // Check if this entity belongs to the current model
+                    if (entity && (entity as any).model?.id === model.id) {
+                      entityIds.push(entityId);
+                    }
+                  }
+                  
                   if (isVisible) {
                     newSet.delete(modelDbId);
                     // Hide all objects of this model
-                    if (viewer && model) {
-                      const modelObjects = Object.keys(viewer.scene.objects).filter(id => {
-                        const obj = viewer.scene.objects[id];
-                        return obj && typeof obj.id === 'string' && obj.id.startsWith(String(model.id));
-                      });
-                      viewer.scene.setObjectsVisible(modelObjects, false);
+                    if (entityIds.length > 0) {
+                      viewer.scene.setObjectsVisible(entityIds, false);
                     }
                     toast.success("Model hidden");
                   } else {
                     newSet.add(modelDbId);
                     // Show all objects of this model
-                    if (viewer && model) {
-                      const modelObjects = Object.keys(viewer.scene.objects).filter(id => {
-                        const obj = viewer.scene.objects[id];
-                        return obj && typeof obj.id === 'string' && obj.id.startsWith(String(model.id));
-                      });
-                      viewer.scene.setObjectsVisible(modelObjects, true);
+                    if (entityIds.length > 0) {
+                      viewer.scene.setObjectsVisible(entityIds, true);
                     }
                     toast.success("Model shown");
                   }
