@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 const IFCViewerPage = () => {
   const [viewer, setViewer] = useState<Viewer | null>(null);
-  const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan">("select");
+  const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan" | "comment">("select");
   const [loadedModel, setLoadedModel] = useState<any>(null);
   const [ifcLoader, setIfcLoader] = useState<WebIFCLoaderPlugin | null>(null);
   const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
@@ -450,7 +450,6 @@ const IFCViewerPage = () => {
           onFitView={() => {}}
           onUpload={handleUpload}
           onMeasure={() => {}}
-          onComment={() => {}}
           activeMode={activeMode}
           onModeChange={setActiveMode}
         />

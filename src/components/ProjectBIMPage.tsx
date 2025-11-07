@@ -40,7 +40,7 @@ interface ProjectBIMPageProps {
 export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => {
   const { currentCompany } = useCompany();
   const [viewer, setViewer] = useState<Viewer | null>(null);
-  const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan">("select");
+  const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan" | "comment">("select");
   const [loadedModel, setLoadedModel] = useState<any>(null);
   const [ifcLoader, setIfcLoader] = useState<WebIFCLoaderPlugin | null>(null);
   const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
@@ -60,6 +60,10 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; modelId: string; fileName: string }>({ open: false, modelId: '', fileName: '' });
   const [replaceModelId, setReplaceModelId] = useState<string | null>(null);
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [pendingCommentData, setPendingCommentData] = useState<{
+    objectId?: string;
+    position?: { x: number; y: number; z: number };
+  } | null>(null);
 
   // Comments
   const { comments, addComment: addIfcComment, deleteComment, loadComments } = useIfcComments(
@@ -155,13 +159,33 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       defaultLabelsOnWires: true
     });
 
-    // Set up click event for assembly-based object selection
+    // Set up click event for assembly-based object selection and comment placement
     viewerInstance.scene.input.on("mouseclicked", (coords: number[]) => {
       const hit = viewerInstance.scene.pick({
         canvasPos: coords,
         pickSurface: true
       });
 
+      // Check if we're in comment mode
+      if (activeMode === "comment") {
+        if (hit && hit.worldPos) {
+          // Store the clicked position and object for comment
+          const commentData = {
+            objectId: hit.entity?.id ? String(hit.entity.id) : undefined,
+            position: {
+              x: hit.worldPos[0],
+              y: hit.worldPos[1],
+              z: hit.worldPos[2]
+            }
+          };
+          setPendingCommentData(commentData);
+          setCommentDialogOpen(true);
+          setActiveMode("select"); // Return to select mode
+        }
+        return;
+      }
+
+      // Normal selection behavior for other modes
       if (hit && hit.entity) {
         const entity = hit.entity as any;
         const metaObject = viewerInstance.metaScene.metaObjects[entity.id] as any;
@@ -622,13 +646,14 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       {/* Comment Dialog */}
       <CommentDialog
         open={commentDialogOpen}
-        onOpenChange={setCommentDialogOpen}
-        selectedObject={selectedObject?.id}
-        position={viewer?.scene.camera.eye ? {
-          x: viewer.scene.camera.eye[0],
-          y: viewer.scene.camera.eye[1],
-          z: viewer.scene.camera.eye[2]
-        } : undefined}
+        onOpenChange={(open) => {
+          setCommentDialogOpen(open);
+          if (!open) {
+            setPendingCommentData(null);
+          }
+        }}
+        selectedObject={pendingCommentData?.objectId}
+        position={pendingCommentData?.position}
         onSave={async (comment) => {
           if (!currentCompany?.id || !project?.id) {
             toast.error('Company or project not found');
@@ -647,6 +672,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             });
             toast.success('Comment added successfully');
             setCommentDialogOpen(false);
+            setPendingCommentData(null);
           } catch (error) {
             console.error('Error saving comment:', error);
             toast.error('Failed to save comment');
@@ -759,9 +785,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             }}
             onUpload={handleUpload}
             onMeasure={() => {}}
-            onComment={() => setCommentDialogOpen(true)}
             activeMode={activeMode}
-            onModeChange={setActiveMode}
+            onModeChange={(mode) => {
+              setActiveMode(mode);
+              if (mode === "comment") {
+                toast.info("Click on the model to place your comment");
+              }
+            }}
             onBack={() => onNavigate(`project-detail?projectId=${project?.id}`)}
           />
         </div>

@@ -8,9 +8,8 @@ interface ViewerToolbarProps {
   onFitView: () => void;
   onUpload: () => void;
   onMeasure: () => void;
-  onComment: () => void;
-  activeMode: "select" | "measure" | "pan";
-  onModeChange: (mode: "select" | "measure" | "pan") => void;
+  activeMode: "select" | "measure" | "pan" | "comment";
+  onModeChange: (mode: "select" | "measure" | "pan" | "comment") => void;
   onBack?: () => void;
 }
 
@@ -20,7 +19,6 @@ export const ViewerToolbar = ({
   onFitView,
   onUpload,
   onMeasure,
-  onComment,
   activeMode,
   onModeChange,
   onBack,
@@ -109,13 +107,21 @@ export const ViewerToolbar = ({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={onComment}
-                className="h-8 w-8 rounded-full hover:bg-accent/30 text-muted-foreground hover:text-foreground"
+                onClick={() => onModeChange("comment")}
+                className={`h-8 w-8 rounded-full ${
+                  activeMode === "comment"
+                    ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
+                    : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
+                }`}
               >
                 <MessageSquare className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Add comment</TooltipContent>
+            <TooltipContent>
+              {activeMode === "comment" 
+                ? "Click on model to add comment" 
+                : "Add comment"}
+            </TooltipContent>
           </Tooltip>
         </div>
 
