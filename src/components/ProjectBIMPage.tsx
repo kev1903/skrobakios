@@ -49,7 +49,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [savedModels, setSavedModels] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceFileInputRef = useRef<HTMLInputElement>(null);
-  const assemblyCache = useRef<Record<string, any>>({});
+  
   
   // Dialog states
   const [renameDialog, setRenameDialog] = useState<{ open: boolean; modelId: string; currentName: string }>({ open: false, modelId: '', currentName: '' });
@@ -79,150 +79,63 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     }
   }, [isPropertiesCollapsed, isPropertiesPinned]);
 
-  // Helper: Extract assembly mark from Tag property or other fields
-  const extractAssemblyMark = useCallback((meta: any): string | null => {
-    console.log('🔍 ==== EXTRACT ASSEMBLY MARK ====');
-    console.log('🔍 meta object keys:', meta ? Object.keys(meta) : 'NULL');
+  // Helper: Find the top-level parent of an assembly (traverse up the parent chain)
+  const findAssemblyRoot = useCallback((metaObject: any): any => {
+    if (!metaObject) return null;
     
-    if (!meta) {
-      console.log('❌ meta is null/undefined');
-      return null;
-    }
+    // Traverse up to find a meaningful parent that represents the assembly
+    // Stop at IfcBuildingElementPart, IfcElementAssembly, or other assembly types
+    let current = metaObject;
+    let potentialRoot = metaObject;
     
-    // Log all available fields
-    console.log('🔍 meta.id:', meta.id);
-    console.log('🔍 meta.type:', meta.type);
-    console.log('🔍 meta.name:', meta.name);
-    console.log('🔍 meta.attributes:', meta.attributes);
-    console.log('🔍 meta.tag:', meta.tag);
-    
-    // FIRST: Check attributes.Tag (this is where xeokit stores IFC attributes)
-    if (meta.attributes) {
-      console.log('✅ attributes object exists, keys:', Object.keys(meta.attributes));
-      if (meta.attributes.Tag) {
-        const value = String(meta.attributes.Tag).trim();
-        console.log(`✅ Found Tag in attributes: "${value}"`);
-        if (value) {
-          return value;
-        }
-      } else {
-        console.log('❌ No Tag field in attributes');
+    while (current.parent) {
+      const parentType = current.parent.type;
+      
+      // If parent is a spatial structure (building, storey, etc.), stop here
+      if (parentType && (
+        parentType.includes('IfcBuilding') ||
+        parentType.includes('IfcSite') ||
+        parentType.includes('IfcStorey') ||
+        parentType.includes('IfcSpace')
+      )) {
+        break;
       }
-    } else {
-      console.log('❌ No attributes object on metaObject');
+      
+      potentialRoot = current.parent;
+      current = current.parent;
     }
     
-    // SECOND: Check the tag field directly
-    if (meta.tag && typeof meta.tag === 'string') {
-      const value = String(meta.tag).trim();
-      console.log(`✅ Found tag field: "${value}"`);
-      if (value) {
-        return value;
-      }
-    }
-    
-    // THIRD: Check propertySets for Tag, ASSEMBLY_POS, or Assembly mark properties
-    if (meta.propertySets && Array.isArray(meta.propertySets)) {
-      console.log(`🔍 Checking ${meta.propertySets.length} property sets`);
-      for (const ps of meta.propertySets) {
-        if (ps.properties && Array.isArray(ps.properties)) {
-          for (const prop of ps.properties) {
-            if ((prop.name === 'Tag' || prop.name === 'ASSEMBLY_POS' || prop.name === 'Assembly mark') && prop.value) {
-              const value = String(prop.value).trim();
-              console.log(`✅ Found "${prop.name}" in property set: "${value}"`);
-              if (value) {
-                return value;
-              }
-            }
-          }
-          
-          for (const prop of ps.properties) {
-            if (prop.value && typeof prop.value === 'string') {
-              const value = String(prop.value).trim();
-              if (value.match(/^\d*[A-Z]+\d+(\.\d+)?$/i)) {
-                console.log(`✅ Found assembly pattern "${value}" in property "${prop.name}"`);
-                return value;
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    console.log('❌ No assembly mark found anywhere');
-    return null;
+    return potentialRoot;
   }, []);
 
-  // Helper: Build assembly cache
-  const buildAssemblyCache = useCallback((viewerInstance: Viewer) => {
-    const assemblyMarkCache: Record<string, string[]> = {};
-    const allMetaObjects = viewerInstance.metaScene.metaObjects;
-    
-    console.log('🔨 === BUILDING ASSEMBLY CACHE ===');
-    console.log('🔨 Total meta objects:', Object.keys(allMetaObjects).length);
-    
-    let processedCount = 0;
-    let withTagCount = 0;
-    
-    Object.keys(allMetaObjects).forEach((id) => {
-      const metaObject = allMetaObjects[id] as any;
-      if (!viewerInstance.scene.objects[id]) return;
-      
-      processedCount++;
-      const assemblyMark = extractAssemblyMark(metaObject);
-      
-      if (processedCount <= 5) {
-        console.log(`🔍 Object ${processedCount}:`, {
-          id,
-          type: metaObject.type,
-          tag: metaObject.tag,
-          name: metaObject.name,
-          extractedMark: assemblyMark
-        });
-      }
-      
-      if (assemblyMark) {
-        withTagCount++;
-        if (!assemblyMarkCache[assemblyMark]) {
-          assemblyMarkCache[assemblyMark] = [];
-        }
-        assemblyMarkCache[assemblyMark].push(id);
-      }
-    });
-    
-    console.log(`✅ Built assembly cache:`);
-    console.log(`   - Processed: ${processedCount} renderable objects`);
-    console.log(`   - With tags: ${withTagCount} objects`);
-    console.log(`   - Unique assembly marks: ${Object.keys(assemblyMarkCache).length}`);
-    
-    const sortedMarks = Object.entries(assemblyMarkCache)
-      .sort((a, b) => b[1].length - a[1].length)
-      .slice(0, 5);
-    
-    console.log('🏆 Largest assemblies:');
-    sortedMarks.forEach(([mark, ids]) => {
-      console.log(`   "${mark}": ${ids.length} parts`);
-    });
-    
-    (assemblyCache.current as any).assemblyMarkCache = assemblyMarkCache;
-  }, [extractAssemblyMark]);
-
-  // Helper: Collect assembly entities
+  // Helper: Collect all entity IDs in the assembly subtree
   const collectAssemblyEntities = useCallback((metaObject: any, viewerInstance: Viewer): string[] => {
-    const assemblyMark = extractAssemblyMark(metaObject);
+    if (!metaObject) return [];
     
-    if (!assemblyMark) {
+    // Find the assembly root
+    const assemblyRoot = findAssemblyRoot(metaObject);
+    
+    if (!assemblyRoot) {
       return viewerInstance.scene.objects[metaObject.id] ? [metaObject.id] : [];
     }
     
-    const assemblyMarkCache = (assemblyCache.current as any).assemblyMarkCache;
+    // Use xeokit's built-in method to get all IDs in the subtree
+    const objectIds = assemblyRoot.getObjectIDsInSubtree?.() || [];
     
-    if (assemblyMarkCache && assemblyMarkCache[assemblyMark]) {
-      return assemblyMarkCache[assemblyMark];
-    }
+    // Filter to only include renderable objects
+    const renderableIds = objectIds.filter((id: string) => viewerInstance.scene.objects[id]);
     
-    return viewerInstance.scene.objects[metaObject.id] ? [metaObject.id] : [];
-  }, [extractAssemblyMark]);
+    console.log('🔍 Assembly selection:', {
+      clickedObject: metaObject.id,
+      clickedType: metaObject.type,
+      assemblyRoot: assemblyRoot.id,
+      assemblyRootType: assemblyRoot.type,
+      totalInSubtree: objectIds.length,
+      renderableObjects: renderableIds.length
+    });
+    
+    return renderableIds;
+  }, [findAssemblyRoot]);
 
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
@@ -540,12 +453,6 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         toast.dismiss(loadingToast);
         toast.success(`Model loaded: ${fileName}`);
         setLoadedModel(model);
-        
-        if (viewer) {
-          setTimeout(() => {
-            buildAssemblyCache(viewer);
-          }, 500);
-        }
         
         setTimeout(() => {
           if (viewer?.scene?.aabb) {
