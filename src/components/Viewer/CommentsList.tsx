@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Search, MessageSquare } from "lucide-react";
+import { X, Search, MessageSquare, AtSign } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,23 @@ export const CommentsList = ({ comments, onCommentSelect, onClose }: CommentsLis
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const highlightMentions = (text: string) => {
+    // Match @FirstName LastName pattern
+    const parts = text.split(/(@[A-Za-z]+\s+[A-Za-z]+)/g);
+    
+    return parts.map((part, index) => {
+      if (part.startsWith('@')) {
+        return (
+          <span key={index} className="inline-flex items-center gap-1 bg-luxury-gold/10 text-luxury-gold px-1.5 py-0.5 rounded font-medium">
+            <AtSign className="h-3 w-3" />
+            {part.slice(1)}
+          </span>
+        );
+      }
+      return <span key={index}>{part}</span>;
+    });
   };
 
   const filteredComments = comments.filter(comment =>
@@ -111,7 +128,7 @@ export const CommentsList = ({ comments, onCommentSelect, onClose }: CommentsLis
                       </span>
                     </div>
                     <p className="text-sm text-foreground/80 break-words line-clamp-2">
-                      {comment.comment}
+                      {highlightMentions(comment.comment)}
                     </p>
                   </div>
                 </div>

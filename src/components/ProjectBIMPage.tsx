@@ -667,7 +667,8 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           }
 
           try {
-            await addIfcComment({
+            // Save the comment
+            const savedComment = await addIfcComment({
               project_id: project.id,
               company_id: currentCompany.id,
               ifc_model_id: loadedModelDbId || undefined,
@@ -676,6 +677,44 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               comment: comment.text,
               user_name: comment.userName,
             });
+
+            // Save mentions if any
+            if (comment.mentionedUserIds && comment.mentionedUserIds.length > 0 && savedComment) {
+              const { data: { user } } = await supabase.auth.getUser();
+              
+              // Insert mentions
+              const mentionInserts = comment.mentionedUserIds.map(userId => ({
+                comment_id: savedComment.id,
+                mentioned_user_id: userId
+              }));
+
+              const { error: mentionError } = await supabase
+                .from('comment_mentions')
+                .insert(mentionInserts);
+
+              if (mentionError) {
+                console.error('Error saving mentions:', mentionError);
+              }
+
+              // Create notifications for mentioned users
+              const notificationInserts = comment.mentionedUserIds.map(userId => ({
+                user_id: userId,
+                type: 'comment_mention',
+                title: 'You were mentioned in a comment',
+                message: `${comment.userName} mentioned you in a comment: "${comment.text.substring(0, 100)}${comment.text.length > 100 ? '...' : ''}"`,
+                related_id: savedComment.id,
+                read: false
+              }));
+
+              const { error: notifError } = await supabase
+                .from('notifications')
+                .insert(notificationInserts);
+
+              if (notifError) {
+                console.error('Error creating notifications:', notifError);
+              }
+            }
+
             toast.success('Comment added successfully');
             setCommentDialogOpen(false);
             setPendingCommentData(null);

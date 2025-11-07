@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { MessageSquare, X } from "lucide-react";
+import { MessageSquare, X, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { IfcComment } from "@/hooks/useIfcComments";
@@ -97,6 +97,23 @@ export const CommentMarker = ({ comment, viewer, onDelete, onSelect }: CommentMa
       .slice(0, 2);
   };
 
+  const highlightMentions = (text: string) => {
+    // Match @FirstName LastName pattern
+    const parts = text.split(/(@[A-Za-z]+\s+[A-Za-z]+)/g);
+    
+    return parts.map((part, index) => {
+      if (part.startsWith('@')) {
+        return (
+          <span key={index} className="inline-flex items-center gap-1 bg-luxury-gold/10 text-luxury-gold px-1.5 py-0.5 rounded font-medium">
+            <AtSign className="h-3 w-3" />
+            {part.slice(1)}
+          </span>
+        );
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
+
   return (
     <div
       ref={markerRef}
@@ -139,7 +156,7 @@ export const CommentMarker = ({ comment, viewer, onDelete, onSelect }: CommentMa
                 </Button>
               )}
             </div>
-            <p className="text-sm text-foreground">{comment.comment}</p>
+            <p className="text-sm text-foreground">{highlightMentions(comment.comment)}</p>
             <p className="text-xs text-muted-foreground mt-2">
               {new Date(comment.created_at).toLocaleDateString()}
             </p>
