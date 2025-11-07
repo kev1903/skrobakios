@@ -76,11 +76,7 @@ export const useSubscription = () => {
     }
 
     try {
-      const { data, error: functionError } = await supabase.functions.invoke('check-subscription', {
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
-      });
+      const { data, error: functionError } = await supabase.functions.invoke('check-subscription');
 
       if (functionError) throw functionError;
       
@@ -139,10 +135,7 @@ export const useSubscription = () => {
 
     try {
       const { data, error: functionError } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId },
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
+        body: { priceId }
       });
 
       if (functionError) throw functionError;
@@ -175,11 +168,7 @@ export const useSubscription = () => {
     if (!user) throw new Error('User must be logged in');
 
     try {
-      const { data, error: functionError } = await supabase.functions.invoke('customer-portal', {
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
-      });
+      const { data, error: functionError } = await supabase.functions.invoke('customer-portal');
 
       if (functionError) throw functionError;
       
