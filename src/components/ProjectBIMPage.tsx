@@ -1024,6 +1024,52 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                 selectedObject={selectedObject}
                 isPinned={isPropertiesPinned}
                 onPinToggle={() => setIsPropertiesPinned(!isPropertiesPinned)}
+                viewer={viewer}
+                onElementSelect={(elementId) => {
+                  if (!viewer) return;
+                  
+                  const metaObject = viewer.metaScene.metaObjects[elementId] as any;
+                  if (!metaObject) return;
+                  
+                  // Collect assembly entities
+                  const assemblyObjectIds = collectAssemblyEntities(metaObject, viewer);
+                  
+                  // Select the assembly
+                  viewer.scene.setObjectsSelected(viewer.scene.selectedObjectIds, false);
+                  viewer.scene.setObjectsSelected(assemblyObjectIds, true);
+                  
+                  // Create properties object
+                  const entity = viewer.scene.objects[elementId];
+                  const properties: any = {
+                    id: String(metaObject.id),
+                    type: metaObject.type || "Unknown",
+                    name: metaObject.name || String(metaObject.id),
+                    assemblyObjectCount: assemblyObjectIds.length,
+                    isObject: entity?.isObject,
+                    isEntity: entity?.isEntity,
+                    visible: entity?.visible,
+                    xrayed: entity?.xrayed,
+                    highlighted: entity?.highlighted,
+                    selected: entity?.selected,
+                    colorize: entity?.colorize,
+                    opacity: entity?.opacity,
+                  };
+
+                  if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
+                    properties.propertySets = metaObject.propertySets.map((ps: any) => ({
+                      name: ps.name || ps.type || 'Property Set',
+                      type: ps.type,
+                      properties: ps.properties || {}
+                    }));
+                  }
+
+                  if (metaObject.attributes) {
+                    properties.attributes = metaObject.attributes;
+                  }
+
+                  setSelectedObject(properties);
+                  setIsPropertiesCollapsed(false);
+                }}
               />
             </div>
           )}
