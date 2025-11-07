@@ -450,6 +450,7 @@ const IFCViewerPage = () => {
           onFitView={() => {}}
           onUpload={handleUpload}
           onMeasure={() => {}}
+          onComment={() => {}}
           activeMode={activeMode}
           onModeChange={setActiveMode}
         />

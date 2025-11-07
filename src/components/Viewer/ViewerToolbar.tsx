@@ -8,6 +8,7 @@ interface ViewerToolbarProps {
   onFitView: () => void;
   onUpload: () => void;
   onMeasure: () => void;
+  onComment: () => void;
   activeMode: "select" | "measure" | "pan";
   onModeChange: (mode: "select" | "measure" | "pan") => void;
   onBack?: () => void;
@@ -19,6 +20,7 @@ export const ViewerToolbar = ({
   onFitView,
   onUpload,
   onMeasure,
+  onComment,
   activeMode,
   onModeChange,
   onBack,
@@ -107,6 +109,7 @@ export const ViewerToolbar = ({
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={onComment}
                 className="h-8 w-8 rounded-full hover:bg-accent/30 text-muted-foreground hover:text-foreground"
               >
                 <MessageSquare className="h-4 w-4" />

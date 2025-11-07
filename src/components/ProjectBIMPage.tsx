@@ -4,6 +4,7 @@ import { ViewerCanvas } from "@/components/Viewer/ViewerCanvas";
 import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
 import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
+import { CommentDialog } from "@/components/Viewer/CommentDialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/contexts/CompanyContext";
@@ -56,6 +57,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [newModelName, setNewModelName] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; modelId: string; fileName: string }>({ open: false, modelId: '', fileName: '' });
   const [replaceModelId, setReplaceModelId] = useState<string | null>(null);
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
 
   // Auto-collapse Project Structure after 5 seconds (unless pinned)
   useEffect(() => {
@@ -609,6 +611,22 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       <input ref={replaceFileInputRef} type="file" accept=".ifc" onChange={handleReplaceFileChange} className="hidden" />
       
+      {/* Comment Dialog */}
+      <CommentDialog
+        open={commentDialogOpen}
+        onOpenChange={setCommentDialogOpen}
+        selectedObject={selectedObject?.id}
+        position={viewer?.scene.camera.eye ? {
+          x: viewer.scene.camera.eye[0],
+          y: viewer.scene.camera.eye[1],
+          z: viewer.scene.camera.eye[2]
+        } : undefined}
+        onSave={(comment) => {
+          console.log('Comment saved:', comment);
+          toast.success('Comment added successfully');
+        }}
+      />
+
       {/* Rename Dialog */}
       <Dialog open={renameDialog.open} onOpenChange={(open) => !open && setRenameDialog({ open: false, modelId: '', currentName: '' })}>
         <DialogContent>
@@ -714,6 +732,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             }}
             onUpload={handleUpload}
             onMeasure={() => {}}
+            onComment={() => setCommentDialogOpen(true)}
             activeMode={activeMode}
             onModeChange={setActiveMode}
             onBack={() => onNavigate(`project-detail?projectId=${project?.id}`)}
