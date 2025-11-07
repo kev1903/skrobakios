@@ -400,7 +400,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       // If this was the loaded model, clear it
       if (loadedModel?.id === deleteDialog.modelId || loadedModel?.fileName === deleteDialog.fileName) {
         if (loadedModel) {
-          loadedModel.destroy();
+          try {
+            if (loadedModel.destroyed === false) {
+              loadedModel.destroy();
+            }
+          } catch (destroyError) {
+            console.warn("Error destroying model during delete:", destroyError);
+          }
           setLoadedModel(null);
         }
       }
@@ -511,8 +517,15 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       // Convert blob to array buffer
       const arrayBuffer = await data.arrayBuffer();
 
+      // Safely destroy existing model
       if (loadedModel) {
-        loadedModel.destroy();
+        try {
+          if (loadedModel.destroyed === false) {
+            loadedModel.destroy();
+          }
+        } catch (destroyError) {
+          console.warn("Error destroying previous model:", destroyError);
+        }
         setLoadedModel(null);
       }
 
@@ -807,8 +820,14 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               savedModels={savedModels}
               onModelLoad={loadModelFromStorage}
               onModelUnload={() => {
-                if (viewer) {
-                  viewer.scene.clear();
+                if (viewer && loadedModel) {
+                  try {
+                    if (loadedModel.destroyed === false) {
+                      loadedModel.destroy();
+                    }
+                  } catch (destroyError) {
+                    console.warn("Error destroying model:", destroyError);
+                  }
                   setLoadedModel(null);
                   toast.success("Model unloaded");
                 }
