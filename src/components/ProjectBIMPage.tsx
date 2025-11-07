@@ -7,6 +7,27 @@ import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/contexts/CompanyContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 interface ProjectBIMPageProps {
   project: any;
@@ -27,7 +48,14 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [isPropertiesPinned, setIsPropertiesPinned] = useState(false);
   const [savedModels, setSavedModels] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const replaceFileInputRef = useRef<HTMLInputElement>(null);
   const assemblyCache = useRef<Record<string, any>>({});
+  
+  // Dialog states
+  const [renameDialog, setRenameDialog] = useState<{ open: boolean; modelId: string; currentName: string }>({ open: false, modelId: '', currentName: '' });
+  const [newModelName, setNewModelName] = useState('');
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; modelId: string; fileName: string }>({ open: false, modelId: '', fileName: '' });
+  const [replaceModelId, setReplaceModelId] = useState<string | null>(null);
 
   // Auto-collapse Project Structure after 5 seconds (unless pinned)
   useEffect(() => {
@@ -304,6 +332,87 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
 
   const handleUpload = () => fileInputRef.current?.click();
 
+  const handleModelRename = (modelId: string, currentName: string) => {
+    setRenameDialog({ open: true, modelId, currentName });
+    setNewModelName(currentName);
+  };
+
+  const handleModelReplace = (modelId: string) => {
+    setReplaceModelId(modelId);
+    replaceFileInputRef.current?.click();
+  };
+
+  const handleModelDelete = (modelId: string, fileName: string) => {
+    setDeleteDialog({ open: true, modelId, fileName });
+  };
+
+  const confirmRename = async () => {
+    if (!newModelName.trim()) {
+      toast.error('Model name cannot be empty');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('ifc_models')
+        .update({ file_name: newModelName.trim() })
+        .eq('id', renameDialog.modelId);
+
+      if (error) throw error;
+
+      // Update local state
+      setSavedModels(prev => prev.map(m => 
+        m.id === renameDialog.modelId ? { ...m, file_name: newModelName.trim() } : m
+      ));
+
+      toast.success('Model renamed successfully');
+      setRenameDialog({ open: false, modelId: '', currentName: '' });
+      setNewModelName('');
+    } catch (error: any) {
+      console.error('Error renaming model:', error);
+      toast.error(`Failed to rename model: ${error.message}`);
+    }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const modelToDelete = savedModels.find(m => m.id === deleteDialog.modelId);
+      if (!modelToDelete) return;
+
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('ifc-models')
+        .remove([modelToDelete.file_path]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('ifc_models')
+        .delete()
+        .eq('id', deleteDialog.modelId);
+
+      if (dbError) throw dbError;
+
+      // Update local state
+      setSavedModels(prev => prev.filter(m => m.id !== deleteDialog.modelId));
+
+      // If this was the loaded model, clear it
+      if (loadedModel?.id === deleteDialog.modelId || loadedModel?.fileName === deleteDialog.fileName) {
+        if (loadedModel) {
+          loadedModel.destroy();
+          setLoadedModel(null);
+        }
+      }
+
+      toast.success('Model deleted successfully');
+      setDeleteDialog({ open: false, modelId: '', fileName: '' });
+    } catch (error: any) {
+      console.error('Error deleting model:', error);
+      toast.error(`Failed to delete model: ${error.message}`);
+    }
+  };
+
   const uploadToStorage = async (file: File) => {
     console.log('🔍 Upload to storage - Company ID:', currentCompany?.id);
     console.log('🔍 Upload to storage - Project ID:', project?.id);
@@ -486,9 +595,144 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     }
   };
 
+  const handleReplaceFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !replaceModelId) return;
+
+    try {
+      const modelToReplace = savedModels.find(m => m.id === replaceModelId);
+      if (!modelToReplace) return;
+
+      const replacingToast = toast.loading('Replacing model...');
+
+      // Delete old file from storage
+      const { error: deleteError } = await supabase.storage
+        .from('ifc-models')
+        .remove([modelToReplace.file_path]);
+
+      if (deleteError) {
+        console.warn('Warning: Could not delete old file:', deleteError);
+      }
+
+      // Upload new file
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('User not authenticated');
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${currentCompany.id}/${project.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('ifc-models')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Update database record
+      const { error: updateError } = await supabase
+        .from('ifc_models')
+        .update({
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          metadata: {
+            original_name: file.name,
+            mime_type: file.type,
+            upload_date: new Date().toISOString(),
+            replaced_at: new Date().toISOString()
+          }
+        })
+        .eq('id', replaceModelId);
+
+      if (updateError) throw updateError;
+
+      // Update local state
+      setSavedModels(prev => prev.map(m => 
+        m.id === replaceModelId 
+          ? { ...m, file_name: file.name, file_path: filePath, file_size: file.size }
+          : m
+      ));
+
+      toast.dismiss(replacingToast);
+      toast.success('Model replaced successfully');
+
+      // If this was the loaded model, reload it
+      if (loadedModel?.id === replaceModelId || loadedModel?.fileName === modelToReplace.file_name) {
+        await loadModelFromStorage(filePath, file.name);
+      }
+
+      // Clear states
+      setReplaceModelId(null);
+      event.target.value = '';
+    } catch (error: any) {
+      console.error('Error replacing model:', error);
+      toast.error(`Failed to replace model: ${error.message}`);
+      setReplaceModelId(null);
+      event.target.value = '';
+    }
+  };
+
   return (
     <div className="fixed inset-0 top-[var(--header-height)] w-full flex overflow-hidden bg-background">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
+      <input ref={replaceFileInputRef} type="file" accept=".ifc" onChange={handleReplaceFileChange} className="hidden" />
+      
+      {/* Rename Dialog */}
+      <Dialog open={renameDialog.open} onOpenChange={(open) => !open && setRenameDialog({ open: false, modelId: '', currentName: '' })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename Model</DialogTitle>
+            <DialogDescription>
+              Enter a new name for the model
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="modelName">Model Name</Label>
+              <Input
+                id="modelName"
+                value={newModelName}
+                onChange={(e) => setNewModelName(e.target.value)}
+                placeholder="Enter model name"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    confirmRename();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenameDialog({ open: false, modelId: '', currentName: '' })}>
+              Cancel
+            </Button>
+            <Button onClick={confirmRename}>
+              Rename
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => !open && setDeleteDialog({ open: false, modelId: '', fileName: '' })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Model</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteDialog.fileName}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       
       {/* Main Viewer Area */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
@@ -562,6 +806,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               onPinToggle={() => setIsStructurePinned(!isStructurePinned)}
               savedModels={savedModels}
               onModelLoad={loadModelFromStorage}
+              onModelRename={handleModelRename}
+              onModelReplace={handleModelReplace}
+              onModelDelete={handleModelDelete}
             />
           </div>
           

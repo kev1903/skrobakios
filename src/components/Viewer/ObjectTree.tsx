@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronRight, ChevronDown, Box, Eye, EyeOff, Loader2, Pin, Package } from "lucide-react";
+import { ChevronRight, ChevronDown, Box, Eye, EyeOff, Loader2, Pin, Package, MoreVertical, Edit, Upload, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ObjectTreeProps {
   model: any;
@@ -9,11 +15,25 @@ interface ObjectTreeProps {
   isPinned?: boolean;
   onPinToggle?: () => void;
   viewer?: any;
-  savedModels?: any[]; // Add saved models list
-  onModelLoad?: (filePath: string, fileName: string) => void; // Callback to load a different model
+  savedModels?: any[];
+  onModelLoad?: (filePath: string, fileName: string) => void;
+  onModelRename?: (modelId: string, currentName: string) => void;
+  onModelReplace?: (modelId: string) => void;
+  onModelDelete?: (modelId: string, fileName: string) => void;
 }
 
-export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, viewer, savedModels = [], onModelLoad }: ObjectTreeProps) => {
+export const ObjectTree = ({ 
+  model, 
+  ifcLoader, 
+  isPinned = false, 
+  onPinToggle, 
+  viewer, 
+  savedModels = [], 
+  onModelLoad,
+  onModelRename,
+  onModelReplace,
+  onModelDelete
+}: ObjectTreeProps) => {
   const [treeData, setTreeData] = useState<any[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [visibleNodes, setVisibleNodes] = useState<Set<string>>(new Set());
@@ -283,19 +303,65 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, vi
               )}
             </div>
           </div>
-          {(node.entity || node.isModel) && (
-            <button
-              onClick={(e) => toggleVisibility(node, e)}
-              className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
-              title={isVisible ? "Hide" : "Show"}
-            >
-              {isVisible ? (
-                <Eye className="h-3.5 w-3.5 text-luxury-gold" />
-              ) : (
-                <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-              )}
-            </button>
-          )}
+          <div className="flex items-center gap-1">
+            {(node.entity || node.isModel) && (
+              <button
+                onClick={(e) => toggleVisibility(node, e)}
+                className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
+                title={isVisible ? "Hide" : "Show"}
+              >
+                {isVisible ? (
+                  <Eye className="h-3.5 w-3.5 text-luxury-gold" />
+                ) : (
+                  <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                )}
+              </button>
+            )}
+            
+            {node.isModel && node.modelData && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    onClick={(e) => e.stopPropagation()}
+                    className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
+                    title="Model actions"
+                  >
+                    <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onModelRename?.(node.modelData.id, node.modelData.file_name);
+                    }}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onModelReplace?.(node.modelData.id);
+                    }}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Replace
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onModelDelete?.(node.modelData.id, node.modelData.file_name);
+                    }}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
         {hasChildren && isExpanded && (
           <div>
