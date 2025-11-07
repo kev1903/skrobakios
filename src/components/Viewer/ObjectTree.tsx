@@ -379,6 +379,9 @@ export const ObjectTree = ({
                   if (node.isLoadedModel && onModelUnload) {
                     onModelUnload();
                   } else if (!node.isLoadedModel && onModelLoad && node.modelData) {
+                    // Clear saved visibility state to show all objects
+                    const storageKey = `objectTree_visibility_${node.modelData.file_name}`;
+                    localStorage.removeItem(storageKey);
                     onModelLoad(node.modelData.file_path, node.modelData.file_name);
                   }
                 }}
