@@ -41,20 +41,56 @@ export const ObjectTree = ({
   const [visibleNodes, setVisibleNodes] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
 
+  // Save visibility state to localStorage whenever it changes
+  useEffect(() => {
+    if (!model?.id && !model?.fileName) return;
+    if (visibleNodes.size === 0) return; // Don't save empty state on initial load
+    
+    const storageKey = `objectTree_visibility_${model.id || model.fileName}`;
+    const stateArray = Array.from(visibleNodes);
+    localStorage.setItem(storageKey, JSON.stringify(stateArray));
+    console.log('💾 Saved visibility state:', stateArray.length, 'nodes');
+  }, [visibleNodes, model?.id, model?.fileName]);
+
   useEffect(() => {
     const buildTree = async () => {
       setIsLoading(true);
       
       try {
+        // Check for saved visibility state
+        const storageKey = model?.id 
+          ? `objectTree_visibility_${model.id}` 
+          : model?.fileName 
+            ? `objectTree_visibility_${model.fileName}`
+            : null;
+        
+        let savedVisibilitySet: Set<string> | null = null;
+        if (storageKey) {
+          const savedState = localStorage.getItem(storageKey);
+          if (savedState) {
+            try {
+              const parsedState = JSON.parse(savedState);
+              savedVisibilitySet = new Set(parsedState);
+              console.log('📂 Using saved visibility state:', parsedState.length, 'nodes');
+            } catch (error) {
+              console.warn('Failed to load visibility state:', error);
+            }
+          }
+        }
+        
         // Build tree with models at the top level
         const modelNodes: any[] = [];
-        const visibleSet = new Set<string>();
+        const visibleSet = savedVisibilitySet || new Set<string>();
         
         // If we have saved models, show them at the top level
         if (savedModels.length > 0) {
           for (const savedModel of savedModels) {
             const modelId = `model-${savedModel.id}`;
-            visibleSet.add(modelId);
+            
+            // Only add to visible set if no saved state exists
+            if (!savedVisibilitySet) {
+              visibleSet.add(modelId);
+            }
             
             const modelNode: any = {
               id: modelId,
@@ -89,15 +125,28 @@ export const ObjectTree = ({
                     }
                     
                     const nodeId = `entity-${entityId}`;
-                    elementsByType.get(ifcType)!.push({
+                    const entityNode = {
                       id: nodeId,
                       name: entityName,
                       entity: sceneObject,
                       entityId: entityId,
                       level: 2
-                    });
+                    };
                     
-                    visibleSet.add(nodeId);
+                    elementsByType.get(ifcType)!.push(entityNode);
+                    
+                    // Set initial visibility based on saved state or default to visible
+                    const shouldBeVisible = savedVisibilitySet 
+                      ? savedVisibilitySet.has(nodeId)
+                      : true;
+                    
+                    if (!savedVisibilitySet) {
+                      visibleSet.add(nodeId);
+                    }
+                    
+                    // Apply visibility to the actual scene object
+                    (sceneObject as any).visible = shouldBeVisible;
+                    
                     processedCount++;
                     
                     if (processedCount % 50 === 0) {
@@ -112,7 +161,10 @@ export const ObjectTree = ({
                 const typeNodes: any[] = [];
                 for (const [typeName, elements] of elementsByType.entries()) {
                   const typeId = `type-${modelId}-${typeName}`;
-                  visibleSet.add(typeId);
+                  
+                  if (!savedVisibilitySet) {
+                    visibleSet.add(typeId);
+                  }
                   
                   typeNodes.push({
                     id: typeId,
@@ -171,7 +223,18 @@ export const ObjectTree = ({
                 level: 1
               });
               
-              visibleSet.add(nodeId);
+              // Set initial visibility based on saved state or default to visible
+              const shouldBeVisible = savedVisibilitySet 
+                ? savedVisibilitySet.has(nodeId)
+                : true;
+              
+              if (!savedVisibilitySet) {
+                visibleSet.add(nodeId);
+              }
+              
+              // Apply visibility to the actual scene object
+              (sceneObject as any).visible = shouldBeVisible;
+              
               processedCount++;
               
               if (processedCount % 50 === 0) {
@@ -184,7 +247,10 @@ export const ObjectTree = ({
           
           for (const [typeName, elements] of elementsByType.entries()) {
             const typeId = `type-${typeName}`;
-            visibleSet.add(typeId);
+            
+            if (!savedVisibilitySet) {
+              visibleSet.add(typeId);
+            }
             
             modelNodes.push({
               id: typeId,
