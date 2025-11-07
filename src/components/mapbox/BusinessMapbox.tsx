@@ -42,24 +42,30 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
 
   // Fetch Mapbox token from edge function
   useEffect(() => {
+    console.log('🔍 Starting Mapbox token fetch...');
     const fetchMapboxToken = async () => {
       try {
+        console.log('📡 Calling get-mapbox-token edge function...');
         const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        console.log('📡 Edge function response:', { data, error });
+        
         if (error) throw error;
         
         if (data?.token) {
+          console.log('✅ Mapbox token loaded successfully:', data.token.substring(0, 20) + '...');
           setMapboxToken(data.token);
-          console.log('✅ Mapbox token loaded successfully');
         } else {
-          console.error('No Mapbox token found');
+          console.error('❌ No Mapbox token found in response');
           toast.error('Map configuration missing. Please contact support.');
         }
       } catch (error) {
-        console.error('Error fetching Mapbox token:', error);
+        console.error('❌ Error fetching Mapbox token:', error);
         // Fallback: use the token directly (for development)
-        setMapboxToken('pk.eyJ1Ijoia2V2aW4xOTAzMTk5NCIsImEiOiJjbWR2YndyNjgweDd1MmxvYWppd3ZueWlnIn0.dwNrOhknOccJL9BFNT6gmg');
-        console.log('Using fallback Mapbox token');
+        const fallbackToken = 'pk.eyJ1Ijoia2V2aW4xOTAzMTk5NCIsImEiOiJjbWR2YndyNjgweDd1MmxvYWppd3ZueWlnIn0.dwNrOhknOccJL9BFNT6gmg';
+        console.log('🔄 Using fallback Mapbox token:', fallbackToken.substring(0, 20) + '...');
+        setMapboxToken(fallbackToken);
       } finally {
+        console.log('✅ Token fetch complete, setting loading to false');
         setLoading(false);
       }
     };
@@ -167,6 +173,15 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
 
   // Initialize map only once when token and container are available
   useEffect(() => {
+    console.log('🎬 Map initialization useEffect triggered');
+    console.log('🔍 Current state:', { 
+      hasContainer: !!mapContainer.current, 
+      hasToken: !!mapboxToken,
+      tokenValue: mapboxToken ? mapboxToken.substring(0, 20) + '...' : null,
+      hasMap: !!map.current,
+      loading
+    });
+    
     // Add a small delay to ensure the container is fully mounted in the DOM
     const initMap = () => {
       console.log('🗺️ Map initialization check:', { 
