@@ -24,45 +24,34 @@ interface PropertiesPanelProps {
   onElementSelect?: (elementId: string) => void;
 }
 
-const findAssemblyNumber = (selectedObject: any): string | null => {
-  const mapping = getPropertyMapping();
-  const searchKeys = mapping.assemblyNumber;
-  
-  console.log('🔍 Searching for Assembly Number with mapping:', searchKeys);
-  console.log('🔍 Selected object:', selectedObject);
-  
+const findMappedProperty = (selectedObject: any, searchKeys: string[]): string | null => {
   // First check in attributes
   for (const key of searchKeys) {
     if (selectedObject.attributes?.[key]) {
-      console.log('✅ Found Assembly Number in attributes:', key, '=', selectedObject.attributes[key]);
       return String(selectedObject.attributes[key]);
     }
   }
   
   // Then check in property sets (from IfcRelDefinesByProperties)
   if (selectedObject.propertySets && Array.isArray(selectedObject.propertySets)) {
-    console.log('🔍 Checking property sets:', selectedObject.propertySets.length, 'sets found');
-    
     for (const propSet of selectedObject.propertySets) {
-      console.log('🔍 Property set:', propSet.name, 'Properties:', Object.keys(propSet.properties || {}));
-      
-      if (propSet.properties) {
-        // Search using configured property names
-        for (const key of searchKeys) {
-          if (propSet.properties[key]) {
-            console.log('✅ Found Assembly Number in property set:', propSet.name, 'Key:', key, 'Value:', propSet.properties[key]);
-            return String(propSet.properties[key]);
-          }
-        }
-        
-        // Fallback: case-insensitive search
-        const allKeys = Object.keys(propSet.properties);
-        for (const actualKey of allKeys) {
-          const lowerKey = actualKey.toLowerCase();
-          for (const searchKey of searchKeys) {
-            if (lowerKey === searchKey.toLowerCase()) {
-              console.log('✅ Found Assembly Number (case-insensitive) in property set:', propSet.name, 'Key:', actualKey, 'Value:', propSet.properties[actualKey]);
-              return String(propSet.properties[actualKey]);
+      // Properties are stored as an array, not an object
+      if (propSet.properties && Array.isArray(propSet.properties)) {
+        for (const prop of propSet.properties) {
+          if (prop && prop.name) {
+            // Check exact match
+            for (const searchKey of searchKeys) {
+              if (prop.name === searchKey) {
+                return String(prop.value);
+              }
+            }
+            
+            // Check case-insensitive match
+            const lowerPropName = prop.name.toLowerCase();
+            for (const searchKey of searchKeys) {
+              if (lowerPropName === searchKey.toLowerCase()) {
+                return String(prop.value);
+              }
             }
           }
         }
@@ -70,13 +59,24 @@ const findAssemblyNumber = (selectedObject: any): string | null => {
     }
   }
   
-  console.log('❌ Assembly Number not found using configured mapping');
   return null;
+};
+
+const getAllMappedProperties = (selectedObject: any) => {
+  const mapping = getPropertyMapping();
+  
+  return {
+    assemblyNumber: findMappedProperty(selectedObject, mapping.assemblyNumber),
+    elementId: findMappedProperty(selectedObject, mapping.elementId),
+    tag: findMappedProperty(selectedObject, mapping.tag),
+    reference: findMappedProperty(selectedObject, mapping.reference),
+    mark: findMappedProperty(selectedObject, mapping.mark),
+  };
 };
 
 export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle, viewer, onElementSelect }: PropertiesPanelProps) => {
   const [mappingKey, setMappingKey] = useState(0); // Force re-render when mapping changes
-  const assemblyNumber = selectedObject ? findAssemblyNumber(selectedObject) : null;
+  const mappedProperties = selectedObject ? getAllMappedProperties(selectedObject) : null;
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredElements, setFilteredElements] = useState<any[]>([]);
 
@@ -111,20 +111,26 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle,
         }
       }
       
-      // Search in property sets
-      if (metaObject.propertySets) {
+      // Search in property sets (array structure)
+      if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
         for (const propSet of metaObject.propertySets) {
-          if (propSet.properties) {
-            for (const key of searchKeys) {
-              const value = propSet.properties[key];
-              if (value && String(value).toLowerCase().includes(query)) {
-                elements.push({
-                  id: metaObject.id,
-                  name: metaObject.name || metaObject.id,
-                  type: metaObject.type || "Unknown",
-                  assemblyPos: value,
-                });
-                return; // Don't add duplicates
+          if (propSet.properties && Array.isArray(propSet.properties)) {
+            for (const prop of propSet.properties) {
+              if (prop && prop.name) {
+                for (const searchKey of searchKeys) {
+                  if (prop.name.toLowerCase() === searchKey.toLowerCase()) {
+                    const value = prop.value;
+                    if (value && String(value).toLowerCase().includes(query)) {
+                      elements.push({
+                        id: metaObject.id,
+                        name: metaObject.name || metaObject.id,
+                        type: metaObject.type || "Unknown",
+                        assemblyPos: value,
+                      });
+                      return; // Don't add duplicates
+                    }
+                  }
+                }
               }
             }
           }
@@ -268,29 +274,76 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle,
               </div>
             </div>
 
-            {/* Assembly Number - Prominent Display */}
-            {assemblyNumber ? (
-              <div className="space-y-3">
+            {/* Mapped Properties Display */}
+            {mappedProperties && (
+              <div className="space-y-4">
                 <h5 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">
-                  Assembly Number
+                  Mapped Properties
                 </h5>
-                <div className="flex items-center justify-center p-8 bg-luxury-gold/10 rounded-xl border-2 border-luxury-gold/30">
-                  <span className="text-4xl font-bold text-luxury-gold font-mono tracking-wider">
-                    {assemblyNumber}
-                  </span>
+                
+                <div className="space-y-3">
+                  {/* Assembly Number */}
+                  <div className="rounded-lg border border-border/30 bg-white/50 p-4">
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                      Assembly Number
+                    </div>
+                    {mappedProperties.assemblyNumber ? (
+                      <div className="text-2xl font-bold text-luxury-gold font-mono">
+                        {mappedProperties.assemblyNumber}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-muted-foreground/60 italic">Not found</div>
+                    )}
+                  </div>
+
+                  {/* Reference */}
+                  {mappedProperties.reference && (
+                    <div className="rounded-lg border border-border/30 bg-white/50 p-4">
+                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                        Reference
+                      </div>
+                      <div className="text-lg font-semibold text-foreground font-mono">
+                        {mappedProperties.reference}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mark */}
+                  {mappedProperties.mark && (
+                    <div className="rounded-lg border border-border/30 bg-white/50 p-4">
+                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                        Mark
+                      </div>
+                      <div className="text-lg font-semibold text-foreground">
+                        {mappedProperties.mark}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tag */}
+                  {mappedProperties.tag && (
+                    <div className="rounded-lg border border-border/30 bg-white/50 p-4">
+                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                        Tag
+                      </div>
+                      <div className="text-lg font-semibold text-foreground">
+                        {mappedProperties.tag}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Element ID */}
+                  {mappedProperties.elementId && (
+                    <div className="rounded-lg border border-border/30 bg-white/50 p-4">
+                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                        Element ID
+                      </div>
+                      <div className="text-sm font-mono text-foreground break-all">
+                        {mappedProperties.elementId}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mb-3">
-                  <MousePointer className="h-6 w-6 text-muted-foreground/40" />
-                </div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">
-                  No Assembly Number
-                </p>
-                <p className="text-xs text-muted-foreground/60">
-                  This element doesn't have an ASSEMBLY_POS property
-                </p>
               </div>
             )}
           </div>
