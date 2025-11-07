@@ -896,31 +896,15 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                   const newSet = new Set(prev);
                   const isVisible = newSet.has(modelDbId);
                   
-                  // Get all entity IDs from the scene that belong to this model
-                  const entityIds: string[] = [];
-                  const sceneObjects = viewer.scene.objects;
-                  
-                  for (const entityId in sceneObjects) {
-                    const entity = sceneObjects[entityId];
-                    // Check if this entity belongs to the current model
-                    if (entity && (entity as any).model?.id === model.id) {
-                      entityIds.push(entityId);
-                    }
-                  }
-                  
                   if (isVisible) {
                     newSet.delete(modelDbId);
-                    // Hide all objects of this model
-                    if (entityIds.length > 0) {
-                      viewer.scene.setObjectsVisible(entityIds, false);
-                    }
+                    // Hide the model using xeokit's built-in method
+                    model.visible = false;
                     toast.success("Model hidden");
                   } else {
                     newSet.add(modelDbId);
-                    // Show all objects of this model
-                    if (entityIds.length > 0) {
-                      viewer.scene.setObjectsVisible(entityIds, true);
-                    }
+                    // Show the model using xeokit's built-in method
+                    model.visible = true;
                     toast.success("Model shown");
                   }
                   
