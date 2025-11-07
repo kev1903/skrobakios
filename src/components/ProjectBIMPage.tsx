@@ -43,6 +43,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan" | "comment">("select");
   const activeModeRef = useRef<"select" | "measure" | "pan" | "comment">("select");
   const [loadedModel, setLoadedModel] = useState<any>(null);
+  const [loadedModelDbId, setLoadedModelDbId] = useState<string | null>(null);
   const [ifcLoader, setIfcLoader] = useState<WebIFCLoaderPlugin | null>(null);
   const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
@@ -69,7 +70,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   // Comments
   const { comments, addComment: addIfcComment, deleteComment, loadComments } = useIfcComments(
     project?.id,
-    loadedModel?.id
+    loadedModelDbId || undefined
   );
 
   // Auto-collapse Project Structure after 5 seconds (unless pinned)
@@ -361,6 +362,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             console.warn("Error destroying model during delete:", destroyError);
           }
           setLoadedModel(null);
+          setLoadedModelDbId(null);
         }
       }
 
@@ -454,7 +456,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     }
   };
 
-  const loadModelFromStorage = async (filePath: string, fileName: string) => {
+  const loadModelFromStorage = async (filePath: string, fileName: string, modelDbId?: string) => {
     if (!viewer || !ifcLoader) return;
 
     const loadingToast = toast.loading(`Loading ${fileName}...`);
@@ -480,6 +482,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           console.warn("Error destroying previous model:", destroyError);
         }
         setLoadedModel(null);
+        setLoadedModelDbId(null);
       }
 
       const model = ifcLoader.load({
@@ -496,6 +499,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         // Wait a bit for objects to populate in the scene before setting the loaded model
         setTimeout(() => {
           setLoadedModel(model);
+          setLoadedModelDbId(modelDbId || null);
           
           // Then fly to show the model
           setTimeout(() => {
@@ -666,7 +670,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             await addIfcComment({
               project_id: project.id,
               company_id: currentCompany.id,
-              ifc_model_id: loadedModel?.id,
+              ifc_model_id: loadedModelDbId || undefined,
               object_id: comment.objectId,
               position: comment.position,
               comment: comment.text,
@@ -824,6 +828,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                     console.warn("Error destroying model:", destroyError);
                   }
                   setLoadedModel(null);
+                  setLoadedModelDbId(null);
                   toast.success("Model unloaded");
                 }
               }}

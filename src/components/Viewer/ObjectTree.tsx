@@ -16,7 +16,7 @@ interface ObjectTreeProps {
   onPinToggle?: () => void;
   viewer?: any;
   savedModels?: any[];
-  onModelLoad?: (filePath: string, fileName: string) => void;
+  onModelLoad?: (filePath: string, fileName: string, modelDbId?: string) => void;
   onModelUnload?: () => void;
   onModelRename?: (modelId: string, currentName: string) => void;
   onModelReplace?: (modelId: string) => void;
@@ -344,7 +344,7 @@ export const ObjectTree = ({
           style={{ paddingLeft: `${level * 16 + 24}px` }}
           onClick={() => {
             if (node.isModel && !node.isLoadedModel && onModelLoad && node.modelData) {
-              onModelLoad(node.modelData.file_path, node.modelData.file_name);
+              onModelLoad(node.modelData.file_path, node.modelData.file_name, node.modelData.id);
             } else if (hasChildren) {
               toggleNode(node.id);
             }
@@ -389,7 +389,7 @@ export const ObjectTree = ({
                     // Clear saved visibility state to show all objects
                     const storageKey = `objectTree_visibility_${node.modelData.file_name}`;
                     localStorage.removeItem(storageKey);
-                    onModelLoad(node.modelData.file_path, node.modelData.file_name);
+                    onModelLoad(node.modelData.file_path, node.modelData.file_name, node.modelData.id);
                   }
                 }}
                 className="transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
