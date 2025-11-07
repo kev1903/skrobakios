@@ -3,6 +3,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MousePointer, Pin, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Package } from "lucide-react";
+import { PropertyMappingDialog } from "./PropertyMappingDialog";
+import { getPropertyMapping } from "@/types/ifcPropertyMapping";
 
 interface Property {
   name: string;
@@ -23,36 +25,29 @@ interface PropertiesPanelProps {
 }
 
 const findAssemblyNumber = (selectedObject: any): string | null => {
-  // Debug: Log all available properties
-  console.log('🔍 Searching for ASSEMBLY_POS in selectedObject:', selectedObject);
+  const mapping = getPropertyMapping();
+  const searchKeys = mapping.assemblyNumber;
+  
+  console.log('🔍 Searching for Assembly Number with mapping:', searchKeys);
+  console.log('🔍 Selected object:', selectedObject);
   
   // First check in attributes
-  if (selectedObject.attributes?.ASSEMBLY_POS) {
-    console.log('✅ Found ASSEMBLY_POS in attributes:', selectedObject.attributes.ASSEMBLY_POS);
-    return selectedObject.attributes.ASSEMBLY_POS;
+  for (const key of searchKeys) {
+    if (selectedObject.attributes?.[key]) {
+      console.log('✅ Found Assembly Number in attributes:', key, '=', selectedObject.attributes[key]);
+      return String(selectedObject.attributes[key]);
+    }
   }
   
   // Then check in property sets (from IfcRelDefinesByProperties)
   if (selectedObject.propertySets && Array.isArray(selectedObject.propertySets)) {
-    console.log('🔍 Checking property sets:', selectedObject.propertySets);
+    console.log('🔍 Checking property sets:', selectedObject.propertySets.length, 'sets found');
     
     for (const propSet of selectedObject.propertySets) {
-      console.log('🔍 Property set:', propSet.name, 'Properties:', propSet.properties);
+      console.log('🔍 Property set:', propSet.name, 'Properties:', Object.keys(propSet.properties || {}));
       
       if (propSet.properties) {
-        // Search for ASSEMBLY_POS and common alternatives
-        const searchKeys = [
-          'ASSEMBLY_POS', 
-          'Assembly_Pos',
-          'ASSEMBLY_NUMBER',
-          'AssemblyNumber',
-          'Mark',
-          'Tag',
-          'Position',
-          'PieceMark',
-          'ElementMark'
-        ];
-        
+        // Search using configured property names
         for (const key of searchKeys) {
           if (propSet.properties[key]) {
             console.log('✅ Found Assembly Number in property set:', propSet.name, 'Key:', key, 'Value:', propSet.properties[key]);
@@ -60,25 +55,27 @@ const findAssemblyNumber = (selectedObject: any): string | null => {
           }
         }
         
-        // Also check case-insensitive
+        // Fallback: case-insensitive search
         const allKeys = Object.keys(propSet.properties);
         for (const actualKey of allKeys) {
-          if (actualKey.toUpperCase().includes('ASSEMBLY') || 
-              actualKey.toUpperCase().includes('MARK') ||
-              actualKey.toUpperCase().includes('POS')) {
-            console.log('✅ Found potential Assembly Number (case-insensitive):', propSet.name, 'Key:', actualKey, 'Value:', propSet.properties[actualKey]);
-            return String(propSet.properties[actualKey]);
+          const lowerKey = actualKey.toLowerCase();
+          for (const searchKey of searchKeys) {
+            if (lowerKey === searchKey.toLowerCase()) {
+              console.log('✅ Found Assembly Number (case-insensitive) in property set:', propSet.name, 'Key:', actualKey, 'Value:', propSet.properties[actualKey]);
+              return String(propSet.properties[actualKey]);
+            }
           }
         }
       }
     }
   }
   
-  console.log('❌ ASSEMBLY_POS not found in any property set');
+  console.log('❌ Assembly Number not found using configured mapping');
   return null;
 };
 
 export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle, viewer, onElementSelect }: PropertiesPanelProps) => {
+  const [mappingKey, setMappingKey] = useState(0); // Force re-render when mapping changes
   const assemblyNumber = selectedObject ? findAssemblyNumber(selectedObject) : null;
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredElements, setFilteredElements] = useState<any[]>([]);
@@ -90,6 +87,8 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle,
       return;
     }
 
+    const mapping = getPropertyMapping();
+    const searchKeys = mapping.assemblyNumber;
     const query = searchQuery.toLowerCase();
     const elements: any[] = [];
     const metaObjects = viewer.metaScene.metaObjects;
@@ -98,30 +97,35 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle,
     Object.values(metaObjects).forEach((metaObject: any) => {
       if (!metaObject) return;
 
-      // Search in attributes for ASSEMBLY_POS
-      const assemblyPos = metaObject.attributes?.ASSEMBLY_POS;
-      if (assemblyPos && String(assemblyPos).toLowerCase().includes(query)) {
-        elements.push({
-          id: metaObject.id,
-          name: metaObject.name || metaObject.id,
-          type: metaObject.type || "Unknown",
-          assemblyPos: assemblyPos,
-        });
+      // Search in attributes
+      for (const key of searchKeys) {
+        const value = metaObject.attributes?.[key];
+        if (value && String(value).toLowerCase().includes(query)) {
+          elements.push({
+            id: metaObject.id,
+            name: metaObject.name || metaObject.id,
+            type: metaObject.type || "Unknown",
+            assemblyPos: value,
+          });
+          return; // Don't add duplicates
+        }
       }
       
-      // Also search in property sets
+      // Search in property sets
       if (metaObject.propertySets) {
         for (const propSet of metaObject.propertySets) {
-          if (propSet.properties?.ASSEMBLY_POS) {
-            const assemblyPosInPropSet = propSet.properties.ASSEMBLY_POS;
-            if (String(assemblyPosInPropSet).toLowerCase().includes(query)) {
-              elements.push({
-                id: metaObject.id,
-                name: metaObject.name || metaObject.id,
-                type: metaObject.type || "Unknown",
-                assemblyPos: assemblyPosInPropSet,
-              });
-              break;
+          if (propSet.properties) {
+            for (const key of searchKeys) {
+              const value = propSet.properties[key];
+              if (value && String(value).toLowerCase().includes(query)) {
+                elements.push({
+                  id: metaObject.id,
+                  name: metaObject.name || metaObject.id,
+                  type: metaObject.type || "Unknown",
+                  assemblyPos: value,
+                });
+                return; // Don't add duplicates
+              }
             }
           }
         }
@@ -129,7 +133,7 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle,
     });
 
     setFilteredElements(elements);
-  }, [searchQuery, viewer]);
+  }, [searchQuery, viewer, mappingKey]); // Add mappingKey as dependency
 
   const handleElementClick = (elementId: string) => {
     if (!viewer) return;
@@ -156,24 +160,27 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle,
   };
   
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col" key={mappingKey}>
       {/* Header with Search */}
       <div className="px-6 py-4 border-b border-border/30 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">
             Properties
           </h3>
-          {onPinToggle && (
-            <button
-              onClick={onPinToggle}
-              className={`p-1.5 rounded-full transition-all duration-200 hover:bg-accent/50 ${
-                isPinned ? 'text-luxury-gold bg-luxury-gold/10' : 'text-muted-foreground hover:text-luxury-gold'
-              }`}
-              title={isPinned ? "Unpin panel" : "Pin panel open"}
-            >
-              <Pin className={`h-3.5 w-3.5 transition-transform duration-200 ${isPinned ? 'rotate-45' : ''}`} />
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            <PropertyMappingDialog onMappingChange={() => setMappingKey(prev => prev + 1)} />
+            {onPinToggle && (
+              <button
+                onClick={onPinToggle}
+                className={`p-1.5 rounded-full transition-all duration-200 hover:bg-accent/50 ${
+                  isPinned ? 'text-luxury-gold bg-luxury-gold/10' : 'text-muted-foreground hover:text-luxury-gold'
+                }`}
+                title={isPinned ? "Unpin panel" : "Pin panel open"}
+              >
+                <Pin className={`h-3.5 w-3.5 transition-transform duration-200 ${isPinned ? 'rotate-45' : ''}`} />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Search Bar */}
