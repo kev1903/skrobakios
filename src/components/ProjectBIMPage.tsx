@@ -5,11 +5,8 @@ import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
 import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
 import { toast } from "sonner";
-import { ArrowLeft, Package, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/contexts/CompanyContext";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
 
 interface ProjectBIMPageProps {
   project: any;
@@ -493,66 +490,6 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     <div className="fixed inset-0 top-[var(--header-height)] w-full flex overflow-hidden bg-background">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
-      {/* Saved Models Sidebar */}
-      <div className="w-80 border-r border-border/30 bg-white/80 backdrop-blur-xl flex flex-col">
-        <div className="p-4 border-b border-border/30">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-foreground">Saved IFC Models</h3>
-            <button
-              onClick={() => onNavigate(`project-detail?projectId=${project?.id}`)}
-              className="p-1.5 rounded-lg hover:bg-accent/50 transition-colors"
-              title="Back to Project"
-            >
-              <ArrowLeft className="h-4 w-4 text-muted-foreground" />
-            </button>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {savedModels.length} model{savedModels.length !== 1 ? 's' : ''}
-          </p>
-        </div>
-        
-        <ScrollArea className="flex-1">
-          <div className="p-3 space-y-2">
-            {savedModels.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-sm">
-                <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>No models uploaded yet</p>
-              </div>
-            ) : (
-              savedModels.map((model) => (
-                <button
-                  key={model.id}
-                  onClick={() => loadModelFromStorage(model.file_path, model.file_name)}
-                  className="w-full p-3 rounded-lg border border-border/30 bg-background/60 hover:bg-accent/50 text-left transition-all group"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {model.file_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(model.created_at).toLocaleDateString()}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {(model.file_size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                    <Package className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
-        </ScrollArea>
-        
-        <div className="p-4 border-t border-border/30">
-          <Button onClick={handleUpload} className="w-full" size="sm">
-            <Upload className="w-4 h-4 mr-2" />
-            Upload New Model
-          </Button>
-        </div>
-      </div>
-      
       {/* Main Viewer Area */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex-shrink-0">
@@ -606,6 +543,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             onMeasure={() => {}}
             activeMode={activeMode}
             onModeChange={setActiveMode}
+            onBack={() => onNavigate(`project-detail?projectId=${project?.id}`)}
           />
         </div>
 

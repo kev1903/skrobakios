@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Upload, MousePointer, Hand, Ruler, ZoomIn, ZoomOut, Maximize } from "lucide-react";
+import { Upload, MousePointer, Hand, Ruler, ZoomIn, ZoomOut, Maximize, ArrowLeft } from "lucide-react";
 
 interface ViewerToolbarProps {
   onZoomIn: () => void;
@@ -10,6 +10,7 @@ interface ViewerToolbarProps {
   onMeasure: () => void;
   activeMode: "select" | "measure" | "pan";
   onModeChange: (mode: "select" | "measure" | "pan") => void;
+  onBack?: () => void;
 }
 
 export const ViewerToolbar = ({
@@ -20,10 +21,28 @@ export const ViewerToolbar = ({
   onMeasure,
   activeMode,
   onModeChange,
+  onBack,
 }: ViewerToolbarProps) => {
   return (
     <TooltipProvider>
       <div className="flex items-center gap-3 flex-wrap">
+        {/* Back Button - Floating */}
+        {onBack && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onBack}
+                className="bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 h-8 w-8 rounded-full"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Back to Project</TooltipContent>
+          </Tooltip>
+        )}
+        
         {/* Mode Selection - Floating */}
         <div className="flex items-center gap-1 p-1 bg-white/80 backdrop-blur-xl border border-border/30 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300">
           <Tooltip>
