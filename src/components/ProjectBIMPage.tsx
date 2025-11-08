@@ -164,26 +164,25 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       zIndex: 10000
     });
     
-    // Listen for measurement creation and updates to convert to millimeters
+    // Listen for measurement creation and override label to show millimeters
     distanceMeasurements.on("measurementCreated", (measurement: any) => {
       measurement.axisVisible = false; // Hide axes to prevent overlap
       
-      // Update the label when the measurement length changes
-      const updateLabel = () => {
-        if (measurement.wire) {
-          const lengthInMeters = measurement.wire.getLength();
-          const lengthInMm = (lengthInMeters * 1000).toFixed(0);
-          if (measurement.label) {
-            measurement.label.setText(`${lengthInMm}mm`);
+      // Override the label's setText method to always convert meters to millimeters
+      if (measurement.label) {
+        const originalSetText = measurement.label.setText.bind(measurement.label);
+        measurement.label.setText = function(text: string) {
+          // Extract numeric value from the text (e.g., "~ 0.10m" -> 0.10)
+          const match = text.match(/[\d.]+/);
+          if (match) {
+            const valueInMeters = parseFloat(match[0]);
+            const valueInMm = (valueInMeters * 1000).toFixed(0);
+            const prefix = text.includes('~') ? '~ ' : '';
+            return originalSetText(`${prefix}${valueInMm}mm`);
           }
-        }
-      };
-      
-      // Update immediately
-      updateLabel();
-      
-      // Listen for changes to the measurement
-      measurement.on("wireChanged", updateLabel);
+          return originalSetText(text);
+        };
+      }
     });
 
     // Set up click event for assembly-based object selection and comment placement
@@ -209,6 +208,11 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           setCommentDialogOpen(true);
           // Stay in comment mode
         }
+        return;
+      }
+
+      // Skip selection when in measurement mode
+      if (activeModeRef.current === "measure") {
         return;
       }
 
