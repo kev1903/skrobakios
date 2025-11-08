@@ -7,6 +7,7 @@ import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
 import { CommentDialog } from "@/components/Viewer/CommentDialog";
 import { CommentMarker } from "@/components/Viewer/CommentMarker";
 import { CommentsList } from "@/components/Viewer/CommentsList";
+import { ShareProjectDialog } from "@/components/project/ShareProjectDialog";
 import { useIfcComments } from "@/hooks/useIfcComments";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -70,6 +71,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     objectId?: string;
     position?: { x: number; y: number; z: number };
   } | null>(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
   // Comments
   const { comments, addComment: addIfcComment, deleteComment, loadComments } = useIfcComments(
@@ -1025,6 +1027,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               }
             }}
             onBack={() => onNavigate(`project-detail?projectId=${project?.id}`)}
+            onShare={() => setShareDialogOpen(true)}
           />
         </div>
 
@@ -1252,6 +1255,14 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           )}
         </div>
       </div>
+
+      {/* Share Project Dialog */}
+      <ShareProjectDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        projectId={project?.id}
+        projectName={project?.name || 'Project'}
+      />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Upload, MousePointer, Hand, Ruler, ZoomIn, ZoomOut, Maximize, ArrowLeft, MessageSquare, Trash2 } from "lucide-react";
+import { Upload, MousePointer, Hand, Ruler, ZoomIn, ZoomOut, Maximize, ArrowLeft, MessageSquare, Trash2, Share2 } from "lucide-react";
 
 interface ViewerToolbarProps {
   onZoomIn: () => void;
@@ -12,6 +12,7 @@ interface ViewerToolbarProps {
   activeMode: "select" | "measure" | "pan" | "comment";
   onModeChange: (mode: "select" | "measure" | "pan" | "comment") => void;
   onBack?: () => void;
+  onShare?: () => void;
 }
 
 export const ViewerToolbar = ({
@@ -24,6 +25,7 @@ export const ViewerToolbar = ({
   activeMode,
   onModeChange,
   onBack,
+  onShare,
 }: ViewerToolbarProps) => {
   return (
     <TooltipProvider>
@@ -189,6 +191,23 @@ export const ViewerToolbar = ({
           </Tooltip>
         )}
 
+        {/* Share Button - Floating */}
+        {onShare && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onShare}
+                className="ml-auto bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Share Project</TooltipContent>
+          </Tooltip>
+        )}
+
         {/* Upload Button - Floating */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -196,7 +215,7 @@ export const ViewerToolbar = ({
               variant="ghost"
               size="icon"
               onClick={onUpload}
-              className="ml-auto bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+              className="bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
             >
               <Upload className="h-4 w-4" />
             </Button>
