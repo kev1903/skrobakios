@@ -127,7 +127,8 @@ export const ShareProjectDialog = ({ open, onOpenChange, projectId, projectName 
   };
 
   const handleCopyLink = async () => {
-    const url = `${window.location.origin}/?page=project-bim&projectId=${projectId}&public=true`;
+    // Use custom domain for professional branded links
+    const url = `https://www.skrobakios.com/?page=project-bim&projectId=${projectId}&public=true`;
     await navigator.clipboard.writeText(url);
     setIsCopied(true);
     toast({
