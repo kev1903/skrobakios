@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Viewer, WebIFCLoaderPlugin, DistanceMeasurementsPlugin, DistanceMeasurementsMouseControl, PointerLens } from "@xeokit/xeokit-sdk";
+import { Viewer, WebIFCLoaderPlugin, DistanceMeasurementsPlugin, DistanceMeasurementsMouseControl } from "@xeokit/xeokit-sdk";
 import { ViewerCanvas } from "@/components/Viewer/ViewerCanvas";
 import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
@@ -171,19 +171,8 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       zIndex: 10000
     } as any);
     
-    // Create pointer lens for visual feedback during measurement
-    const pointerLens = new PointerLens(viewerInstance, {
-      circleRadius: 25,
-      dotRadius: 3,
-    } as any);
-    
-    // Enable circle and dot visibility for better visual feedback
-    (pointerLens as any).circleVisible = true;
-    (pointerLens as any).dotVisible = true;
-    
     // Create mouse control with maximum snapping accuracy
     const distanceMeasurementsControl = new DistanceMeasurementsMouseControl(distanceMeasurements, {
-      pointerLens: pointerLens,
       snapping: true  // Enable snapping
     } as any);
     
