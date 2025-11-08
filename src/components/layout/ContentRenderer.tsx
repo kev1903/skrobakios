@@ -193,11 +193,23 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "project-bim":
-      return currentProject ? (
+      // Check if this is a public link (no authentication required)
+      const bimUrlParams = new URLSearchParams(window.location.search);
+      const isPublicView = bimUrlParams.get('public') === 'true';
+      
+      if (!currentProject) return renderProjectNotFound();
+      
+      // Allow public access if public=true parameter is present
+      if (isPublicView) {
+        return <ProjectBIMPage project={currentProject} onNavigate={onNavigate} />;
+      }
+      
+      // Otherwise, require authentication
+      return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectBIMPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
+      );
     case "project-tasks":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="basic_tasks" onNavigate={onNavigate}>

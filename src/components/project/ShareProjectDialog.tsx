@@ -127,12 +127,12 @@ export const ShareProjectDialog = ({ open, onOpenChange, projectId, projectName 
   };
 
   const handleCopyLink = async () => {
-    const url = `${window.location.origin}/invite?project=${projectId}`;
+    const url = `${window.location.origin}/?page=project-bim&projectId=${projectId}&public=true`;
     await navigator.clipboard.writeText(url);
     setIsCopied(true);
     toast({
-      title: 'Link copied',
-      description: 'Share link copied to clipboard',
+      title: 'Public link copied',
+      description: 'Anyone with this link can view the BIM model without logging in',
     });
     setTimeout(() => setIsCopied(false), 2000);
   };
