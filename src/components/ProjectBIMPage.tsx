@@ -164,25 +164,27 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       zIndex: 10000
     });
     
-    // Override the label formatting to show millimeters
-    const originalCreateMeasurement = distanceMeasurements.createMeasurement.bind(distanceMeasurements);
-    distanceMeasurements.createMeasurement = function(...args: any[]) {
-      const measurement = originalCreateMeasurement(...args);
+    // Listen for measurement creation and updates to convert to millimeters
+    distanceMeasurements.on("measurementCreated", (measurement: any) => {
+      measurement.axisVisible = false; // Hide axes to prevent overlap
       
-      // Patch the measurement's label to show millimeters
-      if (measurement && measurement.wire) {
-        const originalLength = measurement.wire.getLength();
-        const lengthInMm = (originalLength * 1000).toFixed(0);
-        measurement.axisVisible = false; // Hide axes to prevent overlap
-        
-        // Update label if it exists
-        if (measurement.label) {
-          measurement.label.setText(`${lengthInMm}mm`);
+      // Update the label when the measurement length changes
+      const updateLabel = () => {
+        if (measurement.wire) {
+          const lengthInMeters = measurement.wire.getLength();
+          const lengthInMm = (lengthInMeters * 1000).toFixed(0);
+          if (measurement.label) {
+            measurement.label.setText(`${lengthInMm}mm`);
+          }
         }
-      }
+      };
       
-      return measurement;
-    };
+      // Update immediately
+      updateLabel();
+      
+      // Listen for changes to the measurement
+      measurement.on("wireChanged", updateLabel);
+    });
 
     // Set up click event for assembly-based object selection and comment placement
     viewerInstance.scene.input.on("mouseclicked", (coords: number[]) => {
