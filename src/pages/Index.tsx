@@ -36,6 +36,8 @@ const Index = () => {
     }
 
     const fetchProject = async () => {
+      // For public BIM access, we don't require authentication
+      // The RLS policies will need to allow public read access to projects table
       const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -44,6 +46,8 @@ const Index = () => {
 
       if (!error && data) {
         setCurrentProject(data as unknown as Project);
+      } else {
+        console.error('Error fetching project:', error);
       }
     };
 
