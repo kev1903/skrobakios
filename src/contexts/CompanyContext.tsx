@@ -20,6 +20,8 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
   const [companies, setCompanies] = useState<UserCompany[]>([]);
   const { getUserCompanies, loading, error } = useCompanies();
   const { user, isAuthenticated } = useAuth();
+  
+  console.log('🟢 CompanyProvider rendered:', { isAuthenticated, userId: user?.id, companiesCount: companies.length });
 
   const refreshCompanies = useCallback(async () => {
     console.log('🔵 refreshCompanies called, user?.id:', user?.id);
@@ -98,7 +100,7 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     }
-  }, [getUserCompanies, user?.id, isAuthenticated]);
+  }, [getUserCompanies, user?.id]);
 
   const switchCompany = async (companyId: string) => {
     const company = companies.find(c => c.id === companyId);
