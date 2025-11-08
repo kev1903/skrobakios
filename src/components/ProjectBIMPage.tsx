@@ -986,6 +986,12 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                 measurePlugin.control.activate();
               }
             }}
+            onClearMeasurements={() => {
+              if (measurePlugin) {
+                measurePlugin.clear();
+                toast.success("All measurements cleared");
+              }
+            }}
             activeMode={activeMode}
             onModeChange={(mode) => {
               setActiveMode(mode);
