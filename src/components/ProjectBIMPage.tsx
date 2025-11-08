@@ -950,7 +950,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       
       {/* Main Viewer Area */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex-shrink-0">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[100] flex-shrink-0">
           <ViewerToolbar
             onZoomIn={() => {
               if (viewer?.scene?.camera) {
