@@ -42,9 +42,10 @@ interface ProjectBIMPageProps {
 export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => {
   const { currentCompany } = useCompany();
   
-  // Check if this is a public view (read-only mode)
-  const urlParams = new URLSearchParams(window.location.search);
-  const isPublicView = urlParams.get('public') === 'true';
+  // Check if this is a public view (read-only mode) from database flag
+  const isPublicView = (project as any)?.allow_public_bim_access === true;
+  
+  console.log('🔍 ProjectBIMPage - isPublicView:', isPublicView, 'allow_public_bim_access:', (project as any)?.allow_public_bim_access);
   
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan" | "comment">("select");
