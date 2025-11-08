@@ -215,6 +215,21 @@ export const ShareProjectDialog = ({ open, onOpenChange, projectId, projectName 
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Public Link Info Banner */}
+          <div className="bg-luxury-gold/10 border border-luxury-gold/20 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <div className="h-8 w-8 rounded-full bg-luxury-gold/20 flex items-center justify-center flex-shrink-0">
+                <Globe className="h-4 w-4 text-luxury-gold" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-semibold text-foreground mb-1">Public BIM Viewer Link</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Anyone with this link can view the BIM model without logging in. No authentication required. Perfect for sharing with clients, contractors, or stakeholders.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Invite Section */}
           {isOwnerOrAdmin && (
             <div className="space-y-3">
@@ -244,14 +259,17 @@ export const ShareProjectDialog = ({ open, onOpenChange, projectId, projectName 
             
             <div className="space-y-2">
               {/* Public Access */}
-              <div className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-accent/30 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-muted/50 flex items-center justify-center">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-accent/20 border border-border/30">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="h-8 w-8 rounded-full bg-luxury-gold/20 flex items-center justify-center">
+                    <Globe className="h-4 w-4 text-luxury-gold" />
                   </div>
-                  <span className="text-sm font-medium">Anyone with the link</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium">Anyone with the link</div>
+                    <div className="text-xs text-muted-foreground">No sign-in required • View only</div>
+                  </div>
                 </div>
-                <span className="text-sm text-muted-foreground">can view</span>
+                <span className="text-sm font-medium text-luxury-gold">Public</span>
               </div>
 
               {/* Project Members */}
