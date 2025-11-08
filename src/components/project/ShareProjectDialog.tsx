@@ -145,7 +145,7 @@ export const ShareProjectDialog = ({ open, onOpenChange, projectId, projectName 
       }
 
       // Use custom domain for professional branded links
-      const url = `https://www.skrobakios.com/?page=project-bim&projectId=${projectId}&public=true`;
+      const url = `https://www.skrobakios.com/?page=project-bim&projectId=${projectId}`;
       await navigator.clipboard.writeText(url);
       setIsCopied(true);
       toast({

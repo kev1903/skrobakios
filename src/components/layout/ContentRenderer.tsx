@@ -193,14 +193,14 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "project-bim":
-      // Check if this is a public link (no authentication required)
-      const bimUrlParams = new URLSearchParams(window.location.search);
-      const isPublicView = bimUrlParams.get('public') === 'true';
-      
       if (!currentProject) return renderProjectNotFound();
       
-      // Allow public access if public=true parameter is present
-      if (isPublicView) {
+      // Check if project allows public BIM access (from database, not just URL param)
+      // @ts-ignore - allow_public_bim_access is in the database schema
+      const allowsPublicAccess = currentProject.allow_public_bim_access === true;
+      
+      // Allow public access if the project has public BIM enabled
+      if (allowsPublicAccess) {
         return <ProjectBIMPage project={currentProject} onNavigate={onNavigate} />;
       }
       
