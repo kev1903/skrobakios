@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -20,40 +20,7 @@ const Index = () => {
   // Get projectId from URL if present
   const projectIdFromUrl = searchParams.get('projectId');
 
-  // Update selected project when URL changes
-  useEffect(() => {
-    if (projectIdFromUrl) {
-      setSelectedProject(projectIdFromUrl);
-    }
-  }, [projectIdFromUrl]);
-
-  // Fetch current project details when selectedProject changes
-  useEffect(() => {
-    if (!selectedProject) {
-      setCurrentProject(null);
-      return;
-    }
-
-    const fetchProject = async () => {
-      // For public BIM access, we don't require authentication
-      // The RLS policies will need to allow public read access to projects table
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('id', selectedProject)
-        .single();
-
-      if (!error && data) {
-        setCurrentProject(data as unknown as Project);
-      } else {
-        console.error('Error fetching project:', error);
-      }
-    };
-
-    fetchProject();
-  }, [selectedProject]);
-
-  const handleNavigate = (page: string) => {
+  const handleNavigate = useCallback((page: string) => {
     console.log('🔄 Navigation requested:', page);
     
     // Parse the page string for query parameters
@@ -73,7 +40,53 @@ const Index = () => {
     
     console.log('✅ Navigating to:', `/?${newParams.toString()}`);
     setSearchParams(newParams);
-  };
+  }, [setSearchParams]);
+
+  // Update selected project when URL changes
+  useEffect(() => {
+    if (projectIdFromUrl) {
+      setSelectedProject(projectIdFromUrl);
+    }
+  }, [projectIdFromUrl]);
+
+  // Fetch current project details when selectedProject changes
+  useEffect(() => {
+    if (!selectedProject) {
+      setCurrentProject(null);
+      return;
+    }
+
+    const fetchProject = async () => {
+      console.log('🔍 INDEX: Fetching project:', selectedProject, 'User:', !!user);
+      
+      // For public BIM access, we don't require authentication
+      // The RLS policies allow public read access to projects with allow_public_bim_access = true
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', selectedProject)
+        .single();
+
+      if (!error && data) {
+        console.log('✅ INDEX: Project fetched successfully:', {
+          id: data.id,
+          name: data.name,
+          allow_public_bim_access: data.allow_public_bim_access
+        });
+        setCurrentProject(data as unknown as Project);
+      } else {
+        console.error('❌ INDEX: Error fetching project:', error);
+        
+        // If fetch failed and user is not authenticated, show auth page
+        if (!user) {
+          console.error('❌ INDEX: Project fetch failed for unauthenticated user, redirecting to auth');
+          handleNavigate('auth');
+        }
+      }
+    };
+
+    fetchProject();
+  }, [selectedProject, user, handleNavigate]);
 
   const handleSelectProject = (projectId: string) => {
     console.log('🔄 Project selected:', projectId);
