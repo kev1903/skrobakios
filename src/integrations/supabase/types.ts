@@ -4259,6 +4259,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          allow_public_bim_access: boolean | null
           banner_image: string | null
           banner_position: Json | null
           bim_model_url: string | null
@@ -4283,6 +4284,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allow_public_bim_access?: boolean | null
           banner_image?: string | null
           banner_position?: Json | null
           bim_model_url?: string | null
@@ -4307,6 +4309,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allow_public_bim_access?: boolean | null
           banner_image?: string | null
           banner_position?: Json | null
           bim_model_url?: string | null

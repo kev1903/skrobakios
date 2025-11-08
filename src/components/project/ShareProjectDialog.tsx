@@ -127,15 +127,40 @@ export const ShareProjectDialog = ({ open, onOpenChange, projectId, projectName 
   };
 
   const handleCopyLink = async () => {
-    // Use custom domain for professional branded links
-    const url = `https://www.skrobakios.com/?page=project-bim&projectId=${projectId}&public=true`;
-    await navigator.clipboard.writeText(url);
-    setIsCopied(true);
-    toast({
-      title: 'Public link copied',
-      description: 'Anyone with this link can view the BIM model without logging in',
-    });
-    setTimeout(() => setIsCopied(false), 2000);
+    try {
+      // Enable public BIM access for this project
+      const { error } = await supabase
+        .from('projects')
+        .update({ allow_public_bim_access: true })
+        .eq('id', projectId);
+
+      if (error) {
+        console.error('Error enabling public access:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to enable public access',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Use custom domain for professional branded links
+      const url = `https://www.skrobakios.com/?page=project-bim&projectId=${projectId}&public=true`;
+      await navigator.clipboard.writeText(url);
+      setIsCopied(true);
+      toast({
+        title: 'Public link copied',
+        description: 'Anyone with this link can view the BIM model without logging in',
+      });
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      console.error('Error copying link:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to copy link',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
