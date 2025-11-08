@@ -41,6 +41,11 @@ interface ProjectBIMPageProps {
 
 export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => {
   const { currentCompany } = useCompany();
+  
+  // Check if this is a public view (read-only mode)
+  const urlParams = new URLSearchParams(window.location.search);
+  const isPublicView = urlParams.get('public') === 'true';
+  
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan" | "comment">("select");
   const activeModeRef = useRef<"select" | "measure" | "pan" | "comment">("select");
@@ -997,7 +1002,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                 });
               }
             }}
-            onUpload={handleUpload}
+            onUpload={isPublicView ? undefined : handleUpload}
             onMeasure={() => {
               if (measurePlugin) {
                 measurePlugin.control.activate();
@@ -1026,8 +1031,8 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                 toast.info("Click on the model to place your comment");
               }
             }}
-            onBack={() => onNavigate(`project-detail?projectId=${project?.id}`)}
-            onShare={() => setShareDialogOpen(true)}
+            onBack={isPublicView ? undefined : () => onNavigate(`project-detail?projectId=${project?.id}`)}
+            onShare={isPublicView ? undefined : () => setShareDialogOpen(true)}
           />
         </div>
 
