@@ -158,9 +158,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
       defaultVisible: true,
-      defaultColor: "#2D3748",
-      zIndex: 10000,
-      defaultLabelsOnWires: true
+      defaultColor: "#3B82F6",
+      defaultLabelsOnWires: true,
+      zIndex: 10000
     });
 
     // Set up click event for assembly-based object selection and comment placement
@@ -859,11 +859,24 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               }
             }}
             onUpload={handleUpload}
-            onMeasure={() => {}}
+            onMeasure={() => {
+              if (measurePlugin) {
+                measurePlugin.control.activate();
+              }
+            }}
             activeMode={activeMode}
             onModeChange={(mode) => {
               setActiveMode(mode);
               activeModeRef.current = mode;
+              
+              // Handle measurement mode
+              if (mode === "measure" && measurePlugin) {
+                measurePlugin.control.activate();
+                toast.info("Click to start measuring. Cursor will snap to vertices and edges.");
+              } else if (measurePlugin) {
+                measurePlugin.control.deactivate();
+              }
+              
               if (mode === "comment") {
                 toast.info("Click on the model to place your comment");
               }
