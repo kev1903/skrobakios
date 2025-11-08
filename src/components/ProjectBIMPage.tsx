@@ -157,6 +157,10 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   }, [findAssemblyRoot]);
 
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
+    // Configure measurement units to millimeters using xeokit's native Metrics API
+    (viewerInstance.scene as any).metrics.units = "millimeters";
+    (viewerInstance.scene as any).metrics.scale = 1.0;
+    
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
       defaultVisible: true,
       defaultColor: "#3B82F6",
@@ -164,51 +168,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       zIndex: 10000
     });
     
-    // Patch the measurement creation to intercept label updates
+    // Hide axes on measurement creation
     distanceMeasurements.on("measurementCreated", (measurement: any) => {
       measurement.axisVisible = false; // Hide axes to prevent overlap
-      
-      // Store the original label object reference
-      const label = measurement.label;
-      
-      if (label) {
-        // Store the original getHTML method
-        const originalGetHTML = label.getHTML ? label.getHTML.bind(label) : null;
-        
-        // Override getHTML to convert meters to millimeters in the display
-        if (originalGetHTML) {
-          label.getHTML = function() {
-            const html = originalGetHTML();
-            // Replace any meter values with millimeter values
-            return html.replace(/(\d+\.?\d*)\s*m(?!m)/g, (match: string, value: string) => {
-              const meters = parseFloat(value);
-              const mm = (meters * 1000).toFixed(0);
-              return `${mm}mm`;
-            });
-          };
-        }
-        
-        // Also override the setText method as a backup
-        const originalSetText = label.setText ? label.setText.bind(label) : null;
-        if (originalSetText) {
-          label.setText = function(text: string) {
-            // Convert meters to millimeters
-            const converted = text.replace(/(\d+\.?\d*)\s*m(?!m)/g, (match: string, value: string) => {
-              const meters = parseFloat(value);
-              const mm = (meters * 1000).toFixed(0);
-              return `${mm}mm`;
-            });
-            return originalSetText(converted);
-          };
-        }
-        
-        // Force an immediate update
-        if (measurement.wire && label.setText) {
-          const length = measurement.wire.getLength();
-          const lengthMm = (length * 1000).toFixed(0);
-          label.setText(`${lengthMm}mm`);
-        }
-      }
     });
 
     // Set up click event for assembly-based object selection and comment placement
