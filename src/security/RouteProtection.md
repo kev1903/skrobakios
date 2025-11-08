@@ -9,6 +9,7 @@
 - Public Company Profiles: `/company/:slug`
 - Reviews: `/reviews`
 - Invitation Pages: `/invite/:token`, `/invitation-signup`
+- Public BIM Viewer: `/?page=project-bim&projectId={id}&public=true` (view-only access)
 
 ### 🔐 AUTHENTICATION REQUIRED
 - Sign In: `/?page=auth`

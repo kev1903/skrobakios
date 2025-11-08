@@ -14,7 +14,9 @@ const Index = () => {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   
   // Get current page from URL, default to 'home' for authenticated users or 'auth' for others
-  const currentPage = searchParams.get('page') || (user ? 'home' : 'auth');
+  // BUT allow public BIM pages without authentication
+  const isPublicBimPage = searchParams.get('page') === 'project-bim' && searchParams.get('public') === 'true';
+  const currentPage = searchParams.get('page') || (user ? 'home' : (isPublicBimPage ? 'project-bim' : 'auth'));
   
   // Get projectId from URL if present
   const projectIdFromUrl = searchParams.get('projectId');

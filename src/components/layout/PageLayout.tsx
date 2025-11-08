@@ -15,8 +15,13 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
   const { spacingClasses, fullHeightClasses } = useMenuBarSpacing(currentPage);
   const spacing = disableSpacing ? '' : spacingClasses;
   const fullHeight = disableSpacing ? 'h-full' : fullHeightClasses;
-  // Auth page has no layout wrapper
-  if (currentPage === "auth") {
+  
+  // Check if this is a public BIM page (no authentication required)
+  const urlParams = new URLSearchParams(window.location.search);
+  const isPublicBimPage = currentPage === "project-bim" && urlParams.get('public') === 'true';
+  
+  // Auth page and public BIM pages have no layout wrapper and no authentication requirement
+  if (currentPage === "auth" || isPublicBimPage) {
     return (
       <main className="w-full h-screen">
         {children}
