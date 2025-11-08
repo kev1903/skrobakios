@@ -401,16 +401,23 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   // Load saved IFC models on mount
   useEffect(() => {
     const loadSavedModels = async () => {
-      if (!project?.id || !currentCompany?.id) return;
+      // For public view, only project_id is needed
+      // For authenticated view, require both project_id and company_id
+      if (!project?.id || (!isPublicView && !currentCompany?.id)) return;
       
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('ifc_models')
           .select('*')
           .eq('project_id', project.id)
-          .eq('company_id', currentCompany.id)
-          .eq('is_active', true)
-          .order('created_at', { ascending: false });
+          .eq('is_active', true);
+        
+        // Only filter by company_id when not in public view
+        if (!isPublicView && currentCompany?.id) {
+          query = query.eq('company_id', currentCompany.id);
+        }
+        
+        const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) throw error;
         setSavedModels(data || []);
@@ -420,7 +427,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     };
 
     loadSavedModels();
-  }, [project?.id, currentCompany?.id]);
+  }, [project?.id, currentCompany?.id, isPublicView]);
 
   const handleUpload = () => fileInputRef.current?.click();
 
@@ -819,7 +826,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   };
 
   return (
-    <div className="fixed inset-0 top-[var(--header-height)] w-full flex overflow-hidden bg-background">
+    <div className={`fixed inset-0 w-full flex overflow-hidden bg-background ${isPublicView ? '' : 'top-[var(--header-height)]'}`}>
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       <input ref={replaceFileInputRef} type="file" accept=".ifc" onChange={handleReplaceFileChange} className="hidden" />
       
