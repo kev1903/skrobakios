@@ -164,11 +164,29 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       zIndex: 10000
     });
     
-    // Listen for measurement creation and override label to show millimeters
+    // Listen for measurement creation and force millimeter display
     distanceMeasurements.on("measurementCreated", (measurement: any) => {
       measurement.axisVisible = false; // Hide axes to prevent overlap
       
-      // Override the label's setText method to always convert meters to millimeters
+      // Force immediate update after a short delay to ensure label is initialized
+      setTimeout(() => {
+        if (measurement.label && measurement.wire) {
+          const lengthInMeters = measurement.wire.getLength();
+          const lengthInMm = (lengthInMeters * 1000).toFixed(0);
+          
+          // Get current text to check for approximate symbol
+          const currentText = measurement.label.getText ? measurement.label.getText() : '';
+          const isApproximate = currentText.includes('~');
+          const prefix = isApproximate ? '~ ' : '';
+          
+          // Force set the text in millimeters
+          if (measurement.label.setText) {
+            measurement.label.setText(`${prefix}${lengthInMm}mm`);
+          }
+        }
+      }, 10);
+      
+      // Also override setText for any future updates
       if (measurement.label) {
         const originalSetText = measurement.label.setText.bind(measurement.label);
         measurement.label.setText = function(text: string) {
@@ -182,6 +200,23 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           }
           return originalSetText(text);
         };
+      }
+      
+      // Listen for wire changes to update the label
+      if (measurement.wire) {
+        measurement.wire.on("changed", () => {
+          if (measurement.label && measurement.wire) {
+            const lengthInMeters = measurement.wire.getLength();
+            const lengthInMm = (lengthInMeters * 1000).toFixed(0);
+            const currentText = measurement.label.getText ? measurement.label.getText() : '';
+            const isApproximate = currentText.includes('~');
+            const prefix = isApproximate ? '~ ' : '';
+            
+            if (measurement.label.setText) {
+              measurement.label.setText(`${prefix}${lengthInMm}mm`);
+            }
+          }
+        });
       }
     });
 
