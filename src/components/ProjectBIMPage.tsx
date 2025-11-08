@@ -164,59 +164,50 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       zIndex: 10000
     });
     
-    // Listen for measurement creation and force millimeter display
+    // Patch the measurement creation to intercept label updates
     distanceMeasurements.on("measurementCreated", (measurement: any) => {
       measurement.axisVisible = false; // Hide axes to prevent overlap
       
-      // Force immediate update after a short delay to ensure label is initialized
-      setTimeout(() => {
-        if (measurement.label && measurement.wire) {
-          const lengthInMeters = measurement.wire.getLength();
-          const lengthInMm = (lengthInMeters * 1000).toFixed(0);
-          
-          // Get current text to check for approximate symbol
-          const currentText = measurement.label.getText ? measurement.label.getText() : '';
-          const isApproximate = currentText.includes('~');
-          const prefix = isApproximate ? '~ ' : '';
-          
-          // Force set the text in millimeters
-          if (measurement.label.setText) {
-            measurement.label.setText(`${prefix}${lengthInMm}mm`);
-          }
+      // Store the original label object reference
+      const label = measurement.label;
+      
+      if (label) {
+        // Store the original getHTML method
+        const originalGetHTML = label.getHTML ? label.getHTML.bind(label) : null;
+        
+        // Override getHTML to convert meters to millimeters in the display
+        if (originalGetHTML) {
+          label.getHTML = function() {
+            const html = originalGetHTML();
+            // Replace any meter values with millimeter values
+            return html.replace(/(\d+\.?\d*)\s*m(?!m)/g, (match: string, value: string) => {
+              const meters = parseFloat(value);
+              const mm = (meters * 1000).toFixed(0);
+              return `${mm}mm`;
+            });
+          };
         }
-      }, 10);
-      
-      // Also override setText for any future updates
-      if (measurement.label) {
-        const originalSetText = measurement.label.setText.bind(measurement.label);
-        measurement.label.setText = function(text: string) {
-          // Extract numeric value from the text (e.g., "~ 0.10m" -> 0.10)
-          const match = text.match(/[\d.]+/);
-          if (match) {
-            const valueInMeters = parseFloat(match[0]);
-            const valueInMm = (valueInMeters * 1000).toFixed(0);
-            const prefix = text.includes('~') ? '~ ' : '';
-            return originalSetText(`${prefix}${valueInMm}mm`);
-          }
-          return originalSetText(text);
-        };
-      }
-      
-      // Listen for wire changes to update the label
-      if (measurement.wire) {
-        measurement.wire.on("changed", () => {
-          if (measurement.label && measurement.wire) {
-            const lengthInMeters = measurement.wire.getLength();
-            const lengthInMm = (lengthInMeters * 1000).toFixed(0);
-            const currentText = measurement.label.getText ? measurement.label.getText() : '';
-            const isApproximate = currentText.includes('~');
-            const prefix = isApproximate ? '~ ' : '';
-            
-            if (measurement.label.setText) {
-              measurement.label.setText(`${prefix}${lengthInMm}mm`);
-            }
-          }
-        });
+        
+        // Also override the setText method as a backup
+        const originalSetText = label.setText ? label.setText.bind(label) : null;
+        if (originalSetText) {
+          label.setText = function(text: string) {
+            // Convert meters to millimeters
+            const converted = text.replace(/(\d+\.?\d*)\s*m(?!m)/g, (match: string, value: string) => {
+              const meters = parseFloat(value);
+              const mm = (meters * 1000).toFixed(0);
+              return `${mm}mm`;
+            });
+            return originalSetText(converted);
+          };
+        }
+        
+        // Force an immediate update
+        if (measurement.wire && label.setText) {
+          const length = measurement.wire.getLength();
+          const lengthMm = (length * 1000).toFixed(0);
+          label.setText(`${lengthMm}mm`);
+        }
       }
     });
 
