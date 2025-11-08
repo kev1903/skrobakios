@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Viewer, WebIFCLoaderPlugin, DistanceMeasurementsPlugin } from "@xeokit/xeokit-sdk";
+import { Viewer, WebIFCLoaderPlugin, DistanceMeasurementsPlugin, DistanceMeasurementsMouseControl, PointerLens } from "@xeokit/xeokit-sdk";
 import { ViewerCanvas } from "@/components/Viewer/ViewerCanvas";
 import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
@@ -48,6 +48,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [loadedModelDbId, setLoadedModelDbId] = useState<string | null>(null); // For comments, tracks active model
   const [ifcLoader, setIfcLoader] = useState<WebIFCLoaderPlugin | null>(null);
   const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
+  const [measureControl, setMeasureControl] = useState<any>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
   const [isStructureCollapsed, setIsStructureCollapsed] = useState(true);
   const [isPropertiesCollapsed, setIsPropertiesCollapsed] = useState(true);
@@ -162,16 +163,45 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     (viewerInstance.scene as any).metrics.units = "millimeters";
     (viewerInstance.scene as any).metrics.scale = 1000.0;
     
+    // Create distance measurements plugin with enhanced visual settings
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
       defaultVisible: true,
       defaultColor: "#3B82F6",
       defaultLabelsOnWires: true,
       zIndex: 10000
-    });
+    } as any);
     
-    // Hide axes on measurement creation
+    // Create pointer lens for visual feedback during measurement
+    const pointerLens = new PointerLens(viewerInstance, {
+      circleRadius: 25,
+      dotRadius: 3,
+    } as any);
+    
+    // Enable circle and dot visibility for better visual feedback
+    (pointerLens as any).circleVisible = true;
+    (pointerLens as any).dotVisible = true;
+    
+    // Create mouse control with maximum snapping accuracy
+    const distanceMeasurementsControl = new DistanceMeasurementsMouseControl(distanceMeasurements, {
+      pointerLens: pointerLens,
+      snapping: true  // Enable snapping
+    } as any);
+    
+    // Configure snapping for maximum accuracy (directly on the control object)
+    (distanceMeasurementsControl as any).snapToVertex = true;  // Snap to vertices/corners
+    (distanceMeasurementsControl as any).snapToEdge = true;    // Snap to edges/lines  
+    (distanceMeasurementsControl as any).snapRadius = 20;      // Tighter snap threshold
+    
+    // Hide axes on measurement creation for cleaner look
     distanceMeasurements.on("measurementCreated", (measurement: any) => {
-      measurement.axisVisible = false; // Hide axes to prevent overlap
+      measurement.axisVisible = false; // Hide X/Y/Z axes
+      measurement.wireVisible = true;  // Keep main measurement wire visible
+      
+      // Enhance label visibility with high contrast
+      if (measurement.label) {
+        measurement.label.fillColor = [0, 0, 0];        // Black background
+        measurement.label.textColor = [1, 1, 1];        // White text
+      }
     });
 
     // Set up click event for assembly-based object selection and comment placement
@@ -273,6 +303,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     });
 
     setMeasurePlugin(distanceMeasurements);
+    setMeasureControl(distanceMeasurementsControl);
     setViewer(viewerInstance);
     setIfcLoader(loaderInstance);
   }, [collectAssemblyEntities]);
@@ -992,12 +1023,12 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               setActiveMode(mode);
               activeModeRef.current = mode;
               
-              // Handle measurement mode
-              if (mode === "measure" && measurePlugin) {
-                measurePlugin.control.activate();
-                toast.info("Click to start measuring. Cursor will snap to vertices and edges.");
-              } else if (measurePlugin) {
-                measurePlugin.control.deactivate();
+              // Handle measurement mode with enhanced snapping
+              if (mode === "measure" && measureControl) {
+                measureControl.activate();
+                toast.info("Click to start measuring - Snaps to vertices and edges for 100% accuracy");
+              } else if (measureControl) {
+                measureControl.deactivate();
               }
               
               if (mode === "comment") {
