@@ -163,6 +163,26 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       defaultLabelsOnWires: true,
       zIndex: 10000
     });
+    
+    // Override the label formatting to show millimeters
+    const originalCreateMeasurement = distanceMeasurements.createMeasurement.bind(distanceMeasurements);
+    distanceMeasurements.createMeasurement = function(...args: any[]) {
+      const measurement = originalCreateMeasurement(...args);
+      
+      // Patch the measurement's label to show millimeters
+      if (measurement && measurement.wire) {
+        const originalLength = measurement.wire.getLength();
+        const lengthInMm = (originalLength * 1000).toFixed(0);
+        measurement.axisVisible = false; // Hide axes to prevent overlap
+        
+        // Update label if it exists
+        if (measurement.label) {
+          measurement.label.setText(`${lengthInMm}mm`);
+        }
+      }
+      
+      return measurement;
+    };
 
     // Set up click event for assembly-based object selection and comment placement
     viewerInstance.scene.input.on("mouseclicked", (coords: number[]) => {
