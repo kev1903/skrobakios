@@ -158,8 +158,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
 
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     // Configure measurement units to millimeters using xeokit's native Metrics API
+    // Since the model is in meters, we need scale = 1000 (1 world unit = 1000 millimeters)
     (viewerInstance.scene as any).metrics.units = "millimeters";
-    (viewerInstance.scene as any).metrics.scale = 1.0;
+    (viewerInstance.scene as any).metrics.scale = 1000.0;
     
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
       defaultVisible: true,
