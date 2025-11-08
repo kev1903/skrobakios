@@ -56,6 +56,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [savedModels, setSavedModels] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceFileInputRef = useRef<HTMLInputElement>(null);
+  const [viewStateLoaded, setViewStateLoaded] = useState(false);
   
   
   // Dialog states
@@ -261,6 +262,100 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     setIfcLoader(loaderInstance);
   }, [collectAssemblyEntities]);
 
+  // Save view state to localStorage
+  const saveViewState = useCallback((cameraState?: any, visibleModelIds?: string[]) => {
+    if (!project?.id) return;
+    
+    const viewState = {
+      camera: cameraState || (viewer?.scene?.camera ? {
+        eye: (viewer.scene.camera as any).eye,
+        look: (viewer.scene.camera as any).look,
+        up: (viewer.scene.camera as any).up
+      } : null),
+      visibleModels: visibleModelIds || Array.from(visibleModels),
+      timestamp: Date.now()
+    };
+    
+    localStorage.setItem(`bim-view-${project.id}`, JSON.stringify(viewState));
+    console.log('💾 Saved view state:', viewState);
+  }, [project?.id, viewer, visibleModels]);
+
+  // Load view state from localStorage
+  const loadViewState = useCallback(() => {
+    if (!project?.id || !viewer) return null;
+    
+    const stored = localStorage.getItem(`bim-view-${project.id}`);
+    if (stored) {
+      try {
+        const viewState = JSON.parse(stored);
+        console.log('📂 Loaded view state:', viewState);
+        return viewState;
+      } catch (error) {
+        console.error('Error parsing view state:', error);
+      }
+    }
+    return null;
+  }, [project?.id, viewer]);
+
+  // Restore view state after models are loaded
+  useEffect(() => {
+    if (!viewer || !ifcLoader || viewStateLoaded || savedModels.length === 0) return;
+    
+    const viewState = loadViewState();
+    if (viewState && viewState.visibleModels && viewState.visibleModels.length > 0) {
+      console.log('🔄 Restoring view state...');
+      
+      // Load models that were visible
+      const loadPromises = viewState.visibleModels.map(async (modelId: string) => {
+        const modelData = savedModels.find(m => m.id === modelId);
+        if (modelData && !loadedModels.has(modelId)) {
+          return loadModelFromStorage(modelData.file_path, modelData.file_name, modelData.id, true);
+        }
+        return Promise.resolve();
+      });
+      
+      Promise.all(loadPromises).then(() => {
+        // Restore camera position after all models are loaded
+        if (viewState.camera && viewer.scene?.camera) {
+          setTimeout(() => {
+            const camera = viewer.scene.camera as any;
+            camera.eye = viewState.camera.eye;
+            camera.look = viewState.camera.look;
+            camera.up = viewState.camera.up;
+            console.log('📷 Camera position restored');
+          }, 500);
+        }
+        setViewStateLoaded(true);
+      });
+    } else {
+      setViewStateLoaded(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewer, ifcLoader, savedModels, loadViewState, viewStateLoaded, loadedModels]);
+
+  // Save camera position when it changes
+  useEffect(() => {
+    if (!viewer || !viewStateLoaded) return;
+    
+    const camera = viewer.scene?.camera as any;
+    if (!camera) return;
+    
+    let saveTimeout: NodeJS.Timeout;
+    const handleCameraChange = () => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        saveViewState();
+      }, 1000); // Save 1 second after camera stops moving
+    };
+    
+    camera.on('viewMatrix', handleCameraChange);
+    
+    return () => {
+      clearTimeout(saveTimeout);
+      camera.off('viewMatrix', handleCameraChange);
+    };
+  }, [viewer, saveViewState, viewStateLoaded]);
+
   // Load saved IFC models on mount
   useEffect(() => {
     const loadSavedModels = async () => {
@@ -464,7 +559,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     }
   };
 
-  const loadModelFromStorage = async (filePath: string, fileName: string, modelDbId?: string) => {
+  const loadModelFromStorage = useCallback(async (filePath: string, fileName: string, modelDbId?: string, skipFlyTo?: boolean) => {
     if (!viewer || !ifcLoader || !modelDbId) return;
 
     // Check if model is already loaded
@@ -508,18 +603,25 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           });
 
           // Make visible
-          setVisibleModels(prev => new Set([...prev, modelDbId]));
+          setVisibleModels(prev => {
+            const newSet = new Set([...prev, modelDbId]);
+            saveViewState(undefined, Array.from(newSet));
+            return newSet;
+          });
           setLoadedModelDbId(modelDbId);
           
-          // Fly to show all visible models
-          setTimeout(() => {
-            if (viewer?.scene?.aabb) {
-              viewer.cameraFlight.flyTo({ 
-                aabb: viewer.scene.aabb, 
-                duration: 1 
-              });
-            }
-          }, 100);
+          // Fly to show all visible models (unless restoring view state)
+          if (!skipFlyTo) {
+            setTimeout(() => {
+              if (viewer?.scene?.aabb) {
+                viewer.cameraFlight.flyTo({ 
+                  aabb: viewer.scene.aabb, 
+                  duration: 1 
+                });
+                saveViewState();
+              }
+            }, 300);
+          }
         }, 200);
       });
 
@@ -533,7 +635,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       toast.error(`Failed to load model: ${error.message}`);
       console.error("Error in loadModelFromStorage:", error);
     }
-  };
+  }, [viewer, ifcLoader, loadedModels, saveViewState]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -928,6 +1030,8 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                       toast.success("Model shown");
                     }
                     
+                    // Save view state after visibility change
+                    saveViewState(undefined, Array.from(newSet));
                     return newSet;
                   });
                   setLoadedModelDbId(modelDbId);
