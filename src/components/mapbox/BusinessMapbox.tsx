@@ -51,6 +51,17 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       description: string;
     }>;
   } | null>(null);
+  const [weatherRisk, setWeatherRisk] = useState<{
+    overallRisk: 'low' | 'medium' | 'high' | 'critical';
+    risks: Array<{
+      projectId: string;
+      projectName: string;
+      riskLevel: 'low' | 'medium' | 'high' | 'critical';
+      warnings: string[];
+      affectedDays: number;
+    }>;
+    summary: string;
+  } | null>(null);
   
   const navigate = useNavigate();
   const { hasModuleAccess, loading: permissionsLoading } = useUserPermissions(currentCompany?.id || '');
@@ -108,6 +119,41 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     
     return () => clearInterval(interval);
   }, []);
+
+  // Assess weather risk for all projects
+  useEffect(() => {
+    const assessWeatherRisk = async () => {
+      if (projects.length === 0) return;
+
+      try {
+        const projectsWithCoords = projects.map(p => ({
+          id: p.id,
+          name: p.name,
+          latitude: p.latitude || -37.8136,
+          longitude: p.longitude || 144.9631
+        }));
+
+        const { data, error } = await supabase.functions.invoke('assess-weather-risk', {
+          body: { projects: projectsWithCoords }
+        });
+        
+        if (error) throw error;
+        
+        if (data) {
+          setWeatherRisk(data);
+          console.log('Weather risk assessment:', data);
+        }
+      } catch (error) {
+        console.error('Error assessing weather risk:', error);
+      }
+    };
+
+    assessWeatherRisk();
+    // Refresh risk assessment every hour
+    const interval = setInterval(assessWeatherRisk, 60 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [projects]);
 
 
   // Fetch projects for current business context (auto-refreshes when company changes)
@@ -648,7 +694,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                 </CardContent>
               </Card>
 
-              {/* Risk Management Card */}
+              {/* Risk Management Card with Weather Risk */}
               <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.2s' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
@@ -663,6 +709,55 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                   
                   {/* Risk Categories */}
                   <div className="space-y-3">
+                    {/* Weather Risk - First Priority */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          weatherRisk?.overallRisk === 'critical' ? 'bg-rose-600' :
+                          weatherRisk?.overallRisk === 'high' ? 'bg-rose-500' :
+                          weatherRisk?.overallRisk === 'medium' ? 'bg-amber-500' :
+                          'bg-emerald-500'
+                        }`}></div>
+                        <Cloud className="w-3.5 h-3.5 text-foreground/70" />
+                        <span className="text-xs text-foreground">Weather</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className={`text-xs font-semibold ${
+                          weatherRisk?.overallRisk === 'critical' ? 'text-rose-600' :
+                          weatherRisk?.overallRisk === 'high' ? 'text-rose-500' :
+                          weatherRisk?.overallRisk === 'medium' ? 'text-amber-500' :
+                          'text-emerald-500'
+                        }`}>
+                          {weatherRisk?.overallRisk === 'critical' ? 'Critical' :
+                           weatherRisk?.overallRisk === 'high' ? 'High' :
+                           weatherRisk?.overallRisk === 'medium' ? 'Medium' :
+                           'Low'}
+                        </span>
+                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
+                          <div className={`h-full rounded-full ${
+                            weatherRisk?.overallRisk === 'critical' ? 'w-full bg-rose-600' :
+                            weatherRisk?.overallRisk === 'high' ? 'w-9 bg-rose-500' :
+                            weatherRisk?.overallRisk === 'medium' ? 'w-6 bg-amber-500' :
+                            'w-3 bg-emerald-500'
+                          }`}></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Weather Warnings */}
+                    {weatherRisk && weatherRisk.risks.length > 0 && (
+                      <div className="ml-6 space-y-1 max-h-24 overflow-y-auto">
+                        {weatherRisk.risks
+                          .filter(r => r.warnings.length > 0)
+                          .slice(0, 2)
+                          .map((risk, idx) => (
+                            <div key={idx} className="text-[10px] text-muted-foreground">
+                              <span className="font-medium text-foreground">{risk.projectName}:</span> {risk.warnings[0]}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+
                     {/* Safety Risk */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -704,20 +799,6 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                         </div>
                       </div>
                     </div>
-
-                    {/* Quality Risk */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <span className="text-xs text-foreground">Quality</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-semibold text-emerald-500">Low</span>
-                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
-                          <div className="w-4 h-full rounded-full bg-emerald-500"></div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                   {/* Overall Risk Score */}
@@ -725,7 +806,15 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">Overall Risk</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-amber-500">MEDIUM</span>
+                        <span className={`text-sm font-bold ${
+                          weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
+                            ? 'text-rose-500' 
+                            : 'text-amber-500'
+                        }`}>
+                          {weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
+                            ? 'HIGH' 
+                            : 'MEDIUM'}
+                        </span>
                         <div className="w-16 h-2 rounded-full bg-muted/30">
                           <div className="w-10 h-full rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500"></div>
                         </div>

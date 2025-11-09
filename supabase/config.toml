@@ -107,3 +107,6 @@ verify_jwt = true
 
 [functions.get-weather]
 verify_jwt = false
+
+[functions.assess-weather-risk]
+verify_jwt = false
