@@ -1587,6 +1587,21 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   };
 
+  // Helper function to get all descendants of an item
+  const getAllDescendants = (itemId: string, items: WBSItem[]): WBSItem[] => {
+    const descendants: WBSItem[] = [];
+    const findChildren = (parentId: string) => {
+      items.forEach(item => {
+        if (item.parent_id === parentId) {
+          descendants.push(item);
+          findChildren(item.id);
+        }
+      });
+    };
+    findChildren(itemId);
+    return descendants;
+  };
+
   // Enhanced drag and drop system with optimistic updates
   const onDragEnd = async (result: DropResult) => {
     setDragIndicator(null);
@@ -1610,12 +1625,28 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       return;
     }
     
-    console.log('🔀 Moving item:', movedItem.name || movedItem.title, 'from', source.index, 'to', destination.index);
+    // Get all descendants of the moved item (children, grandchildren, etc.)
+    const descendants = getAllDescendants(movedItem.id, visibleFlatItems);
+    const itemsToMove = [movedItem, ...descendants];
     
-    // Create a new array and reorder
-    const reorderedVisibleItems = [...visibleFlatItems];
-    reorderedVisibleItems.splice(source.index, 1);
-    reorderedVisibleItems.splice(destination.index, 0, movedItem);
+    console.log('🔀 Moving item:', movedItem.name || movedItem.title, 'with', descendants.length, 'descendants from', source.index, 'to', destination.index);
+    
+    // Create a new array with items to move removed
+    const reorderedVisibleItems = visibleFlatItems.filter(item => 
+      !itemsToMove.find(moved => moved.id === item.id)
+    );
+    
+    // Calculate the adjusted destination index (accounting for removed items before destination)
+    let adjustedDestination = destination.index;
+    itemsToMove.forEach(item => {
+      const originalIndex = visibleFlatItems.findIndex(i => i.id === item.id);
+      if (originalIndex < destination.index) {
+        adjustedDestination--;
+      }
+    });
+    
+    // Insert all items to move at the adjusted destination, maintaining their relative order
+    reorderedVisibleItems.splice(adjustedDestination, 0, ...itemsToMove);
     
     console.log('📋 Items after reorder:', reorderedVisibleItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
     
