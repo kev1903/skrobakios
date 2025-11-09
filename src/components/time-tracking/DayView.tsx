@@ -79,44 +79,63 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
   return (
     <div className="space-y-6">
       {/* Date Navigation */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between p-4 backdrop-blur-xl bg-white/60 rounded-2xl border border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center gap-3">
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={handlePreviousDay}
-            className="hover:bg-accent/50"
+            className="h-10 w-10 hover:bg-white/80 hover:shadow-md transition-all duration-200"
           >
             ←
-          </Button>
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-luxury-gold" />
-            <h2 className="text-xl font-semibold text-foreground">
-              {format(new Date(selectedDate), 'EEEE, MMMM d, yyyy')}
-            </h2>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNextDay}
-            className="hover:bg-accent/50"
-          >
-            →
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={handleToday}
-            className="hover:bg-accent/50"
+            className={`hover:bg-white/80 ${isToday ? 'bg-luxury-gold text-white border-luxury-gold hover:bg-luxury-gold/90' : ''}`}
           >
             Today
           </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleNextDay}
+            className="h-10 w-10 hover:bg-white/80 hover:shadow-md transition-all duration-200"
+          >
+            →
+          </Button>
         </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Clock className="w-4 h-4" />
-          <span className="text-sm font-medium">
-            Total: {formatDuration(totalMinutes)}
-          </span>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 px-4 py-2 backdrop-blur-md bg-white/90 rounded-xl border border-border/30">
+            <Clock className="w-5 h-5 text-luxury-gold" />
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Total Time</div>
+              <div className="text-lg font-bold text-foreground">{formatDuration(totalMinutes)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Day Header with Date */}
+      <div className="backdrop-blur-xl bg-gradient-to-r from-luxury-gold/10 via-luxury-gold/5 to-transparent rounded-2xl border border-luxury-gold/20 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center gap-3">
+          <div className="w-16 h-16 backdrop-blur-md bg-white/90 rounded-2xl border border-border/30 shadow-sm flex flex-col items-center justify-center">
+            <div className="text-2xl font-bold text-luxury-gold">
+              {format(new Date(selectedDate), 'd')}
+            </div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              {format(new Date(selectedDate), 'EEE')}
+            </div>
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-foreground mb-1">
+              {format(new Date(selectedDate), 'EEEE')}
+            </h2>
+            <p className="text-sm text-muted-foreground font-medium">
+              {format(new Date(selectedDate), 'MMMM d, yyyy')}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -125,14 +144,14 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
         <CardContent className="p-6">
           <div className="space-y-4">
             {/* Time Scale Header */}
-            <div className="relative h-12 border-b border-border/30">
+            <div className="relative h-14 border-b-2 border-border/20 bg-gradient-to-b from-muted/20 to-transparent">
               <div className="absolute inset-0 flex">
                 {timeSlots.map(hour => (
                   <div
                     key={hour}
-                    className="flex-1 border-l border-border/20 first:border-l-0"
+                    className="flex-1 border-l border-border/10 first:border-l-0"
                   >
-                    <div className="text-[10px] text-muted-foreground font-medium pl-1 pt-1">
+                    <div className="text-[11px] text-muted-foreground font-semibold pl-2 pt-2 uppercase tracking-wide">
                       {format(new Date().setHours(hour, 0), 'ha')}
                     </div>
                   </div>
@@ -143,15 +162,15 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
             {/* Current Time Indicator */}
             {isToday && (
               <div 
-                className="absolute top-0 bottom-0 w-0.5 bg-rose-500 z-20 pointer-events-none"
+                className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-rose-500 to-rose-400 z-20 pointer-events-none shadow-[0_0_12px_rgba(244,63,94,0.5)]"
                 style={{ left: `${getCurrentTimePosition()}%` }}
               >
                 {/* Time label at top */}
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-lg whitespace-nowrap">
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 backdrop-blur-md bg-rose-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap border border-rose-400">
                   {format(new Date(), 'h:mm a')}
                 </div>
                 {/* Dot at top */}
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white shadow-md" />
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-rose-500 rounded-full border-2 border-white shadow-lg animate-pulse" />
               </div>
             )}
 
@@ -199,14 +218,14 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
                             
                             {/* Task bar */}
                             <div
-                              className="absolute top-2 bottom-2 rounded-md overflow-hidden backdrop-blur-md border-2 border-white/40 shadow-[0_2px_12px_rgba(0,0,0,0.12)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.2)] hover:scale-[1.02] hover:z-20 transition-all duration-200 cursor-pointer group"
+                              className="absolute top-2 bottom-2 rounded-lg overflow-hidden backdrop-blur-xl border-2 border-white/50 shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.16)] hover:scale-[1.03] hover:z-20 transition-all duration-300 cursor-pointer group"
                               style={{
                                 left: position.left,
                                 width: position.width,
-                                background: `linear-gradient(to right, rgba(255,255,255,0.15), rgba(255,255,255,0.05)), linear-gradient(135deg, ${bgColor}40 0%, ${bgColor}60 100%)`,
-                                borderLeftWidth: '4px',
+                                background: `linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.05)), linear-gradient(135deg, ${bgColor}50 0%, ${bgColor}70 100%)`,
+                                borderLeftWidth: '5px',
                                 borderLeftColor: bgColor,
-                                boxShadow: `inset 0 1px 0 0 rgba(255,255,255,0.4), 0 2px 12px rgba(0,0,0,0.12)`,
+                                boxShadow: `inset 0 1px 0 0 rgba(255,255,255,0.5), inset 0 -1px 0 0 rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.08)`,
                               }}
                             >
                               <div className="h-full flex items-center justify-between gap-2 px-3">
@@ -238,8 +257,11 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
                               
                               {/* Duration indicator bar on bottom edge */}
                               <div 
-                                className="absolute bottom-0 left-0 right-0 h-1 opacity-50 group-hover:opacity-70 transition-opacity"
-                                style={{ backgroundColor: bgColor }}
+                                className="absolute bottom-0 left-0 right-0 h-1.5 opacity-60 group-hover:opacity-90 transition-all duration-200"
+                                style={{ 
+                                  background: `linear-gradient(to right, ${bgColor}, ${bgColor}cc)`,
+                                  boxShadow: `0 0 8px ${bgColor}40`
+                                }}
                               />
                             </div>
                             
@@ -264,10 +286,13 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
                       );
                     })
                   ) : (
-                    <div className="flex items-center justify-center h-64">
-                      <div className="text-center text-muted-foreground">
-                        <Clock className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                        <p className="text-sm">No time entries for this day</p>
+                    <div className="flex items-center justify-center h-96 backdrop-blur-md bg-muted/10 rounded-2xl border-2 border-dashed border-border/30">
+                      <div className="text-center text-muted-foreground max-w-md">
+                        <div className="w-20 h-20 mx-auto mb-4 backdrop-blur-xl bg-white/60 rounded-full flex items-center justify-center border border-border/30 shadow-sm">
+                          <Clock className="w-10 h-10 text-muted-foreground/30" />
+                        </div>
+                        <p className="text-base font-semibold mb-2">No time tracked yet</p>
+                        <p className="text-sm text-muted-foreground/70">Start tracking your time to see your activity timeline here</p>
                       </div>
                     </div>
                   )}
