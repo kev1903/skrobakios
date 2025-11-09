@@ -168,8 +168,30 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
                       const isNarrow = widthPercent < 8;
                       const isVeryNarrow = widthPercent < 4;
                       
-                      const entryContent = (
-                        <div className="relative h-14 bg-muted/10 rounded-lg border border-border/20">
+                      return (
+                        <div key={entry.id || idx} className="flex gap-4">
+                          {/* Y-Axis Task Label */}
+                          <div className="w-64 flex-shrink-0 py-2">
+                            <div className="h-14 flex flex-col justify-center gap-1 px-4 bg-muted/20 rounded-lg border border-border/30">
+                              <div className="font-bold text-sm text-foreground truncate">
+                                {entry.task_activity}
+                              </div>
+                              <div className="flex items-center justify-between gap-2">
+                                {entry.project_name && (
+                                  <span className="text-xs text-muted-foreground truncate flex-1">
+                                    {entry.project_name}
+                                  </span>
+                                )}
+                                <span className="text-xs font-semibold text-luxury-gold flex-shrink-0">
+                                  {formatDuration(durationMinutes)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Gantt Bar Container */}
+                          <div className="flex-1 min-w-0">
+                            <div className="relative h-14 bg-muted/10 rounded-lg border border-border/20">
                           {/* Grid lines background */}
                           <div className="absolute inset-0 flex">
                             {timeSlots.map(hour => (
@@ -223,29 +245,27 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
                               className="absolute bottom-0 left-0 right-0 h-1 opacity-50 group-hover:opacity-70 transition-opacity"
                               style={{ backgroundColor: bgColor }}
                             />
+                              </div>
+                            </div>
+                            
+                            {isVeryNarrow || isNarrow ? (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="absolute inset-0" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <div className="space-y-1">
+                                    <p className="font-semibold">{entry.task_activity}</p>
+                                    {entry.project_name && <p className="text-xs text-muted-foreground">{entry.project_name}</p>}
+                                    <p className="text-xs">{formatTimeRange(entry.start_time, durationMinutes)}</p>
+                                    <p className="text-xs font-medium">Duration: {formatDuration(durationMinutes)}</p>
+                                    {entry.category && <p className="text-xs">Category: {entry.category}</p>}
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : null}
                           </div>
                         </div>
-                      );
-
-                      return isVeryNarrow || isNarrow ? (
-                        <Tooltip key={entry.id || idx}>
-                          <TooltipTrigger asChild>
-                            {entryContent}
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-xs">
-                            <div className="space-y-1">
-                              <p className="font-semibold">{entry.task_activity}</p>
-                              {entry.project_name && <p className="text-xs text-muted-foreground">{entry.project_name}</p>}
-                              <p className="text-xs">{formatTimeRange(entry.start_time, durationMinutes)}</p>
-                              <p className="text-xs font-medium">Duration: {formatDuration(durationMinutes)}</p>
-                              {entry.category && <p className="text-xs">Category: {entry.category}</p>}
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        <React.Fragment key={entry.id || idx}>
-                          {entryContent}
-                        </React.Fragment>
                       );
                     })
                   ) : (
