@@ -28,16 +28,14 @@ serve(async (req) => {
     if (!authHeader) throw new Error("No authorization header provided");
     logStep("Authorization header found");
 
-    // Create Supabase client with user's token for authentication
+    const token = authHeader.replace("Bearer ", "");
+    logStep("Token extracted from header");
+
+    // Create Supabase client
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       {
-        global: {
-          headers: {
-            Authorization: authHeader
-          }
-        },
         auth: {
           persistSession: false
         }
@@ -45,7 +43,7 @@ serve(async (req) => {
     );
     
     logStep("Authenticating user with token");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
