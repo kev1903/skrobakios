@@ -607,9 +607,7 @@ export const UserPermissionsPage = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => {
-                window.location.href = '/?page=settings&section=teams';
-              }}
+              onClick={() => navigate('/?page=settings&section=teams')}
               className="glass button-ghost"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -668,9 +666,7 @@ export const UserPermissionsPage = () => {
               <Button
                 variant="outline"
                 size="icon"  
-                onClick={() => {
-                  window.location.href = '/?page=settings&section=teams';
-                }}
+                onClick={() => navigate('/?page=settings&section=teams')}
                 className="glass button-ghost h-10 w-10"
               >
                 <ArrowLeft className="w-4 h-4" />
