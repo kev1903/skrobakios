@@ -65,26 +65,98 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
     setShowNewProductDialog(true);
   };
 
-  const handleManualEntry = () => {
-    // Create minimal product data with just the name
-    const productData = {
-      product_name: productName,
-      product_code: '',
-      brand: '',
-      material: '',
-      width: '',
-      length: '',
-      height: '',
-      depth: '',
-      color: '',
-      finish: '',
-      qty: '1',
-      price: '',
-      supplier: '',
-      url: productUrl || ''
-    };
-    setExtractedData(productData);
-    setShowPreview(true);
+  const handleManualEntry = async () => {
+    // If URL is provided, extract data from it using AI
+    if (productUrl.trim()) {
+      setIsAnalyzing(true);
+      
+      try {
+        const { data, error } = await supabase.functions.invoke('extract-product-details', {
+          body: { 
+            url: productUrl
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.error) {
+          toast({
+            title: "Analysis failed",
+            description: data.error,
+            variant: "destructive",
+          });
+          setIsAnalyzing(false);
+          return;
+        }
+
+        if (data.success && data.productData) {
+          // Merge extracted data with user-provided product name
+          const productData = {
+            ...data.productData,
+            product_name: productName, // Use user-provided name
+            qty: data.productData.qty || "1",
+            url: data.productData.url || productUrl
+          };
+          setExtractedData(productData);
+          setShowPreview(true);
+          toast({
+            title: "Data extracted successfully",
+            description: "Product details have been extracted from the URL.",
+          });
+        } else {
+          throw new Error("Failed to extract product details");
+        }
+      } catch (error: any) {
+        console.error('Error extracting from URL:', error);
+        toast({
+          title: "Extraction failed",
+          description: "Using manual entry mode instead.",
+          variant: "destructive",
+        });
+        
+        // Fallback to manual entry
+        const productData = {
+          product_name: productName,
+          product_code: '',
+          brand: '',
+          material: '',
+          width: '',
+          length: '',
+          height: '',
+          depth: '',
+          color: '',
+          finish: '',
+          qty: '1',
+          price: '',
+          supplier: '',
+          url: productUrl || ''
+        };
+        setExtractedData(productData);
+        setShowPreview(true);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    } else {
+      // No URL provided, create minimal product data with just the name
+      const productData = {
+        product_name: productName,
+        product_code: '',
+        brand: '',
+        material: '',
+        width: '',
+        length: '',
+        height: '',
+        depth: '',
+        color: '',
+        finish: '',
+        qty: '1',
+        price: '',
+        supplier: '',
+        url: ''
+      };
+      setExtractedData(productData);
+      setShowPreview(true);
+    }
   };
 
   const handleAnalyzeProduct = async () => {
@@ -761,7 +833,8 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                     onClick={handleManualEntry}
                     disabled={!productName || isAnalyzing}
                   >
-                    Continue
+                    {isAnalyzing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {isAnalyzing ? 'Extracting...' : 'Continue'}
                   </Button>
                 </>
               ) : (
