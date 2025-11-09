@@ -108,18 +108,12 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
       return hoursDiff <= 24;
     });
 
-    const thisWeekStart = startOfWeek(now, { weekStartsOn: 1 });
-    const thisWeekEnd = endOfWeek(now, { weekStartsOn: 1 });
-    const thisWeek = timeEntries.filter(entry => {
+    // Calculate for the selected week (shown in calendar)
+    const selectedWeekStart = startOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
+    const selectedWeekEnd = endOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
+    const selectedWeek = timeEntries.filter(entry => {
       const entryDate = new Date(entry.start_time);
-      return entryDate >= thisWeekStart && entryDate <= thisWeekEnd;
-    });
-
-    const lastWeekStart = subDays(thisWeekStart, 7);
-    const lastWeekEnd = subDays(thisWeekEnd, 7);
-    const lastWeek = timeEntries.filter(entry => {
-      const entryDate = new Date(entry.start_time);
-      return entryDate >= lastWeekStart && entryDate <= lastWeekEnd;
+      return entryDate >= selectedWeekStart && entryDate <= selectedWeekEnd;
     });
 
     const formatTime = (entries: typeof timeEntries) => {
@@ -131,27 +125,25 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
 
     return {
       last24Hours: formatTime(last24Hours),
-      thisWeek: formatTime(thisWeek),
-      lastWeek: formatTime(lastWeek),
+      selectedWeek: formatTime(selectedWeek),
       sinceStart: formatTime(timeEntries),
     };
   };
 
   const stats = calculateStats();
 
-  // Calculate this week's pay
+  // Calculate this week's pay (for the selected week shown in calendar)
   const calculateWeeklyPay = () => {
     if (!userRate) return null;
     
-    const now = new Date();
-    const thisWeekStart = startOfWeek(now, { weekStartsOn: 1 });
-    const thisWeekEnd = endOfWeek(now, { weekStartsOn: 1 });
-    const thisWeek = timeEntries.filter(entry => {
+    const selectedWeekStart = startOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
+    const selectedWeekEnd = endOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
+    const selectedWeek = timeEntries.filter(entry => {
       const entryDate = new Date(entry.start_time);
-      return entryDate >= thisWeekStart && entryDate <= thisWeekEnd;
+      return entryDate >= selectedWeekStart && entryDate <= selectedWeekEnd;
     });
 
-    const totalMinutes = thisWeek.reduce((acc, entry) => acc + Math.floor((entry.duration || 0) / 60), 0);
+    const totalMinutes = selectedWeek.reduce((acc, entry) => acc + Math.floor((entry.duration || 0) / 60), 0);
     const totalHours = totalMinutes / 60;
     const weeklyPay = totalHours * userRate;
 
@@ -189,7 +181,7 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
               <div className="flex items-center justify-between">
                 <div className="space-y-1 flex-1">
                   <div className="text-xs text-muted-foreground font-medium">This week</div>
-                  <div className="text-2xl font-bold text-foreground">{stats.thisWeek}</div>
+                  <div className="text-2xl font-bold text-foreground">{stats.selectedWeek}</div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="whitespace-nowrap">of 40 hrs</span>
