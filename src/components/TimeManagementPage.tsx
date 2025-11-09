@@ -164,18 +164,7 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
     <div className="w-full min-h-screen bg-gradient-to-br from-background via-background to-muted/10 pb-12">
       <div className="max-w-[1800px] mx-auto p-6 space-y-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="backdrop-blur-xl bg-white/80 border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground font-medium">Last 24 hours</div>
-                  <div className="text-2xl font-bold text-foreground">{stats.last24Hours}</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="backdrop-blur-xl bg-white/80 border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
