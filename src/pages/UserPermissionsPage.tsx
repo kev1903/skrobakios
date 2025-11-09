@@ -145,8 +145,58 @@ export const UserPermissionsPage = () => {
   const [hourlyRate, setHourlyRate] = useState<string>('');
   const [dailyRate, setDailyRate] = useState<string>('');
   const [rateType, setRateType] = useState<'hourly' | 'daily'>('hourly');
+  const [originalRateData, setOriginalRateData] = useState<{ rate_type: string; rate_amount: number } | null>(null);
+  const [rateChanged, setRateChanged] = useState(false);
 
   const loading = userLoading || permissionsLoading;
+
+  // Load existing rate data
+  useEffect(() => {
+    const loadUserRate = async () => {
+      if (!userId || !companyId) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('user_rates')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('company_id', companyId)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error loading user rate:', error);
+          return;
+        }
+
+        if (data) {
+          setOriginalRateData({
+            rate_type: data.rate_type,
+            rate_amount: data.rate_amount
+          });
+          setRateType(data.rate_type as 'hourly' | 'daily');
+          if (data.rate_type === 'hourly') {
+            setHourlyRate(data.rate_amount.toString());
+          } else {
+            setDailyRate(data.rate_amount.toString());
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user rate:', error);
+      }
+    };
+
+    loadUserRate();
+  }, [userId, companyId]);
+
+  // Track rate changes
+  useEffect(() => {
+    const currentAmount = rateType === 'hourly' ? hourlyRate : dailyRate;
+    const hasChanged = originalRateData 
+      ? (originalRateData.rate_type !== rateType || originalRateData.rate_amount.toString() !== currentAmount)
+      : (currentAmount !== '' && parseFloat(currentAmount) > 0);
+    
+    setRateChanged(hasChanged);
+  }, [rateType, hourlyRate, dailyRate, originalRateData]);
 
   // Show error toast if there's an error
   React.useEffect(() => {
@@ -441,65 +491,112 @@ export const UserPermissionsPage = () => {
   };
 
   const savePermissions = async () => {
-    if (!userId || !companyId || Object.keys(permissionChanges).length === 0) {
+    if (!userId || !companyId) {
+      toast.error('Missing user or company information');
+      return;
+    }
+
+    const hasPermissionChanges = Object.keys(permissionChanges).length > 0;
+    const hasRateChanges = rateChanged;
+
+    if (!hasPermissionChanges && !hasRateChanges) {
       toast.error('No changes to save');
       return;
     }
 
     setIsSaving(true);
     try {
-      // Process each permission change using the database function
-      for (const [subModuleId, accessLevel] of Object.entries(permissionChanges)) {
-        // Find the module that contains this submodule
-        let moduleId = '';
-        
-        // Search in business modules
-        businessModules.forEach(module => {
-          if (module.subModules?.some(sub => sub.id === subModuleId)) {
-            moduleId = module.id;
-          }
-        });
-        
-        // Also search in other features if not found
-        if (!moduleId) {
-          otherFeatures.forEach(feature => {
-            if (feature.subModules?.some(sub => sub.id === subModuleId)) {
-              moduleId = feature.id;
+      // Save permission changes
+      if (hasPermissionChanges) {
+        for (const [subModuleId, accessLevel] of Object.entries(permissionChanges)) {
+          // Find the module that contains this submodule
+          let moduleId = '';
+          
+          // Search in business modules
+          businessModules.forEach(module => {
+            if (module.subModules?.some(sub => sub.id === subModuleId)) {
+              moduleId = module.id;
             }
           });
-        }
+          
+          // Also search in other features if not found
+          if (!moduleId) {
+            otherFeatures.forEach(feature => {
+              if (feature.subModules?.some(sub => sub.id === subModuleId)) {
+                moduleId = feature.id;
+              }
+            });
+          }
 
-        // Use the RPC function (cast to any to bypass TypeScript type issue)
-        const { error } = await (supabase as any).rpc('handle_user_permission_upsert', {
-          p_user_id: userId,
-          p_company_id: companyId,
-          p_module_id: moduleId,
-          p_sub_module_id: subModuleId,
-          p_access_level: accessLevel
-        });
+          // Use the RPC function (cast to any to bypass TypeScript type issue)
+          const { error } = await (supabase as any).rpc('handle_user_permission_upsert', {
+            p_user_id: userId,
+            p_company_id: companyId,
+            p_module_id: moduleId,
+            p_sub_module_id: subModuleId,
+            p_access_level: accessLevel
+          });
 
-        if (error) {
-          console.error('Error saving permission:', error);
-          throw error;
+          if (error) {
+            console.error('Error saving permission:', error);
+            throw error;
+          }
         }
       }
 
-      // Clear the changes after successful save
+      // Save rate changes
+      if (hasRateChanges) {
+        const currentAmount = rateType === 'hourly' ? hourlyRate : dailyRate;
+        const rateAmount = parseFloat(currentAmount) || 0;
+
+        const { error: rateError } = await supabase
+          .from('user_rates')
+          .upsert({
+            user_id: userId,
+            company_id: companyId,
+            rate_type: rateType,
+            rate_amount: rateAmount,
+            currency: 'USD',
+            updated_by: (await supabase.auth.getUser()).data.user?.id
+          }, {
+            onConflict: 'user_id,company_id'
+          });
+
+        if (rateError) {
+          console.error('Error saving rate:', rateError);
+          throw rateError;
+        }
+
+        // Update original rate data
+        setOriginalRateData({
+          rate_type: rateType,
+          rate_amount: rateAmount
+        });
+        setRateChanged(false);
+      }
+
+      // Clear the permission changes after successful save
       setPermissionChanges({});
       
       // Refetch permissions to get the updated data
-      await refetchPermissions();
+      if (hasPermissionChanges) {
+        await refetchPermissions();
+      }
       
-      toast.success('Permissions saved successfully');
+      const changeTypes = [];
+      if (hasPermissionChanges) changeTypes.push('permissions');
+      if (hasRateChanges) changeTypes.push('rates');
+      
+      toast.success(`${changeTypes.join(' and ')} saved successfully`.replace(/^./, str => str.toUpperCase()));
     } catch (error) {
-      console.error('Error saving permissions:', error);
-      toast.error('Failed to save permissions');
+      console.error('Error saving:', error);
+      toast.error('Failed to save changes');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const hasUnsavedChanges = Object.keys(permissionChanges).length > 0;
+  const hasUnsavedChanges = Object.keys(permissionChanges).length > 0 || rateChanged;
 
   if (loading) {
     return (
