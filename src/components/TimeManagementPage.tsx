@@ -227,7 +227,6 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
         {/* Work Diary */}
         <Card className="backdrop-blur-xl bg-white/80 border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Work diary</h2>
             
             <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8">
               {/* Calendar */}
