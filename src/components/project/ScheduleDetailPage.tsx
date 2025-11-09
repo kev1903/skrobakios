@@ -43,6 +43,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   const [newSectionName, setNewSectionName] = useState('');
   const [currentSectionId, setCurrentSectionId] = useState<string | null>(null);
   const [productUrl, setProductUrl] = useState('');
+  const [productName, setProductName] = useState('');
   const [pastedImage, setPastedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [extractedData, setExtractedData] = useState<any>(null);
@@ -54,12 +55,35 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   const handleOpenAddProductDialog = (sectionId: string) => {
     setCurrentSectionId(sectionId);
     setProductUrl('');
+    setProductName('');
     setPastedImage(null);
     setExtractedData(null);
     setShowPreview(false);
     setIsAnalyzing(false);
     setImageFileName('');
     setShowNewProductDialog(true);
+  };
+
+  const handleManualEntry = () => {
+    // Create minimal product data with just the name
+    const productData = {
+      product_name: productName,
+      product_code: '',
+      brand: '',
+      material: '',
+      width: '',
+      length: '',
+      height: '',
+      depth: '',
+      color: '',
+      finish: '',
+      qty: '1',
+      price: '',
+      supplier: '',
+      url: productUrl || ''
+    };
+    setExtractedData(productData);
+    setShowPreview(true);
   };
 
   const handleAnalyzeProduct = async () => {
@@ -358,15 +382,43 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
             </DialogHeader>
             {!showPreview ? (
               <div className="space-y-6 py-6">
-                {/* URL Input Field */}
+                {/* Product Name Input Field */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Product URL</Label>
+                  <Label className="text-sm font-medium">
+                    Product Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="product-name-input"
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)}
+                    placeholder="Enter product name"
+                    className="flex-1"
+                    disabled={isAnalyzing}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Required: Enter a name for the product
+                  </p>
+                </div>
+
+                {/* Divider with Optional text */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Optional</span>
+                  </div>
+                </div>
+
+                {/* URL Input Field - Now Optional */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Product URL (Optional)</Label>
                   <div className="flex gap-2">
                     <Input
                       id="product-url-input"
                       value={productUrl}
                       onChange={(e) => setProductUrl(e.target.value)}
-                      placeholder="Paste product URL here (e.g., https://example.com/product)"
+                      placeholder="Paste product URL to auto-extract details (optional)"
                       className="flex-1"
                       disabled={isAnalyzing}
                     />
@@ -391,7 +443,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Paste a URL to automatically extract product details
+                    Add a URL to automatically extract product details, or leave blank to enter manually
                   </p>
                 </div>
               </div>
@@ -681,13 +733,24 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                 Cancel
               </Button>
               {!showPreview ? (
-                <Button 
-                  onClick={handleAnalyzeProduct}
-                  disabled={!productUrl || isAnalyzing}
-                >
-                  {isAnalyzing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  {isAnalyzing ? 'Analyzing...' : 'Import'}
-                </Button>
+                <>
+                  {productUrl && (
+                    <Button 
+                      onClick={handleAnalyzeProduct}
+                      disabled={!productName || isAnalyzing}
+                      variant="secondary"
+                    >
+                      {isAnalyzing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      {isAnalyzing ? 'Analyzing...' : 'Import from URL'}
+                    </Button>
+                  )}
+                  <Button 
+                    onClick={handleManualEntry}
+                    disabled={!productName || isAnalyzing}
+                  >
+                    Continue
+                  </Button>
+                </>
               ) : (
                 <Button onClick={handleSaveProduct}>
                   Save
