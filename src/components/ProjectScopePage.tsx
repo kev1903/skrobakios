@@ -1604,6 +1604,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Enhanced drag and drop system with smart hierarchy detection
   const onDragEnd = async (result: DropResult) => {
+    console.log('🚀🚀🚀 ProjectScopePage.onDragEnd CALLED', result);
+    
     setDragIndicator(null);
     if (!result.destination) {
       console.log('❌ Drag cancelled - no destination');
