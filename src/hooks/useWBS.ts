@@ -120,13 +120,15 @@ export const useWBS = (projectId: string) => {
     setError(null);
     
     try {
-      // Auto-sync progress and status
+      // Auto-sync progress and status (bidirectional)
       if (updates.status === 'Completed' && updates.progress !== 100) {
         updates.progress = 100;
       } else if (updates.progress === 100 && updates.status !== 'Completed') {
         updates.status = 'Completed';
       } else if (updates.status === 'Not Started' && updates.progress !== 0) {
         updates.progress = 0;
+      } else if (updates.progress === 0 && updates.status !== 'Not Started') {
+        updates.status = 'Not Started';
       }
 
       // Check if progress or status was updated to trigger parent rollups
