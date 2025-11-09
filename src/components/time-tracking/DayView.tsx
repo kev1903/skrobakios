@@ -49,6 +49,17 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
 
   const totalMinutes = dayEntries.reduce((acc, entry) => acc + Math.floor((entry.duration || 0) / 60), 0);
 
+  const isToday = selectedDate === format(new Date(), 'yyyy-MM-dd');
+  
+  const getCurrentTimePosition = () => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const totalMinutesFromStart = hours * 60 + minutes;
+    const totalDayMinutes = 24 * 60;
+    return (totalMinutesFromStart / totalDayMinutes) * 100;
+  };
+
   const handlePreviousDay = () => {
     const date = new Date(selectedDate);
     date.setDate(date.getDate() - 1);
@@ -129,9 +140,24 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
               </div>
             </div>
 
+            {/* Current Time Indicator */}
+            {isToday && (
+              <div 
+                className="absolute top-0 bottom-0 w-0.5 bg-rose-500 z-20 pointer-events-none"
+                style={{ left: `${getCurrentTimePosition()}%` }}
+              >
+                {/* Time label at top */}
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-lg whitespace-nowrap">
+                  {format(new Date(), 'h:mm a')}
+                </div>
+                {/* Dot at top */}
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white shadow-md" />
+              </div>
+            )}
+
             {/* Gantt Chart Rows */}
             <ScrollArea className="h-[500px]">
-              <div className="space-y-2 pr-4">
+              <div className="space-y-2 pr-4 relative">
                 <TooltipProvider>
                   {dayEntries.length > 0 ? (
                     dayEntries.map((entry, idx) => {
