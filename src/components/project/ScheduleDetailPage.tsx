@@ -466,71 +466,56 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
               <DialogTitle>Add New Product</DialogTitle>
             </DialogHeader>
             {!showPreview ? (
-              <div className="space-y-6 py-6">
-                {/* Product Name Input Field */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    Product Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="product-name-input"
-                    value={productName}
-                    onChange={(e) => setProductName(e.target.value)}
-                    placeholder="Enter product name"
-                    className="flex-1"
-                    disabled={isAnalyzing}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Required: Enter a name for the product
-                  </p>
-                </div>
-
-                {/* Divider with Optional text */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Optional</span>
-                  </div>
-                </div>
-
-                {/* URL Input Field - Now Optional */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Product URL (Optional)</Label>
-                  <div className="flex gap-2">
+              <div className="space-y-3 py-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Product Name</Label>
                     <Input
-                      id="product-url-input"
-                      value={productUrl}
-                      onChange={(e) => setProductUrl(e.target.value)}
-                      placeholder="Paste product URL to auto-extract details (optional)"
-                      className="flex-1"
+                      id="product-name-input"
+                      value={productName}
+                      onChange={(e) => setProductName(e.target.value)}
+                      placeholder="Optional"
+                      className="h-9"
                       disabled={isAnalyzing}
                     />
-                    <Button 
-                      type="button" 
-                      onClick={async () => {
-                        try {
-                          const text = await navigator.clipboard.readText();
-                          setProductUrl(text.trim());
-                        } catch (error) {
-                          toast({
-                            title: "Paste failed",
-                            description: "Could not read from clipboard. Please paste manually.",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                      variant="outline"
-                      disabled={isAnalyzing}
-                    >
-                      PASTE
-                    </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Add a URL to automatically extract product details, or leave blank to enter manually
-                  </p>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Product URL</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="product-url-input"
+                        value={productUrl}
+                        onChange={(e) => setProductUrl(e.target.value)}
+                        placeholder="Paste URL to extract details"
+                        className="h-9 flex-1"
+                        disabled={isAnalyzing}
+                      />
+                      <Button 
+                        type="button" 
+                        onClick={async () => {
+                          try {
+                            const text = await navigator.clipboard.readText();
+                            setProductUrl(text.trim());
+                          } catch (error) {
+                            toast({
+                              title: "Paste failed",
+                              description: "Could not read from clipboard. Please paste manually.",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        variant="outline"
+                        size="sm"
+                        disabled={isAnalyzing}
+                      >
+                        PASTE
+                      </Button>
+                    </div>
+                  </div>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Add a URL to extract details automatically, or continue to enter manually
+                </p>
               </div>
             ) : (
               <div className="space-y-6 py-6">
@@ -621,7 +606,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                         />
                       </div>
                       <div className="space-y-1 col-span-2">
-                        <Label className="text-xs">Product Name *</Label>
+                        <Label className="text-xs">Product Name</Label>
                         <Input
                           value={extractedData?.product_name || ''}
                           onChange={(e) => setExtractedData({
@@ -822,7 +807,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                   {productUrl && (
                     <Button 
                       onClick={handleAnalyzeProduct}
-                      disabled={!productName || isAnalyzing}
+                      disabled={isAnalyzing}
                       variant="secondary"
                     >
                       {isAnalyzing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
@@ -831,7 +816,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                   )}
                   <Button 
                     onClick={handleManualEntry}
-                    disabled={!productName || isAnalyzing}
+                    disabled={isAnalyzing}
                   >
                     {isAnalyzing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {isAnalyzing ? 'Extracting...' : 'Continue'}
