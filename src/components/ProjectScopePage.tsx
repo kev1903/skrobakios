@@ -1605,111 +1605,125 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   // Enhanced drag and drop system with smart hierarchy detection
   const onDragEnd = async (result: DropResult) => {
     setDragIndicator(null);
-    if (!result.destination) return;
-    
-    const { source, destination } = result;
-    
-    if (source.index === destination.index) return;
-    
-    console.log('🎯 Drag ended:', { from: source.index, to: destination.index });
-    
-    // All items are always visible now (no expand/collapse), use flatWBSItems directly
-    const visibleFlatItems = flatWBSItems;
-    
-    console.log('📋 Items before reorder:', visibleFlatItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
-    
-    // Get the item being moved
-    const movedItem = visibleFlatItems[source.index];
-    if (!movedItem) {
-      console.error('❌ Could not find moved item at index:', source.index);
+    if (!result.destination) {
+      console.log('❌ Drag cancelled - no destination');
       return;
     }
     
-    // Get all descendants of the moved item (children, grandchildren, etc.)
-    const descendants = getAllDescendants(movedItem.id, visibleFlatItems);
-    const itemsToMove = [movedItem, ...descendants];
+    const { source, destination } = result;
     
-    console.log('🔀 Moving item:', movedItem.name || movedItem.title, 'with', descendants.length, 'descendants from', source.index, 'to', destination.index);
-    
-    // Create a new array with items to move removed
-    const reorderedVisibleItems = visibleFlatItems.filter(item => 
-      !itemsToMove.find(moved => moved.id === item.id)
-    );
-    
-    // Calculate the adjusted destination index (accounting for removed items before destination)
-    let adjustedDestination = destination.index;
-    itemsToMove.forEach(item => {
-      const originalIndex = visibleFlatItems.findIndex(i => i.id === item.id);
-      if (originalIndex < destination.index) {
-        adjustedDestination--;
-      }
-    });
-    
-    // Insert all items to move at the adjusted destination, maintaining their relative order
-    reorderedVisibleItems.splice(adjustedDestination, 0, ...itemsToMove);
-    
-    // ✨ SMART HIERARCHY DETECTION: Determine new parent_id and level based on position
-    const itemBefore = adjustedDestination > 0 ? reorderedVisibleItems[adjustedDestination - 1] : null;
-    const itemAfter = adjustedDestination < reorderedVisibleItems.length - 1 ? reorderedVisibleItems[adjustedDestination + 1] : null;
-    
-    let newParentId = movedItem.parent_id;
-    let newLevel = movedItem.level;
-    
-    // If dropped after an item, check if it should become a child or sibling
-    if (itemBefore) {
-      // Check if the item after (if exists) is a child of itemBefore
-      const itemAfterIsChild = itemAfter && itemAfter.parent_id === itemBefore.id;
-      
-      if (itemAfterIsChild) {
-        // Insert as a child of itemBefore
-        newParentId = itemBefore.id;
-        newLevel = itemBefore.level + 1;
-        console.log('📍 Detected drop into children of:', itemBefore.title, '- making child');
-      } else {
-        // Insert as sibling of itemBefore (same parent and level)
-        newParentId = itemBefore.parent_id;
-        newLevel = itemBefore.level;
-        console.log('📍 Detected drop as sibling of:', itemBefore.title);
-      }
-    } else {
-      // Dropped at the very top
-      newParentId = null;
-      newLevel = 0;
-      console.log('📍 Detected drop at root level');
+    if (source.index === destination.index) {
+      console.log('❌ Drag cancelled - same position');
+      return;
     }
     
-    // Calculate level delta for descendants
-    const levelDelta = newLevel - movedItem.level;
+    console.log('🎯 Drag ended:', { from: source.index, to: destination.index });
     
-    console.log('📋 Hierarchy changes:', { 
-      oldParent: movedItem.parent_id, 
-      newParent: newParentId, 
-      oldLevel: movedItem.level, 
-      newLevel, 
-      levelDelta 
-    });
-    
-    // Persist to database
     try {
-      console.log('🔄 Starting smart drag reorder with hierarchy updates');
+      // All items are always visible now (no expand/collapse), use flatWBSItems directly
+      const visibleFlatItems = flatWBSItems;
+      
+      console.log('📋 Items before reorder:', visibleFlatItems.map(i => ({ id: i.id, title: i.title, level: i.level, parent: i.parent_id })));
+      
+      // Get the item being moved
+      const movedItem = visibleFlatItems[source.index];
+      if (!movedItem) {
+        console.error('❌ Could not find moved item at index:', source.index);
+        return;
+      }
+      
+      console.log('🔀 Moving item:', movedItem.title, 'ID:', movedItem.id);
+      
+      // Get all descendants of the moved item (children, grandchildren, etc.)
+      const descendants = getAllDescendants(movedItem.id, visibleFlatItems);
+      const itemsToMove = [movedItem, ...descendants];
+      
+      console.log('👨‍👩‍👧‍👦 Item has', descendants.length, 'descendants:', descendants.map(d => d.title));
+      
+      // Create a new array with items to move removed
+      const reorderedVisibleItems = visibleFlatItems.filter(item => 
+        !itemsToMove.find(moved => moved.id === item.id)
+      );
+      
+      // Calculate the adjusted destination index (accounting for removed items before destination)
+      let adjustedDestination = destination.index;
+      itemsToMove.forEach(item => {
+        const originalIndex = visibleFlatItems.findIndex(i => i.id === item.id);
+        if (originalIndex < destination.index) {
+          adjustedDestination--;
+        }
+      });
+      
+      console.log('📍 Adjusted destination:', adjustedDestination, 'from original:', destination.index);
+      
+      // Insert all items to move at the adjusted destination, maintaining their relative order
+      reorderedVisibleItems.splice(adjustedDestination, 0, ...itemsToMove);
+      
+      // ✨ SMART HIERARCHY DETECTION: Determine new parent_id and level based on position
+      const itemBefore = adjustedDestination > 0 ? reorderedVisibleItems[adjustedDestination - 1] : null;
+      const itemAfter = adjustedDestination < reorderedVisibleItems.length - 1 ? reorderedVisibleItems[adjustedDestination + 1] : null;
+      
+      let newParentId = movedItem.parent_id;
+      let newLevel = movedItem.level;
+      
+      console.log('🔍 Context:', { 
+        itemBefore: itemBefore ? { title: itemBefore.title, level: itemBefore.level, id: itemBefore.id } : null,
+        itemAfter: itemAfter ? { title: itemAfter.title, level: itemAfter.level, parent: itemAfter.parent_id } : null
+      });
+      
+      // If dropped after an item, check if it should become a child or sibling
+      if (itemBefore) {
+        // Check if the item after (if exists) is a child of itemBefore
+        const itemAfterIsChild = itemAfter && itemAfter.parent_id === itemBefore.id;
+        
+        if (itemAfterIsChild) {
+          // Insert as a child of itemBefore
+          newParentId = itemBefore.id;
+          newLevel = itemBefore.level + 1;
+          console.log('📍 Detected drop into children of:', itemBefore.title, '- making child');
+        } else {
+          // Insert as sibling of itemBefore (same parent and level)
+          newParentId = itemBefore.parent_id;
+          newLevel = itemBefore.level;
+          console.log('📍 Detected drop as sibling of:', itemBefore.title);
+        }
+      } else {
+        // Dropped at the very top
+        newParentId = null;
+        newLevel = 0;
+        console.log('📍 Detected drop at root level');
+      }
+      
+      // Calculate level delta for descendants
+      const levelDelta = newLevel - movedItem.level;
+      
+      console.log('📋 Hierarchy changes:', { 
+        oldParent: movedItem.parent_id, 
+        newParent: newParentId, 
+        oldLevel: movedItem.level, 
+        newLevel, 
+        levelDelta 
+      });
       
       // Filter out empty placeholder rows that haven't been saved yet
       const savedItems = reorderedVisibleItems.filter(item => !item.id.startsWith('empty-'));
       
-      console.log('💾 Updating', savedItems.length, 'saved items');
+      console.log('💾 Will update', savedItems.length, 'saved items');
       
       // Batch all updates
-      const updates: Promise<void>[] = [];
+      const updates: Array<{ id: string; data: any; description: string }> = [];
       
       // Update moved item with new parent and level
       if (movedItem.parent_id !== newParentId || movedItem.level !== newLevel) {
-        console.log('🔀 Updating moved item parent/level:', movedItem.title);
-        updates.push(
-          updateWBSItem(movedItem.id, { 
+        console.log('✏️ Moved item needs parent/level update');
+        updates.push({
+          id: movedItem.id,
+          data: { 
             parent_id: newParentId,
             level: newLevel
-          }, { skipAutoSchedule: true })
-        );
+          },
+          description: `Update ${movedItem.title} parent/level`
+        });
       }
       
       // Update descendants with adjusted levels
@@ -1717,44 +1731,71 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         descendants.forEach(desc => {
           const descItem = savedItems.find(i => i.id === desc.id);
           if (descItem) {
-            console.log('🔀 Updating descendant level:', descItem.title, 'delta:', levelDelta);
-            updates.push(
-              updateWBSItem(desc.id, { 
+            console.log('✏️ Descendant needs level update:', descItem.title);
+            updates.push({
+              id: desc.id,
+              data: { 
                 level: descItem.level + levelDelta
-              }, { skipAutoSchedule: true })
-            );
+              },
+              description: `Update ${descItem.title} level by ${levelDelta}`
+            });
           }
         });
       }
       
       // Update sort_order for ALL items to maintain new order
       savedItems.forEach((item, i) => {
-        updates.push(
-          updateWBSItem(item.id, { 
+        updates.push({
+          id: item.id,
+          data: { 
             sort_order: i
-          }, { skipAutoSchedule: true })
-        );
+          },
+          description: `Update ${item.title} sort_order to ${i}`
+        });
       });
       
-      // Execute all updates in parallel
-      await Promise.all(updates);
+      console.log('🚀 Executing', updates.length, 'updates...');
       
-      console.log('✅ Smart drag reorder with hierarchy saved to database');
+      // Execute all updates in parallel
+      const updatePromises = updates.map(async ({ id, data, description }) => {
+        console.log('  ⏳', description);
+        try {
+          await updateWBSItem(id, data, { skipAutoSchedule: true });
+          console.log('  ✅', description, 'SUCCESS');
+        } catch (err) {
+          console.error('  ❌', description, 'FAILED:', err);
+          throw new Error(`Failed: ${description} - ${err}`);
+        }
+      });
+      
+      await Promise.all(updatePromises);
+      
+      console.log('✅ All updates completed successfully');
       
       // Reload from database to get the correct order and renumber WBS IDs
+      console.log('🔄 Reloading items from database...');
       await loadWBSItems();
+      console.log('✅ Reload complete');
       
       toast({
         title: "Success",
         description: "Items reordered successfully",
       });
+      
     } catch (error) {
-      console.error('❌ Error reordering items:', error);
+      console.error('❌❌❌ DRAG ERROR:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
       // Revert on error
+      console.log('⏪ Reverting changes...');
       await loadWBSItems();
+      
       toast({
         title: "Error",
-        description: "Failed to reorder items. Changes reverted.",
+        description: error instanceof Error ? error.message : "Failed to reorder items. Changes reverted.",
         variant: "destructive"
       });
     }
