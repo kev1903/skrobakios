@@ -1631,9 +1631,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     try {
       console.log('🔄 Starting drag reorder with', reorderedVisibleItems.length, 'items');
       
+      // Filter out empty placeholder rows that haven't been saved yet
+      const savedItems = reorderedVisibleItems.filter(item => !item.id.startsWith('empty-'));
+      
+      console.log('💾 Updating', savedItems.length, 'saved items (excluding', reorderedVisibleItems.length - savedItems.length, 'empty placeholders)');
+      
       // Execute all updates in parallel - use timestamps to maintain order
       await Promise.all(
-        reorderedVisibleItems.map((item, i) => 
+        savedItems.map((item, i) => 
           updateWBSItem(item.id, { 
             created_at: new Date(Date.now() + i * 1000).toISOString()
           }, { skipAutoSchedule: true })
