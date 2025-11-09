@@ -1077,59 +1077,59 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                     );
                                   })()}
                                   
-                                   <div className="grid grid-cols-1 gap-3">
+                                   <div className="grid grid-cols-1 gap-2">
                                      {paymentSchedule.map((payment: any, idx: number) => {
                                        const isSelected = selectedMilestones[contract.id]?.has(idx) || false;
                                        
                                        return (
                                          <div 
                                            key={idx} 
-                                           className={`p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer ${
-                                             isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-gray-200'
+                                           className={`p-3 bg-white border rounded-lg hover:shadow-sm transition-all cursor-pointer ${
+                                             isSelected ? 'border-primary ring-1 ring-primary/20' : 'border-gray-200'
                                            }`}
                                            onClick={() => handleEditMilestone(contract, payment, idx)}
                                          >
-                                           <div className="flex items-start justify-between gap-4">
-                                             <div className="flex items-start gap-3 flex-1">
+                                           <div className="flex items-center justify-between gap-3">
+                                             <div className="flex items-center gap-2.5 flex-1 min-w-0">
                                                <Checkbox
                                                  checked={isSelected}
                                                  onCheckedChange={() => handleToggleMilestoneSelection(contract.id, idx)}
                                                  onClick={(e) => e.stopPropagation()}
-                                                 className="mt-1"
+                                                 className="flex-shrink-0"
                                                />
-                                               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex-shrink-0">
+                                               <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-semibold text-xs flex-shrink-0">
                                                  {payment.sequence || idx + 1}
                                                </div>
                                             <div className="flex-1 min-w-0">
-                                              <div className="font-semibold text-sm text-foreground mb-1">
+                                              <div className="font-semibold text-sm text-foreground">
                                                 {payment.stage_name || payment.milestone || `Stage ${payment.sequence || idx + 1}`}
                                               </div>
                                               {payment.description && (
-                                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                                                   {payment.description}
                                                 </p>
                                               )}
-                                              <div className="flex flex-wrap items-center gap-2 mt-2">
+                                              <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                                                 {payment.trigger && (
-                                                  <Badge variant="secondary" className="text-xs">
+                                                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5">
                                                     📍 {payment.trigger}
                                                   </Badge>
                                                 )}
                                                 {(payment.due_date || payment.due_days) && (
-                                                  <Badge variant="outline" className="text-xs">
+                                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
                                                     🗓️ {payment.due_date || `${payment.due_days} days`}
                                                   </Badge>
                                                 )}
                                               </div>
                                             </div>
                                           </div>
-                                          <div className="flex items-center gap-3">
-                                            <div className="text-right flex-shrink-0">
-                                              <div className="text-lg font-bold text-green-600">
+                                          <div className="flex items-center gap-2 flex-shrink-0">
+                                            <div className="text-right">
+                                              <div className="text-base font-bold text-green-600">
                                                 {formatCurrency(parseFloat(payment.amount?.toString().replace(/[$,]/g, '') || '0'), contract.contract_data)}
                                               </div>
                                               {payment.percentage && (
-                                                <div className="text-xs font-medium text-muted-foreground mt-1">
+                                                <div className="text-[10px] font-medium text-muted-foreground">
                                                   {payment.percentage}% of total
                                                 </div>
                                               )}
@@ -1137,23 +1137,23 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                             <Button
                                               size="sm"
                                               variant="default"
-                                              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white h-8"
+                                              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white h-7 px-2.5"
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleGenerateInvoice(contract, payment);
                                               }}
                                             >
-                                              <FileCheck className="h-3.5 w-3.5" />
-                                              <span className="text-xs font-medium">Generate Invoice</span>
+                                              <FileCheck className="h-3 w-3" />
+                                              <span className="text-xs font-medium">Generate</span>
                                             </Button>
                                           </div>
                                         </div>
                                          </div>
                                        );
                                      })}
-                                   </div>
-                                </div>
-                              </td>
+                                    </div>
+                                 </div>
+                               </td>
                             </tr>
                           )}
                         </React.Fragment>
