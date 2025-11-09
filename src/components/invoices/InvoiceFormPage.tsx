@@ -129,6 +129,20 @@ export const InvoiceFormPage = () => {
   // Note: Auto-population of client details removed per user request
   // Client details must be entered manually for each new invoice
 
+  // Reset client data when projectId changes (for new invoices only)
+  useEffect(() => {
+    if (!isEditMode && projectId) {
+      setInvoiceData(prev => ({
+        ...prev,
+        clientName: '',
+        clientAddress: '',
+        clientEmail: '',
+        reference: '',
+        contractId: ''
+      }));
+    }
+  }, [projectId, isEditMode]);
+
   // Fetch contracts for the project
   useEffect(() => {
     const fetchContracts = async () => {
