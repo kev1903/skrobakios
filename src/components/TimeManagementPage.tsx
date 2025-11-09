@@ -40,7 +40,10 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   const [modalDate, setModalDate] = useState('');
 
   useEffect(() => {
-    loadTimeEntries(selectedDate);
+    // Load entire week's data for the work diary
+    const weekStart = startOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
+    const weekEnd = endOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
+    loadTimeEntries(format(weekStart, 'yyyy-MM-dd'), format(weekEnd, 'yyyy-MM-dd'));
   }, [selectedDate]);
 
   const handleDateChange = (date: string) => {
