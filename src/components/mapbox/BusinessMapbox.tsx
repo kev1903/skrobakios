@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Globe, Layers, Lock } from 'lucide-react';
+import { Building, Globe, Layers, Lock, Cloud, CloudRain, Sun, Wind, Calendar, TrendingUp, Activity, BarChart3 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
@@ -11,6 +11,7 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { useProjects as useProjectsHook } from '@/hooks/useProjects';
 import { toast } from 'sonner';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { format } from 'date-fns';
 
 interface Project {
   id: string;
@@ -495,6 +496,200 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       <div className={`w-full h-full bg-background relative overflow-hidden ${className}`}>
         {/* Map Container */}
         <div ref={mapContainer} className="w-full h-full" />
+        
+        {/* Glass Morphism Dashboard Overlay */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="container mx-auto h-full p-6 pointer-events-none">
+            {/* Dashboard Title */}
+            <div className="mb-8 animate-fade-in">
+              <h1 className="text-6xl font-light text-foreground tracking-tight pointer-events-auto">Dashboard</h1>
+            </div>
+
+            {/* Glass Cards Grid */}
+            <div className="grid grid-cols-12 gap-4 pointer-events-auto">
+              {/* Row 1 */}
+              {/* Weather Card */}
+              <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-white/70 mb-1">Current Weather</p>
+                      <p className="text-xs text-white/50">Melbourne, AU</p>
+                    </div>
+                    <Cloud className="w-8 h-8 text-white/90" />
+                  </div>
+                  <div className="flex items-end gap-2 mb-4">
+                    <span className="text-5xl font-light text-white">18°</span>
+                    <span className="text-xl text-white/70 mb-2">C</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-white/60">
+                    <div className="flex items-center gap-1">
+                      <Wind className="w-3 h-3" />
+                      <span>12 km/h</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CloudRain className="w-3 h-3" />
+                      <span>40%</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Active Projects Card */}
+              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.1s' }}>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Activity className="w-5 h-5 text-luxury-gold" />
+                    <p className="text-sm font-medium text-foreground">Active Now</p>
+                  </div>
+                  <div className="flex items-center justify-center h-20">
+                    <div className="relative w-20 h-20">
+                      <svg className="w-full h-full -rotate-90">
+                        <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
+                        <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${226 * 0.75} 226`} className="text-luxury-gold" />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl font-bold text-foreground">{projects.length}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-center text-muted-foreground mt-2">Projects In Progress</p>
+                </CardContent>
+              </Card>
+
+              {/* Weekly Activity */}
+              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.2s' }}>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <BarChart3 className="w-5 h-5 text-luxury-gold" />
+                    <p className="text-sm font-medium text-foreground">This Week</p>
+                  </div>
+                  <div className="flex items-end gap-1 h-20">
+                    {[40, 65, 45, 80, 60, 90, 75].map((height, i) => (
+                      <div key={i} className="flex-1 bg-gradient-to-t from-luxury-gold/80 to-luxury-gold/40 rounded-t" style={{ height: `${height}%` }} />
+                    ))}
+                  </div>
+                  <div className="flex justify-between text-[10px] text-muted-foreground mt-2">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Stats */}
+              <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.3s' }}>
+                <CardContent className="p-6">
+                  <p className="text-sm text-white/70 mb-4">Workforce Analytics</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white/60">Active Teams</span>
+                      <span className="text-lg font-semibold text-white">12</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white/60">Completed Tasks</span>
+                      <span className="text-lg font-semibold text-white">847</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white/60">Team Members</span>
+                      <span className="text-lg font-semibold text-white">45</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Row 2 */}
+              {/* Calendar Preview */}
+              <Card className="col-span-4 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.4s' }}>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Calendar className="w-5 h-5 text-luxury-gold" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{format(new Date(), 'MMMM yyyy')}</p>
+                      <p className="text-xs text-muted-foreground">Schedule Overview</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-7 gap-1 mb-2">
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                      <div key={day} className="text-[10px] text-center text-muted-foreground font-medium">{day}</div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-1">
+                    {Array.from({ length: 28 }).map((_, i) => (
+                      <div 
+                        key={i} 
+                        className={`aspect-square rounded flex items-center justify-center text-xs ${
+                          i === 8 ? 'bg-luxury-gold text-white font-semibold' : 
+                          i % 7 === 0 || i % 7 === 6 ? 'text-muted-foreground/50' :
+                          'text-foreground hover:bg-accent/50'
+                        }`}
+                      >
+                        {i + 1}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Performance Metrics */}
+              <Card className="col-span-4 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.5s' }}>
+                <CardContent className="p-6">
+                  <p className="text-sm font-medium text-foreground mb-4">Performance Metrics</p>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="relative">
+                      <svg className="w-24 h-24 -rotate-90 mx-auto">
+                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
+                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${251 * 0.92} 251`} className="text-emerald-500" />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-bold text-foreground">92%</span>
+                        <span className="text-[10px] text-muted-foreground">Efficiency</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <svg className="w-24 h-24 -rotate-90 mx-auto">
+                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
+                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${251 * 0.78} 251`} className="text-luxury-gold" />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-bold text-foreground">78%</span>
+                        <span className="text-[10px] text-muted-foreground">Quality</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Project Locations */}
+              <Card className="col-span-4 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.6s' }}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-sm font-medium text-foreground">Project Distribution</p>
+                    <Globe className="w-5 h-5 text-luxury-gold" />
+                  </div>
+                  <div className="relative h-24 flex items-center justify-center">
+                    <svg viewBox="0 0 200 100" className="w-full h-full text-foreground/80">
+                      <path d="M20,50 Q60,20 100,50 T180,50" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3" />
+                      <circle cx="20" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
+                      <circle cx="100" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
+                      <circle cx="180" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center">
+                        <p className="text-3xl font-bold text-foreground">{projects.length}</p>
+                        <p className="text-xs text-muted-foreground">Active Sites</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
