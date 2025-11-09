@@ -126,55 +126,8 @@ export const InvoiceFormPage = () => {
     fetchInvoiceData();
   }, [invoiceId, toast]);
 
-  // Fetch project owner/client details
-  useEffect(() => {
-    const fetchProjectOwners = async () => {
-      if (!projectId || isEditMode) return; // Only auto-populate for new invoices
-      
-      try {
-        const { data: owners, error } = await supabase
-          .from('project_owners')
-          .select('*')
-          .eq('project_id', projectId)
-          .order('created_at', { ascending: true });
-
-        if (error) {
-          console.error('Error fetching project owners:', error);
-          return;
-        }
-
-        if (owners && owners.length > 0) {
-          // Combine owner names as "Owner 1 and Owner 2"
-          const ownerNames = owners.map(owner => owner.name).filter(Boolean);
-          const combinedNames = ownerNames.join(' and ');
-          
-          // Use first owner's details for address and email
-          const firstOwner = owners[0];
-          const addressParts = [
-            firstOwner.address,
-            firstOwner.suburb,
-            firstOwner.state,
-            firstOwner.postcode
-          ].filter(Boolean);
-          
-          const fullAddress = addressParts.join(', ');
-
-          setInvoiceData((prev) => ({
-            ...prev,
-            clientName: combinedNames || '',
-            clientAddress: fullAddress || '',
-            clientEmail: firstOwner.email || ''
-          }));
-
-          console.log('Client details auto-populated:', combinedNames);
-        }
-      } catch (error) {
-        console.error('Error fetching project owners:', error);
-      }
-    };
-
-    fetchProjectOwners();
-  }, [projectId, isEditMode]);
+  // Note: Auto-population of client details removed per user request
+  // Client details must be entered manually for each new invoice
 
   // Fetch contracts for the project
   useEffect(() => {
