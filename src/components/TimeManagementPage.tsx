@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays } from 'date-fns';
-import { Timer, Calendar, TrendingUp, Clock, Home, ChevronLeft, ChevronRight, Edit2, X } from 'lucide-react';
+import { Timer, Calendar, TrendingUp, Clock, Home, ChevronLeft, ChevronRight, Edit2, X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { WeekView } from '@/components/time-tracking/WeekView';
 import { CalendarMonthView } from '@/components/time-tracking/CalendarMonthView';
 import { ScheduleTab } from '@/components/time-tracking/ScheduleTab';
 import { ProductivityTab } from '@/components/time-tracking/ProductivityTab';
+import { ManualTimeEntryDialog } from '@/components/time-tracking/ManualTimeEntryDialog';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -24,6 +25,7 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
     settings,
     activeTimer,
     loading,
+    categories,
     loadTimeEntries,
     startTimer,
     stopTimer,
@@ -41,6 +43,7 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   const [modalDate, setModalDate] = useState('');
   const [userRate, setUserRate] = useState<number | null>(null);
   const [rateCurrency, setRateCurrency] = useState<string>('AUD');
+  const [isManualEntryOpen, setIsManualEntryOpen] = useState(false);
 
   useEffect(() => {
     // Load entire week's data for the work diary
@@ -163,6 +166,18 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-background via-background to-muted/10 pb-12">
       <div className="max-w-[1800px] mx-auto p-6 space-y-8">
+        {/* Header with Add Button */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-foreground">Time Tracking</h1>
+          <Button
+            onClick={() => setIsManualEntryOpen(true)}
+            className="bg-luxury-gold hover:bg-luxury-gold/90 text-white shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Entry
+          </Button>
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="backdrop-blur-xl bg-white/80 border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
@@ -364,6 +379,19 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Manual Time Entry Dialog */}
+        <ManualTimeEntryDialog
+          open={isManualEntryOpen}
+          onOpenChange={setIsManualEntryOpen}
+          selectedDate={selectedDate}
+          onEntryCreated={() => {
+            const weekStart = startOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
+            const weekEnd = endOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
+            loadTimeEntries(format(weekStart, 'yyyy-MM-dd'), format(weekEnd, 'yyyy-MM-dd'));
+          }}
+          categories={categories}
+        />
       </div>
     </div>
   );
