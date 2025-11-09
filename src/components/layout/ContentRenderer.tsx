@@ -512,7 +512,7 @@ export const ContentRenderer = ({
     case "personal":
       return <PersonalPage onNavigate={onNavigate} />;
     case "time":
-      return <TimePage onNavigate={onNavigate} />;
+      return <TimeManagementPage onNavigate={onNavigate} />;
     case "wellness":
       return <WellnessPage onNavigate={onNavigate} />;
     case "family":
