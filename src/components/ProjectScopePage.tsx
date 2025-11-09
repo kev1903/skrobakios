@@ -1046,19 +1046,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       
       const updates = renumberAllWBSItems(wbsItems);
       
-      if (updates.length === 0) {
+      // Filter out placeholder items with empty- IDs
+      const validUpdates = updates.filter(u => !u.item.id.startsWith('empty-'));
+      
+      if (validUpdates.length === 0) {
         console.log('✅ No WBS renumbering needed - hierarchy is already correct');
         return;
       }
       
-      console.log('🔢 Applying WBS updates:', updates.map(u => ({ item: u.item.title, oldWbs: u.item.wbs_id, newWbs: u.newWbsId })));
+      console.log('🔢 Applying WBS updates:', validUpdates.map(u => ({ item: u.item.title, oldWbs: u.item.wbs_id, newWbs: u.newWbsId })));
       
       // Apply all the WBS ID updates
-      for (const { item, newWbsId } of updates) {
+      for (const { item, newWbsId } of validUpdates) {
         await updateWBSItem(item.id, { wbs_id: newWbsId }, { skipAutoSchedule: true });
       }
       
-      console.log(`✅ Renumbered ${updates.length} WBS items to ensure sequential hierarchy`);
+      console.log(`✅ Renumbered ${validUpdates.length} WBS items to ensure sequential hierarchy`);
     } catch (error) {
       console.error('❌ Error renumbering WBS hierarchy:', error);
     }
