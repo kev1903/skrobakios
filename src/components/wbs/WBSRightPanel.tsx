@@ -149,8 +149,9 @@ const WBSRow = memo(({
   }, [item.id, item.level, onContextMenuAction]);
 
   const handleStatusChange = useCallback((newStatus: string) => {
+    console.log('📊 Status changed:', { itemId: item.id, itemName: item.name, oldStatus: item.status, newStatus });
     onItemUpdate(item.id, { status: newStatus });
-  }, [item.id, onItemUpdate]);
+  }, [item.id, item.name, item.status, onItemUpdate]);
 
   const handleProgressChange = useCallback((newProgress: number) => {
     onItemUpdate(item.id, { progress: newProgress });

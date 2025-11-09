@@ -148,6 +148,11 @@ export const useWBS = (projectId: string) => {
         hasStatus: Object.prototype.hasOwnProperty.call(updates, 'status')
       });
 
+      // Log status updates specifically
+      if (Object.prototype.hasOwnProperty.call(updates, 'status')) {
+        console.log('✅ Status update will be saved to database:', { id, status: updates.status });
+      }
+
       let parentsToUpdate: Array<{id: string, progress: number, status: WBSItem['status']}> = [];
 
       // OPTIMISTIC UPDATE: Update local state FIRST for instant UI feedback
@@ -189,7 +194,9 @@ export const useWBS = (projectId: string) => {
       });
 
       // Then persist to database (async, in background)
+      console.log('💾 Saving to database:', { id, updates });
       await WBSService.updateWBSItem(id, updates);
+      console.log('✅ Successfully saved to database:', { id, updates });
 
       // Save parent rollup updates to database (outside setState)
       if (parentsToUpdate.length > 0) {
