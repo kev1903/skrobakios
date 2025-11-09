@@ -12,7 +12,7 @@ export class WBSService {
       .from('wbs_items')
       .select('*')
       .eq('project_id', projectId)
-      .order('sort_order', { ascending: true })
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: true });
 
     if (error) throw error;

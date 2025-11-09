@@ -1673,9 +1673,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       // Reload from database to get the correct order
       await loadWBSItems();
       
-      // Renumber WBS IDs after reorder to reflect new hierarchy
-      console.log('🔢 Renumbering WBS after drag reorder');
-      await renumberWBSHierarchy();
+      // Note: We don't renumber WBS IDs after drag-drop since we're only reordering,
+      // not changing hierarchy. WBS IDs stay the same, only sort_order changes.
     } catch (error) {
       console.error('❌ Error reordering items:', error);
       // Revert on error
