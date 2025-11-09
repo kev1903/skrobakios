@@ -654,36 +654,21 @@ const barRef = useRef<HTMLDivElement>(null);
             </Popover>
           </div>
 
-          {/* Center - Active Timer Display with Controls (Digital LED Effect) */}
+          {/* Center - Active Timer Display with Controls (Engraved Effect) */}
           {activeTimer && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3 px-4 py-2 bg-gradient-to-b from-slate-900/95 to-slate-950/95 backdrop-blur-sm border border-slate-700/50 rounded-lg hover:border-luxury-gold/50 transition-all duration-300 cursor-pointer group shadow-[0_0_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-2 h-2 bg-luxury-gold rounded-full animate-pulse shadow-[0_0_8px_rgba(217,186,112,0.8)]"></div>
-                    <Clock className="w-4 h-4 text-luxury-gold drop-shadow-[0_0_4px_rgba(217,186,112,0.6)]" />
-                    <span 
-                      className="text-lg font-bold tabular-nums tracking-wider text-luxury-gold transition-all duration-300"
-                      style={{ 
-                        fontFamily: 'SF Mono, Monaco, Consolas, monospace',
-                        textShadow: '0 0 10px rgba(217, 186, 112, 0.8), 0 0 20px rgba(217, 186, 112, 0.4), 0 0 30px rgba(217, 186, 112, 0.2)',
-                        filter: 'brightness(1.2)'
-                      }}
-                    >
+                <button className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3 hover:opacity-70 transition-opacity duration-200 cursor-pointer group">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-luxury-gold/60 rounded-full animate-pulse shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)]"></div>
+                    <Clock className="w-4 h-4 text-foreground/70" style={{ filter: 'drop-shadow(0 1px 0 rgba(255,255,255,0.3))' }} />
+                    <span className="text-sm font-semibold text-foreground/80 tabular-nums" style={{ textShadow: '0 1px 0 rgba(255,255,255,0.3), 0 -1px 0 rgba(0,0,0,0.1)' }}>
                       {formatDuration(currentDuration)}
                     </span>
                   </div>
-                  <div className="h-8 w-px bg-gradient-to-b from-transparent via-slate-600 to-transparent"></div>
-                  <span 
-                    className="text-xs text-slate-300 max-w-[180px] truncate font-medium"
-                    style={{ 
-                      textShadow: '0 0 4px rgba(226, 232, 240, 0.3)'
-                    }}
-                  >
+                  <span className="text-xs text-muted-foreground/70 max-w-[200px] truncate" style={{ textShadow: '0 1px 0 rgba(255,255,255,0.3), 0 -1px 0 rgba(0,0,0,0.1)' }}>
                     {activeTimer.task_activity || 'No description'}
                   </span>
-                  {/* LED screen reflection effect */}
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none"></div>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-56 bg-background z-[12000]">
