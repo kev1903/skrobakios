@@ -57,31 +57,7 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-background via-background to-muted/10 pb-12">
       <div className="max-w-[1800px] mx-auto">
-        {/* Header */}
-        <div className="backdrop-blur-xl bg-white/80 border-b border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)] sticky top-0 z-50">
-          <div className="px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onNavigate('home')}
-                  className="flex items-center gap-2 hover:bg-accent/50 transition-colors"
-                >
-                  <Home className="w-4 h-4" />
-                  <span>Home</span>
-                </Button>
-                <div className="h-6 w-px bg-border/50" />
-                <div className="flex items-center gap-3">
-                  <Clock className="w-7 h-7 text-luxury-gold" />
-                  <h1 className="text-2xl font-bold text-foreground">
-                    Time Management
-                  </h1>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Header removed */}
 
         {/* Main Content */}
         <div className="p-6">
