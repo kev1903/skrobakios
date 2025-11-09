@@ -791,22 +791,24 @@ const barRef = useRef<HTMLDivElement>(null);
         </div>
 
         {/* Expandable Timer Creation Form */}
-        {isFormExpanded && !activeTimer && <div className="border-t border-border bg-card/98 backdrop-blur-sm">
-            <div className="px-6 py-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">Start New Timer</span>
-                <Button variant="ghost" size="sm" onClick={() => setIsFormExpanded(false)} className="h-6 w-6 p-0" title="Collapse">
-                  <X className="w-4 h-4" />
+        {isFormExpanded && !activeTimer && <div className="border-t border-border/20 bg-gradient-to-b from-white/95 to-white/98 backdrop-blur-xl">
+            <div className="px-4 py-3 space-y-2.5">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold text-foreground tracking-wide uppercase">Quick Timer</span>
+                <Button variant="ghost" size="sm" onClick={() => setIsFormExpanded(false)} className="h-6 w-6 p-0 hover:bg-muted/50" title="Collapse">
+                  <X className="w-3.5 h-3.5" />
                 </Button>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {/* Project */}
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Project</label>
+              {/* Single Row Form */}
+              <div className="flex items-end gap-2">
+                {/* Project Select - Compact */}
+                <div className="flex-1">
+                  <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Project</label>
                   <Select value={selectedProject} onValueChange={setSelectedProject}>
-                    <SelectTrigger className="mt-1 h-8">
-                      <SelectValue placeholder="Select project..." />
+                    <SelectTrigger className="h-9 text-sm backdrop-blur-md bg-white/80 border-border/30 hover:bg-white/90 transition-colors">
+                      <SelectValue placeholder="Select..." />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">No project</SelectItem>
@@ -817,25 +819,30 @@ const barRef = useRef<HTMLDivElement>(null);
                   </Select>
                 </div>
 
-                {/* Task Description */}
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Task Description</label>
-                  <Input placeholder="What are you working on?" value={taskActivity} onChange={e => setTaskActivity(e.target.value)} className="mt-1 h-8" onKeyDown={e => {
-                if (e.key === 'Enter') {
+                {/* Task Description - Larger */}
+                <div className="flex-[2]">
+                  <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Task</label>
+                  <Input placeholder="What are you working on?" value={taskActivity} onChange={e => setTaskActivity(e.target.value)} className="h-9 text-sm backdrop-blur-md bg-white/80 border-border/30 hover:bg-white/90 transition-colors" onKeyDown={e => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                   handleStartTimer();
                 }
               }} />
                 </div>
+
+                {/* Start Button - Compact */}
+                <Button onClick={handleStartTimer} disabled={!taskActivity.trim()} size="sm" className="h-9 px-4 gap-1.5 bg-luxury-gold hover:bg-luxury-gold/90 text-white font-medium shadow-md hover:shadow-lg transition-all">
+                  <Play className="w-3.5 h-3.5" />
+                  Start
+                </Button>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="text-xs text-muted-foreground">
-                  Press Ctrl+Enter to start • Ctrl+Space to toggle
+              {/* Keyboard Shortcuts Hint - More Subtle */}
+              <div className="flex items-center justify-center pt-0.5">
+                <div className="text-[10px] text-muted-foreground/70 font-medium">
+                  <kbd className="px-1.5 py-0.5 rounded bg-muted/50 text-[9px] font-mono">Ctrl+Enter</kbd> to start
+                  <span className="mx-1.5">•</span>
+                  <kbd className="px-1.5 py-0.5 rounded bg-muted/50 text-[9px] font-mono">Ctrl+Space</kbd> to toggle
                 </div>
-                <Button onClick={handleStartTimer} disabled={!taskActivity.trim()} size="sm" className="gap-1">
-                  <Play className="w-4 h-4" />
-                  Start Timer
-                </Button>
               </div>
             </div>
           </div>}
