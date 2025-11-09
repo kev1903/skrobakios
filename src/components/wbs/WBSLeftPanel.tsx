@@ -77,17 +77,8 @@ export const WBSLeftPanel = ({
   
   const content = (
     <DragDropContext 
-      onDragEnd={(result) => {
-        console.log('🟢 WBSLeftPanel: onDragEnd triggered', result);
-        onDragEnd(result);
-      }} 
-      onDragUpdate={(update) => {
-        console.log('🟡 WBSLeftPanel: onDragUpdate triggered', update);
-        onDragUpdate?.(update);
-      }}
-      onDragStart={(start) => {
-        console.log('🔵 WBSLeftPanel: onDragStart triggered', start);
-      }}
+      onDragEnd={onDragEnd}
+      onDragUpdate={onDragUpdate}
     >
       <Droppable droppableId="wbs-items" type="item">
         {(provided) => (

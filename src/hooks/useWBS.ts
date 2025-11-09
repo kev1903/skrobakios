@@ -22,14 +22,11 @@ export const useWBS = (projectId: string) => {
   const loadWBSItems = async () => {
     if (!projectId || !currentCompany?.id) return;
     
-    console.log('🔄 useWBS.loadWBSItems called with:', { projectId, companyId: currentCompany.id });
-    
     setLoading(true);
     setError(null);
     
     try {
       const items = await WBSService.loadWBSItems(projectId, currentCompany.id);
-      console.log('✅ useWBS.loadWBSItems received items:', items.length, 'for project:', projectId);
       setWBSItems(items);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load WBS items';
@@ -126,32 +123,16 @@ export const useWBS = (projectId: string) => {
       // Auto-sync progress and status
       if (updates.status === 'Completed' && updates.progress !== 100) {
         updates.progress = 100;
-        console.log('🔄 Auto-setting progress to 100% for completed task');
       } else if (updates.progress === 100 && updates.status !== 'Completed') {
         updates.status = 'Completed';
-        console.log('🔄 Auto-setting status to Completed for 100% progress task');
       } else if (updates.status === 'Not Started' && updates.progress !== 0) {
         updates.progress = 0;
-        console.log('🔄 Auto-setting progress to 0% for not started task');
       }
 
       // Check if progress or status was updated to trigger parent rollups
       const touchesProgressOrStatus =
         Object.prototype.hasOwnProperty.call(updates, 'progress') ||
         Object.prototype.hasOwnProperty.call(updates, 'status');
-
-      console.log('🔍 Update check:', { 
-        id, 
-        updates, 
-        touchesProgressOrStatus,
-        hasProgress: Object.prototype.hasOwnProperty.call(updates, 'progress'),
-        hasStatus: Object.prototype.hasOwnProperty.call(updates, 'status')
-      });
-
-      // Log status updates specifically
-      if (Object.prototype.hasOwnProperty.call(updates, 'status')) {
-        console.log('✅ Status update will be saved to database:', { id, status: updates.status });
-      }
 
       let parentsToUpdate: Array<{id: string, progress: number, status: WBSItem['status']}> = [];
 
@@ -160,12 +141,9 @@ export const useWBS = (projectId: string) => {
         let updated = updateItemsRecursively(prev, id, updates);
 
         if (touchesProgressOrStatus) {
-          console.log('🎯 Triggering parent rollup calculations...');
           const rollupResult = updateParentRollups(updated, id);
           updated = rollupResult.updatedItems;
           parentsToUpdate = rollupResult.parentsToUpdate;
-          
-          console.log(`💾 Found ${parentsToUpdate.length} parents to update`);
         }
 
         const touchesSchedule =
@@ -194,21 +172,16 @@ export const useWBS = (projectId: string) => {
       });
 
       // Then persist to database (async, in background)
-      console.log('💾 Saving to database:', { id, updates });
       await WBSService.updateWBSItem(id, updates);
-      console.log('✅ Successfully saved to database:', { id, updates });
 
       // Save parent rollup updates to database (outside setState)
       if (parentsToUpdate.length > 0) {
-        console.log(`💾 Saving ${parentsToUpdate.length} parent updates to database`);
         for (const parentUpdate of parentsToUpdate) {
           try {
-            console.log(`💾 Updating parent ${parentUpdate.id} with:`, parentUpdate);
             await WBSService.updateWBSItem(parentUpdate.id, {
               progress: parentUpdate.progress,
               status: parentUpdate.status
             });
-            console.log(`✅ Successfully updated parent ${parentUpdate.id}`);
           } catch (error) {
             console.error(`❌ Failed to save parent rollup for ${parentUpdate.id}:`, error);
           }
@@ -222,21 +195,15 @@ export const useWBS = (projectId: string) => {
   };
   // Delete a WBS item
   const deleteWBSItem = async (id: string) => {
-    console.log('🔵 useWBS.deleteWBSItem called for:', id);
     try {
       // Call the service to delete from database
       await WBSService.deleteWBSItem(id);
-      
-      console.log('🔵 Database delete successful, updating local state');
 
       // Remove from local state
       setWBSItems(prev => {
         const updated = removeItemRecursively(prev, id);
-        console.log('🔵 Local state updated, items remaining:', updated.length);
         return updated;
       });
-      
-      console.log('✅ Delete operation completed successfully');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete WBS item';
       setError(errorMessage);

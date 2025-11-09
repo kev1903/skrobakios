@@ -124,8 +124,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     loadWBSItems,
   } = useWBS(project.id);
 
-  console.log('ProjectScopePage rendering', { project, wbsItems: wbsItems?.length, loading, error, activeTab });
-
   // Convert WBS items to scope data structure (roots are X.0 which we treat as level 0)
   const scopeData: ScopePhase[] = wbsItems
     .filter(item => item.wbs_id?.endsWith('.0') || item.level === 0 || item.parent_id == null)
@@ -190,13 +188,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Convert WBS items to flat array for split view while preserving hierarchy
   const flatWBSItems = React.useMemo(() => {
-    console.log('🟢 flatWBSItems recalculating, wbsItems:', wbsItems.length);
-    
     // Helper function to recursively flatten WBS hierarchy with correct depth tracking
     const flattenWBSItems = (items: any[], depth: number = 0, result: any[] = []): any[] => {
       items.forEach((item) => {
-        console.log('  🟢 Flattening:', item.title, 'Level:', depth, 'Has children:', item.children?.length || 0);
-        
         // Add the current item to result with depth-based level
         result.push({
           id: item.id,
@@ -232,7 +226,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         
         // If item has children, recursively flatten them at next depth level
         if (item.children && item.children.length > 0) {
-          console.log('  🟢 Processing', item.children.length, 'children of:', item.title);
           flattenWBSItems(item.children, depth + 1, result);
         }
       });
@@ -417,7 +410,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const toggleElement = async (elementId: string, currentExpanded: boolean) => {
-    console.log('🔄 Toggling element:', elementId, 'from:', currentExpanded, 'to:', !currentExpanded);
     await updateWBSItem(elementId, { is_expanded: !currentExpanded });
   };
 
@@ -668,13 +660,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Memoize the item update handler to prevent re-renders
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
-    console.log('🟪 Item update:', itemId, updates);
     await updateWBSItem(itemId, updates);
   }, [updateWBSItem]);
 
   const handleContextMenuAction = useCallback(async (action: string, itemId: string, type: string) => {
     // Type is now passed directly from the component
-    console.log('🔵 ProjectScopePage handleContextMenuAction received:', action, itemId, type);
     
     // Find the item for operations that need it - search in flatWBSItems to include nested children
     const item = flatWBSItems.find(i => i.id === itemId);
@@ -686,7 +676,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     switch (action) {
       case 'cut':
         // TODO: Implement cut functionality
-        console.log('Cut item:', itemId);
         toast({
           title: "Cut",
           description: "Item cut to clipboard (feature coming soon)",
@@ -694,7 +683,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
       case 'copy':
         // TODO: Implement copy functionality
-        console.log('Copy item:', itemId);
         toast({
           title: "Copied",
           description: "Item copied to clipboard (feature coming soon)",
@@ -702,7 +690,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
       case 'paste':
         // TODO: Implement paste functionality
-        console.log('Paste at item:', itemId);
         toast({
           title: "Paste",
           description: "Paste functionality coming soon",
@@ -749,7 +736,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               return parseInt(firstPart || '0');
             }), 0);
             newWbsIdAbove = `${maxRootNumAbove + 1}`;
-            console.log('🔵 Generated root WBS ID:', newWbsIdAbove, 'from max:', maxRootNumAbove);
           } else {
             // Child level: find max sibling WBS ID and add 1
             const siblingsAbove = flatWBSItems.filter(i => 
@@ -767,7 +753,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               return parseInt(lastPart || '0');
             }), 0);
             newWbsIdAbove = wbsPrefixAbove ? `${wbsPrefixAbove}.${maxSiblingNumAbove + 1}` : `${maxSiblingNumAbove + 1}`;
-            console.log('🔵 Generated child WBS ID:', newWbsIdAbove, 'from prefix:', wbsPrefixAbove, 'max sibling:', maxSiblingNumAbove);
           }
           
           const newItemDataAbove: WBSItemInput = {
@@ -782,12 +767,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             linked_tasks: [],
           };
 
-          console.log('🔵 Creating new WBS item with data:', newItemDataAbove);
-          
           const resultAbove = await createWBSItem(newItemDataAbove);
           
           if (resultAbove) {
-            console.log('✅ Successfully created WBS item:', resultAbove.id);
             toast({
               title: "Row Inserted",
               description: "New row added above selected item",
@@ -849,7 +831,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               return parseInt(firstPart || '0');
             }), 0);
             newWbsId = `${maxRootNum + 1}`;
-            console.log('🔵 Generated root WBS ID:', newWbsId, 'from max:', maxRootNum);
           } else {
             // Child level: find max sibling WBS ID and add 1
             const siblings = flatWBSItems.filter(i => 
@@ -867,7 +848,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               return parseInt(lastPart || '0');
             }), 0);
             newWbsId = wbsPrefix ? `${wbsPrefix}.${maxSiblingNum + 1}` : `${maxSiblingNum + 1}`;
-            console.log('🔵 Generated child WBS ID:', newWbsId, 'from prefix:', wbsPrefix, 'max sibling:', maxSiblingNum);
           }
           
           const newItemData: WBSItemInput = {
@@ -882,12 +862,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             linked_tasks: [],
           };
 
-          console.log('🔵 Creating new WBS item with data:', newItemData);
-          
           const result = await createWBSItem(newItemData);
           
           if (result) {
-            console.log('✅ Successfully created WBS item:', result.id);
             toast({
               title: "Row Inserted",
               description: "New row added below selected item",
@@ -932,8 +909,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             }
           }
           
-          console.log(`🔄 Progressive indent: ${item.title} from level ${item.level} to ${newLevel}, parent: ${newParentId}`);
-          
           // If we found a parent, make sure it's expanded so the indented item remains visible
           if (parentItem && !parentItem.is_expanded) {
             await updateWBSItem(parentItem.id, { is_expanded: true });
@@ -963,8 +938,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           // Preserve visual position by keeping the same created_at relative to visible items
           const newCreatedAt = new Date(Date.now() + currentIndexOutdent * 1000).toISOString();
           
-          console.log(`🔄 Outdenting: ${item.title} from level ${item.level} to ${item.level - 1}, preserving position at index ${currentIndexOutdent}`);
-          
           await updateWBSItem(itemId, {
             parent_id: currentParent?.parent_id || null,
             level: Math.max(0, item.level - 1),
@@ -990,7 +963,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
       case 'row-actions':
         // TODO: Open more actions menu
-        console.log('More actions for:', itemId);
         break;
       case 'add-child':
         addChildItem(itemId);
@@ -1003,13 +975,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         }
         break;
       case 'duplicate':
-        console.log('Duplicate', type, itemId);
         break;
       case 'delete':
-        console.log('🔵 ProjectScopePage handleContextMenuAction DELETE:', itemId, type);
         try {
           await deleteWBSItem(itemId);
-          console.log('🔵 Delete successful, reloading items');
           // Reload and renumber after deletion
           await loadWBSItems();
           setTimeout(() => renumberWBSHierarchy(), 100);
@@ -1050,18 +1019,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       const validUpdates = updates.filter(u => !u.item.id.startsWith('empty-'));
       
       if (validUpdates.length === 0) {
-        console.log('✅ No WBS renumbering needed - hierarchy is already correct');
         return;
       }
-      
-      console.log('🔢 Applying WBS updates:', validUpdates.map(u => ({ item: u.item.title, oldWbs: u.item.wbs_id, newWbs: u.newWbsId })));
       
       // Apply all the WBS ID updates
       for (const { item, newWbsId } of validUpdates) {
         await updateWBSItem(item.id, { wbs_id: newWbsId }, { skipAutoSchedule: true });
       }
-      
-      console.log(`✅ Renumbered ${validUpdates.length} WBS items to ensure sequential hierarchy`);
     } catch (error) {
       console.error('❌ Error renumbering WBS hierarchy:', error);
     }
@@ -1090,7 +1054,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   // Generic function to add child items
   const addChildItem = async (parentId: string) => {
     try {
-      console.log('🔄 addChildItem called with parentId:', parentId);
       const parentItem = findWBSItem(parentId);
       
       if (!parentItem) {
@@ -1105,8 +1068,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
       const childLevel = parentItem.level + 1;
       const wbsId = generateWBSId(parentId);
-
-      console.log(`➕ Adding child at level ${childLevel} to parent at level ${parentItem.level}`);
 
       await createWBSItem({
         company_id: currentCompany.id,
@@ -1133,7 +1094,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       // Trigger renumbering to ensure all WBS IDs are sequential
       await renumberWBSHierarchy();
 
-      console.log('✅ addChildItem completed');
     } catch (error) {
       console.error('❌ Error adding child item:', error);
     }
@@ -1214,8 +1174,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
 
     try {
-      console.log('Saving scope to database:', scopeData);
-      
       // Flatten the scope data into WBS items
       const itemsToSave: any[] = [];
       
@@ -1287,8 +1245,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       for (const item of itemsToSave) {
         await WBSService.createWBSItem(item);
       }
-      
-      console.log(`Successfully saved ${itemsToSave.length} scope items to database`);
     } catch (error) {
       console.error('Failed to save scope to database:', error);
     }
@@ -1330,7 +1286,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   // Listen for SkAi task creation events and reload WBS items
   useEffect(() => {
     const handleSkaiTaskCreated = (event: CustomEvent) => {
-      console.log('SkAi task created event received, reloading WBS items...');
       if (event.detail?.projectId === project.id) {
         loadWBSItems();
         toast({
@@ -1391,7 +1346,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     // keep local value in sync if the underlying value changes externally
     // CRITICAL: Don't include localValue in dependencies - it causes a reset loop
     useEffect(() => {
-      console.log('🟣 Value sync effect', { field, id, oldLocal: localValue, newValue: value });
       setLocalValue(value || "");
     }, [value, id, field]);
 
@@ -1410,7 +1364,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       try {
         // Check if this is an empty row that needs to be created
         if (id.startsWith('empty-')) {
-          console.log('🆕 Creating new WBS item for empty row:', id);
           if (!currentCompany?.id) {
             console.error('❌ No company ID available');
             return;
@@ -1431,7 +1384,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           };
 
           await createWBSItem(newItem);
-          console.log('✅ Created new phase:', newVal);
           return;
         }
 
@@ -1447,7 +1399,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         }
         
         await updateWBSItem(id, { [dbField]: updateValue });
-        console.log('✅ Updated', dbField, 'to:', updateValue, 'for item:', id);
       } catch (e) {
         console.error('❌ Failed to update field', field, 'for', id, e);
       }
@@ -1604,28 +1555,20 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Enhanced drag and drop system with smart hierarchy detection
   const onDragEnd = async (result: DropResult) => {
-    console.log('🚀🚀🚀 ProjectScopePage.onDragEnd CALLED', result);
-    
     setDragIndicator(null);
     if (!result.destination) {
-      console.log('❌ Drag cancelled - no destination');
       return;
     }
     
     const { source, destination } = result;
     
     if (source.index === destination.index) {
-      console.log('❌ Drag cancelled - same position');
       return;
     }
-    
-    console.log('🎯 Drag ended:', { from: source.index, to: destination.index });
     
     try {
       // All items are always visible now (no expand/collapse), use flatWBSItems directly
       const visibleFlatItems = flatWBSItems;
-      
-      console.log('📋 Items before reorder:', visibleFlatItems.map(i => ({ id: i.id, title: i.title, level: i.level, parent: i.parent_id })));
       
       // Get the item being moved
       const movedItem = visibleFlatItems[source.index];
@@ -1634,13 +1577,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         return;
       }
       
-      console.log('🔀 Moving item:', movedItem.title, 'ID:', movedItem.id);
-      
       // Get all descendants of the moved item (children, grandchildren, etc.)
       const descendants = getAllDescendants(movedItem.id, visibleFlatItems);
       const itemsToMove = [movedItem, ...descendants];
-      
-      console.log('👨‍👩‍👧‍👦 Item has', descendants.length, 'descendants:', descendants.map(d => d.title));
       
       // Create a new array with items to move removed
       const reorderedVisibleItems = visibleFlatItems.filter(item => 
@@ -1656,8 +1595,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         }
       });
       
-      console.log('📍 Adjusted destination:', adjustedDestination, 'from original:', destination.index);
-      
       // Insert all items to move at the adjusted destination, maintaining their relative order
       reorderedVisibleItems.splice(adjustedDestination, 0, ...itemsToMove);
       
@@ -1668,11 +1605,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       let newParentId = movedItem.parent_id;
       let newLevel = movedItem.level;
       
-      console.log('🔍 Context:', { 
-        itemBefore: itemBefore ? { title: itemBefore.title, level: itemBefore.level, id: itemBefore.id } : null,
-        itemAfter: itemAfter ? { title: itemAfter.title, level: itemAfter.level, parent: itemAfter.parent_id } : null
-      });
-      
       // If dropped after an item, check if it should become a child or sibling
       if (itemBefore) {
         // Check if the item after (if exists) is a child of itemBefore
@@ -1682,30 +1614,19 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           // Insert as a child of itemBefore
           newParentId = itemBefore.id;
           newLevel = itemBefore.level + 1;
-          console.log('📍 Detected drop into children of:', itemBefore.title, '- making child');
         } else {
           // Insert as sibling of itemBefore (same parent and level)
           newParentId = itemBefore.parent_id;
           newLevel = itemBefore.level;
-          console.log('📍 Detected drop as sibling of:', itemBefore.title);
         }
       } else {
         // Dropped at the very top
         newParentId = null;
         newLevel = 0;
-        console.log('📍 Detected drop at root level');
       }
       
       // Calculate level delta for descendants
       const levelDelta = newLevel - movedItem.level;
-      
-      console.log('📋 Hierarchy changes:', { 
-        oldParent: movedItem.parent_id, 
-        newParent: newParentId, 
-        oldLevel: movedItem.level, 
-        newLevel, 
-        levelDelta 
-      });
       
       // Filter out empty placeholder rows that haven't been saved yet
       const savedItems = reorderedVisibleItems.filter(item => !item.id.startsWith('empty-'));
