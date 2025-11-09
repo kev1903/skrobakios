@@ -20,7 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck, AlertTriangle, Trash, UserPlus } from 'lucide-react';
+import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck, AlertTriangle, Trash, UserPlus, Plus } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
@@ -439,6 +439,26 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     setEditMilestoneOpen(true);
   };
 
+  const handleAddMilestone = (contract: Contract) => {
+    const contractData = contract.contract_data || {};
+    const paymentSchedule = contractData.payment_schedule || [];
+    const nextSequence = paymentSchedule.length + 1;
+    
+    setSelectedContract(contract);
+    setSelectedMilestone({
+      sequence: nextSequence,
+      stage_name: `Milestone ${nextSequence}`,
+      description: '',
+      amount: '',
+      percentage: '',
+      trigger: '',
+      due_date: '',
+      due_days: ''
+    });
+    setMilestoneIndex(-1); // -1 indicates new milestone
+    setEditMilestoneOpen(true);
+  };
+
   const updateRelatedInvoices = async (
     contractId: string, 
     milestoneSequence: number, 
@@ -508,20 +528,26 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   };
 
   const handleSaveMilestone = async () => {
-    if (!selectedContract || !selectedMilestone || milestoneIndex === -1) return;
+    if (!selectedContract || !selectedMilestone) return;
 
     try {
       // Get the current contract data
       const contractData = selectedContract.contract_data || {};
       const paymentSchedule = contractData.payment_schedule || [];
       
-      // Store old amount for comparison
-      const oldAmount = parseFloat(paymentSchedule[milestoneIndex]?.amount?.toString().replace(/[$,]/g, '') || '0');
+      let oldAmount = 0;
       const newAmountStr = selectedMilestone.amount?.toString().replace(/[$,]/g, '') || '0';
       const newAmount = parseFloat(newAmountStr);
       
-      // Update the milestone at the specific index
-      paymentSchedule[milestoneIndex] = selectedMilestone;
+      // Check if we're adding a new milestone or editing an existing one
+      if (milestoneIndex === -1) {
+        // Adding new milestone
+        paymentSchedule.push(selectedMilestone);
+      } else {
+        // Editing existing milestone
+        oldAmount = parseFloat(paymentSchedule[milestoneIndex]?.amount?.toString().replace(/[$,]/g, '') || '0');
+        paymentSchedule[milestoneIndex] = selectedMilestone;
+      }
       
       // Calculate the new contract amount as sum of all milestones
       const newContractAmount = paymentSchedule.reduce((sum: number, payment: any) => {
@@ -543,12 +569,12 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
       if (error) {
         console.error('Error updating milestone:', error);
-        toast.error("Failed to update milestone. Please try again.");
+        toast.error(milestoneIndex === -1 ? "Failed to add milestone. Please try again." : "Failed to update milestone. Please try again.");
         return;
       }
 
-      // Update related invoices if amount changed
-      if (oldAmount !== newAmount) {
+      // Update related invoices if amount changed and not a new milestone
+      if (milestoneIndex !== -1 && oldAmount !== newAmount) {
         await updateRelatedInvoices(
           selectedContract.id, 
           selectedMilestone.sequence, 
@@ -557,12 +583,14 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         );
       }
 
-      toast.success("Milestone updated successfully. Contract amount recalculated.");
+      toast.success(milestoneIndex === -1 ? "Milestone added successfully. Contract amount recalculated." : "Milestone updated successfully. Contract amount recalculated.");
       setEditMilestoneOpen(false);
+      setSelectedMilestone(null);
+      setMilestoneIndex(-1);
       loadContracts();
     } catch (error) {
-      console.error('Error updating milestone:', error);
-      toast.error("Failed to update milestone. Please try again.");
+      console.error('Error saving milestone:', error);
+      toast.error(milestoneIndex === -1 ? "Failed to add milestone. Please try again." : "Failed to update milestone. Please try again.");
     }
   };
 
@@ -970,26 +998,37 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                             <tr className="bg-gradient-to-r from-blue-50/50 via-blue-50/30 to-transparent">
                               <td colSpan={8} className="px-4 py-6">
                                   <div className="ml-8 space-y-3">
-                                    <div className="flex items-center justify-between mb-4">
-                                      <div className="flex items-center gap-2">
-                                        <DollarSign className="h-5 w-5 text-primary" />
-                                        <h4 className="font-bold text-base text-foreground">Payment Milestones</h4>
-                                        <Badge variant="outline" className="ml-2">
-                                          {paymentSchedule.length} {paymentSchedule.length === 1 ? 'Milestone' : 'Milestones'}
-                                        </Badge>
-                                      </div>
-                                      {selectedMilestones[contract.id]?.size > 0 && (
-                                        <Button
-                                          size="sm"
-                                          variant="destructive"
-                                          className="flex items-center gap-2"
-                                          onClick={() => handleDeleteSelectedMilestones(contract)}
-                                        >
-                                          <Trash className="h-4 w-4" />
-                                          Delete Selected ({selectedMilestones[contract.id].size})
-                                        </Button>
-                                      )}
-                                    </div>
+                                     <div className="flex items-center justify-between mb-4">
+                                       <div className="flex items-center gap-2">
+                                         <DollarSign className="h-5 w-5 text-primary" />
+                                         <h4 className="font-bold text-base text-foreground">Payment Milestones</h4>
+                                         <Badge variant="outline" className="ml-2">
+                                           {paymentSchedule.length} {paymentSchedule.length === 1 ? 'Milestone' : 'Milestones'}
+                                         </Badge>
+                                       </div>
+                                       <div className="flex items-center gap-2">
+                                         <Button
+                                           size="sm"
+                                           variant="default"
+                                           className="flex items-center gap-2"
+                                           onClick={() => handleAddMilestone(contract)}
+                                         >
+                                           <Plus className="h-4 w-4" />
+                                           Add Milestone
+                                         </Button>
+                                         {selectedMilestones[contract.id]?.size > 0 && (
+                                           <Button
+                                             size="sm"
+                                             variant="destructive"
+                                             className="flex items-center gap-2"
+                                             onClick={() => handleDeleteSelectedMilestones(contract)}
+                                           >
+                                             <Trash className="h-4 w-4" />
+                                             Delete Selected ({selectedMilestones[contract.id].size})
+                                           </Button>
+                                         )}
+                                       </div>
+                                     </div>
                                   
                                   {/* SkAi Amount Validation */}
                                   {(() => {
@@ -1180,9 +1219,11 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       <Dialog open={editMilestoneOpen} onOpenChange={setEditMilestoneOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Milestone</DialogTitle>
+            <DialogTitle>{milestoneIndex === -1 ? 'Add New Milestone' : 'Edit Milestone'}</DialogTitle>
             <DialogDescription>
-              Update the milestone details and click save to apply changes.
+              {milestoneIndex === -1 
+                ? 'Enter the details for the new milestone and click save to add it.' 
+                : 'Update the milestone details and click save to apply changes.'}
             </DialogDescription>
           </DialogHeader>
           
