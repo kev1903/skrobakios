@@ -483,9 +483,9 @@ export const InvoiceFormPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-16 overflow-y-auto">
-      {/* Header - Always Visible */}
-      <div className="bg-white border-b border-gray-200 p-4 print:hidden shadow-sm">
+    <div className="fixed inset-0 bg-background pt-[var(--header-height,64px)] overflow-y-auto">
+      {/* Header - Sticky */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-4 print:hidden shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button 
