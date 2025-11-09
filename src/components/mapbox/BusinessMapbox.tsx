@@ -550,28 +550,27 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
             {/* Glass Cards Grid */}
             <div className="grid grid-cols-12 gap-4 pointer-events-auto">
               {/* Row 1 */}
-              {/* Weather Card - Live Data with 5-Day Forecast */}
-              <Card className="col-span-6 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in">
-                <CardContent className="p-6">
+              {/* Weather Card - Compact 5-Day Forecast */}
+              <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in">
+                <CardContent className="p-4">
                   {/* Header */}
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">Weather Forecast</h3>
-                      <p className="text-xs text-white/50">{weather?.location || 'Loading...'}</p>
+                      <h3 className="text-sm font-semibold text-white mb-0.5">Weather Forecast</h3>
+                      <p className="text-[10px] text-white/50">{weather?.location || 'Loading...'}</p>
                     </div>
                     <div className="text-right">
                       <div className="flex items-end gap-1">
-                        <span className="text-3xl font-light text-white">
+                        <span className="text-2xl font-light text-white">
                           {weather ? weather.temperature : '--'}°
                         </span>
-                        <span className="text-sm text-white/70 mb-1">C</span>
                       </div>
-                      <p className="text-xs text-white/60 capitalize">{weather?.description || 'Loading...'}</p>
+                      <p className="text-[10px] text-white/60 capitalize">{weather?.description || 'Loading...'}</p>
                     </div>
                   </div>
 
-                  {/* 5-Day Forecast - At a Glance */}
-                  <div className="space-y-3">
+                  {/* 5-Day Forecast - Compact */}
+                  <div className="space-y-2">
                     {weather?.forecast?.slice(0, 5).map((day, index) => {
                       const date = new Date(day.date);
                       const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -586,62 +585,44 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                       return (
                         <div 
                           key={index} 
-                          className="flex items-center gap-4 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
+                          className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
                         >
                           {/* Date */}
-                          <div className="text-center min-w-[60px]">
-                            <p className="text-xs text-white/50">{dayName}</p>
-                            <p className="text-lg font-semibold text-white">{dateNum}</p>
-                            <p className="text-[10px] text-white/40">{month}</p>
+                          <div className="text-center min-w-[40px]">
+                            <p className="text-[9px] text-white/50">{dayName}</p>
+                            <p className="text-sm font-semibold text-white leading-none">{dateNum}</p>
+                            <p className="text-[8px] text-white/40">{month}</p>
                           </div>
 
                           {/* Weather Icon */}
                           <div className="flex-shrink-0">
                             {isRainy ? (
-                              <CloudRain className="w-8 h-8 text-cyan-400" />
+                              <CloudRain className="w-5 h-5 text-cyan-400" />
                             ) : isClear ? (
-                              <Sun className="w-8 h-8 text-yellow-400" />
+                              <Sun className="w-5 h-5 text-yellow-400" />
                             ) : (
-                              <Cloud className="w-8 h-8 text-white/60" />
+                              <Cloud className="w-5 h-5 text-white/60" />
                             )}
                           </div>
 
-                          {/* Weather Description */}
-                          <div className="flex-1">
-                            <p className="text-sm text-white font-medium capitalize">{day.description}</p>
-                            <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs text-white/60">
-                                {day.tempMax}° / {day.tempMin}°
+                          {/* Weather Info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[10px] text-white font-medium truncate capitalize">{day.description}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] text-white/60">
+                                {day.tempMax}°/{day.tempMin}°
                               </span>
                               {day.precipitationProb > 30 && (
-                                <span className="text-xs text-cyan-400 flex items-center gap-1">
-                                  <CloudRain className="w-3 h-3" />
-                                  {day.precipitationProb}%
-                                </span>
+                                <span className="text-[9px] text-cyan-400">{day.precipitationProb}%</span>
                               )}
                             </div>
                           </div>
 
-                          {/* Work Planning Icons */}
-                          <div className="flex items-center gap-2">
-                            {isWindy && (
-                              <div className="flex flex-col items-center">
-                                <Wind className="w-5 h-5 text-blue-400" />
-                                <span className="text-[9px] text-white/50">{day.windSpeed}</span>
-                              </div>
-                            )}
-                            {isRainy && (
-                              <div className="flex flex-col items-center">
-                                <CloudRain className="w-5 h-5 text-cyan-400" />
-                                <span className="text-[9px] text-white/50">Rain</span>
-                              </div>
-                            )}
-                            {isClear && !isWindy && (
-                              <div className="flex flex-col items-center">
-                                <Sun className="w-5 h-5 text-yellow-400" />
-                                <span className="text-[9px] text-white/50">Clear</span>
-                              </div>
-                            )}
+                          {/* Work Icons */}
+                          <div className="flex gap-1">
+                            {isWindy && <Wind className="w-3.5 h-3.5 text-blue-400" />}
+                            {isRainy && <CloudRain className="w-3.5 h-3.5 text-cyan-400" />}
+                            {isClear && !isWindy && <Sun className="w-3.5 h-3.5 text-yellow-400" />}
                           </div>
                         </div>
                       );
@@ -651,7 +632,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
               </Card>
 
               {/* Active Projects Card */}
-              <Card className="col-span-2 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.1s' }}>
+              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.1s' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <Activity className="w-5 h-5 text-luxury-gold" />
@@ -673,7 +654,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
               </Card>
 
               {/* Weekly Activity */}
-              <Card className="col-span-2 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.2s' }}>
+              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.2s' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <BarChart3 className="w-5 h-5 text-luxury-gold" />
@@ -697,7 +678,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
               </Card>
 
               {/* Quick Stats */}
-              <Card className="col-span-2 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.3s' }}>
+              <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.3s' }}>
                 <CardContent className="p-6">
                   <p className="text-sm text-white/70 mb-4">Workforce Analytics</p>
                   <div className="space-y-3">
