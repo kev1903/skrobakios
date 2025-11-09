@@ -648,26 +648,89 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                 </CardContent>
               </Card>
 
-              {/* Weekly Activity */}
+              {/* Risk Management Card */}
               <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.2s' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <BarChart3 className="w-5 h-5 text-luxury-gold" />
-                    <p className="text-sm font-medium text-foreground">This Week</p>
+                    <div className="p-2 rounded-lg bg-rose-500/20">
+                      <Activity className="w-5 h-5 text-rose-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Risk Overview</p>
+                      <p className="text-xs text-muted-foreground">Active Monitoring</p>
+                    </div>
                   </div>
-                  <div className="flex items-end gap-1 h-20">
-                    {[40, 65, 45, 80, 60, 90, 75].map((height, i) => (
-                      <div key={i} className="flex-1 bg-gradient-to-t from-luxury-gold/80 to-luxury-gold/40 rounded-t" style={{ height: `${height}%` }} />
-                    ))}
+                  
+                  {/* Risk Categories */}
+                  <div className="space-y-3">
+                    {/* Safety Risk */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="text-xs text-foreground">Safety</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-semibold text-emerald-500">Low</span>
+                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
+                          <div className="w-3 h-full rounded-full bg-emerald-500"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Budget Risk */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                        <span className="text-xs text-foreground">Budget</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-semibold text-amber-500">Medium</span>
+                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
+                          <div className="w-6 h-full rounded-full bg-amber-500"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Schedule Risk */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                        <span className="text-xs text-foreground">Schedule</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-semibold text-rose-500">High</span>
+                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
+                          <div className="w-9 h-full rounded-full bg-rose-500"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quality Risk */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="text-xs text-foreground">Quality</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-semibold text-emerald-500">Low</span>
+                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
+                          <div className="w-4 h-full rounded-full bg-emerald-500"></div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-[10px] text-muted-foreground mt-2">
-                    <span>Mon</span>
-                    <span>Tue</span>
-                    <span>Wed</span>
-                    <span>Thu</span>
-                    <span>Fri</span>
-                    <span>Sat</span>
-                    <span>Sun</span>
+
+                  {/* Overall Risk Score */}
+                  <div className="mt-4 pt-4 border-t border-border/30">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Overall Risk</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-amber-500">MEDIUM</span>
+                        <div className="w-16 h-2 rounded-full bg-muted/30">
+                          <div className="w-10 h-full rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500"></div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
