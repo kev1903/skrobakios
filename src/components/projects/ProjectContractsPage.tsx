@@ -1217,107 +1217,142 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
       {/* Edit Milestone Dialog */}
       <Dialog open={editMilestoneOpen} onOpenChange={setEditMilestoneOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>{milestoneIndex === -1 ? 'Add New Milestone' : 'Edit Milestone'}</DialogTitle>
-            <DialogDescription>
-              {milestoneIndex === -1 
-                ? 'Enter the details for the new milestone and click save to add it.' 
-                : 'Update the milestone details and click save to apply changes.'}
-            </DialogDescription>
+            <DialogTitle className="text-lg font-semibold">
+              {milestoneIndex === -1 ? 'Add New Milestone' : 'Edit Milestone'}
+            </DialogTitle>
           </DialogHeader>
           
           {selectedMilestone && (
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="sequence">Sequence #</Label>
-                <Input
-                  id="sequence"
-                  type="number"
-                  value={selectedMilestone.sequence || ''}
-                  onChange={(e) => setSelectedMilestone({ ...selectedMilestone, sequence: parseInt(e.target.value) })}
-                />
+            <div className="space-y-4 py-2">
+              {/* Basic Info Section */}
+              <div className="grid grid-cols-[100px_1fr] gap-3 items-start">
+                <div>
+                  <Label htmlFor="sequence" className="text-xs font-medium text-muted-foreground">
+                    Sequence
+                  </Label>
+                  <Input
+                    id="sequence"
+                    type="number"
+                    value={selectedMilestone.sequence || ''}
+                    onChange={(e) => setSelectedMilestone({ ...selectedMilestone, sequence: parseInt(e.target.value) })}
+                    className="h-8 mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="stage_name" className="text-xs font-medium text-muted-foreground">
+                    Stage Name
+                  </Label>
+                  <Input
+                    id="stage_name"
+                    value={selectedMilestone.stage_name || selectedMilestone.milestone || ''}
+                    onChange={(e) => setSelectedMilestone({ ...selectedMilestone, stage_name: e.target.value, milestone: e.target.value })}
+                    className="h-8 mt-1.5"
+                    placeholder="e.g., Deposit, Milestone 1"
+                  />
+                </div>
               </div>
               
-              <div className="grid gap-2">
-                <Label htmlFor="stage_name">Stage Name</Label>
-                <Input
-                  id="stage_name"
-                  value={selectedMilestone.stage_name || selectedMilestone.milestone || ''}
-                  onChange={(e) => setSelectedMilestone({ ...selectedMilestone, stage_name: e.target.value, milestone: e.target.value })}
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
+              <div>
+                <Label htmlFor="description" className="text-xs font-medium text-muted-foreground">
+                  Description
+                </Label>
                 <Textarea
                   id="description"
                   value={selectedMilestone.description || ''}
                   onChange={(e) => setSelectedMilestone({ ...selectedMilestone, description: e.target.value })}
-                  rows={3}
+                  rows={2}
+                  className="mt-1.5 resize-none text-sm"
+                  placeholder="Brief description of this milestone"
                 />
               </div>
+
+              <div className="h-px bg-border"></div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="amount">Amount</Label>
+              {/* Payment Details Section */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="amount" className="text-xs font-medium text-muted-foreground">
+                    Amount ($)
+                  </Label>
                   <Input
                     id="amount"
                     value={selectedMilestone.amount || ''}
                     onChange={(e) => setSelectedMilestone({ ...selectedMilestone, amount: e.target.value })}
+                    className="h-8 mt-1.5"
+                    placeholder="0.00"
                   />
                 </div>
                 
-                <div className="grid gap-2">
-                  <Label htmlFor="percentage">Percentage</Label>
+                <div>
+                  <Label htmlFor="percentage" className="text-xs font-medium text-muted-foreground">
+                    Percentage (%)
+                  </Label>
                   <Input
                     id="percentage"
                     type="number"
                     value={selectedMilestone.percentage || ''}
                     onChange={(e) => setSelectedMilestone({ ...selectedMilestone, percentage: parseFloat(e.target.value) })}
+                    className="h-8 mt-1.5"
+                    placeholder="0"
                   />
                 </div>
               </div>
+
+              <div className="h-px bg-border"></div>
               
-              <div className="grid gap-2">
-                <Label htmlFor="trigger">Trigger</Label>
+              {/* Trigger & Due Date Section */}
+              <div>
+                <Label htmlFor="trigger" className="text-xs font-medium text-muted-foreground">
+                  Payment Trigger
+                </Label>
                 <Input
                   id="trigger"
                   value={selectedMilestone.trigger || ''}
                   onChange={(e) => setSelectedMilestone({ ...selectedMilestone, trigger: e.target.value })}
+                  className="h-8 mt-1.5"
+                  placeholder="e.g., Upon completion of works"
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="due_date">Due Date</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="due_date" className="text-xs font-medium text-muted-foreground">
+                    Due Date
+                  </Label>
                   <Input
                     id="due_date"
                     type="date"
                     value={selectedMilestone.due_date || ''}
                     onChange={(e) => setSelectedMilestone({ ...selectedMilestone, due_date: e.target.value })}
+                    className="h-8 mt-1.5"
                   />
                 </div>
                 
-                <div className="grid gap-2">
-                  <Label htmlFor="due_days">Due Days</Label>
+                <div>
+                  <Label htmlFor="due_days" className="text-xs font-medium text-muted-foreground">
+                    Due Days
+                  </Label>
                   <Input
                     id="due_days"
                     type="number"
                     value={selectedMilestone.due_days || ''}
                     onChange={(e) => setSelectedMilestone({ ...selectedMilestone, due_days: parseInt(e.target.value) })}
+                    className="h-8 mt-1.5"
+                    placeholder="e.g., 7"
                   />
                 </div>
               </div>
             </div>
           )}
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditMilestoneOpen(false)}>
+          <DialogFooter className="gap-2 pt-2">
+            <Button variant="outline" onClick={() => setEditMilestoneOpen(false)} className="h-9">
               Cancel
             </Button>
-            <Button onClick={handleSaveMilestone}>
-              Save Changes
+            <Button onClick={handleSaveMilestone} className="h-9">
+              {milestoneIndex === -1 ? 'Add Milestone' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </DialogContent>
