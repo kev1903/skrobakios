@@ -1651,10 +1651,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     console.log('📋 Items after reorder:', reorderedVisibleItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
     
     // Optimistically update local state immediately with reordered items
-    // Update created_at to reflect new order
+    // Update sort_order to reflect new position
     const optimisticItems = reorderedVisibleItems.map((item, i) => ({
       ...item,
-      created_at: new Date(Date.now() + i * 1000).toISOString()
+      sort_order: i
     }));
     
     // Rebuild hierarchy from flat list and update local state immediately
@@ -1670,16 +1670,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       
       console.log('💾 Updating', savedItems.length, 'saved items (excluding', reorderedVisibleItems.length - savedItems.length, 'empty placeholders)');
       
-      // Execute all updates in parallel - use timestamps to maintain order
+      // Execute all updates in parallel - use sort_order to maintain position
       await Promise.all(
         savedItems.map((item, i) => 
           updateWBSItem(item.id, { 
-            created_at: new Date(Date.now() + i * 1000).toISOString()
+            sort_order: i
           }, { skipAutoSchedule: true })
         )
       );
       
-      console.log('✅ Drag reorder completed');
+      console.log('✅ Drag reorder completed - positions saved to database');
       
       // Renumber WBS IDs after reorder to reflect new hierarchy
       console.log('🔢 Renumbering WBS after drag reorder');
