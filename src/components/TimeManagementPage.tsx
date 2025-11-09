@@ -55,10 +55,10 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   }
 
   return (
-    <div className="w-full bg-gradient-to-br from-background via-background to-muted/10">
+    <div className="w-full min-h-screen bg-gradient-to-br from-background via-background to-muted/10 pb-12">
       <div className="max-w-[1800px] mx-auto">
         {/* Header */}
-        <div className="backdrop-blur-xl bg-white/80 border-b border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <div className="backdrop-blur-xl bg-white/80 border-b border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)] sticky top-0 z-50">
           <div className="px-6 py-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">

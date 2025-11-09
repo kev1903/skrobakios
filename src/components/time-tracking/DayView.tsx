@@ -102,7 +102,7 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
       {/* Timeline */}
       <Card className="backdrop-blur-xl bg-white/80 border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
         <CardContent className="p-6">
-          <div className="relative" style={{ height: '880px' }}>
+          <div className="relative overflow-visible" style={{ height: '880px', minHeight: '880px' }}>
             {/* Time Labels */}
             <div className="absolute left-0 top-0 bottom-0 w-20 border-r border-border/30">
               {timeSlots.map(hour => (
