@@ -174,7 +174,7 @@ export const InvoiceDetailsTable = ({
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-foreground/70 hover:text-foreground hover:bg-accent">
                           <Eye className="h-4 w-4" />
                         </Button>
                         {bill.file_attachments && (
@@ -182,7 +182,7 @@ export const InvoiceDetailsTable = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDownloadAttachment(bill.file_attachments!)}
-                            className="h-8 w-8 p-0"
+                            className="h-8 w-8 p-0 text-foreground/70 hover:text-foreground hover:bg-accent"
                           >
                             <Download className="h-4 w-4" />
                           </Button>
