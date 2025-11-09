@@ -36,11 +36,14 @@ interface ScheduleDetailPageProps {
 }
 
 export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: ScheduleDetailPageProps) => {
-  const { sections, loading: sectionsLoading, createSection } = useScheduleSections(scheduleId);
+  const { sections, loading: sectionsLoading, createSection, updateSection, deleteSection } = useScheduleSections(scheduleId);
   const { toast } = useToast();
   const [showNewProductDialog, setShowNewProductDialog] = useState(false);
   const [showNewSectionDialog, setShowNewSectionDialog] = useState(false);
+  const [showEditSectionDialog, setShowEditSectionDialog] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [editingSectionName, setEditingSectionName] = useState('');
   const [currentSectionId, setCurrentSectionId] = useState<string | null>(null);
   const [productUrl, setProductUrl] = useState('');
   const [productName, setProductName] = useState('');
@@ -394,6 +397,28 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
     }
   };
 
+  const handleEditSection = (sectionId: string, sectionName: string) => {
+    setEditingSectionId(sectionId);
+    setEditingSectionName(sectionName);
+    setShowEditSectionDialog(true);
+  };
+
+  const handleUpdateSection = async () => {
+    if (editingSectionId && editingSectionName.trim()) {
+      await updateSection(editingSectionId, editingSectionName);
+      setEditingSectionId(null);
+      setEditingSectionName('');
+      setShowEditSectionDialog(false);
+    }
+  };
+
+  const handleDeleteSection = async (sectionId: string, sectionName: string) => {
+    if (window.confirm(`Are you sure you want to delete "${sectionName}"? This will also delete all products in this section.`)) {
+      await deleteSection(sectionId);
+    }
+  };
+
+
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -428,6 +453,8 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                 section={section} 
                 scheduleId={scheduleId}
                 onOpenAddProductDialog={handleOpenAddProductDialog}
+                onEditSection={handleEditSection}
+                onDeleteSection={handleDeleteSection}
               />
             ))
           )}
@@ -455,6 +482,32 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                 Cancel
               </Button>
               <Button onClick={handleCreateSection}>Create Section</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Section Dialog */}
+        <Dialog open={showEditSectionDialog} onOpenChange={setShowEditSectionDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Section</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-section-name">Section Name</Label>
+                <Input
+                  id="edit-section-name"
+                  value={editingSectionName}
+                  onChange={(e) => setEditingSectionName(e.target.value)}
+                  placeholder="e.g., Windows, Doors, etc."
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowEditSectionDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateSection}>Update Section</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -841,10 +894,14 @@ const SectionView = ({
   section, 
   scheduleId,
   onOpenAddProductDialog,
+  onEditSection,
+  onDeleteSection,
 }: { 
   section: any; 
   scheduleId: string;
   onOpenAddProductDialog: (sectionId: string) => void;
+  onEditSection: (sectionId: string, sectionName: string) => void;
+  onDeleteSection: (sectionId: string, sectionName: string) => void;
 }) => {
   const { items, loading, createItem, updateItem, deleteItem } = useScheduleItems(section.id);
 
@@ -867,10 +924,32 @@ const SectionView = ({
               {items.length}
             </Badge>
           </div>
-          <Button size="sm" onClick={handleAddProduct}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Product
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={handleAddProduct}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Product
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEditSection(section.id, section.name)}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Section
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onDeleteSection(section.id, section.name)}
+                  className="text-destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Section
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 
