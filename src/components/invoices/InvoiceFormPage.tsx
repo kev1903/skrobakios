@@ -29,7 +29,8 @@ export const InvoiceFormPage = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const isEditMode = !!invoiceId;
 
-  const [invoiceData, setInvoiceData] = useState({
+  // Initialize with completely empty state - no pre-filled data
+  const getInitialInvoiceData = () => ({
     invoiceNumber: `INV-0300`,
     invoiceDate: new Date().toISOString().split('T')[0],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -39,6 +40,8 @@ export const InvoiceFormPage = () => {
     clientEmail: '',
     contractId: ''
   });
+
+  const [invoiceData, setInvoiceData] = useState(getInitialInvoiceData());
 
   const [contracts, setContracts] = useState<Array<{id: string, name: string}>>([]);
   const [selectedContractPayments, setSelectedContractPayments] = useState<Array<{
@@ -55,6 +58,17 @@ export const InvoiceFormPage = () => {
   const [paymentTerms, setPaymentTerms] = useState(
     "This is a payment claim under the Building and Construction Industry Security of Payment Act 2002. Delay in payment of this invoice by the due date will incur an interest fee charged at 4.50% per month."
   );
+
+  // CRITICAL: Initialize with completely clean state on mount for new invoices
+  useEffect(() => {
+    if (!isEditMode) {
+      console.log('🔥 Initializing new invoice - clearing all state');
+      setInvoiceData(getInitialInvoiceData());
+      setItems([{ description: '', quantity: 1, unitPrice: 0, gst: 10, amount: 0 }]);
+      setContracts([]);
+      setSelectedContractPayments([]);
+    }
+  }, []); // Run once on mount
 
   // Fetch invoice data when in edit mode
   useEffect(() => {
@@ -129,19 +143,24 @@ export const InvoiceFormPage = () => {
   // Note: Auto-population of client details removed per user request
   // Client details must be entered manually for each new invoice
 
-  // Reset client data when projectId changes (for new invoices only)
+  // CRITICAL: Reset ALL state when projectId changes to prevent data bleeding between projects
   useEffect(() => {
-    if (!isEditMode && projectId) {
-      setInvoiceData(prev => ({
-        ...prev,
-        clientName: '',
-        clientAddress: '',
-        clientEmail: '',
-        reference: '',
-        contractId: ''
-      }));
+    console.log('🔄 ProjectId changed to:', projectId, 'isEditMode:', isEditMode);
+    
+    if (!isEditMode) {
+      console.log('✨ Resetting ALL invoice state for new invoice');
+      // Reset invoice data to initial state
+      setInvoiceData(getInitialInvoiceData());
+      // Reset items to single empty item
+      setItems([{ description: '', quantity: 1, unitPrice: 0, gst: 10, amount: 0 }]);
+      // Clear contracts
+      setContracts([]);
+      // Clear payment structure
+      setSelectedContractPayments([]);
+      
+      console.log('✅ Invoice state reset complete');
     }
-  }, [projectId, isEditMode]);
+  }, [projectId]); // Only depend on projectId, not isEditMode to ensure it runs on URL changes
 
   // Fetch contracts for the project
   useEffect(() => {
