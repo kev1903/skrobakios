@@ -35,6 +35,13 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [mapReady, setMapReady] = useState(false);
+  const [weather, setWeather] = useState<{
+    temperature: number;
+    description: string;
+    windSpeed: number;
+    humidity: number;
+    location: string;
+  } | null>(null);
   
   const navigate = useNavigate();
   const { hasModuleAccess, loading: permissionsLoading } = useUserPermissions(currentCompany?.id || '');
@@ -65,6 +72,32 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     };
 
     fetchMapboxToken();
+  }, []);
+
+  // Fetch live weather data
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-weather', {
+          body: { latitude: -37.8136, longitude: 144.9631 } // Melbourne coordinates
+        });
+        
+        if (error) throw error;
+        
+        if (data) {
+          setWeather(data);
+          console.log('Weather data fetched:', data);
+        }
+      } catch (error) {
+        console.error('Error fetching weather:', error);
+      }
+    };
+
+    fetchWeather();
+    // Refresh weather every 30 minutes
+    const interval = setInterval(fetchWeather, 30 * 60 * 1000);
+    
+    return () => clearInterval(interval);
   }, []);
 
 
@@ -508,28 +541,35 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
             {/* Glass Cards Grid */}
             <div className="grid grid-cols-12 gap-4 pointer-events-auto">
               {/* Row 1 */}
-              {/* Weather Card */}
+              {/* Weather Card - Live Data */}
               <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <p className="text-sm text-white/70 mb-1">Current Weather</p>
-                      <p className="text-xs text-white/50">Melbourne, AU</p>
+                      <p className="text-xs text-white/50">{weather?.location || 'Loading...'}</p>
                     </div>
                     <Cloud className="w-8 h-8 text-white/90" />
                   </div>
                   <div className="flex items-end gap-2 mb-4">
-                    <span className="text-5xl font-light text-white">18°</span>
+                    <span className="text-5xl font-light text-white">
+                      {weather ? weather.temperature : '--'}°
+                    </span>
                     <span className="text-xl text-white/70 mb-2">C</span>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-white/60">
-                    <div className="flex items-center gap-1">
-                      <Wind className="w-3 h-3" />
-                      <span>12 km/h</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CloudRain className="w-3 h-3" />
-                      <span>40%</span>
+                  <div className="space-y-2">
+                    <p className="text-xs text-white/70 capitalize">
+                      {weather?.description || 'Loading...'}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-white/60">
+                      <div className="flex items-center gap-1">
+                        <Wind className="w-3 h-3" />
+                        <span>{weather ? weather.windSpeed : '--'} km/h</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CloudRain className="w-3 h-3" />
+                        <span>{weather ? weather.humidity : '--'}%</span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

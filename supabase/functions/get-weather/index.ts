@@ -12,18 +12,14 @@ serve(async (req) => {
 
   try {
     const { latitude, longitude } = await req.json()
-    
-    const apiKey = Deno.env.get('OPENWEATHER_API_KEY')
-    if (!apiKey) {
-      throw new Error('OpenWeather API key not configured')
-    }
 
     // Use default Melbourne coordinates if not provided
     const lat = latitude || -37.8136
     const lon = longitude || 144.9631
 
+    // Use Open-Meteo free weather API (no API key required!)
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,cloud_cover&timezone=auto`
     )
 
     if (!response.ok) {
@@ -31,17 +27,45 @@ serve(async (req) => {
     }
 
     const weatherData = await response.json()
+    const current = weatherData.current
+
+    // Map weather codes to descriptions
+    const getWeatherDescription = (code: number) => {
+      const codes: Record<number, string> = {
+        0: 'Clear sky',
+        1: 'Mainly clear',
+        2: 'Partly cloudy',
+        3: 'Overcast',
+        45: 'Foggy',
+        48: 'Depositing rime fog',
+        51: 'Light drizzle',
+        53: 'Moderate drizzle',
+        55: 'Dense drizzle',
+        61: 'Slight rain',
+        63: 'Moderate rain',
+        65: 'Heavy rain',
+        71: 'Slight snow',
+        73: 'Moderate snow',
+        75: 'Heavy snow',
+        80: 'Slight rain showers',
+        81: 'Moderate rain showers',
+        82: 'Violent rain showers',
+        95: 'Thunderstorm',
+        96: 'Thunderstorm with slight hail',
+        99: 'Thunderstorm with heavy hail',
+      }
+      return codes[code] || 'Unknown'
+    }
 
     return new Response(
       JSON.stringify({
-        temperature: Math.round(weatherData.main.temp),
-        feelsLike: Math.round(weatherData.main.feels_like),
-        description: weatherData.weather[0].description,
-        icon: weatherData.weather[0].icon,
-        humidity: weatherData.main.humidity,
-        windSpeed: Math.round(weatherData.wind.speed * 3.6), // Convert m/s to km/h
-        cloudiness: weatherData.clouds.all,
-        location: weatherData.name,
+        temperature: Math.round(current.temperature_2m),
+        feelsLike: Math.round(current.apparent_temperature),
+        description: getWeatherDescription(current.weather_code),
+        humidity: current.relative_humidity_2m,
+        windSpeed: Math.round(current.wind_speed_10m * 3.6), // Convert m/s to km/h
+        cloudiness: current.cloud_cover,
+        location: `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
