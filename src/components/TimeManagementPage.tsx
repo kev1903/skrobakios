@@ -36,6 +36,8 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [mainTab, setMainTab] = useState('tracking');
   const [trackingView, setTrackingView] = useState('day');
+  const [isDayModalOpen, setIsDayModalOpen] = useState(false);
+  const [modalDate, setModalDate] = useState('');
 
   useEffect(() => {
     loadTimeEntries(selectedDate);
@@ -44,6 +46,11 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   const handleDateChange = (date: string) => {
     setSelectedDate(date);
     loadTimeEntries(date);
+  };
+
+  const handleDayClick = (date: string) => {
+    setModalDate(date);
+    setIsDayModalOpen(true);
   };
 
   const categoryColors = settings?.category_colors || DEFAULT_CATEGORY_COLORS;
@@ -241,13 +248,13 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
                 </CardContent>
               </Card>
 
-              {/* Week View - Always Show All Tracked Time */}
+              {/* Week View */}
               <div className="space-y-4">
                 <div className="text-sm font-semibold text-muted-foreground">
                   {format(currentWeekStart, 'MMM d')} - {format(currentWeekEnd, 'MMM d')}
                 </div>
                 
-                <div className="space-y-6">
+                <div className="space-y-3">
                   {weekDays.map((day, idx) => {
                     const dayEntries = timeEntries.filter(entry => {
                       const entryDate = format(new Date(entry.start_time), 'yyyy-MM-dd');
@@ -258,112 +265,30 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
                     const mins = totalMinutes % 60;
                     const timeString = `${hours}:${mins.toString().padStart(2, '0')} hrs`;
 
-                    const timeSlots = Array.from({ length: 24 }, (_, i) => i);
-                    
                     return (
-                      <div key={idx} className="space-y-2">
-                        {/* Day Header */}
-                        <div className="flex items-center justify-between p-4 backdrop-blur-md bg-white/80 rounded-xl border border-border/30 shadow-sm">
-                          <div className="flex items-center gap-4">
-                            <div className="text-sm font-bold text-foreground w-32">
-                              {format(day, 'd')} {format(day, 'EEEE')}
-                            </div>
-                            <div className="flex-1 h-4 bg-muted/30 rounded-full overflow-hidden border border-border/20 min-w-[200px]">
-                              {dayEntries.length > 0 && (
-                                <div 
-                                  className="h-full bg-gradient-to-r from-luxury-gold to-luxury-gold/80"
-                                  style={{ width: `${Math.min((totalMinutes / 480) * 100, 100)}%` }}
-                                />
-                              )}
-                            </div>
-                          </div>
+                      <div 
+                        key={idx}
+                        className="flex items-center gap-4 p-4 backdrop-blur-md bg-white/60 rounded-xl border border-border/30 hover:bg-white/80 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-200 cursor-pointer group"
+                        onClick={() => handleDayClick(format(day, 'yyyy-MM-dd'))}
+                      >
+                        <div className="w-32 flex-shrink-0">
                           <div className="text-sm font-semibold text-foreground">
-                            {timeString}
+                            {format(day, 'd')} {format(day, 'EEEE')}
                           </div>
                         </div>
-
-                        {/* Time Entries for the Day */}
-                        {dayEntries.length > 0 && (
-                          <Card className="backdrop-blur-xl bg-white/60 border-border/20 shadow-sm">
-                            <CardContent className="p-4">
-                              <div className="space-y-2">
-                                {/* Time Scale Header */}
-                                <div className="relative h-8 border-b border-border/20 mb-2">
-                                  <div className="absolute inset-0 flex">
-                                    {timeSlots.map(hour => (
-                                      <div
-                                        key={hour}
-                                        className="flex-1 border-l border-border/10 first:border-l-0"
-                                      >
-                                        {hour % 3 === 0 && (
-                                          <div className="text-[9px] text-muted-foreground font-medium pl-1">
-                                            {format(new Date().setHours(hour, 0), 'ha')}
-                                          </div>
-                                        )}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {/* Time Entry Bars */}
-                                {dayEntries.map((entry, entryIdx) => {
-                                  const durationMinutes = Math.floor((entry.duration || 0) / 60);
-                                  const start = new Date(entry.start_time);
-                                  const hours = start.getHours();
-                                  const minutes = start.getMinutes();
-                                  const totalMinutesFromStart = hours * 60 + minutes;
-                                  const totalDayMinutes = 24 * 60;
-                                  const left = (totalMinutesFromStart / totalDayMinutes) * 100;
-                                  const width = Math.max((durationMinutes / totalDayMinutes) * 100, 0.5);
-                                  
-                                  const bgColor = entry.category ? categoryColors[entry.category] || 'hsl(var(--luxury-gold))' : 'hsl(var(--luxury-gold))';
-                                  const formatDuration = (mins: number) => {
-                                    const h = Math.floor(mins / 60);
-                                    const m = mins % 60;
-                                    if (h === 0) return `${m}m`;
-                                    if (m === 0) return `${h}h`;
-                                    return `${h}h ${m}m`;
-                                  };
-
-                                  return (
-                                    <div key={entry.id || entryIdx} className="relative h-12 bg-muted/5 rounded-lg border border-border/10">
-                                      {/* Grid lines */}
-                                      <div className="absolute inset-0 flex pointer-events-none">
-                                        {timeSlots.map(hour => (
-                                          <div
-                                            key={hour}
-                                            className="flex-1 border-l border-border/5 first:border-l-0"
-                                          />
-                                        ))}
-                                      </div>
-                                      
-                                      {/* Task Bar */}
-                                      <div
-                                        className="absolute top-1.5 bottom-1.5 rounded-md overflow-hidden backdrop-blur-sm border border-white/40 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 cursor-pointer"
-                                        style={{
-                                          left: `${left}%`,
-                                          width: `${width}%`,
-                                          background: `linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.05)), ${bgColor}80`,
-                                          borderLeftWidth: '3px',
-                                          borderLeftColor: bgColor,
-                                        }}
-                                      >
-                                        <div className="h-full flex items-center gap-2 px-2">
-                                          <div className="font-semibold text-[11px] text-foreground truncate flex-1">
-                                            {entry.task_activity}
-                                          </div>
-                                          <div className="text-[10px] font-bold text-foreground whitespace-nowrap">
-                                            {formatDuration(durationMinutes)}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        )}
+                        
+                        <div className="flex-1 h-6 bg-muted/30 rounded-full overflow-hidden border border-border/20">
+                          {dayEntries.length > 0 && (
+                            <div 
+                              className="h-full bg-gradient-to-r from-luxury-gold to-luxury-gold/80 group-hover:from-luxury-gold/90 group-hover:to-luxury-gold/70 transition-all duration-200"
+                              style={{ width: `${Math.min((totalMinutes / 480) * 100, 100)}%` }}
+                            />
+                          )}
+                        </div>
+                        
+                        <div className="w-24 text-right text-sm font-semibold text-foreground">
+                          {timeString}
+                        </div>
                       </div>
                     );
                   })}
@@ -372,6 +297,31 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Day Detail Modal */}
+        <Dialog open={isDayModalOpen} onOpenChange={setIsDayModalOpen}>
+          <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-white/95 border-border/30">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+                <Calendar className="w-6 h-6 text-luxury-gold" />
+                {modalDate && format(new Date(modalDate), 'EEEE, MMMM d, yyyy')}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              {modalDate && (
+                <DayView
+                  entries={timeEntries}
+                  categoryColors={categoryColors}
+                  selectedDate={modalDate}
+                  onDateChange={(date) => {
+                    setModalDate(date);
+                    handleDateChange(date);
+                  }}
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
