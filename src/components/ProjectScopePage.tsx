@@ -1650,18 +1650,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     
     console.log('📋 Items after reorder:', reorderedVisibleItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
     
-    // Optimistically update local state immediately with reordered items
-    // Update sort_order to reflect new position
-    const optimisticItems = reorderedVisibleItems.map((item, i) => ({
-      ...item,
-      sort_order: i
-    }));
-    
-    // Rebuild hierarchy from flat list and update local state immediately
-    const optimisticHierarchy = buildHierarchy(optimisticItems);
-    setWBSItems(optimisticHierarchy);
-    
-    // Persist to database in the background
+    // Persist to database first
     try {
       console.log('🔄 Starting drag reorder with', reorderedVisibleItems.length, 'items');
       
@@ -1679,7 +1668,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         )
       );
       
-      console.log('✅ Drag reorder completed - positions saved to database');
+      console.log('✅ Drag reorder saved to database');
+      
+      // Reload from database to get the correct order
+      await loadWBSItems();
       
       // Renumber WBS IDs after reorder to reflect new hierarchy
       console.log('🔢 Renumbering WBS after drag reorder');

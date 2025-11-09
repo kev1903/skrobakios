@@ -107,6 +107,7 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
     is_task_enabled: row.is_task_enabled || false,
     linked_task_id: row.linked_task_id || null,
     task_conversion_date: row.task_conversion_date || null,
+    sort_order: row.sort_order !== undefined ? row.sort_order : null,
     children: [],
     created_at: row.created_at,
     updated_at: row.updated_at
@@ -154,15 +155,21 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
     return [parent];
   };
 
-  // Ensure deterministic order - sort by created_at (for drag and drop order)
-  const sortByCreatedAt = (a: WBSItem, b: WBSItem) => {
+  // Ensure deterministic order - sort by sort_order if available, then created_at
+  const sortBySortOrder = (a: WBSItem, b: WBSItem) => {
+    // If both have sort_order, use that
+    if (a.sort_order !== undefined && a.sort_order !== null && 
+        b.sort_order !== undefined && b.sort_order !== null) {
+      return a.sort_order - b.sort_order;
+    }
+    // Fall back to created_at
     const dateA = new Date(a.created_at || 0).getTime();
     const dateB = new Date(b.created_at || 0).getTime();
     return dateA - dateB;
   };
 
   // Prepare all items
-  const all = Array.from(byWbsId.values()).sort(sortByCreatedAt);
+  const all = Array.from(byWbsId.values()).sort(sortBySortOrder);
   const byId = new Map<string, WBSItem>(all.map(i => [i.id!, i]));
 
   // Link children with robust parent fallback
@@ -200,9 +207,9 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
     }
   }
 
-  // Sort children at every level by created_at (for drag and drop order)
+  // Sort children at every level by sort_order (for drag and drop order)
   const sortTree = (nodes: WBSItem[]) => {
-    nodes.sort(sortByCreatedAt);
+    nodes.sort(sortBySortOrder);
     nodes.forEach(n => n.children && sortTree(n.children));
   };
   sortTree(roots);
