@@ -1602,12 +1602,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     return descendants;
   };
 
-  // Enhanced drag and drop system with optimistic updates
+  // Enhanced drag and drop system with smart hierarchy detection
   const onDragEnd = async (result: DropResult) => {
     setDragIndicator(null);
     if (!result.destination) return;
     
-    const { source, destination, type } = result;
+    const { source, destination } = result;
     
     if (source.index === destination.index) return;
     
@@ -1648,33 +1648,106 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     // Insert all items to move at the adjusted destination, maintaining their relative order
     reorderedVisibleItems.splice(adjustedDestination, 0, ...itemsToMove);
     
-    console.log('📋 Items after reorder:', reorderedVisibleItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
+    // ✨ SMART HIERARCHY DETECTION: Determine new parent_id and level based on position
+    const itemBefore = adjustedDestination > 0 ? reorderedVisibleItems[adjustedDestination - 1] : null;
+    const itemAfter = adjustedDestination < reorderedVisibleItems.length - 1 ? reorderedVisibleItems[adjustedDestination + 1] : null;
     
-    // Persist to database first
+    let newParentId = movedItem.parent_id;
+    let newLevel = movedItem.level;
+    
+    // If dropped after an item, check if it should become a child or sibling
+    if (itemBefore) {
+      // Check if the item after (if exists) is a child of itemBefore
+      const itemAfterIsChild = itemAfter && itemAfter.parent_id === itemBefore.id;
+      
+      if (itemAfterIsChild) {
+        // Insert as a child of itemBefore
+        newParentId = itemBefore.id;
+        newLevel = itemBefore.level + 1;
+        console.log('📍 Detected drop into children of:', itemBefore.title, '- making child');
+      } else {
+        // Insert as sibling of itemBefore (same parent and level)
+        newParentId = itemBefore.parent_id;
+        newLevel = itemBefore.level;
+        console.log('📍 Detected drop as sibling of:', itemBefore.title);
+      }
+    } else {
+      // Dropped at the very top
+      newParentId = null;
+      newLevel = 0;
+      console.log('📍 Detected drop at root level');
+    }
+    
+    // Calculate level delta for descendants
+    const levelDelta = newLevel - movedItem.level;
+    
+    console.log('📋 Hierarchy changes:', { 
+      oldParent: movedItem.parent_id, 
+      newParent: newParentId, 
+      oldLevel: movedItem.level, 
+      newLevel, 
+      levelDelta 
+    });
+    
+    // Persist to database
     try {
-      console.log('🔄 Starting drag reorder with', reorderedVisibleItems.length, 'items');
+      console.log('🔄 Starting smart drag reorder with hierarchy updates');
       
       // Filter out empty placeholder rows that haven't been saved yet
       const savedItems = reorderedVisibleItems.filter(item => !item.id.startsWith('empty-'));
       
-      console.log('💾 Updating', savedItems.length, 'saved items (excluding', reorderedVisibleItems.length - savedItems.length, 'empty placeholders)');
+      console.log('💾 Updating', savedItems.length, 'saved items');
       
-      // Execute all updates in parallel - use sort_order to maintain position
-      await Promise.all(
-        savedItems.map((item, i) => 
+      // Batch all updates
+      const updates: Promise<void>[] = [];
+      
+      // Update moved item with new parent and level
+      if (movedItem.parent_id !== newParentId || movedItem.level !== newLevel) {
+        console.log('🔀 Updating moved item parent/level:', movedItem.title);
+        updates.push(
+          updateWBSItem(movedItem.id, { 
+            parent_id: newParentId,
+            level: newLevel
+          }, { skipAutoSchedule: true })
+        );
+      }
+      
+      // Update descendants with adjusted levels
+      if (levelDelta !== 0) {
+        descendants.forEach(desc => {
+          const descItem = savedItems.find(i => i.id === desc.id);
+          if (descItem) {
+            console.log('🔀 Updating descendant level:', descItem.title, 'delta:', levelDelta);
+            updates.push(
+              updateWBSItem(desc.id, { 
+                level: descItem.level + levelDelta
+              }, { skipAutoSchedule: true })
+            );
+          }
+        });
+      }
+      
+      // Update sort_order for ALL items to maintain new order
+      savedItems.forEach((item, i) => {
+        updates.push(
           updateWBSItem(item.id, { 
             sort_order: i
           }, { skipAutoSchedule: true })
-        )
-      );
+        );
+      });
       
-      console.log('✅ Drag reorder saved to database');
+      // Execute all updates in parallel
+      await Promise.all(updates);
       
-      // Reload from database to get the correct order
+      console.log('✅ Smart drag reorder with hierarchy saved to database');
+      
+      // Reload from database to get the correct order and renumber WBS IDs
       await loadWBSItems();
       
-      // Note: We don't renumber WBS IDs after drag-drop since we're only reordering,
-      // not changing hierarchy. WBS IDs stay the same, only sort_order changes.
+      toast({
+        title: "Success",
+        description: "Items reordered successfully",
+      });
     } catch (error) {
       console.error('❌ Error reordering items:', error);
       // Revert on error
