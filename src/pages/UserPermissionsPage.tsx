@@ -556,7 +556,7 @@ export const UserPermissionsPage = () => {
             company_id: companyId,
             rate_type: rateType,
             rate_amount: rateAmount,
-            currency: 'USD',
+            currency: 'AUD',
             updated_by: (await supabase.auth.getUser()).data.user?.id
           }, {
             onConflict: 'user_id,company_id'
@@ -740,18 +740,44 @@ export const UserPermissionsPage = () => {
                     <Label htmlFor="rate-amount" className="text-xs font-semibold text-foreground whitespace-nowrap">
                       {rateType === 'hourly' ? 'Hourly Rate' : 'Daily Rate'}
                     </Label>
-                    <div className="relative w-32">
+                    <div className="relative w-36">
                       <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
                       <Input
                         id="rate-amount"
                         type="number"
                         placeholder="0.00"
                         value={rateType === 'hourly' ? hourlyRate : dailyRate}
-                        onChange={(e) => rateType === 'hourly' ? setHourlyRate(e.target.value) : setDailyRate(e.target.value)}
-                        className="h-8 pl-7 pr-3 text-xs"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allow empty or valid numbers with up to 2 decimal places
+                          if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
+                            if (rateType === 'hourly') {
+                              setHourlyRate(value);
+                            } else {
+                              setDailyRate(value);
+                            }
+                          }
+                        }}
+                        onBlur={(e) => {
+                          // Format to 2 decimal places on blur if there's a value
+                          const value = e.target.value;
+                          if (value && !isNaN(parseFloat(value))) {
+                            const formatted = parseFloat(value).toFixed(2);
+                            if (rateType === 'hourly') {
+                              setHourlyRate(formatted);
+                            } else {
+                              setDailyRate(formatted);
+                            }
+                          }
+                        }}
+                        className="h-8 pl-7 pr-12 text-xs"
                         step="0.01"
                         min="0"
+                        max="9999.99"
                       />
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-medium text-muted-foreground pointer-events-none">
+                        AUD
+                      </span>
                     </div>
                   </div>
                 </div>
