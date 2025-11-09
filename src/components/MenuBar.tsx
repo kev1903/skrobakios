@@ -654,19 +654,19 @@ const barRef = useRef<HTMLDivElement>(null);
             </Popover>
           </div>
 
-          {/* Center - Active Timer Display with Controls */}
+          {/* Center - Active Timer Display with Controls (Engraved Effect) */}
           {activeTimer && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3 px-5 py-2 bg-luxury-gold/10 backdrop-blur-md border border-luxury-gold/30 rounded-full shadow-md hover:bg-luxury-gold/20 transition-all duration-200 cursor-pointer">
+                <button className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3 hover:opacity-70 transition-opacity duration-200 cursor-pointer group">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-luxury-gold rounded-full animate-pulse"></div>
-                    <Clock className="w-3.5 h-3.5 text-luxury-gold" />
-                    <span className="text-sm font-semibold text-foreground">
+                    <div className="w-2 h-2 bg-luxury-gold/60 rounded-full animate-pulse shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)]"></div>
+                    <Clock className="w-4 h-4 text-foreground/70" style={{ filter: 'drop-shadow(0 1px 0 rgba(255,255,255,0.3))' }} />
+                    <span className="text-sm font-semibold text-foreground/80 tabular-nums" style={{ textShadow: '0 1px 0 rgba(255,255,255,0.3), 0 -1px 0 rgba(0,0,0,0.1)' }}>
                       {formatDuration(currentDuration)}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground max-w-[200px] truncate">
+                  <span className="text-xs text-muted-foreground/70 max-w-[200px] truncate" style={{ textShadow: '0 1px 0 rgba(255,255,255,0.3), 0 -1px 0 rgba(0,0,0,0.1)' }}>
                     {activeTimer.task_activity || 'No description'}
                   </span>
                 </button>
