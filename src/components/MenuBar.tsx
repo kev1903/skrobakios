@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle, Mic, Search, FolderOpen } from 'lucide-react';
+import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle, Mic, Search, FolderOpen, Pause, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { NotificationBadge } from '@/components/ui/notification-badge';
@@ -653,19 +654,38 @@ const barRef = useRef<HTMLDivElement>(null);
             </Popover>
           </div>
 
-          {/* Center - Active Timer Display */}
+          {/* Center - Active Timer Display with Controls */}
           {activeTimer && (
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3 px-5 py-2 bg-luxury-gold/10 backdrop-blur-md border border-luxury-gold/30 rounded-full shadow-md">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-luxury-gold rounded-full animate-pulse"></div>
-                <span className="text-sm font-semibold text-foreground">
-                  {formatDuration(currentDuration)}
-                </span>
-              </div>
-              <span className="text-xs text-muted-foreground max-w-[200px] truncate">
-                {activeTimer.task_activity || 'No description'}
-              </span>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3 px-5 py-2 bg-luxury-gold/10 backdrop-blur-md border border-luxury-gold/30 rounded-full shadow-md hover:bg-luxury-gold/20 transition-all duration-200 cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-luxury-gold rounded-full animate-pulse"></div>
+                    <Clock className="w-3.5 h-3.5 text-luxury-gold" />
+                    <span className="text-sm font-semibold text-foreground">
+                      {formatDuration(currentDuration)}
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted-foreground max-w-[200px] truncate">
+                    {activeTimer.task_activity || 'No description'}
+                  </span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-56 bg-background z-[12000]">
+                <DropdownMenuItem onClick={handlePauseResume} className="cursor-pointer">
+                  <Pause className="w-4 h-4 mr-2" />
+                  {isPaused ? 'Resume Timer' : 'Pause Timer'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleStopTimer} className="cursor-pointer">
+                  <Square className="w-4 h-4 mr-2" />
+                  Stop Timer
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/?page=time-tracking')} className="cursor-pointer">
+                  <Clock className="w-4 h-4 mr-2" />
+                  Open Time Tracking
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
 
           {/* Right side - Navigation icons and actions */}
