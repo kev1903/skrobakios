@@ -542,11 +542,6 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         {/* Glass Morphism Dashboard Overlay */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="container mx-auto h-full p-6 pointer-events-none">
-            {/* Dashboard Title */}
-            <div className="mb-8 animate-fade-in">
-              <h1 className="text-6xl font-light text-foreground tracking-tight pointer-events-auto">Dashboard</h1>
-            </div>
-
             {/* Glass Cards Grid */}
             <div className="grid grid-cols-12 gap-4 pointer-events-auto">
               {/* Row 1 */}
