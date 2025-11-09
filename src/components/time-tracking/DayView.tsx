@@ -117,7 +117,8 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
             </div>
 
             {/* Timeline Grid */}
-            <div className="absolute left-20 right-0 top-0 bottom-0">
+            <div className="absolute left-20 right-0 top-0 bottom-0 overflow-hidden">
+              {/* Grid Lines */}
               {timeSlots.map(hour => (
                 <div
                   key={hour}
@@ -126,50 +127,53 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
                 />
               ))}
 
-              {/* Time Entries */}
-              {dayEntries.length > 0 ? (
-                dayEntries.map((entry, idx) => {
-                  const durationMinutes = Math.floor((entry.duration || 0) / 60);
-                  const position = getEntryPosition(entry.start_time, durationMinutes);
-                  const bgColor = entry.category ? categoryColors[entry.category] || 'hsl(var(--luxury-gold))' : 'hsl(var(--luxury-gold))';
-                  
-                  return (
-                    <div
-                      key={entry.id || idx}
-                      className="absolute left-4 right-4 rounded-lg p-3 overflow-hidden backdrop-blur-md border border-white/30 shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-200 cursor-pointer"
-                      style={{
-                        ...position,
-                        background: `linear-gradient(135deg, ${bgColor}15 0%, ${bgColor}30 100%)`,
-                        borderLeftWidth: '4px',
-                        borderLeftColor: bgColor,
-                      }}
-                    >
-                      <div className="flex items-start justify-between gap-2 h-full">
-                        <div className="min-w-0 flex-1">
-                          <div className="font-semibold text-sm text-foreground truncate">
-                            {entry.task_activity}
-                          </div>
-                          {entry.project_name && (
-                            <div className="text-xs text-muted-foreground truncate mt-1">
-                              {entry.project_name}
+              {/* Time Entries Container with Relative Positioning */}
+              <div className="absolute inset-0">
+                {dayEntries.length > 0 ? (
+                  dayEntries.map((entry, idx) => {
+                    const durationMinutes = Math.floor((entry.duration || 0) / 60);
+                    const position = getEntryPosition(entry.start_time, durationMinutes);
+                    const bgColor = entry.category ? categoryColors[entry.category] || 'hsl(var(--luxury-gold))' : 'hsl(var(--luxury-gold))';
+                    
+                    return (
+                      <div
+                        key={entry.id || idx}
+                        className="absolute left-4 right-4 rounded-lg p-3 overflow-hidden backdrop-blur-md border border-white/30 shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-200 cursor-pointer"
+                        style={{
+                          top: position.top,
+                          height: position.height,
+                          background: `linear-gradient(135deg, ${bgColor}15 0%, ${bgColor}30 100%)`,
+                          borderLeftWidth: '4px',
+                          borderLeftColor: bgColor,
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-2 h-full">
+                          <div className="min-w-0 flex-1">
+                            <div className="font-semibold text-sm text-foreground truncate">
+                              {entry.task_activity}
                             </div>
-                          )}
-                        </div>
-                        <div className="text-xs font-medium text-foreground whitespace-nowrap">
-                          {formatDuration(durationMinutes)}
+                            {entry.project_name && (
+                              <div className="text-xs text-muted-foreground truncate mt-1">
+                                {entry.project_name}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-xs font-medium text-foreground whitespace-nowrap">
+                            {formatDuration(durationMinutes)}
+                          </div>
                         </div>
                       </div>
+                    );
+                  })
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center text-muted-foreground">
+                      <Clock className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                      <p className="text-sm">No time entries for this day</p>
                     </div>
-                  );
-                })
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <Clock className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                    <p className="text-sm">No time entries for this day</p>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </CardContent>
