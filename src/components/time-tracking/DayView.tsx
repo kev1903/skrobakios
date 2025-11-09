@@ -168,59 +168,56 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
                       const isNarrow = widthPercent < 8;
                       const isVeryNarrow = widthPercent < 4;
                       
+                      const leftPercent = parseFloat(position.left);
+                      
                       return (
-                        <div key={entry.id || idx} className="flex gap-4">
-                          {/* Y-Axis Task Label */}
-                          <div className="w-64 flex-shrink-0 py-2">
-                            <div className="h-14 flex flex-col justify-center gap-1 px-4 bg-muted/20 rounded-lg border border-border/30">
-                              <div className="font-bold text-sm text-foreground truncate">
-                                {entry.task_activity}
-                              </div>
-                              <div className="flex items-center justify-between gap-2">
-                                {entry.project_name && (
-                                  <span className="text-xs text-muted-foreground truncate flex-1">
-                                    {entry.project_name}
-                                  </span>
-                                )}
-                                <span className="text-xs font-semibold text-luxury-gold flex-shrink-0">
-                                  {formatDuration(durationMinutes)}
-                                </span>
-                              </div>
+                        <div key={entry.id || idx}>
+                          <div className="relative h-14 bg-muted/10 rounded-lg border border-border/20">
+                            {/* Grid lines background */}
+                            <div className="absolute inset-0 flex">
+                              {timeSlots.map(hour => (
+                                <div
+                                  key={hour}
+                                  className="flex-1 border-l border-border/10 first:border-l-0"
+                                />
+                              ))}
                             </div>
-                          </div>
-                          
-                          {/* Gantt Bar Container */}
-                          <div className="flex-1 min-w-0">
-                            <div className="relative h-14 bg-muted/10 rounded-lg border border-border/20">
-                          {/* Grid lines background */}
-                          <div className="absolute inset-0 flex">
-                            {timeSlots.map(hour => (
+                            
+                            {/* Task name tag to the left of the bar */}
+                            {leftPercent > 15 && (
                               <div
-                                key={hour}
-                                className="flex-1 border-l border-border/10 first:border-l-0"
-                              />
-                            ))}
-                          </div>
-                          
-                          {/* Task bar */}
-                          <div
-                            className="absolute top-2 bottom-2 rounded-md overflow-hidden backdrop-blur-md border-2 border-white/40 shadow-[0_2px_12px_rgba(0,0,0,0.12)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.2)] hover:scale-[1.02] hover:z-10 transition-all duration-200 cursor-pointer group"
-                            style={{
-                              left: position.left,
-                              width: position.width,
-                              background: `linear-gradient(to right, rgba(255,255,255,0.15), rgba(255,255,255,0.05)), linear-gradient(135deg, ${bgColor}40 0%, ${bgColor}60 100%)`,
-                              borderLeftWidth: '4px',
-                              borderLeftColor: bgColor,
-                              boxShadow: `inset 0 1px 0 0 rgba(255,255,255,0.4), 0 2px 12px rgba(0,0,0,0.12)`,
-                            }}
-                          >
-                            <div className="h-full flex items-center justify-between gap-2 px-3">
-                              {!isVeryNarrow && (
-                                <>
+                                className="absolute top-1/2 -translate-y-1/2 z-10"
+                                style={{ right: `${100 - leftPercent + 1}%` }}
+                              >
+                                <div className="backdrop-blur-md bg-white/90 rounded-md px-3 py-1 border border-border/30 shadow-sm mr-2">
+                                  <div className="text-xs font-semibold text-foreground whitespace-nowrap">
+                                    {entry.task_activity}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Task bar */}
+                            <div
+                              className="absolute top-2 bottom-2 rounded-md overflow-hidden backdrop-blur-md border-2 border-white/40 shadow-[0_2px_12px_rgba(0,0,0,0.12)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.2)] hover:scale-[1.02] hover:z-20 transition-all duration-200 cursor-pointer group"
+                              style={{
+                                left: position.left,
+                                width: position.width,
+                                background: `linear-gradient(to right, rgba(255,255,255,0.15), rgba(255,255,255,0.05)), linear-gradient(135deg, ${bgColor}40 0%, ${bgColor}60 100%)`,
+                                borderLeftWidth: '4px',
+                                borderLeftColor: bgColor,
+                                boxShadow: `inset 0 1px 0 0 rgba(255,255,255,0.4), 0 2px 12px rgba(0,0,0,0.12)`,
+                              }}
+                            >
+                              <div className="h-full flex items-center justify-between gap-2 px-3">
+                                {/* Task name inside bar if no space on left */}
+                                {(leftPercent <= 15 || !isVeryNarrow) && (
                                   <div className="min-w-0 flex-1 flex items-center gap-2">
-                                    <div className="font-bold text-xs text-foreground truncate">
-                                      {entry.task_activity}
-                                    </div>
+                                    {leftPercent <= 15 && (
+                                      <div className="font-bold text-xs text-foreground truncate">
+                                        {entry.task_activity}
+                                      </div>
+                                    )}
                                     {!isNarrow && entry.category && (
                                       <span 
                                         className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium text-foreground/90 border flex-shrink-0"
@@ -233,25 +230,23 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
                                       </span>
                                     )}
                                   </div>
-                                  <div className="text-[10px] font-bold text-foreground whitespace-nowrap flex-shrink-0">
-                                    {formatDuration(durationMinutes)}
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                            
-                            {/* Duration indicator bar on bottom edge */}
-                            <div 
-                              className="absolute bottom-0 left-0 right-0 h-1 opacity-50 group-hover:opacity-70 transition-opacity"
-                              style={{ backgroundColor: bgColor }}
-                            />
+                                )}
+                                <div className="text-[10px] font-bold text-foreground whitespace-nowrap flex-shrink-0">
+                                  {formatDuration(durationMinutes)}
+                                </div>
                               </div>
+                              
+                              {/* Duration indicator bar on bottom edge */}
+                              <div 
+                                className="absolute bottom-0 left-0 right-0 h-1 opacity-50 group-hover:opacity-70 transition-opacity"
+                                style={{ backgroundColor: bgColor }}
+                              />
                             </div>
                             
                             {isVeryNarrow || isNarrow ? (
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="absolute inset-0" />
+                                  <div className="absolute inset-0 z-30" />
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="max-w-xs">
                                   <div className="space-y-1">
