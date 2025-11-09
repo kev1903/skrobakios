@@ -25,13 +25,13 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
     const start = parseISO(startTime);
     const hours = start.getHours();
     const minutes = start.getMinutes();
-    const totalMinutesFromStart = (hours - 9) * 60 + minutes;
-    const top = (totalMinutesFromStart / 60) * 80;
-    const height = (durationMinutes / 60) * 80;
+    const totalMinutesFromStart = hours * 60 + minutes;
+    const top = (totalMinutesFromStart / 60) * 40;
+    const height = (durationMinutes / 60) * 40;
     return { top: `${top}px`, height: `${Math.max(height, 20)}px` };
   };
 
-  const timeSlots = Array.from({ length: 11 }, (_, i) => i + 9);
+  const timeSlots = Array.from({ length: 24 }, (_, i) => i);
   const dayEntries = entries.filter(entry => {
     const entryDate = format(new Date(entry.start_time), 'yyyy-MM-dd');
     return entryDate === selectedDate;
@@ -102,14 +102,14 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
       {/* Timeline */}
       <Card className="backdrop-blur-xl bg-white/80 border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
         <CardContent className="p-6">
-          <div className="relative overflow-visible" style={{ height: '880px', minHeight: '880px' }}>
+          <div className="relative overflow-visible" style={{ height: '960px', minHeight: '960px' }}>
             {/* Time Labels */}
-            <div className="absolute left-0 top-0 bottom-0 w-20 border-r border-border/30">
+            <div className="absolute left-0 top-0 bottom-0 w-16 border-r border-border/30">
               {timeSlots.map(hour => (
                 <div
                   key={hour}
-                  className="absolute left-0 right-0 flex items-center justify-end pr-4 text-xs text-muted-foreground font-medium"
-                  style={{ top: `${(hour - 9) * 80}px` }}
+                  className="absolute left-0 right-0 flex items-center justify-end pr-3 text-[10px] text-muted-foreground font-medium"
+                  style={{ top: `${hour * 40}px` }}
                 >
                   {format(new Date().setHours(hour, 0), 'h a')}
                 </div>
@@ -117,13 +117,13 @@ export const DayView = ({ entries, categoryColors, selectedDate, onDateChange }:
             </div>
 
             {/* Timeline Grid */}
-            <div className="absolute left-20 right-0 top-0 bottom-0 overflow-hidden">
+            <div className="absolute left-16 right-0 top-0 bottom-0 overflow-hidden">
               {/* Grid Lines */}
               {timeSlots.map(hour => (
                 <div
                   key={hour}
                   className="absolute left-0 right-0 border-t border-border/20"
-                  style={{ top: `${(hour - 9) * 80}px`, height: '80px' }}
+                  style={{ top: `${hour * 40}px`, height: '40px' }}
                 />
               ))}
 
