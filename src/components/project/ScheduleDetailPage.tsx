@@ -51,6 +51,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   const [imageFileName, setImageFileName] = useState<string>('');
   const [refreshKey, setRefreshKey] = useState(0);
   const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleOpenAddProductDialog = (sectionId: string) => {
     setCurrentSectionId(sectionId);
@@ -138,7 +139,16 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
   };
 
   const handleSaveProduct = async () => {
-    if (!currentSectionId || !extractedData) return;
+    if (!currentSectionId || !extractedData) {
+      toast({
+        title: "Missing information",
+        description: "Please ensure all required fields are filled.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSaving(true);
     
     try {
       // Upload image if there's one
@@ -159,20 +169,20 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
         .from('schedule_items')
         .insert({
           section_id: currentSectionId,
-          product_code: extractedData.product_code,
-          product_name: extractedData.product_name,
-          brand: extractedData.brand,
-          material: extractedData.material,
-          width: extractedData.width,
-          length: extractedData.length,
-          height: extractedData.height,
-          depth: extractedData.depth,
-          color: extractedData.color,
-          finish: extractedData.finish,
-          qty: extractedData.qty,
-          price: extractedData.price,
-          supplier: extractedData.supplier,
-          url: extractedData.url,
+          product_code: extractedData.product_code || '',
+          product_name: extractedData.product_name || '',
+          brand: extractedData.brand || null,
+          material: extractedData.material || null,
+          width: extractedData.width || null,
+          length: extractedData.length || null,
+          height: extractedData.height || null,
+          depth: extractedData.depth || null,
+          color: extractedData.color || null,
+          finish: extractedData.finish || null,
+          qty: extractedData.qty || '1',
+          price: extractedData.price || null,
+          supplier: extractedData.supplier || null,
+          url: extractedData.url || null,
           image_url: imageUrl,
           status: 'Draft'
         })
@@ -194,6 +204,7 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
       setShowPreview(false);
       setExtractedData(null);
       setProductUrl('');
+      setProductName('');
       setPastedImage(null);
       setImageFileName('');
       setUploadedImageFile(null);
@@ -205,6 +216,8 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
         description: error.message || "Failed to save product to schedule",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -752,8 +765,9 @@ export const ScheduleDetailPage = ({ scheduleId, scheduleName, onBack }: Schedul
                   </Button>
                 </>
               ) : (
-                <Button onClick={handleSaveProduct}>
-                  Save
+                <Button onClick={handleSaveProduct} disabled={isSaving}>
+                  {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {isSaving ? 'Saving...' : 'Save'}
                 </Button>
               )}
             </DialogFooter>
