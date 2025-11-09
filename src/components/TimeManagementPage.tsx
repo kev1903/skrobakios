@@ -81,9 +81,9 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
       </div>
 
       {/* Main Tabs */}
-      <div className="flex-1 overflow-hidden">
-        <Tabs value={mainTab} onValueChange={setMainTab} className="h-full flex flex-col">
-          <div className="border-b border-border/30 bg-white/60 backdrop-blur-xl px-6">
+      <div className="flex-1 overflow-hidden flex flex-col">
+        <Tabs value={mainTab} onValueChange={setMainTab} className="flex-1 flex flex-col">
+          <div className="border-b border-border/30 bg-white/60 backdrop-blur-xl px-6 py-3">
             <TabsList className="inline-flex items-center gap-1 bg-white/80 border border-border/30 rounded-xl p-1 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
               <TabsTrigger 
                 value="tracking"
@@ -109,79 +109,77 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
             </TabsList>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6">
-            <TabsContent value="tracking" className="mt-0 h-full">
-              <div className="space-y-6">
-                {/* Time Tracking Sub-Navigation */}
-                <div className="inline-flex items-center gap-1 bg-white/80 border border-border/30 rounded-xl p-1 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-                  <button
-                    onClick={() => setTrackingView('day')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                      trackingView === 'day'
-                        ? 'bg-luxury-gold text-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-                    }`}
-                  >
-                    Day
-                  </button>
-                  <button
-                    onClick={() => setTrackingView('week')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                      trackingView === 'week'
-                        ? 'bg-luxury-gold text-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-                    }`}
-                  >
-                    Week
-                  </button>
-                  <button
-                    onClick={() => setTrackingView('calendar')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                      trackingView === 'calendar'
-                        ? 'bg-luxury-gold text-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-                    }`}
-                  >
-                    Calendar
-                  </button>
-                </div>
-
-                {/* Time Tracking Views */}
-                {trackingView === 'day' && (
-                  <DayView
-                    entries={timeEntries}
-                    categoryColors={categoryColors}
-                    selectedDate={selectedDate}
-                    onDateChange={handleDateChange}
-                  />
-                )}
-                {trackingView === 'week' && (
-                  <WeekView
-                    entries={timeEntries}
-                    categoryColors={categoryColors}
-                    selectedDate={selectedDate}
-                    onDateChange={handleDateChange}
-                  />
-                )}
-                {trackingView === 'calendar' && (
-                  <CalendarMonthView
-                    entries={timeEntries}
-                    categoryColors={categoryColors}
-                    selectedDate={selectedDate}
-                    onDateChange={handleDateChange}
-                  />
-                )}
+          <TabsContent value="tracking" className="flex-1 overflow-y-auto p-6 data-[state=inactive]:hidden">
+            <div className="space-y-6">
+              {/* Time Tracking Sub-Navigation */}
+              <div className="inline-flex items-center gap-1 bg-white/80 border border-border/30 rounded-xl p-1 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+                <button
+                  onClick={() => setTrackingView('day')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    trackingView === 'day'
+                      ? 'bg-luxury-gold text-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  }`}
+                >
+                  Day
+                </button>
+                <button
+                  onClick={() => setTrackingView('week')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    trackingView === 'week'
+                      ? 'bg-luxury-gold text-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  }`}
+                >
+                  Week
+                </button>
+                <button
+                  onClick={() => setTrackingView('calendar')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    trackingView === 'calendar'
+                      ? 'bg-luxury-gold text-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  }`}
+                >
+                  Calendar
+                </button>
               </div>
-            </TabsContent>
 
-            <TabsContent value="schedule" className="mt-0 h-full">
-              <ScheduleTab />
-            </TabsContent>
+              {/* Time Tracking Views */}
+              {trackingView === 'day' && (
+                <DayView
+                  entries={timeEntries}
+                  categoryColors={categoryColors}
+                  selectedDate={selectedDate}
+                  onDateChange={handleDateChange}
+                />
+              )}
+              {trackingView === 'week' && (
+                <WeekView
+                  entries={timeEntries}
+                  categoryColors={categoryColors}
+                  selectedDate={selectedDate}
+                  onDateChange={handleDateChange}
+                />
+              )}
+              {trackingView === 'calendar' && (
+                <CalendarMonthView
+                  entries={timeEntries}
+                  categoryColors={categoryColors}
+                  selectedDate={selectedDate}
+                  onDateChange={handleDateChange}
+                />
+              )}
+            </div>
+          </TabsContent>
 
-            <TabsContent value="productivity" className="mt-0 h-full">
-              <ProductivityTab />
-            </TabsContent>
-          </div>
+          <TabsContent value="schedule" className="flex-1 overflow-y-auto p-6 data-[state=inactive]:hidden">
+            <ScheduleTab />
+          </TabsContent>
+
+          <TabsContent value="productivity" className="flex-1 overflow-y-auto p-6 data-[state=inactive]:hidden">
+            <ProductivityTab />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
