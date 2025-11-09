@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ArrowLeft, Crown, Shield, User, Eye, Edit, X, 
          Building2, CheckSquare, FileText, DollarSign, Calendar, 
          Package, AlertTriangle, ShoppingCart, Archive, FileCheck, 
@@ -138,6 +140,11 @@ export const UserPermissionsPage = () => {
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [permissionChanges, setPermissionChanges] = useState<Record<string, 'no_access' | 'can_view' | 'can_edit'>>({});
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Rate settings state
+  const [hourlyRate, setHourlyRate] = useState<string>('');
+  const [dailyRate, setDailyRate] = useState<string>('');
+  const [rateType, setRateType] = useState<'hourly' | 'daily'>('hourly');
 
   const loading = userLoading || permissionsLoading;
 
@@ -558,59 +565,97 @@ export const UserPermissionsPage = () => {
     <PageShell>
       <div className="h-screen bg-background overflow-y-auto">
         <div className="max-w-5xl mx-auto p-6">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-4">
-            <Button
-              variant="outline"
-              size="icon"  
-              onClick={() => {
-                window.location.href = '/?page=settings&section=teams';
-              }}
-              className="glass button-ghost"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="font-inter text-2xl font-bold text-foreground">User Permissions</h1>
-              <p className="text-muted-foreground text-sm">Manage access levels for business modules</p>
+          {/* Compact Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="icon"  
+                onClick={() => {
+                  window.location.href = '/?page=settings&section=teams';
+                }}
+                className="glass button-ghost h-10 w-10"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div>
+                <h1 className="font-inter text-xl font-bold text-foreground">User Permissions</h1>
+                <p className="text-muted-foreground text-xs">Manage access levels for business modules</p>
+              </div>
             </div>
+            
+            <Button
+              onClick={savePermissions}
+              disabled={!hasUnsavedChanges || isSaving}
+              className="flex items-center gap-2"
+              variant={hasUnsavedChanges ? "default" : "outline"}
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? 'Saving...' : 'Save Permissions'}
+            </Button>
           </div>
 
-          {/* User Info Card */}
-          <Card className="glass-card mb-5">
-            <CardContent className="p-5">
-              {/* Save Button */}
-              <div className="flex justify-end mb-4">
-                <Button
-                  onClick={savePermissions}
-                  disabled={!hasUnsavedChanges || isSaving}
-                  className="flex items-center gap-2"
-                  variant={hasUnsavedChanges ? "default" : "outline"}
-                >
-                  <Save className="w-4 h-4" />
-                  {isSaving ? 'Saving...' : 'Save Permissions'}
-                </Button>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <Avatar className="w-16 h-16 border-2 border-background shadow-md">
-                  <AvatarImage src={userData.avatar} alt={userData.name} />
-                  <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
-                    {userData.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1.5">
-                    <h2 className="font-inter text-lg font-semibold text-foreground">{userData.name}</h2>
-                    <Badge variant={getRoleBadgeVariant(userData.role)} className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5">
-                      {getRoleIcon(userData.role)}
-                      {userData.role.charAt(0).toUpperCase() + userData.role.slice(1).replace('_', ' ')}
-                    </Badge>
+          {/* Compact User Info & Rate Card */}
+          <Card className="glass-card mb-4">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-6">
+                {/* User Profile Section */}
+                <div className="flex items-center gap-3 flex-1">
+                  <Avatar className="w-14 h-14 border-2 border-background shadow-sm">
+                    <AvatarImage src={userData.avatar} alt={userData.name} />
+                    <AvatarFallback className="text-base font-bold bg-primary/10 text-primary">
+                      {userData.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h2 className="font-inter text-base font-semibold text-foreground truncate">{userData.name}</h2>
+                      <Badge variant={getRoleBadgeVariant(userData.role)} className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5">
+                        {getRoleIcon(userData.role)}
+                        {userData.role.charAt(0).toUpperCase() + userData.role.slice(1).replace('_', ' ')}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground text-xs truncate">{userData.email}</p>
+                    <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-inter mt-0.5">
+                      <span className="font-medium">Member since March 2024</span>
+                    </div>
                   </div>
-                  <p className="text-muted-foreground text-sm mb-1">{userData.email}</p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground font-inter">
-                    <span>Member since</span>
-                    <span className="font-medium">March 2024</span>
+                </div>
+
+                {/* Rate Settings Section */}
+                <div className="flex items-center gap-4 pl-6 border-l border-border/30">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="rate-type" className="text-xs font-semibold text-foreground whitespace-nowrap">
+                      Rate Type
+                    </Label>
+                    <Select value={rateType} onValueChange={(value: 'hourly' | 'daily') => setRateType(value)}>
+                      <SelectTrigger id="rate-type" className="w-28 h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hourly">Hourly</SelectItem>
+                        <SelectItem value="daily">Daily</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="rate-amount" className="text-xs font-semibold text-foreground whitespace-nowrap">
+                      {rateType === 'hourly' ? 'Hourly Rate' : 'Daily Rate'}
+                    </Label>
+                    <div className="relative w-32">
+                      <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                      <Input
+                        id="rate-amount"
+                        type="number"
+                        placeholder="0.00"
+                        value={rateType === 'hourly' ? hourlyRate : dailyRate}
+                        onChange={(e) => rateType === 'hourly' ? setHourlyRate(e.target.value) : setDailyRate(e.target.value)}
+                        className="h-8 pl-7 pr-3 text-xs"
+                        step="0.01"
+                        min="0"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -618,13 +663,13 @@ export const UserPermissionsPage = () => {
           </Card>
 
           {/* Business Modules */}
-          <div className="space-y-4">
-            <div className="space-y-1.5">
+          <div className="space-y-3">
+            <div className="space-y-0.5">
               <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 BUSINESS MODULES
               </div>
               <div className="flex items-center justify-between">
-                <h3 className="font-inter text-lg font-semibold text-foreground">Module Access Control</h3>
+                <h3 className="font-inter text-base font-semibold text-foreground">Module Access Control</h3>
                 <div className="text-xs text-muted-foreground">
                   {businessModules.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
                   {businessModules.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
@@ -712,14 +757,14 @@ export const UserPermissionsPage = () => {
           </div>
 
           {/* Additional Features */}
-          <div className="space-y-6 mt-8">
-            <div className="space-y-2">
-              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="space-y-3 mt-6">
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 ADDITIONAL FEATURES
               </div>
               <div className="flex items-center justify-between">
-                <h3 className="font-inter text-xl font-semibold text-foreground">Extended Capabilities</h3>
-                <div className="text-sm text-muted-foreground">
+                <h3 className="font-inter text-base font-semibold text-foreground">Extended Capabilities</h3>
+                <div className="text-xs text-muted-foreground">
                   {otherFeatures.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
                   {otherFeatures.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
                   {otherFeatures.filter(m => m.accessLevel === 'no_access').length} No Access
@@ -805,23 +850,23 @@ export const UserPermissionsPage = () => {
             </div>
           </div>
 
-          <div className="mt-8 p-6 bg-accent/50 rounded-xl glass border">
-            <div className="flex items-start gap-4">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Shield className="w-5 h-5 text-primary" />
+          <div className="mt-6 p-4 bg-accent/50 rounded-xl glass border">
+            <div className="flex items-start gap-3">
+              <div className="p-1.5 rounded-lg bg-primary/10 mt-0.5">
+                <Shield className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <h4 className="font-inter font-semibold text-foreground mb-2">Permission Management & Module Visibility</h4>
-                <div className="space-y-2 text-sm text-muted-foreground leading-relaxed body-md">
+                <h4 className="font-inter font-semibold text-foreground text-sm mb-1.5">Permission Management & Module Visibility</h4>
+                <div className="space-y-1.5 text-xs text-muted-foreground leading-relaxed body-md">
                   <p>
                     <strong>How it works:</strong> When you set permissions for a user, it controls what they see in their interface:
                   </p>
-                  <ul className="list-disc list-inside space-y-1 ml-4">
+                  <ul className="list-disc list-inside space-y-0.5 ml-3">
                     <li><strong>No Access:</strong> The module is completely hidden from the user's navigation ribbon</li>
                     <li><strong>View Only:</strong> The module appears but with read-only functionality</li>
                     <li><strong>Full Access:</strong> The module appears with all features enabled</li>
                   </ul>
-                  <p className="mt-3">
+                  <p className="mt-2">
                     For example, if you set "Business Map" to "No Access", that user will not see the Business Map 
                     module in their interface at all. This ensures users only see the tools they're authorized to use.
                   </p>
