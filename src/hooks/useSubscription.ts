@@ -84,7 +84,9 @@ export const useSubscription = () => {
         return;
       }
 
-      const { data, error: functionError } = await supabase.functions.invoke('check-subscription');
+      const { data, error: functionError } = await supabase.functions.invoke('check-subscription', {
+        body: {}
+      });
 
       if (functionError) throw functionError;
       
