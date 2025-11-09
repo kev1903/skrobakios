@@ -17,9 +17,9 @@ serve(async (req) => {
     const lat = latitude || -37.8136
     const lon = longitude || 144.9631
 
-    // Use Open-Meteo free weather API (no API key required!)
+    // Use Open-Meteo free weather API with 7-day forecast
     const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,cloud_cover&timezone=auto`
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,cloud_cover&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&timezone=auto&forecast_days=7`
     )
 
     if (!response.ok) {
@@ -28,6 +28,7 @@ serve(async (req) => {
 
     const weatherData = await response.json()
     const current = weatherData.current
+    const daily = weatherData.daily
 
     // Map weather codes to descriptions
     const getWeatherDescription = (code: number) => {
@@ -57,15 +58,27 @@ serve(async (req) => {
       return codes[code] || 'Unknown'
     }
 
+    // Format forecast data
+    const forecast = daily.time.map((date: string, index: number) => ({
+      date,
+      weatherCode: daily.weather_code[index],
+      tempMax: Math.round(daily.temperature_2m_max[index]),
+      tempMin: Math.round(daily.temperature_2m_min[index]),
+      precipitationProb: daily.precipitation_probability_max[index],
+      windSpeed: Math.round(daily.wind_speed_10m_max[index] * 3.6), // Convert to km/h
+      description: getWeatherDescription(daily.weather_code[index])
+    }))
+
     return new Response(
       JSON.stringify({
         temperature: Math.round(current.temperature_2m),
         feelsLike: Math.round(current.apparent_temperature),
         description: getWeatherDescription(current.weather_code),
         humidity: current.relative_humidity_2m,
-        windSpeed: Math.round(current.wind_speed_10m * 3.6), // Convert m/s to km/h
+        windSpeed: Math.round(current.wind_speed_10m * 3.6),
         cloudiness: current.cloud_cover,
         location: `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`,
+        forecast: forecast
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

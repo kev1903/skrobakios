@@ -41,6 +41,15 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     windSpeed: number;
     humidity: number;
     location: string;
+    forecast?: Array<{
+      date: string;
+      weatherCode: number;
+      tempMax: number;
+      tempMin: number;
+      precipitationProb: number;
+      windSpeed: number;
+      description: string;
+    }>;
   } | null>(null);
   
   const navigate = useNavigate();
@@ -541,42 +550,103 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
             {/* Glass Cards Grid */}
             <div className="grid grid-cols-12 gap-4 pointer-events-auto">
               {/* Row 1 */}
-              {/* Weather Card - Live Data */}
-              <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in">
+              {/* Weather Card - Live Data with 7-Day Forecast */}
+              <Card className="col-span-6 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in">
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
+                  {/* Current Weather */}
+                  <div className="flex items-start justify-between mb-6">
                     <div>
                       <p className="text-sm text-white/70 mb-1">Current Weather</p>
                       <p className="text-xs text-white/50">{weather?.location || 'Loading...'}</p>
                     </div>
                     <Cloud className="w-8 h-8 text-white/90" />
                   </div>
-                  <div className="flex items-end gap-2 mb-4">
-                    <span className="text-5xl font-light text-white">
-                      {weather ? weather.temperature : '--'}°
-                    </span>
-                    <span className="text-xl text-white/70 mb-2">C</span>
+                  
+                  <div className="grid grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <div className="flex items-end gap-2 mb-2">
+                        <span className="text-4xl font-light text-white">
+                          {weather ? weather.temperature : '--'}°
+                        </span>
+                        <span className="text-lg text-white/70 mb-1">C</span>
+                      </div>
+                      <p className="text-xs text-white/70 capitalize mb-3">
+                        {weather?.description || 'Loading...'}
+                      </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="text-center">
+                        <Wind className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                        <p className="text-xs text-white/60">{weather ? weather.windSpeed : '--'}</p>
+                        <p className="text-[10px] text-white/40">km/h</p>
+                      </div>
+                      <div className="text-center">
+                        <Sun className="w-5 h-5 text-yellow-400 mx-auto mb-1" />
+                        <p className="text-xs text-white/60">{weather ? 100 - weather.humidity : '--'}</p>
+                        <p className="text-[10px] text-white/40">sun%</p>
+                      </div>
+                      <div className="text-center">
+                        <CloudRain className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
+                        <p className="text-xs text-white/60">{weather ? weather.humidity : '--'}</p>
+                        <p className="text-[10px] text-white/40">humid%</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-xs text-white/70 capitalize">
-                      {weather?.description || 'Loading...'}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-white/60">
-                      <div className="flex items-center gap-1">
-                        <Wind className="w-3 h-3" />
-                        <span>{weather ? weather.windSpeed : '--'} km/h</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CloudRain className="w-3 h-3" />
-                        <span>{weather ? weather.humidity : '--'}%</span>
-                      </div>
+
+                  {/* 7-Day Forecast */}
+                  <div className="border-t border-white/10 pt-4">
+                    <p className="text-xs text-white/50 mb-3 uppercase tracking-wide">7-Day Work Planning Forecast</p>
+                    <div className="grid grid-cols-7 gap-2">
+                      {weather?.forecast?.map((day, index) => {
+                        const date = new Date(day.date);
+                        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                        
+                        // Determine weather icon based on weather code
+                        const isRainy = day.weatherCode >= 51 && day.weatherCode <= 99;
+                        const isClear = day.weatherCode <= 1;
+                        const isWindy = day.windSpeed > 30;
+                        
+                        return (
+                          <div key={index} className="text-center">
+                            <p className="text-[10px] text-white/60 mb-2">{dayName}</p>
+                            
+                            {/* Weather Icon */}
+                            <div className="mb-2">
+                              {isRainy ? (
+                                <CloudRain className="w-5 h-5 text-cyan-400 mx-auto" />
+                              ) : isClear ? (
+                                <Sun className="w-5 h-5 text-yellow-400 mx-auto" />
+                              ) : (
+                                <Cloud className="w-5 h-5 text-white/60 mx-auto" />
+                              )}
+                            </div>
+                            
+                            {/* Temperature */}
+                            <p className="text-xs text-white font-medium mb-1">{day.tempMax}°</p>
+                            <p className="text-[10px] text-white/50">{day.tempMin}°</p>
+                            
+                            {/* Work Planning Indicators */}
+                            <div className="flex justify-center gap-1 mt-2">
+                              {isWindy && <Wind className="w-3 h-3 text-blue-400" />}
+                              {isRainy && <CloudRain className="w-3 h-3 text-cyan-400" />}
+                              {isClear && <Sun className="w-3 h-3 text-yellow-400" />}
+                            </div>
+                            
+                            {/* Rain probability */}
+                            {day.precipitationProb > 30 && (
+                              <p className="text-[9px] text-cyan-400 mt-1">{day.precipitationProb}%</p>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Active Projects Card */}
-              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.1s' }}>
+              <Card className="col-span-2 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.1s' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <Activity className="w-5 h-5 text-luxury-gold" />
@@ -598,7 +668,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
               </Card>
 
               {/* Weekly Activity */}
-              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.2s' }}>
+              <Card className="col-span-2 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.2s' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <BarChart3 className="w-5 h-5 text-luxury-gold" />
@@ -622,7 +692,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
               </Card>
 
               {/* Quick Stats */}
-              <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.3s' }}>
+              <Card className="col-span-2 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.3s' }}>
                 <CardContent className="p-6">
                   <p className="text-sm text-white/70 mb-4">Workforce Analytics</p>
                   <div className="space-y-3">
