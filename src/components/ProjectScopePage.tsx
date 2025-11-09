@@ -1645,9 +1645,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         )
       );
       
-      console.log('✅ Drag reorder completed, reloading items');
-      // Reload items to reflect new order from database
-      await loadWBSItems();
+      console.log('✅ Drag reorder completed');
       
       // Renumber WBS IDs after reorder to reflect new hierarchy
       console.log('🔢 Renumbering WBS after drag reorder');
