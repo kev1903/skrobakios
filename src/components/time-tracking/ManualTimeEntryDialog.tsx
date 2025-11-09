@@ -87,6 +87,7 @@ export const ManualTimeEntryDialog = ({
   });
 
   const entryType = watch('entry_type');
+  const durationUnit = watch('duration_unit');
 
   useEffect(() => {
     if (currentCompany?.id) {
@@ -162,14 +163,26 @@ export const ManualTimeEntryDialog = ({
         // Duration input
         const durationValue = parseFloat(data.duration_value || '0');
         
-        if (durationValue <= 0 || durationValue > 24) {
-          toast({
-            title: 'Error',
-            description: 'Duration must be between 0 and 24 hours',
-            variant: 'destructive',
-          });
-          setLoading(false);
-          return;
+        if (data.duration_unit === 'hours') {
+          if (durationValue < 0.25 || durationValue > 24) {
+            toast({
+              title: 'Error',
+              description: 'Duration must be between 0.25 hours (15 minutes) and 24 hours',
+              variant: 'destructive',
+            });
+            setLoading(false);
+            return;
+          }
+        } else { // minutes
+          if (durationValue < 15 || durationValue > 1440) {
+            toast({
+              title: 'Error',
+              description: 'Duration must be between 15 minutes and 1440 minutes (24 hours)',
+              variant: 'destructive',
+            });
+            setLoading(false);
+            return;
+          }
         }
 
         const durationInMinutes = data.duration_unit === 'hours' 
@@ -334,11 +347,11 @@ export const ManualTimeEntryDialog = ({
                 <Input
                   id="duration_value"
                   type="number"
-                  step="0.25"
-                  min="0"
-                  max="24"
+                  step={durationUnit === 'hours' ? '0.25' : '15'}
+                  min={durationUnit === 'hours' ? '0.25' : '15'}
+                  max={durationUnit === 'hours' ? '24' : '1440'}
+                  placeholder={durationUnit === 'hours' ? '1.5' : '30'}
                   {...register('duration_value')}
-                  placeholder="1.5"
                   className="glass"
                 />
                 {errors.duration_value && (
