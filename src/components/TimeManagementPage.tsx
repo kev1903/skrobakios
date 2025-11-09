@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays } from 'date-fns';
-import { Timer, Calendar, TrendingUp, Clock, Home, ChevronLeft, ChevronRight, Edit2 } from 'lucide-react';
+import { Timer, Calendar, TrendingUp, Clock, Home, ChevronLeft, ChevronRight, Edit2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTimeTracking, DEFAULT_CATEGORY_COLORS } from '@/hooks/useTimeTracking';
 import { DayView } from '@/components/time-tracking/DayView';
 import { WeekView } from '@/components/time-tracking/WeekView';
@@ -35,6 +36,8 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [mainTab, setMainTab] = useState('tracking');
   const [trackingView, setTrackingView] = useState('day');
+  const [isDayModalOpen, setIsDayModalOpen] = useState(false);
+  const [modalDate, setModalDate] = useState('');
 
   useEffect(() => {
     loadTimeEntries(selectedDate);
@@ -43,6 +46,11 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   const handleDateChange = (date: string) => {
     setSelectedDate(date);
     loadTimeEntries(date);
+  };
+
+  const handleDayClick = (date: string) => {
+    setModalDate(date);
+    setIsDayModalOpen(true);
   };
 
   const categoryColors = settings?.category_colors || DEFAULT_CATEGORY_COLORS;
@@ -261,7 +269,7 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
                       <div 
                         key={idx}
                         className="flex items-center gap-4 p-4 backdrop-blur-md bg-white/60 rounded-xl border border-border/30 hover:bg-white/80 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-200 cursor-pointer group"
-                        onClick={() => handleDateChange(format(day, 'yyyy-MM-dd'))}
+                        onClick={() => handleDayClick(format(day, 'yyyy-MM-dd'))}
                       >
                         <div className="w-32 flex-shrink-0">
                           <div className="text-sm font-semibold text-foreground">
@@ -289,6 +297,31 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Day Detail Modal */}
+        <Dialog open={isDayModalOpen} onOpenChange={setIsDayModalOpen}>
+          <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-white/95 border-border/30">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+                <Calendar className="w-6 h-6 text-luxury-gold" />
+                {modalDate && format(new Date(modalDate), 'EEEE, MMMM d, yyyy')}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              {modalDate && (
+                <DayView
+                  entries={timeEntries}
+                  categoryColors={categoryColors}
+                  selectedDate={modalDate}
+                  onDateChange={(date) => {
+                    setModalDate(date);
+                    handleDateChange(date);
+                  }}
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
