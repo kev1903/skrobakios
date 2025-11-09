@@ -12,6 +12,7 @@ import { CalendarMonthView } from '@/components/time-tracking/CalendarMonthView'
 import { ScheduleTab } from '@/components/time-tracking/ScheduleTab';
 import { ProductivityTab } from '@/components/time-tracking/ProductivityTab';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TimeManagementPageProps {
   onNavigate: (page: string) => void;
@@ -38,6 +39,8 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
   const [trackingView, setTrackingView] = useState('day');
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [modalDate, setModalDate] = useState('');
+  const [userRate, setUserRate] = useState<number | null>(null);
+  const [rateCurrency, setRateCurrency] = useState<string>('AUD');
 
   useEffect(() => {
     // Load entire week's data for the work diary
@@ -45,6 +48,36 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
     const weekEnd = endOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
     loadTimeEntries(format(weekStart, 'yyyy-MM-dd'), format(weekEnd, 'yyyy-MM-dd'));
   }, [selectedDate]);
+
+  useEffect(() => {
+    // Load user's rate
+    const loadUserRate = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('user_rates')
+          .select('rate_amount, currency')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error loading user rate:', error);
+          return;
+        }
+
+        if (data) {
+          setUserRate(data.rate_amount);
+          setRateCurrency(data.currency || 'AUD');
+        }
+      } catch (error) {
+        console.error('Error loading user rate:', error);
+      }
+    };
+
+    loadUserRate();
+  }, []);
 
   const handleDateChange = (date: string) => {
     setSelectedDate(date);
@@ -106,6 +139,30 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
 
   const stats = calculateStats();
 
+  // Calculate this week's pay
+  const calculateWeeklyPay = () => {
+    if (!userRate) return null;
+    
+    const now = new Date();
+    const thisWeekStart = startOfWeek(now, { weekStartsOn: 1 });
+    const thisWeekEnd = endOfWeek(now, { weekStartsOn: 1 });
+    const thisWeek = timeEntries.filter(entry => {
+      const entryDate = new Date(entry.start_time);
+      return entryDate >= thisWeekStart && entryDate <= thisWeekEnd;
+    });
+
+    const totalMinutes = thisWeek.reduce((acc, entry) => acc + Math.floor((entry.duration || 0) / 60), 0);
+    const totalHours = totalMinutes / 60;
+    const weeklyPay = totalHours * userRate;
+
+    return {
+      pay: weeklyPay,
+      hours: totalHours
+    };
+  };
+
+  const weeklyPay = calculateWeeklyPay();
+
   // Get current week for work diary
   const currentWeekStart = startOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
   const currentWeekEnd = endOfWeek(new Date(selectedDate), { weekStartsOn: 1 });
@@ -157,8 +214,21 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground font-medium">Since start</div>
-                  <div className="text-2xl font-bold text-foreground">{stats.sinceStart}</div>
+                  <div className="text-xs text-muted-foreground font-medium">This week's pay</div>
+                  {weeklyPay ? (
+                    <>
+                      <div className="text-2xl font-bold text-foreground">
+                        ${weeklyPay.pay.toFixed(2)} {rateCurrency}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {weeklyPay.hours.toFixed(2)} hrs × ${userRate?.toFixed(2)}/hr
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-2xl font-bold text-muted-foreground">
+                      No rate set
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
