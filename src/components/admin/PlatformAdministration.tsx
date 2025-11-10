@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Server, Building2, Shield, Activity, AlertTriangle, Brain } from "lucide-react";
+import { Settings, Server, Building2, Shield, Activity, AlertTriangle, Brain, Users } from "lucide-react";
 import { PlatformSettingsPanel } from './PlatformSettingsPanel';
 import { SkAiPanel } from './SkAiPanel';
+import { PlatformUserManagement } from './PlatformUserManagement';
 
 import { SystemMonitoringPanel } from './SystemMonitoringPanel';
 import { CompanyManagementPanel } from './CompanyManagementPanel';
@@ -20,6 +21,22 @@ interface PlatformAdministrationProps {
 
 export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ onNavigate }) => {
   const { isSuperAdmin } = useUserRole();
+  const [companies, setCompanies] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('id, name')
+        .order('name');
+      
+      if (!error && data) {
+        setCompanies(data);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
 
   if (!isSuperAdmin()) {
     return (
@@ -40,10 +57,14 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
       <Tabs defaultValue="settings" className="space-y-6">
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text-foreground whitespace-nowrap">Platform Administration</h1>
-          <TabsList className="flex-1 grid grid-cols-6 bg-card border border-border rounded-lg">
+          <TabsList className="flex-1 grid grid-cols-7 bg-card border border-border rounded-lg">
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Settings
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Users
           </TabsTrigger>
           <TabsTrigger value="monitoring" className="flex items-center gap-2">
             <Server className="h-4 w-4" />
@@ -72,6 +93,9 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
           <PlatformSettingsPanel />
         </TabsContent>
 
+        <TabsContent value="users" className="space-y-6">
+          <PlatformUserManagement companies={companies} />
+        </TabsContent>
 
         <TabsContent value="monitoring" className="space-y-6">
           <SystemMonitoringPanel />
