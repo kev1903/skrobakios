@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Globe, Layers, Lock, Cloud, CloudRain, Sun, Wind, Calendar, TrendingUp, Activity, BarChart3, Minimize2, Maximize2 } from 'lucide-react';
+import { Building, Globe, Layers, Lock, Cloud, CloudRain, Sun, Wind, Calendar, TrendingUp, Activity, BarChart3 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
@@ -65,19 +65,6 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   
   const navigate = useNavigate();
   const { hasModuleAccess, loading: permissionsLoading } = useUserPermissions(currentCompany?.id || '');
-  const [minimizedCards, setMinimizedCards] = useState<Set<string>>(new Set());
-
-  const toggleCard = (cardId: string) => {
-    setMinimizedCards(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(cardId)) {
-        newSet.delete(cardId);
-      } else {
-        newSet.add(cardId);
-      }
-      return newSet;
-    });
-  };
   
 
 
@@ -611,93 +598,77 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="text-sm font-semibold text-white mb-0.5">Weather Forecast</h3>
-                      {!minimizedCards.has('weather') && <p className="text-[10px] text-white/50">{weather?.location || 'Loading...'}</p>}
+                      <p className="text-[10px] text-white/50">{weather?.location || 'Loading...'}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 hover:bg-white/10 text-white/60 hover:text-white"
-                        onClick={() => toggleCard('weather')}
-                      >
-                        {minimizedCards.has('weather') ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
-                      </Button>
-                      {!minimizedCards.has('weather') && (
-                        <div className="text-right">
-                          <div className="flex items-end gap-1">
-                            <span className="text-2xl font-light text-white">
-                              {weather ? weather.temperature : '--'}°
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-white/60 capitalize">{weather?.description || 'Loading...'}</p>
-                        </div>
-                      )}
+                    <div className="text-right">
+                      <div className="flex items-end gap-1">
+                        <span className="text-2xl font-light text-white">
+                          {weather ? weather.temperature : '--'}°
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-white/60 capitalize">{weather?.description || 'Loading...'}</p>
                     </div>
                   </div>
 
-                  {!minimizedCards.has('weather') && (
-                    <>
-                      {/* 5-Day Forecast - Compact */}
-                      <div className="space-y-2">
-                        {weather?.forecast?.slice(0, 5).map((day, index) => {
-                          const date = new Date(day.date);
-                          const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-                          const dateNum = date.getDate();
-                          const month = date.toLocaleDateString('en-US', { month: 'short' });
-                          
-                          // Determine weather conditions
-                          const isRainy = day.weatherCode >= 51 && day.weatherCode <= 99;
-                          const isClear = day.weatherCode <= 1;
-                          const isWindy = day.windSpeed > 30;
-                          
-                          return (
-                            <div 
-                              key={index} 
-                              className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
-                            >
-                              {/* Date */}
-                              <div className="text-center min-w-[40px]">
-                                <p className="text-[9px] text-white/50">{dayName}</p>
-                                <p className="text-sm font-semibold text-white leading-none">{dateNum}</p>
-                                <p className="text-[8px] text-white/40">{month}</p>
-                              </div>
+                  {/* 5-Day Forecast - Compact */}
+                  <div className="space-y-2">
+                    {weather?.forecast?.slice(0, 5).map((day, index) => {
+                      const date = new Date(day.date);
+                      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                      const dateNum = date.getDate();
+                      const month = date.toLocaleDateString('en-US', { month: 'short' });
+                      
+                      // Determine weather conditions
+                      const isRainy = day.weatherCode >= 51 && day.weatherCode <= 99;
+                      const isClear = day.weatherCode <= 1;
+                      const isWindy = day.windSpeed > 30;
+                      
+                      return (
+                        <div 
+                          key={index} 
+                          className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
+                        >
+                          {/* Date */}
+                          <div className="text-center min-w-[40px]">
+                            <p className="text-[9px] text-white/50">{dayName}</p>
+                            <p className="text-sm font-semibold text-white leading-none">{dateNum}</p>
+                            <p className="text-[8px] text-white/40">{month}</p>
+                          </div>
 
-                              {/* Weather Icon */}
-                              <div className="flex-shrink-0">
-                                {isRainy ? (
-                                  <CloudRain className="w-5 h-5 text-cyan-400" />
-                                ) : isClear ? (
-                                  <Sun className="w-5 h-5 text-yellow-400" />
-                                ) : (
-                                  <Cloud className="w-5 h-5 text-white/60" />
-                                )}
-                              </div>
+                          {/* Weather Icon */}
+                          <div className="flex-shrink-0">
+                            {isRainy ? (
+                              <CloudRain className="w-5 h-5 text-cyan-400" />
+                            ) : isClear ? (
+                              <Sun className="w-5 h-5 text-yellow-400" />
+                            ) : (
+                              <Cloud className="w-5 h-5 text-white/60" />
+                            )}
+                          </div>
 
-                              {/* Weather Info */}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[10px] text-white font-medium truncate capitalize">{day.description}</p>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-[10px] text-white/60">
-                                    {day.tempMax}°/{day.tempMin}°
-                                  </span>
-                                  {day.precipitationProb > 30 && (
-                                    <span className="text-[9px] text-cyan-400">{day.precipitationProb}%</span>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Work Icons */}
-                              <div className="flex gap-1">
-                                {isWindy && <Wind className="w-3.5 h-3.5 text-blue-400" />}
-                                {isRainy && <CloudRain className="w-3.5 h-3.5 text-cyan-400" />}
-                                {isClear && !isWindy && <Sun className="w-3.5 h-3.5 text-yellow-400" />}
-                              </div>
+                          {/* Weather Info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[10px] text-white font-medium truncate capitalize">{day.description}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] text-white/60">
+                                {day.tempMax}°/{day.tempMin}°
+                              </span>
+                              {day.precipitationProb > 30 && (
+                                <span className="text-[9px] text-cyan-400">{day.precipitationProb}%</span>
+                              )}
                             </div>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
+                          </div>
+
+                          {/* Work Icons */}
+                          <div className="flex gap-1">
+                            {isWindy && <Wind className="w-3.5 h-3.5 text-blue-400" />}
+                            {isRainy && <CloudRain className="w-3.5 h-3.5 text-cyan-400" />}
+                            {isClear && !isWindy && <Sun className="w-3.5 h-3.5 text-yellow-400" />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -706,34 +677,20 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <Activity className="w-5 h-5 text-luxury-gold" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">Active Now</p>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-6 w-6 hover:bg-accent/50"
-                      onClick={() => toggleCard('active')}
-                    >
-                      {minimizedCards.has('active') ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
-                    </Button>
+                    <p className="text-sm font-medium text-foreground">Active Now</p>
                   </div>
-                  {!minimizedCards.has('active') && (
-                    <>
-                      <div className="flex items-center justify-center h-20">
-                        <div className="relative w-20 h-20">
-                          <svg className="w-full h-full -rotate-90">
-                            <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
-                            <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${226 * 0.75} 226`} className="text-luxury-gold" />
-                          </svg>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-2xl font-bold text-foreground">{projects.length}</span>
-                          </div>
-                        </div>
+                  <div className="flex items-center justify-center h-20">
+                    <div className="relative w-20 h-20">
+                      <svg className="w-full h-full -rotate-90">
+                        <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
+                        <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${226 * 0.75} 226`} className="text-luxury-gold" />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl font-bold text-foreground">{projects.length}</span>
                       </div>
-                      <p className="text-xs text-center text-muted-foreground mt-2">Projects In Progress</p>
-                    </>
-                  )}
+                    </div>
+                  </div>
+                  <p className="text-xs text-center text-muted-foreground mt-2">Projects In Progress</p>
                 </CardContent>
               </Card>
 
@@ -744,171 +701,147 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                     <div className="p-2 rounded-lg bg-rose-500/20">
                       <Activity className="w-5 h-5 text-rose-500" />
                     </div>
-                    <div className="flex-1">
+                    <div>
                       <p className="text-sm font-medium text-foreground">Risk Overview</p>
-                      {!minimizedCards.has('risk') && <p className="text-xs text-muted-foreground">Active Monitoring</p>}
+                      <p className="text-xs text-muted-foreground">Active Monitoring</p>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-6 w-6 hover:bg-accent/50"
-                      onClick={() => toggleCard('risk')}
-                    >
-                      {minimizedCards.has('risk') ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
-                    </Button>
                   </div>
                   
-                  {!minimizedCards.has('risk') && (
-                    <>
-                      {/* Risk Categories */}
-                      <div className="space-y-3">
-                        {/* Weather Risk - First Priority */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${
-                              weatherRisk?.overallRisk === 'critical' ? 'bg-rose-600' :
-                              weatherRisk?.overallRisk === 'high' ? 'bg-rose-500' :
-                              weatherRisk?.overallRisk === 'medium' ? 'bg-amber-500' :
-                              'bg-emerald-500'
-                            }`}></div>
-                            <Cloud className="w-3.5 h-3.5 text-foreground/70" />
-                            <span className="text-xs text-foreground">Weather</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className={`text-xs font-semibold ${
-                              weatherRisk?.overallRisk === 'critical' ? 'text-rose-600' :
-                              weatherRisk?.overallRisk === 'high' ? 'text-rose-500' :
-                              weatherRisk?.overallRisk === 'medium' ? 'text-amber-500' :
-                              'text-emerald-500'
-                            }`}>
-                              {weatherRisk?.overallRisk === 'critical' ? 'Critical' :
-                               weatherRisk?.overallRisk === 'high' ? 'High' :
-                               weatherRisk?.overallRisk === 'medium' ? 'Medium' :
-                               'Low'}
-                            </span>
-                            <div className="w-12 h-1.5 rounded-full bg-muted/30">
-                              <div className={`h-full rounded-full ${
-                                weatherRisk?.overallRisk === 'critical' ? 'w-full bg-rose-600' :
-                                weatherRisk?.overallRisk === 'high' ? 'w-9 bg-rose-500' :
-                                weatherRisk?.overallRisk === 'medium' ? 'w-6 bg-amber-500' :
-                                'w-3 bg-emerald-500'
-                              }`}></div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Weather Warnings */}
-                        {weatherRisk && weatherRisk.risks.length > 0 && (
-                          <div className="ml-6 space-y-1 max-h-24 overflow-y-auto">
-                            {weatherRisk.risks
-                              .filter(r => r.warnings.length > 0)
-                              .slice(0, 2)
-                              .map((risk, idx) => (
-                                <div key={idx} className="text-[10px] text-muted-foreground">
-                                  <span className="font-medium text-foreground">{risk.projectName}:</span> {risk.warnings[0]}
-                                </div>
-                              ))}
-                          </div>
-                        )}
-
-                        {/* Safety Risk */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                            <span className="text-xs text-foreground">Safety</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-semibold text-emerald-500">Low</span>
-                            <div className="w-12 h-1.5 rounded-full bg-muted/30">
-                              <div className="w-3 h-full rounded-full bg-emerald-500"></div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Budget Risk */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                            <span className="text-xs text-foreground">Budget</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-semibold text-amber-500">Medium</span>
-                            <div className="w-12 h-1.5 rounded-full bg-muted/30">
-                              <div className="w-6 h-full rounded-full bg-amber-500"></div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Schedule Risk */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                            <span className="text-xs text-foreground">Schedule</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-semibold text-rose-500">High</span>
-                            <div className="w-12 h-1.5 rounded-full bg-muted/30">
-                              <div className="w-9 h-full rounded-full bg-rose-500"></div>
-                            </div>
-                          </div>
+                  {/* Risk Categories */}
+                  <div className="space-y-3">
+                    {/* Weather Risk - First Priority */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          weatherRisk?.overallRisk === 'critical' ? 'bg-rose-600' :
+                          weatherRisk?.overallRisk === 'high' ? 'bg-rose-500' :
+                          weatherRisk?.overallRisk === 'medium' ? 'bg-amber-500' :
+                          'bg-emerald-500'
+                        }`}></div>
+                        <Cloud className="w-3.5 h-3.5 text-foreground/70" />
+                        <span className="text-xs text-foreground">Weather</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className={`text-xs font-semibold ${
+                          weatherRisk?.overallRisk === 'critical' ? 'text-rose-600' :
+                          weatherRisk?.overallRisk === 'high' ? 'text-rose-500' :
+                          weatherRisk?.overallRisk === 'medium' ? 'text-amber-500' :
+                          'text-emerald-500'
+                        }`}>
+                          {weatherRisk?.overallRisk === 'critical' ? 'Critical' :
+                           weatherRisk?.overallRisk === 'high' ? 'High' :
+                           weatherRisk?.overallRisk === 'medium' ? 'Medium' :
+                           'Low'}
+                        </span>
+                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
+                          <div className={`h-full rounded-full ${
+                            weatherRisk?.overallRisk === 'critical' ? 'w-full bg-rose-600' :
+                            weatherRisk?.overallRisk === 'high' ? 'w-9 bg-rose-500' :
+                            weatherRisk?.overallRisk === 'medium' ? 'w-6 bg-amber-500' :
+                            'w-3 bg-emerald-500'
+                          }`}></div>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Overall Risk Score */}
-                      <div className="mt-4 pt-4 border-t border-border/30">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">Overall Risk</span>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-sm font-bold ${
-                              weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
-                                ? 'text-rose-500' 
-                                : 'text-amber-500'
-                            }`}>
-                              {weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
-                                ? 'HIGH' 
-                                : 'MEDIUM'}
-                            </span>
-                            <div className="w-16 h-2 rounded-full bg-muted/30">
-                              <div className="w-10 h-full rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500"></div>
+                    {/* Weather Warnings */}
+                    {weatherRisk && weatherRisk.risks.length > 0 && (
+                      <div className="ml-6 space-y-1 max-h-24 overflow-y-auto">
+                        {weatherRisk.risks
+                          .filter(r => r.warnings.length > 0)
+                          .slice(0, 2)
+                          .map((risk, idx) => (
+                            <div key={idx} className="text-[10px] text-muted-foreground">
+                              <span className="font-medium text-foreground">{risk.projectName}:</span> {risk.warnings[0]}
                             </div>
-                          </div>
+                          ))}
+                      </div>
+                    )}
+
+                    {/* Safety Risk */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="text-xs text-foreground">Safety</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-semibold text-emerald-500">Low</span>
+                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
+                          <div className="w-3 h-full rounded-full bg-emerald-500"></div>
                         </div>
                       </div>
-                    </>
-                  )}
+                    </div>
+
+                    {/* Budget Risk */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                        <span className="text-xs text-foreground">Budget</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-semibold text-amber-500">Medium</span>
+                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
+                          <div className="w-6 h-full rounded-full bg-amber-500"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Schedule Risk */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                        <span className="text-xs text-foreground">Schedule</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-semibold text-rose-500">High</span>
+                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
+                          <div className="w-9 h-full rounded-full bg-rose-500"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Overall Risk Score */}
+                  <div className="mt-4 pt-4 border-t border-border/30">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Overall Risk</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-bold ${
+                          weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
+                            ? 'text-rose-500' 
+                            : 'text-amber-500'
+                        }`}>
+                          {weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
+                            ? 'HIGH' 
+                            : 'MEDIUM'}
+                        </span>
+                        <div className="w-16 h-2 rounded-full bg-muted/30">
+                          <div className="w-10 h-full rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Quick Stats */}
               <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.3s' }}>
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm text-white/70">Workforce Analytics</p>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-6 w-6 hover:bg-white/10 text-white/60 hover:text-white"
-                      onClick={() => toggleCard('workforce')}
-                    >
-                      {minimizedCards.has('workforce') ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
-                    </Button>
-                  </div>
-                  {!minimizedCards.has('workforce') && (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-white/60">Active Teams</span>
-                        <span className="text-lg font-semibold text-white">12</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-white/60">Completed Tasks</span>
-                        <span className="text-lg font-semibold text-white">847</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-white/60">Team Members</span>
-                        <span className="text-lg font-semibold text-white">45</span>
-                      </div>
+                  <p className="text-sm text-white/70 mb-4">Workforce Analytics</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white/60">Active Teams</span>
+                      <span className="text-lg font-semibold text-white">12</span>
                     </div>
-                  )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white/60">Completed Tasks</span>
+                      <span className="text-lg font-semibold text-white">847</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white/60">Team Members</span>
+                      <span className="text-lg font-semibold text-white">45</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -918,83 +851,59 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <Calendar className="w-5 h-5 text-luxury-gold" />
-                    <div className="flex-1">
+                    <div>
                       <p className="text-sm font-medium text-foreground">{format(new Date(), 'MMMM yyyy')}</p>
-                      {!minimizedCards.has('calendar') && <p className="text-xs text-muted-foreground">Schedule Overview</p>}
+                      <p className="text-xs text-muted-foreground">Schedule Overview</p>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-6 w-6 hover:bg-accent/50"
-                      onClick={() => toggleCard('calendar')}
-                    >
-                      {minimizedCards.has('calendar') ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
-                    </Button>
                   </div>
-                  {!minimizedCards.has('calendar') && (
-                    <>
-                      <div className="grid grid-cols-7 gap-1 mb-2">
-                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                          <div key={day} className="text-[10px] text-center text-muted-foreground font-medium">{day}</div>
-                        ))}
+                  <div className="grid grid-cols-7 gap-1 mb-2">
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                      <div key={day} className="text-[10px] text-center text-muted-foreground font-medium">{day}</div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-1">
+                    {Array.from({ length: 28 }).map((_, i) => (
+                      <div 
+                        key={i} 
+                        className={`aspect-square rounded flex items-center justify-center text-xs ${
+                          i === 8 ? 'bg-luxury-gold text-white font-semibold' : 
+                          i % 7 === 0 || i % 7 === 6 ? 'text-muted-foreground/50' :
+                          'text-foreground hover:bg-accent/50'
+                        }`}
+                      >
+                        {i + 1}
                       </div>
-                      <div className="grid grid-cols-7 gap-1">
-                        {Array.from({ length: 28 }).map((_, i) => (
-                          <div 
-                            key={i} 
-                            className={`aspect-square rounded flex items-center justify-center text-xs ${
-                              i === 8 ? 'bg-luxury-gold text-white font-semibold' : 
-                              i % 7 === 0 || i % 7 === 6 ? 'text-muted-foreground/50' :
-                              'text-foreground hover:bg-accent/50'
-                            }`}
-                          >
-                            {i + 1}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Performance Metrics */}
               <Card className="col-span-4 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.5s' }}>
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm font-medium text-foreground">Performance Metrics</p>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-6 w-6 hover:bg-accent/50"
-                      onClick={() => toggleCard('performance')}
-                    >
-                      {minimizedCards.has('performance') ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
-                    </Button>
-                  </div>
-                  {!minimizedCards.has('performance') && (
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="relative">
-                        <svg className="w-24 h-24 -rotate-90 mx-auto">
-                          <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
-                          <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${251 * 0.92} 251`} className="text-emerald-500" />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className="text-2xl font-bold text-foreground">92%</span>
-                          <span className="text-[10px] text-muted-foreground">Efficiency</span>
-                        </div>
-                      </div>
-                      <div className="relative">
-                        <svg className="w-24 h-24 -rotate-90 mx-auto">
-                          <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
-                          <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${251 * 0.78} 251`} className="text-luxury-gold" />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className="text-2xl font-bold text-foreground">78%</span>
-                          <span className="text-[10px] text-muted-foreground">Quality</span>
-                        </div>
+                  <p className="text-sm font-medium text-foreground mb-4">Performance Metrics</p>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="relative">
+                      <svg className="w-24 h-24 -rotate-90 mx-auto">
+                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
+                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${251 * 0.92} 251`} className="text-emerald-500" />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-bold text-foreground">92%</span>
+                        <span className="text-[10px] text-muted-foreground">Efficiency</span>
                       </div>
                     </div>
-                  )}
+                    <div className="relative">
+                      <svg className="w-24 h-24 -rotate-90 mx-auto">
+                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
+                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${251 * 0.78} 251`} className="text-luxury-gold" />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-bold text-foreground">78%</span>
+                        <span className="text-[10px] text-muted-foreground">Quality</span>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -1003,34 +912,22 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm font-medium text-foreground">Project Distribution</p>
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-5 h-5 text-luxury-gold" />
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 hover:bg-accent/50"
-                        onClick={() => toggleCard('distribution')}
-                      >
-                        {minimizedCards.has('distribution') ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
-                      </Button>
-                    </div>
+                    <Globe className="w-5 h-5 text-luxury-gold" />
                   </div>
-                  {!minimizedCards.has('distribution') && (
-                    <div className="relative h-24 flex items-center justify-center">
-                      <svg viewBox="0 0 200 100" className="w-full h-full text-foreground/80">
-                        <path d="M20,50 Q60,20 100,50 T180,50" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3" />
-                        <circle cx="20" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
-                        <circle cx="100" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
-                        <circle cx="180" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center">
-                          <p className="text-3xl font-bold text-foreground">{projects.length}</p>
-                          <p className="text-xs text-muted-foreground">Active Sites</p>
-                        </div>
+                  <div className="relative h-24 flex items-center justify-center">
+                    <svg viewBox="0 0 200 100" className="w-full h-full text-foreground/80">
+                      <path d="M20,50 Q60,20 100,50 T180,50" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3" />
+                      <circle cx="20" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
+                      <circle cx="100" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
+                      <circle cx="180" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center">
+                        <p className="text-3xl font-bold text-foreground">{projects.length}</p>
+                        <p className="text-xs text-muted-foreground">Active Sites</p>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
