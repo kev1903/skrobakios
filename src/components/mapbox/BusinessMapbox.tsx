@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Globe, Layers, Lock, Cloud, CloudRain, Sun, Wind, Calendar, TrendingUp, Activity, BarChart3 } from 'lucide-react';
+import { Building, Globe, Layers, Lock, Cloud, CloudRain, Sun, Wind, Calendar, TrendingUp, Activity, BarChart3, EyeOff, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
@@ -62,6 +62,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     }>;
     summary: string;
   } | null>(null);
+  const [cardsVisible, setCardsVisible] = useState(true);
   
   const navigate = useNavigate();
   const { hasModuleAccess, loading: permissionsLoading } = useUserPermissions(currentCompany?.id || '');
@@ -585,34 +586,55 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         {/* Map Container */}
         <div ref={mapContainer} className="w-full h-full" />
         
+        {/* Hide/Show Cards Button - Top Right */}
+        <div className="absolute top-4 right-4 z-10 pointer-events-auto">
+          <Button
+            onClick={() => setCardsVisible(!cardsVisible)}
+            variant="outline"
+            size="sm"
+            className="backdrop-blur-xl bg-white/90 border-white/40 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+          >
+            {cardsVisible ? (
+              <>
+                <EyeOff className="w-4 h-4 mr-2" />
+                Hide Cards
+              </>
+            ) : (
+              <>
+                <Eye className="w-4 h-4 mr-2" />
+                Show Cards
+              </>
+            )}
+          </Button>
+        </div>
+        
         {/* Glass Morphism Dashboard Overlay */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="container mx-auto h-full p-6 pointer-events-none">
-            {/* Glass Cards Grid */}
-            <div className="grid grid-cols-12 gap-4 pointer-events-auto">
-              {/* Row 1 */}
-              {/* Weather Card - Compact 5-Day Forecast */}
-              <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in">
-                <CardContent className="p-4">
+        {cardsVisible && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="container mx-auto h-full p-3 pointer-events-none">
+              {/* Glass Cards Grid - Compact Layout */}
+              <div className="grid grid-cols-12 gap-2 pointer-events-auto max-h-[calc(100vh-120px)] overflow-hidden">
+              {/* Row 1 - Compact Cards */}
+              {/* Weather Card - Ultra Compact */}
+              <Card className="col-span-2 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.3)] transition-all duration-200">
+                <CardContent className="p-2">
                   {/* Header */}
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start justify-between mb-1">
                     <div>
-                      <h3 className="text-sm font-semibold text-white mb-0.5">Weather Forecast</h3>
-                      <p className="text-[10px] text-white/50">{weather?.location || 'Loading...'}</p>
+                      <h3 className="text-[10px] font-semibold text-white mb-0">Weather</h3>
+                      <p className="text-[8px] text-white/50">{weather?.location || 'Loading...'}</p>
                     </div>
                     <div className="text-right">
-                      <div className="flex items-end gap-1">
-                        <span className="text-2xl font-light text-white">
-                          {weather ? weather.temperature : '--'}°
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-white/60 capitalize">{weather?.description || 'Loading...'}</p>
+                      <span className="text-lg font-light text-white">
+                        {weather ? weather.temperature : '--'}°
+                      </span>
+                      <p className="text-[8px] text-white/60 capitalize">{weather?.description || '...'}</p>
                     </div>
                   </div>
 
-                  {/* 5-Day Forecast - Compact */}
-                  <div className="space-y-2">
-                    {weather?.forecast?.slice(0, 5).map((day, index) => {
+                  {/* 3-Day Forecast - Ultra Compact */}
+                  <div className="space-y-1">
+                    {weather?.forecast?.slice(0, 3).map((day, index) => {
                       const date = new Date(day.date);
                       const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
                       const dateNum = date.getDate();
@@ -626,44 +648,28 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                       return (
                         <div 
                           key={index} 
-                          className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
+                          className="flex items-center gap-1 p-1 rounded bg-white/5 hover:bg-white/10 transition-all"
                         >
                           {/* Date */}
-                          <div className="text-center min-w-[40px]">
-                            <p className="text-[9px] text-white/50">{dayName}</p>
-                            <p className="text-sm font-semibold text-white leading-none">{dateNum}</p>
-                            <p className="text-[8px] text-white/40">{month}</p>
+                          <div className="text-center min-w-[24px]">
+                            <p className="text-[8px] text-white/50">{dayName}</p>
+                            <p className="text-[10px] font-semibold text-white leading-none">{dateNum}</p>
                           </div>
 
                           {/* Weather Icon */}
                           <div className="flex-shrink-0">
                             {isRainy ? (
-                              <CloudRain className="w-5 h-5 text-cyan-400" />
+                              <CloudRain className="w-3 h-3 text-cyan-400" />
                             ) : isClear ? (
-                              <Sun className="w-5 h-5 text-yellow-400" />
+                              <Sun className="w-3 h-3 text-yellow-400" />
                             ) : (
-                              <Cloud className="w-5 h-5 text-white/60" />
+                              <Cloud className="w-3 h-3 text-white/60" />
                             )}
                           </div>
 
                           {/* Weather Info */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-[10px] text-white font-medium truncate capitalize">{day.description}</p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[10px] text-white/60">
-                                {day.tempMax}°/{day.tempMin}°
-                              </span>
-                              {day.precipitationProb > 30 && (
-                                <span className="text-[9px] text-cyan-400">{day.precipitationProb}%</span>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Work Icons */}
-                          <div className="flex gap-1">
-                            {isWindy && <Wind className="w-3.5 h-3.5 text-blue-400" />}
-                            {isRainy && <CloudRain className="w-3.5 h-3.5 text-cyan-400" />}
-                            {isClear && !isWindy && <Sun className="w-3.5 h-3.5 text-yellow-400" />}
+                            <p className="text-[8px] text-white font-medium truncate">{day.tempMax}°/{day.tempMin}°</p>
                           </div>
                         </div>
                       );
@@ -672,200 +678,154 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                 </CardContent>
               </Card>
 
-              {/* Active Projects Card */}
-              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.1s' }}>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Activity className="w-5 h-5 text-luxury-gold" />
-                    <p className="text-sm font-medium text-foreground">Active Now</p>
+              {/* Active Projects Card - Compact */}
+              <Card className="col-span-2 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
+                <CardContent className="p-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="w-3 h-3 text-luxury-gold" />
+                    <p className="text-[10px] font-medium text-foreground">Active Now</p>
                   </div>
-                  <div className="flex items-center justify-center h-20">
-                    <div className="relative w-20 h-20">
+                  <div className="flex items-center justify-center">
+                    <div className="relative w-12 h-12">
                       <svg className="w-full h-full -rotate-90">
-                        <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
-                        <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${226 * 0.75} 226`} className="text-luxury-gold" />
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted/20" />
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${125 * 0.75} 125`} className="text-luxury-gold" />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-foreground">{projects.length}</span>
+                        <span className="text-lg font-bold text-foreground">{projects.length}</span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-xs text-center text-muted-foreground mt-2">Projects In Progress</p>
+                  <p className="text-[8px] text-center text-muted-foreground mt-1">Projects</p>
                 </CardContent>
               </Card>
 
-              {/* Risk Management Card with Weather Risk */}
-              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.2s' }}>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-rose-500/20">
-                      <Activity className="w-5 h-5 text-rose-500" />
+              {/* Risk Management Card - Compact */}
+              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
+                <CardContent className="p-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1 rounded bg-rose-500/20">
+                      <Activity className="w-3 h-3 text-rose-500" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">Risk Overview</p>
-                      <p className="text-xs text-muted-foreground">Active Monitoring</p>
+                      <p className="text-[10px] font-medium text-foreground">Risk Overview</p>
                     </div>
                   </div>
                   
-                  {/* Risk Categories */}
-                  <div className="space-y-3">
-                    {/* Weather Risk - First Priority */}
+                  {/* Risk Categories - Compact */}
+                  <div className="space-y-1.5">
+                    {/* Weather Risk */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
+                      <div className="flex items-center gap-1">
+                        <div className={`w-1.5 h-1.5 rounded-full ${
                           weatherRisk?.overallRisk === 'critical' ? 'bg-rose-600' :
                           weatherRisk?.overallRisk === 'high' ? 'bg-rose-500' :
                           weatherRisk?.overallRisk === 'medium' ? 'bg-amber-500' :
                           'bg-emerald-500'
                         }`}></div>
-                        <Cloud className="w-3.5 h-3.5 text-foreground/70" />
-                        <span className="text-xs text-foreground">Weather</span>
+                        <Cloud className="w-2.5 h-2.5 text-foreground/70" />
+                        <span className="text-[9px] text-foreground">Weather</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span className={`text-xs font-semibold ${
-                          weatherRisk?.overallRisk === 'critical' ? 'text-rose-600' :
-                          weatherRisk?.overallRisk === 'high' ? 'text-rose-500' :
-                          weatherRisk?.overallRisk === 'medium' ? 'text-amber-500' :
-                          'text-emerald-500'
-                        }`}>
-                          {weatherRisk?.overallRisk === 'critical' ? 'Critical' :
-                           weatherRisk?.overallRisk === 'high' ? 'High' :
-                           weatherRisk?.overallRisk === 'medium' ? 'Medium' :
-                           'Low'}
-                        </span>
-                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
-                          <div className={`h-full rounded-full ${
-                            weatherRisk?.overallRisk === 'critical' ? 'w-full bg-rose-600' :
-                            weatherRisk?.overallRisk === 'high' ? 'w-9 bg-rose-500' :
-                            weatherRisk?.overallRisk === 'medium' ? 'w-6 bg-amber-500' :
-                            'w-3 bg-emerald-500'
-                          }`}></div>
-                        </div>
-                      </div>
+                      <span className={`text-[9px] font-semibold ${
+                        weatherRisk?.overallRisk === 'critical' ? 'text-rose-600' :
+                        weatherRisk?.overallRisk === 'high' ? 'text-rose-500' :
+                        weatherRisk?.overallRisk === 'medium' ? 'text-amber-500' :
+                        'text-emerald-500'
+                      }`}>
+                        {weatherRisk?.overallRisk === 'critical' ? 'Critical' :
+                         weatherRisk?.overallRisk === 'high' ? 'High' :
+                         weatherRisk?.overallRisk === 'medium' ? 'Med' :
+                         'Low'}
+                      </span>
                     </div>
-
-                    {/* Weather Warnings */}
-                    {weatherRisk && weatherRisk.risks.length > 0 && (
-                      <div className="ml-6 space-y-1 max-h-24 overflow-y-auto">
-                        {weatherRisk.risks
-                          .filter(r => r.warnings.length > 0)
-                          .slice(0, 2)
-                          .map((risk, idx) => (
-                            <div key={idx} className="text-[10px] text-muted-foreground">
-                              <span className="font-medium text-foreground">{risk.projectName}:</span> {risk.warnings[0]}
-                            </div>
-                          ))}
-                      </div>
-                    )}
 
                     {/* Safety Risk */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <span className="text-xs text-foreground">Safety</span>
-                      </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-xs font-semibold text-emerald-500">Low</span>
-                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
-                          <div className="w-3 h-full rounded-full bg-emerald-500"></div>
-                        </div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                        <span className="text-[9px] text-foreground">Safety</span>
                       </div>
+                      <span className="text-[9px] font-semibold text-emerald-500">Low</span>
                     </div>
 
                     {/* Budget Risk */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                        <span className="text-xs text-foreground">Budget</span>
-                      </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-xs font-semibold text-amber-500">Medium</span>
-                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
-                          <div className="w-6 h-full rounded-full bg-amber-500"></div>
-                        </div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                        <span className="text-[9px] text-foreground">Budget</span>
                       </div>
+                      <span className="text-[9px] font-semibold text-amber-500">Med</span>
                     </div>
 
                     {/* Schedule Risk */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                        <span className="text-xs text-foreground">Schedule</span>
-                      </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-xs font-semibold text-rose-500">High</span>
-                        <div className="w-12 h-1.5 rounded-full bg-muted/30">
-                          <div className="w-9 h-full rounded-full bg-rose-500"></div>
-                        </div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+                        <span className="text-[9px] text-foreground">Schedule</span>
                       </div>
+                      <span className="text-[9px] font-semibold text-rose-500">High</span>
                     </div>
                   </div>
 
-                  {/* Overall Risk Score */}
-                  <div className="mt-4 pt-4 border-t border-border/30">
+                  {/* Overall Risk Score - Compact */}
+                  <div className="mt-2 pt-2 border-t border-border/30">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Overall Risk</span>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-sm font-bold ${
-                          weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
-                            ? 'text-rose-500' 
-                            : 'text-amber-500'
-                        }`}>
-                          {weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
-                            ? 'HIGH' 
-                            : 'MEDIUM'}
-                        </span>
-                        <div className="w-16 h-2 rounded-full bg-muted/30">
-                          <div className="w-10 h-full rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500"></div>
-                        </div>
-                      </div>
+                      <span className="text-[9px] text-muted-foreground">Overall</span>
+                      <span className={`text-[10px] font-bold ${
+                        weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
+                          ? 'text-rose-500' 
+                          : 'text-amber-500'
+                      }`}>
+                        {weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
+                          ? 'HIGH' 
+                          : 'MED'}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Quick Stats */}
-              <Card className="col-span-3 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.3s' }}>
-                <CardContent className="p-6">
-                  <p className="text-sm text-white/70 mb-4">Workforce Analytics</p>
-                  <div className="space-y-3">
+              {/* Quick Stats - Compact */}
+              <Card className="col-span-2 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.3)] transition-all duration-200">
+                <CardContent className="p-2">
+                  <p className="text-[10px] text-white/70 mb-2">Workforce</p>
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-white/60">Active Teams</span>
-                      <span className="text-lg font-semibold text-white">12</span>
+                      <span className="text-[8px] text-white/60">Teams</span>
+                      <span className="text-sm font-semibold text-white">12</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-white/60">Completed Tasks</span>
-                      <span className="text-lg font-semibold text-white">847</span>
+                      <span className="text-[8px] text-white/60">Tasks</span>
+                      <span className="text-sm font-semibold text-white">847</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-white/60">Team Members</span>
-                      <span className="text-lg font-semibold text-white">45</span>
+                      <span className="text-[8px] text-white/60">Members</span>
+                      <span className="text-sm font-semibold text-white">45</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Row 2 */}
-              {/* Calendar Preview */}
-              <Card className="col-span-4 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.4s' }}>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Calendar className="w-5 h-5 text-luxury-gold" />
+              {/* Row 2 - Compact */}
+              {/* Calendar Preview - Compact */}
+              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
+                <CardContent className="p-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calendar className="w-3 h-3 text-luxury-gold" />
                     <div>
-                      <p className="text-sm font-medium text-foreground">{format(new Date(), 'MMMM yyyy')}</p>
-                      <p className="text-xs text-muted-foreground">Schedule Overview</p>
+                      <p className="text-[10px] font-medium text-foreground">{format(new Date(), 'MMM yyyy')}</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-7 gap-1 mb-2">
-                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                      <div key={day} className="text-[10px] text-center text-muted-foreground font-medium">{day}</div>
+                  <div className="grid grid-cols-7 gap-0.5 mb-1">
+                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
+                      <div key={i} className="text-[7px] text-center text-muted-foreground font-medium">{day}</div>
                     ))}
                   </div>
-                  <div className="grid grid-cols-7 gap-1">
+                  <div className="grid grid-cols-7 gap-0.5">
                     {Array.from({ length: 28 }).map((_, i) => (
                       <div 
                         key={i} 
-                        className={`aspect-square rounded flex items-center justify-center text-xs ${
+                        className={`aspect-square rounded flex items-center justify-center text-[8px] ${
                           i === 8 ? 'bg-luxury-gold text-white font-semibold' : 
                           i % 7 === 0 || i % 7 === 6 ? 'text-muted-foreground/50' :
                           'text-foreground hover:bg-accent/50'
@@ -878,53 +838,55 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
                 </CardContent>
               </Card>
 
-              {/* Performance Metrics */}
-              <Card className="col-span-4 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.5s' }}>
-                <CardContent className="p-6">
-                  <p className="text-sm font-medium text-foreground mb-4">Performance Metrics</p>
-                  <div className="grid grid-cols-2 gap-6">
+              {/* Performance Metrics - Compact */}
+              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
+                <CardContent className="p-2">
+                  <p className="text-[10px] font-medium text-foreground mb-2">Performance</p>
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="relative">
-                      <svg className="w-24 h-24 -rotate-90 mx-auto">
-                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
-                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${251 * 0.92} 251`} className="text-emerald-500" />
+                      <svg className="w-12 h-12 -rotate-90 mx-auto">
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted/20" />
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${125 * 0.92} 125`} className="text-emerald-500" />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-2xl font-bold text-foreground">92%</span>
-                        <span className="text-[10px] text-muted-foreground">Efficiency</span>
+                        <span className="text-sm font-bold text-foreground">92%</span>
                       </div>
                     </div>
                     <div className="relative">
-                      <svg className="w-24 h-24 -rotate-90 mx-auto">
-                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
-                        <circle cx="48" cy="48" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${251 * 0.78} 251`} className="text-luxury-gold" />
+                      <svg className="w-12 h-12 -rotate-90 mx-auto">
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted/20" />
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${125 * 0.78} 125`} className="text-luxury-gold" />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-2xl font-bold text-foreground">78%</span>
-                        <span className="text-[10px] text-muted-foreground">Quality</span>
+                        <span className="text-sm font-bold text-foreground">78%</span>
                       </div>
                     </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mt-1">
+                    <p className="text-[7px] text-center text-muted-foreground">Efficiency</p>
+                    <p className="text-[7px] text-center text-muted-foreground">Quality</p>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Project Locations */}
-              <Card className="col-span-4 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 animate-scale-in" style={{ animationDelay: '0.6s' }}>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm font-medium text-foreground">Project Distribution</p>
-                    <Globe className="w-5 h-5 text-luxury-gold" />
+              {/* Project Locations - Compact */}
+              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
+                <CardContent className="p-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-medium text-foreground">Distribution</p>
+                    <Globe className="w-3 h-3 text-luxury-gold" />
                   </div>
-                  <div className="relative h-24 flex items-center justify-center">
+                  <div className="relative h-16 flex items-center justify-center">
                     <svg viewBox="0 0 200 100" className="w-full h-full text-foreground/80">
                       <path d="M20,50 Q60,20 100,50 T180,50" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3" />
-                      <circle cx="20" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
-                      <circle cx="100" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
-                      <circle cx="180" cy="50" r="3" fill="currentColor" className="text-luxury-gold" />
+                      <circle cx="20" cy="50" r="2" fill="currentColor" className="text-luxury-gold" />
+                      <circle cx="100" cy="50" r="2" fill="currentColor" className="text-luxury-gold" />
+                      <circle cx="180" cy="50" r="2" fill="currentColor" className="text-luxury-gold" />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-center">
-                        <p className="text-3xl font-bold text-foreground">{projects.length}</p>
-                        <p className="text-xs text-muted-foreground">Active Sites</p>
+                        <p className="text-xl font-bold text-foreground">{projects.length}</p>
+                        <p className="text-[7px] text-muted-foreground">Active Sites</p>
                       </div>
                     </div>
                   </div>
@@ -933,6 +895,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
             </div>
           </div>
         </div>
+        )}
       </div>
     </>
   );
