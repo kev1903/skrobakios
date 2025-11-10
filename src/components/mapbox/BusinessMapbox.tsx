@@ -586,143 +586,149 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         {/* Map Container */}
         <div ref={mapContainer} className="w-full h-full" />
         
-        {/* Hide/Show Cards Button - Top Right */}
-        <div className="absolute top-4 right-4 z-10 pointer-events-auto">
-          <Button
-            onClick={() => setCardsVisible(!cardsVisible)}
-            variant="outline"
-            size="sm"
-            className="backdrop-blur-xl bg-white/90 border-white/40 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
-          >
-            {cardsVisible ? (
-              <>
-                <EyeOff className="w-4 h-4 mr-2" />
-                Hide Cards
-              </>
-            ) : (
-              <>
-                <Eye className="w-4 h-4 mr-2" />
-                Show Cards
-              </>
-            )}
-          </Button>
-        </div>
-        
         {/* Glass Morphism Dashboard Overlay */}
         {cardsVisible && (
           <div className="absolute top-0 left-0 right-0 pointer-events-none">
-            <div className="w-full p-2 pointer-events-none">
-              {/* Glass Cards Grid - Single Row Compact Layout */}
-              <div className="grid grid-cols-7 gap-2 pointer-events-auto">
+            <div className="w-full p-3 pointer-events-none">
+              {/* Glass Cards Grid - Single Row Layout */}
+              <div className="grid grid-cols-7 gap-3 pointer-events-auto">
               {/* Single Row - All Cards */}
-              {/* Weather Card - Ultra Compact */}
+              {/* Weather Card */}
               <Card className="col-span-1 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
-                <CardContent className="p-1.5">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-[9px] font-semibold text-white">Weather</h3>
-                    <span className="text-base font-light text-white">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xs font-semibold text-white">Weather</h3>
+                    <span className="text-2xl font-light text-white">
                       {weather ? weather.temperature : '--'}°
                     </span>
                   </div>
-                  <p className="text-[7px] text-white/60 capitalize truncate">{weather?.description || 'Loading...'}</p>
+                  <p className="text-xs text-white/60 capitalize truncate">{weather?.description || 'Loading...'}</p>
                 </CardContent>
               </Card>
 
-              {/* Active Projects Card - Compact */}
+              {/* Active Projects Card */}
               <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
-                <CardContent className="p-1.5">
-                  <div className="flex items-center gap-1 mb-1">
-                    <Activity className="w-2.5 h-2.5 text-luxury-gold" />
-                    <p className="text-[9px] font-medium text-foreground">Active</p>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="w-3 h-3 text-luxury-gold" />
+                    <p className="text-xs font-medium text-foreground">Active</p>
                   </div>
                   <div className="text-center">
-                    <span className="text-xl font-bold text-foreground">{projects.length}</span>
-                    <p className="text-[7px] text-muted-foreground">Projects</p>
+                    <span className="text-2xl font-bold text-foreground">{projects.length}</span>
+                    <p className="text-xs text-muted-foreground">Projects</p>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Risk Management Card - Compact */}
+              {/* Risk Management Card */}
               <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
-                <CardContent className="p-1.5">
-                  <div className="flex items-center gap-1 mb-1">
-                    <Activity className="w-2.5 h-2.5 text-rose-500" />
-                    <p className="text-[9px] font-medium text-foreground">Risk</p>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="w-3 h-3 text-rose-500" />
+                    <p className="text-xs font-medium text-foreground">Risk</p>
                   </div>
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     <div className="flex justify-between items-center">
-                      <span className="text-[7px] text-foreground">Weather</span>
-                      <span className="text-[7px] font-semibold text-rose-500">
-                        {weatherRisk?.overallRisk === 'critical' ? 'Crit' : weatherRisk?.overallRisk === 'high' ? 'High' : 'Med'}
+                      <span className="text-xs text-foreground">Weather</span>
+                      <span className="text-xs font-semibold text-rose-500">
+                        {weatherRisk?.overallRisk === 'critical' ? 'Critical' : weatherRisk?.overallRisk === 'high' ? 'High' : 'Medium'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[7px] text-foreground">Safety</span>
-                      <span className="text-[7px] font-semibold text-emerald-500">Low</span>
+                      <span className="text-xs text-foreground">Safety</span>
+                      <span className="text-xs font-semibold text-emerald-500">Low</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Quick Stats - Compact */}
+              {/* Quick Stats - Workforce */}
               <Card className="col-span-1 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
-                <CardContent className="p-1.5">
-                  <p className="text-[9px] text-white/70 mb-1">Workforce</p>
-                  <div className="space-y-0.5">
+                <CardContent className="p-3">
+                  <p className="text-xs text-white/70 mb-2">Workforce</p>
+                  <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[7px] text-white/60">Teams</span>
-                      <span className="text-xs font-semibold text-white">12</span>
+                      <span className="text-xs text-white/60">Teams</span>
+                      <span className="text-sm font-semibold text-white">12</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[7px] text-white/60">Members</span>
-                      <span className="text-xs font-semibold text-white">45</span>
+                      <span className="text-xs text-white/60">Members</span>
+                      <span className="text-sm font-semibold text-white">45</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Calendar Preview - Compact */}
+              {/* Calendar Preview */}
               <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
-                <CardContent className="p-1.5">
-                  <div className="flex items-center gap-1 mb-1">
-                    <Calendar className="w-2.5 h-2.5 text-luxury-gold" />
-                    <p className="text-[9px] font-medium text-foreground">{format(new Date(), 'MMM')}</p>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calendar className="w-3 h-3 text-luxury-gold" />
+                    <p className="text-xs font-medium text-foreground">{format(new Date(), 'MMM')}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xl font-bold text-foreground">{format(new Date(), 'd')}</p>
-                    <p className="text-[7px] text-muted-foreground">{format(new Date(), 'EEE')}</p>
+                    <p className="text-2xl font-bold text-foreground">{format(new Date(), 'd')}</p>
+                    <p className="text-xs text-muted-foreground">{format(new Date(), 'EEE')}</p>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Performance Metrics - Compact */}
+              {/* Performance Metrics */}
               <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
-                <CardContent className="p-1.5">
-                  <p className="text-[9px] font-medium text-foreground mb-1">Performance</p>
-                  <div className="space-y-0.5">
+                <CardContent className="p-3">
+                  <p className="text-xs font-medium text-foreground mb-2">Performance</p>
+                  <div className="space-y-1">
                     <div className="text-center">
-                      <p className="text-base font-bold text-emerald-500">92%</p>
-                      <p className="text-[7px] text-muted-foreground">Efficiency</p>
+                      <p className="text-2xl font-bold text-emerald-500">92%</p>
+                      <p className="text-xs text-muted-foreground">Efficiency</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Project Distribution - Compact */}
+              {/* Project Distribution */}
               <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
-                <CardContent className="p-1.5">
-                  <p className="text-[9px] font-medium text-foreground mb-1">Distribution</p>
+                <CardContent className="p-3">
+                  <p className="text-xs font-medium text-foreground mb-2">Distribution</p>
                   <div className="flex items-center justify-center">
                     <div className="text-center">
-                      <p className="text-xl font-bold text-luxury-gold">{projects.length}</p>
-                      <p className="text-[7px] text-muted-foreground">Sites</p>
+                      <p className="text-2xl font-bold text-luxury-gold">{projects.length}</p>
+                      <p className="text-xs text-muted-foreground">Sites</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
+            
+            {/* Hide/Show Cards Button - Below Cards */}
+            <div className="flex justify-center mt-2 pointer-events-auto">
+              <Button
+                onClick={() => setCardsVisible(!cardsVisible)}
+                variant="outline"
+                size="sm"
+                className="backdrop-blur-xl bg-white/90 border-white/40 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+              >
+                <EyeOff className="w-4 h-4 mr-2" />
+                Hide Cards
+              </Button>
+            </div>
           </div>
         </div>
+        )}
+        
+        {/* Show Cards Button - When Hidden */}
+        {!cardsVisible && (
+          <div className="absolute top-4 right-4 z-10 pointer-events-auto">
+            <Button
+              onClick={() => setCardsVisible(true)}
+              variant="outline"
+              size="sm"
+              className="backdrop-blur-xl bg-white/90 border-white/40 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Show Cards
+            </Button>
+          </div>
         )}
       </div>
     </>
