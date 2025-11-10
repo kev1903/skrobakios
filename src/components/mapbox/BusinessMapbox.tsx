@@ -610,284 +610,112 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         
         {/* Glass Morphism Dashboard Overlay */}
         {cardsVisible && (
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="container mx-auto h-full p-3 pointer-events-none">
-              {/* Glass Cards Grid - Compact Layout */}
-              <div className="grid grid-cols-12 gap-2 pointer-events-auto max-h-[calc(100vh-120px)] overflow-hidden">
-              {/* Row 1 - Compact Cards */}
+          <div className="absolute top-0 left-0 right-0 pointer-events-none">
+            <div className="w-full p-2 pointer-events-none">
+              {/* Glass Cards Grid - Single Row Compact Layout */}
+              <div className="grid grid-cols-7 gap-2 pointer-events-auto">
+              {/* Single Row - All Cards */}
               {/* Weather Card - Ultra Compact */}
-              <Card className="col-span-2 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.3)] transition-all duration-200">
-                <CardContent className="p-2">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-1">
-                    <div>
-                      <h3 className="text-[10px] font-semibold text-white mb-0">Weather</h3>
-                      <p className="text-[8px] text-white/50">{weather?.location || 'Loading...'}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-lg font-light text-white">
-                        {weather ? weather.temperature : '--'}°
-                      </span>
-                      <p className="text-[8px] text-white/60 capitalize">{weather?.description || '...'}</p>
-                    </div>
+              <Card className="col-span-1 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
+                <CardContent className="p-1.5">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-[9px] font-semibold text-white">Weather</h3>
+                    <span className="text-base font-light text-white">
+                      {weather ? weather.temperature : '--'}°
+                    </span>
                   </div>
-
-                  {/* 3-Day Forecast - Ultra Compact */}
-                  <div className="space-y-1">
-                    {weather?.forecast?.slice(0, 3).map((day, index) => {
-                      const date = new Date(day.date);
-                      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-                      const dateNum = date.getDate();
-                      const month = date.toLocaleDateString('en-US', { month: 'short' });
-                      
-                      // Determine weather conditions
-                      const isRainy = day.weatherCode >= 51 && day.weatherCode <= 99;
-                      const isClear = day.weatherCode <= 1;
-                      const isWindy = day.windSpeed > 30;
-                      
-                      return (
-                        <div 
-                          key={index} 
-                          className="flex items-center gap-1 p-1 rounded bg-white/5 hover:bg-white/10 transition-all"
-                        >
-                          {/* Date */}
-                          <div className="text-center min-w-[24px]">
-                            <p className="text-[8px] text-white/50">{dayName}</p>
-                            <p className="text-[10px] font-semibold text-white leading-none">{dateNum}</p>
-                          </div>
-
-                          {/* Weather Icon */}
-                          <div className="flex-shrink-0">
-                            {isRainy ? (
-                              <CloudRain className="w-3 h-3 text-cyan-400" />
-                            ) : isClear ? (
-                              <Sun className="w-3 h-3 text-yellow-400" />
-                            ) : (
-                              <Cloud className="w-3 h-3 text-white/60" />
-                            )}
-                          </div>
-
-                          {/* Weather Info */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[8px] text-white font-medium truncate">{day.tempMax}°/{day.tempMin}°</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <p className="text-[7px] text-white/60 capitalize truncate">{weather?.description || 'Loading...'}</p>
                 </CardContent>
               </Card>
 
               {/* Active Projects Card - Compact */}
-              <Card className="col-span-2 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
-                <CardContent className="p-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Activity className="w-3 h-3 text-luxury-gold" />
-                    <p className="text-[10px] font-medium text-foreground">Active Now</p>
+              <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
+                <CardContent className="p-1.5">
+                  <div className="flex items-center gap-1 mb-1">
+                    <Activity className="w-2.5 h-2.5 text-luxury-gold" />
+                    <p className="text-[9px] font-medium text-foreground">Active</p>
                   </div>
-                  <div className="flex items-center justify-center">
-                    <div className="relative w-12 h-12">
-                      <svg className="w-full h-full -rotate-90">
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted/20" />
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${125 * 0.75} 125`} className="text-luxury-gold" />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-lg font-bold text-foreground">{projects.length}</span>
-                      </div>
-                    </div>
+                  <div className="text-center">
+                    <span className="text-xl font-bold text-foreground">{projects.length}</span>
+                    <p className="text-[7px] text-muted-foreground">Projects</p>
                   </div>
-                  <p className="text-[8px] text-center text-muted-foreground mt-1">Projects</p>
                 </CardContent>
               </Card>
 
               {/* Risk Management Card - Compact */}
-              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
-                <CardContent className="p-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1 rounded bg-rose-500/20">
-                      <Activity className="w-3 h-3 text-rose-500" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-medium text-foreground">Risk Overview</p>
-                    </div>
+              <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
+                <CardContent className="p-1.5">
+                  <div className="flex items-center gap-1 mb-1">
+                    <Activity className="w-2.5 h-2.5 text-rose-500" />
+                    <p className="text-[9px] font-medium text-foreground">Risk</p>
                   </div>
-                  
-                  {/* Risk Categories - Compact */}
-                  <div className="space-y-1.5">
-                    {/* Weather Risk */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <div className={`w-1.5 h-1.5 rounded-full ${
-                          weatherRisk?.overallRisk === 'critical' ? 'bg-rose-600' :
-                          weatherRisk?.overallRisk === 'high' ? 'bg-rose-500' :
-                          weatherRisk?.overallRisk === 'medium' ? 'bg-amber-500' :
-                          'bg-emerald-500'
-                        }`}></div>
-                        <Cloud className="w-2.5 h-2.5 text-foreground/70" />
-                        <span className="text-[9px] text-foreground">Weather</span>
-                      </div>
-                      <span className={`text-[9px] font-semibold ${
-                        weatherRisk?.overallRisk === 'critical' ? 'text-rose-600' :
-                        weatherRisk?.overallRisk === 'high' ? 'text-rose-500' :
-                        weatherRisk?.overallRisk === 'medium' ? 'text-amber-500' :
-                        'text-emerald-500'
-                      }`}>
-                        {weatherRisk?.overallRisk === 'critical' ? 'Critical' :
-                         weatherRisk?.overallRisk === 'high' ? 'High' :
-                         weatherRisk?.overallRisk === 'medium' ? 'Med' :
-                         'Low'}
+                  <div className="space-y-0.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[7px] text-foreground">Weather</span>
+                      <span className="text-[7px] font-semibold text-rose-500">
+                        {weatherRisk?.overallRisk === 'critical' ? 'Crit' : weatherRisk?.overallRisk === 'high' ? 'High' : 'Med'}
                       </span>
                     </div>
-
-                    {/* Safety Risk */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                        <span className="text-[9px] text-foreground">Safety</span>
-                      </div>
-                      <span className="text-[9px] font-semibold text-emerald-500">Low</span>
-                    </div>
-
-                    {/* Budget Risk */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
-                        <span className="text-[9px] text-foreground">Budget</span>
-                      </div>
-                      <span className="text-[9px] font-semibold text-amber-500">Med</span>
-                    </div>
-
-                    {/* Schedule Risk */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-                        <span className="text-[9px] text-foreground">Schedule</span>
-                      </div>
-                      <span className="text-[9px] font-semibold text-rose-500">High</span>
-                    </div>
-                  </div>
-
-                  {/* Overall Risk Score - Compact */}
-                  <div className="mt-2 pt-2 border-t border-border/30">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[9px] text-muted-foreground">Overall</span>
-                      <span className={`text-[10px] font-bold ${
-                        weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
-                          ? 'text-rose-500' 
-                          : 'text-amber-500'
-                      }`}>
-                        {weatherRisk?.overallRisk === 'critical' || weatherRisk?.overallRisk === 'high' 
-                          ? 'HIGH' 
-                          : 'MED'}
-                      </span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[7px] text-foreground">Safety</span>
+                      <span className="text-[7px] font-semibold text-emerald-500">Low</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Quick Stats - Compact */}
-              <Card className="col-span-2 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.3)] transition-all duration-200">
-                <CardContent className="p-2">
-                  <p className="text-[10px] text-white/70 mb-2">Workforce</p>
-                  <div className="space-y-1.5">
+              <Card className="col-span-1 backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-800/70 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
+                <CardContent className="p-1.5">
+                  <p className="text-[9px] text-white/70 mb-1">Workforce</p>
+                  <div className="space-y-0.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[8px] text-white/60">Teams</span>
-                      <span className="text-sm font-semibold text-white">12</span>
+                      <span className="text-[7px] text-white/60">Teams</span>
+                      <span className="text-xs font-semibold text-white">12</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[8px] text-white/60">Tasks</span>
-                      <span className="text-sm font-semibold text-white">847</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[8px] text-white/60">Members</span>
-                      <span className="text-sm font-semibold text-white">45</span>
+                      <span className="text-[7px] text-white/60">Members</span>
+                      <span className="text-xs font-semibold text-white">45</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Row 2 - Compact */}
               {/* Calendar Preview - Compact */}
-              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
-                <CardContent className="p-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-3 h-3 text-luxury-gold" />
-                    <div>
-                      <p className="text-[10px] font-medium text-foreground">{format(new Date(), 'MMM yyyy')}</p>
-                    </div>
+              <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
+                <CardContent className="p-1.5">
+                  <div className="flex items-center gap-1 mb-1">
+                    <Calendar className="w-2.5 h-2.5 text-luxury-gold" />
+                    <p className="text-[9px] font-medium text-foreground">{format(new Date(), 'MMM')}</p>
                   </div>
-                  <div className="grid grid-cols-7 gap-0.5 mb-1">
-                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
-                      <div key={i} className="text-[7px] text-center text-muted-foreground font-medium">{day}</div>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-7 gap-0.5">
-                    {Array.from({ length: 28 }).map((_, i) => (
-                      <div 
-                        key={i} 
-                        className={`aspect-square rounded flex items-center justify-center text-[8px] ${
-                          i === 8 ? 'bg-luxury-gold text-white font-semibold' : 
-                          i % 7 === 0 || i % 7 === 6 ? 'text-muted-foreground/50' :
-                          'text-foreground hover:bg-accent/50'
-                        }`}
-                      >
-                        {i + 1}
-                      </div>
-                    ))}
+                  <div className="text-center">
+                    <p className="text-xl font-bold text-foreground">{format(new Date(), 'd')}</p>
+                    <p className="text-[7px] text-muted-foreground">{format(new Date(), 'EEE')}</p>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Performance Metrics - Compact */}
-              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
-                <CardContent className="p-2">
-                  <p className="text-[10px] font-medium text-foreground mb-2">Performance</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="relative">
-                      <svg className="w-12 h-12 -rotate-90 mx-auto">
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted/20" />
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${125 * 0.92} 125`} className="text-emerald-500" />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-sm font-bold text-foreground">92%</span>
-                      </div>
+              <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
+                <CardContent className="p-1.5">
+                  <p className="text-[9px] font-medium text-foreground mb-1">Performance</p>
+                  <div className="space-y-0.5">
+                    <div className="text-center">
+                      <p className="text-base font-bold text-emerald-500">92%</p>
+                      <p className="text-[7px] text-muted-foreground">Efficiency</p>
                     </div>
-                    <div className="relative">
-                      <svg className="w-12 h-12 -rotate-90 mx-auto">
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted/20" />
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${125 * 0.78} 125`} className="text-luxury-gold" />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-sm font-bold text-foreground">78%</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 mt-1">
-                    <p className="text-[7px] text-center text-muted-foreground">Efficiency</p>
-                    <p className="text-[7px] text-center text-muted-foreground">Quality</p>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Project Locations - Compact */}
-              <Card className="col-span-3 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.15)] transition-all duration-200">
-                <CardContent className="p-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-[10px] font-medium text-foreground">Distribution</p>
-                    <Globe className="w-3 h-3 text-luxury-gold" />
-                  </div>
-                  <div className="relative h-16 flex items-center justify-center">
-                    <svg viewBox="0 0 200 100" className="w-full h-full text-foreground/80">
-                      <path d="M20,50 Q60,20 100,50 T180,50" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3" />
-                      <circle cx="20" cy="50" r="2" fill="currentColor" className="text-luxury-gold" />
-                      <circle cx="100" cy="50" r="2" fill="currentColor" className="text-luxury-gold" />
-                      <circle cx="180" cy="50" r="2" fill="currentColor" className="text-luxury-gold" />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center">
-                        <p className="text-xl font-bold text-foreground">{projects.length}</p>
-                        <p className="text-[7px] text-muted-foreground">Active Sites</p>
-                      </div>
+              {/* Project Distribution - Compact */}
+              <Card className="col-span-1 backdrop-blur-xl bg-white/10 border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
+                <CardContent className="p-1.5">
+                  <p className="text-[9px] font-medium text-foreground mb-1">Distribution</p>
+                  <div className="flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-xl font-bold text-luxury-gold">{projects.length}</p>
+                      <p className="text-[7px] text-muted-foreground">Sites</p>
                     </div>
                   </div>
                 </CardContent>
