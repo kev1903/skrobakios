@@ -309,7 +309,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   }, [collectAssemblyEntities]);
 
   // Save view state to localStorage
-  const saveViewState = useCallback((cameraState?: any, visibleModelIds?: string[]) => {
+  const saveViewState = useCallback((cameraState?: any, visibleModelIds?: string[], loadedModelIds?: string[]) => {
     if (!project?.id) return;
     
     const viewState = {
@@ -319,12 +319,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         up: (viewer.scene.camera as any).up
       } : null),
       visibleModels: visibleModelIds || Array.from(visibleModels),
+      loadedModels: loadedModelIds || Array.from(loadedModels.keys()),
       timestamp: Date.now()
     };
     
     localStorage.setItem(`bim-view-${project.id}`, JSON.stringify(viewState));
     console.log('💾 Saved view state:', viewState);
-  }, [project?.id, viewer, visibleModels]);
+  }, [project?.id, viewer, visibleModels, loadedModels]);
 
   // Load view state from localStorage
   const loadViewState = useCallback(() => {
@@ -348,14 +349,34 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     if (!viewer || !ifcLoader || viewStateLoaded || savedModels.length === 0) return;
     
     const viewState = loadViewState();
-    if (viewState && viewState.visibleModels && viewState.visibleModels.length > 0) {
+    if (viewState && viewState.loadedModels && viewState.loadedModels.length > 0) {
       console.log('🔄 Restoring view state...');
       
-      // Load models that were visible
-      const loadPromises = viewState.visibleModels.map(async (modelId: string) => {
+      // Load all models that were previously loaded
+      const loadPromises = viewState.loadedModels.map(async (modelId: string) => {
         const modelData = savedModels.find(m => m.id === modelId);
         if (modelData && !loadedModels.has(modelId)) {
-          return loadModelFromStorage(modelData.file_path, modelData.file_name, modelData.id, true);
+          const shouldBeVisible = viewState.visibleModels?.includes(modelId) ?? true;
+          console.log(`Loading model ${modelId}, shouldBeVisible: ${shouldBeVisible}`);
+          
+          // Load model, skip flyTo during restoration
+          await loadModelFromStorage(modelData.file_path, modelData.file_name, modelData.id, true);
+          
+          // Set visibility after a short delay to ensure model is fully loaded
+          if (!shouldBeVisible) {
+            setTimeout(() => {
+              const model = viewer.scene.models[modelId];
+              if (model) {
+                model.visible = false;
+                setVisibleModels(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(modelId);
+                  console.log(`Model ${modelId} hidden during restore`);
+                  return newSet;
+                });
+              }
+            }, 300);
+          }
         }
         return Promise.resolve();
       });
@@ -518,6 +539,12 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         setVisibleModels(prev => {
           const newSet = new Set(prev);
           newSet.delete(deleteDialog.modelId);
+          // Save view state after model deletion
+          setTimeout(() => {
+            const newLoadedMap = new Map(loadedModels);
+            newLoadedMap.delete(deleteDialog.modelId);
+            saveViewState(undefined, Array.from(newSet), Array.from(newLoadedMap.keys()));
+          }, 50);
           return newSet;
         });
       }
@@ -658,7 +685,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           // Make visible
           setVisibleModels(prev => {
             const newSet = new Set([...prev, modelDbId]);
-            saveViewState(undefined, Array.from(newSet));
+            // Save with updated loaded models list
+            setTimeout(() => {
+              setLoadedModels(currentLoaded => {
+                saveViewState(undefined, Array.from(newSet), Array.from(currentLoaded.keys()));
+                return currentLoaded;
+              });
+            }, 50);
             return newSet;
           });
           setLoadedModelDbId(modelDbId);
@@ -1091,7 +1124,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                     }
                     
                     // Save view state after visibility change
-                    saveViewState(undefined, Array.from(newSet));
+                    setTimeout(() => {
+                      saveViewState(undefined, Array.from(newSet), Array.from(loadedModels.keys()));
+                    }, 50);
                     return newSet;
                   });
                   setLoadedModelDbId(modelDbId);
