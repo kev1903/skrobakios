@@ -357,31 +357,15 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     if (viewState && viewState.loadedModels && viewState.loadedModels.length > 0) {
       console.log('🔄 Restoring view state...');
       
-      // Load all models that were previously loaded
+      // Load all models that were previously loaded with their saved visibility
       const loadPromises = viewState.loadedModels.map(async (modelId: string) => {
         const modelData = savedModels.find(m => m.id === modelId);
         if (modelData && !loadedModels.has(modelId)) {
           const shouldBeVisible = viewState.visibleModels?.includes(modelId) ?? true;
           console.log(`Loading model ${modelId}, shouldBeVisible: ${shouldBeVisible}`);
           
-          // Load model, skip flyTo during restoration
-          await loadModelFromStorage(modelData.file_path, modelData.file_name, modelData.id, true);
-          
-          // Set visibility after a short delay to ensure model is fully loaded
-          if (!shouldBeVisible) {
-            setTimeout(() => {
-              const model = viewer.scene.models[modelId];
-              if (model) {
-                model.visible = false;
-                setVisibleModels(prev => {
-                  const newSet = new Set(prev);
-                  newSet.delete(modelId);
-                  console.log(`Model ${modelId} hidden during restore`);
-                  return newSet;
-                });
-              }
-            }, 300);
-          }
+          // Load model with correct visibility, skip flyTo during restoration
+          await loadModelFromStorage(modelData.file_path, modelData.file_name, modelData.id, true, shouldBeVisible);
         }
         return Promise.resolve();
       });
@@ -400,7 +384,18 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         setViewStateLoaded(true);
       });
     } else {
-      setViewStateLoaded(true);
+      // No saved state - load ALL models as visible by default
+      console.log('📥 No saved state, loading all models as visible by default...');
+      const loadPromises = savedModels.map(async (modelData) => {
+        if (!loadedModels.has(modelData.id)) {
+          await loadModelFromStorage(modelData.file_path, modelData.file_name, modelData.id, false, true);
+        }
+        return Promise.resolve();
+      });
+      
+      Promise.all(loadPromises).then(() => {
+        setViewStateLoaded(true);
+      });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewer, ifcLoader, savedModels, loadViewState, viewStateLoaded, loadedModels]);
@@ -644,7 +639,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     }
   };
 
-  const loadModelFromStorage = useCallback(async (filePath: string, fileName: string, modelDbId?: string, skipFlyTo?: boolean) => {
+  const loadModelFromStorage = useCallback(async (filePath: string, fileName: string, modelDbId?: string, skipFlyTo?: boolean, shouldBeVisible: boolean = true) => {
     if (!viewer || !ifcLoader || !modelDbId) return;
 
     // Check if model is already loaded
@@ -687,22 +682,29 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             return newMap;
           });
 
-          // Make visible
-          setVisibleModels(prev => {
-            const newSet = new Set([...prev, modelDbId]);
-            // Save with updated loaded models list
-            setTimeout(() => {
-              setLoadedModels(currentLoaded => {
-                saveViewState(undefined, Array.from(newSet), Array.from(currentLoaded.keys()));
-                return currentLoaded;
-              });
-            }, 50);
-            return newSet;
-          });
+          // Set visibility based on shouldBeVisible parameter
+          if (shouldBeVisible) {
+            setVisibleModels(prev => new Set([...prev, modelDbId]));
+          } else {
+            // Model loaded but hidden
+            model.visible = false;
+          }
+          
           setLoadedModelDbId(modelDbId);
           
+          // Save view state after loading
+          setTimeout(() => {
+            setLoadedModels(currentLoaded => {
+              setVisibleModels(currentVisible => {
+                saveViewState(undefined, Array.from(currentVisible), Array.from(currentLoaded.keys()));
+                return currentVisible;
+              });
+              return currentLoaded;
+            });
+          }, 50);
+          
           // Fly to show all visible models (unless restoring view state)
-          if (!skipFlyTo) {
+          if (!skipFlyTo && shouldBeVisible) {
             setTimeout(() => {
               if (viewer?.scene?.aabb) {
                 viewer.cameraFlight.flyTo({ 
@@ -752,12 +754,12 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     try {
       console.log('⬆️ Starting upload to storage...');
       // Upload to storage and database
-      const { filePath } = await uploadToStorage(file);
+      const { filePath, modelData } = await uploadToStorage(file);
       console.log('✅ Upload successful, file path:', filePath);
 
       console.log('📥 Loading model from storage...');
-      // Load the uploaded model
-      await loadModelFromStorage(filePath, file.name);
+      // Load the uploaded model (visible by default)
+      await loadModelFromStorage(filePath, file.name, modelData.id, false, true);
       
       // Clear the file input
       event.target.value = '';
@@ -852,8 +854,8 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           return newSet;
         });
         
-        // Load the new model
-        await loadModelFromStorage(filePath, file.name, replaceModelId);
+        // Load the new model (visible by default)
+        await loadModelFromStorage(filePath, file.name, replaceModelId, false, true);
       }
 
       // Clear states
