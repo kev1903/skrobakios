@@ -30,32 +30,32 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { UpdateIndicator } from '@/components/UpdateIndicator';
 
 interface MenuBarProps {
-  isPublicView?: boolean;
-  publicCompanyName?: string;
-  publicCompanyLogo?: string;
-  publicProjectName?: string;
-  publicProjectCode?: string;
+  isBimPage?: boolean;
+  companyName?: string;
+  companyLogo?: string;
+  projectName?: string;
+  projectCode?: string;
 }
 
 export const MenuBar = ({ 
-  isPublicView = false,
-  publicCompanyName,
-  publicCompanyLogo,
-  publicProjectName,
-  publicProjectCode
+  isBimPage = false,
+  companyName,
+  companyLogo,
+  projectName,
+  projectCode
 }: MenuBarProps = {}) => {
-  // Debug logging for public view
+  // Debug logging for BIM page
   React.useEffect(() => {
-    if (isPublicView) {
-      console.log('📋 MenuBar public view data:', {
-        isPublicView,
-        publicCompanyName,
-        publicCompanyLogo,
-        publicProjectName,
-        publicProjectCode
+    if (isBimPage) {
+      console.log('📋 MenuBar BIM page data:', {
+        isBimPage,
+        companyName,
+        companyLogo,
+        projectName,
+        projectCode
       });
     }
-  }, [isPublicView, publicCompanyName, publicCompanyLogo, publicProjectName, publicProjectCode]);
+  }, [isBimPage, companyName, companyLogo, projectName, projectCode]);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -585,35 +585,35 @@ const barRef = useRef<HTMLDivElement>(null);
         <div className="flex items-center justify-between px-6 py-2.5">
           {/* Left side - Menu and Company Logo */}
           <div className="flex items-center gap-4">
-            {/* Show public company/project info in public view */}
-            {isPublicView ? (
+            {/* Show company/project info when on BIM page */}
+            {isBimPage ? (
               <>
-                {/* Company Logo & Name for Public View */}
+                {/* Company Logo & Name for BIM Page */}
                 <div className="flex items-center gap-2">
-                  {publicCompanyLogo ? (
+                  {companyLogo ? (
                     <div className="w-9 h-9 bg-background rounded-lg overflow-hidden flex items-center justify-center">
-                      <img src={publicCompanyLogo} alt={publicCompanyName || 'Company'} className="w-full h-full object-cover" />
+                      <img src={companyLogo} alt={companyName || 'Company'} className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <div className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center">
                       <span className="text-background font-bold text-sm">
-                        {(publicCompanyName || 'C').charAt(0).toUpperCase()}
+                        {(companyName || 'C').charAt(0).toUpperCase()}
                       </span>
                     </div>
                   )}
                   <h1 className="text-base font-semibold text-foreground whitespace-nowrap">
-                    {publicCompanyName || 'Company'}
+                    {companyName || 'Company'}
                   </h1>
                 </div>
 
-                {/* Project Info for Public View */}
-                {(publicProjectCode || publicProjectName) && (
+                {/* Project Info for BIM Page */}
+                {(projectCode || projectName) && (
                   <div className="flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2">
                     <div className="flex flex-col flex-1">
                       <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-                        {publicProjectCode && publicProjectName ? (
-                          `${publicProjectCode} - ${publicProjectName}`
-                        ) : publicProjectCode || publicProjectName}
+                        {projectCode && projectName ? (
+                          `${projectCode} - ${projectName}`
+                        ) : projectCode || projectName}
                       </span>
                     </div>
                   </div>

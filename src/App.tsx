@@ -388,31 +388,41 @@ const AppContent = () => {
 
   const isMobile = useIsMobile();
   const isAiChatPage = location.pathname === "/" && searchParams.get('page') === 'ai-chat';
+  
+  // Check if current page is BIM page (regardless of auth status)
+  const isBimPage = Boolean(
+    location.pathname === "/" && 
+    searchParams.get('page') === 'project-bim' && 
+    searchParams.get('projectId')
+  );
+  
+  // Check if it's public (unauthenticated) BIM access
   const isPublicBimPage = location.pathname === "/" && searchParams.get('page') === 'project-bim' && !user;
-  const showMenuBar = (user && !isLandingPage && !isAuthPage && !isSignUpPage && !(isMobile && isAiChatPage)) || isPublicBimPage;
+  
+  const showMenuBar = (user && !isLandingPage && !isAuthPage && !isSignUpPage && !(isMobile && isAiChatPage)) || isBimPage;
 
-  // Fetch public BIM data when on public BIM page
+  // Fetch BIM page data (company and project info) for MenuBar
   React.useEffect(() => {
-    console.log('🔍 Public BIM check:', { isPublicBimPage, pathname: location.pathname, page: searchParams.get('page'), hasUser: !!user });
+    console.log('🔍 BIM page check:', { isBimPage, pathname: location.pathname, page: searchParams.get('page'), hasUser: !!user });
     
-    if (isPublicBimPage) {
+    if (isBimPage) {
       const projectId = searchParams.get('projectId');
-      console.log('📊 Fetching public BIM data for project:', projectId);
+      console.log('📊 Fetching BIM page data for project:', projectId);
       
       if (projectId) {
-        const fetchPublicBimData = async () => {
+        const fetchBimPageData = async () => {
           try {
             // Fetch project data
             const { data: projectData, error: projectError } = await supabase
               .from('projects')
-              .select('name, project_id, company_id, allow_public_bim_access')
+              .select('*')
               .eq('id', projectId)
               .single();
             
             console.log('📦 Project data fetched:', { projectData, projectError });
             
-            if (projectError || !projectData || !projectData.allow_public_bim_access) {
-              console.error('❌ Error fetching public BIM project or access denied:', projectError);
+            if (projectError || !projectData) {
+              console.error('❌ Error fetching BIM project:', projectError);
               return;
             }
 
@@ -426,26 +436,26 @@ const AppContent = () => {
             console.log('🏢 Company data fetched:', { companyData, companyError });
 
             if (!companyError && companyData) {
-              const publicData = {
+              const bimData = {
                 companyName: companyData.name,
                 companyLogo: companyData.logo_url || undefined,
                 projectName: projectData.name,
                 projectCode: projectData.project_id,
               };
-              console.log('✅ Setting public BIM data:', publicData);
-              setPublicBimData(publicData);
+              console.log('✅ Setting BIM page data:', bimData);
+              setPublicBimData(bimData);
             }
           } catch (error) {
-            console.error('💥 Error fetching public BIM data:', error);
+            console.error('💥 Error fetching BIM page data:', error);
           }
         };
 
-        fetchPublicBimData();
+        fetchBimPageData();
       }
     } else {
       setPublicBimData({});
     }
-  }, [isPublicBimPage, searchParams, location.pathname, user]);
+  }, [isBimPage, searchParams, location.pathname, user]);
 
   return (
     <AppContextProvider>
@@ -456,11 +466,11 @@ const AppContent = () => {
           )}
           {showMenuBar ? (
             <MenuBar 
-              isPublicView={isPublicBimPage}
-              publicCompanyName={publicBimData.companyName}
-              publicCompanyLogo={publicBimData.companyLogo}
-              publicProjectName={publicBimData.projectName}
-              publicProjectCode={publicBimData.projectCode}
+              isBimPage={isBimPage}
+              companyName={publicBimData.companyName}
+              companyLogo={publicBimData.companyLogo}
+              projectName={publicBimData.projectName}
+              projectCode={publicBimData.projectCode}
             />
           ) : null}
           <div className="transition-all duration-300">
