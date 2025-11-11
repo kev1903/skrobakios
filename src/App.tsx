@@ -393,8 +393,12 @@ const AppContent = () => {
 
   // Fetch public BIM data when on public BIM page
   React.useEffect(() => {
+    console.log('🔍 Public BIM check:', { isPublicBimPage, pathname: location.pathname, page: searchParams.get('page'), hasUser: !!user });
+    
     if (isPublicBimPage) {
       const projectId = searchParams.get('projectId');
+      console.log('📊 Fetching public BIM data for project:', projectId);
+      
       if (projectId) {
         const fetchPublicBimData = async () => {
           try {
@@ -405,8 +409,10 @@ const AppContent = () => {
               .eq('id', projectId)
               .single();
             
+            console.log('📦 Project data fetched:', { projectData, projectError });
+            
             if (projectError || !projectData || !projectData.allow_public_bim_access) {
-              console.error('Error fetching public BIM project:', projectError);
+              console.error('❌ Error fetching public BIM project or access denied:', projectError);
               return;
             }
 
@@ -417,16 +423,20 @@ const AppContent = () => {
               .eq('id', projectData.company_id)
               .single();
 
+            console.log('🏢 Company data fetched:', { companyData, companyError });
+
             if (!companyError && companyData) {
-              setPublicBimData({
+              const publicData = {
                 companyName: companyData.name,
                 companyLogo: companyData.logo_url || undefined,
                 projectName: projectData.name,
                 projectCode: projectData.project_id,
-              });
+              };
+              console.log('✅ Setting public BIM data:', publicData);
+              setPublicBimData(publicData);
             }
           } catch (error) {
-            console.error('Error fetching public BIM data:', error);
+            console.error('💥 Error fetching public BIM data:', error);
           }
         };
 
@@ -435,7 +445,7 @@ const AppContent = () => {
     } else {
       setPublicBimData({});
     }
-  }, [isPublicBimPage, searchParams]);
+  }, [isPublicBimPage, searchParams, location.pathname, user]);
 
   return (
     <AppContextProvider>

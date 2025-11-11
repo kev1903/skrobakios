@@ -44,6 +44,19 @@ export const MenuBar = ({
   publicProjectName,
   publicProjectCode
 }: MenuBarProps = {}) => {
+  // Debug logging for public view
+  React.useEffect(() => {
+    if (isPublicView) {
+      console.log('📋 MenuBar public view data:', {
+        isPublicView,
+        publicCompanyName,
+        publicCompanyLogo,
+        publicProjectName,
+        publicProjectCode
+      });
+    }
+  }, [isPublicView, publicCompanyName, publicCompanyLogo, publicProjectName, publicProjectCode]);
+  
   const navigate = useNavigate();
   const location = useLocation();
   const {
