@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Upload, MousePointer, Hand, Ruler, ZoomIn, ZoomOut, Maximize, ArrowLeft, MessageSquare, Trash2, Share2 } from "lucide-react";
+import { useScreenSize } from "@/hooks/use-mobile";
 
 interface ViewerToolbarProps {
   onZoomIn: () => void;
@@ -27,9 +28,16 @@ export const ViewerToolbar = ({
   onBack,
   onShare,
 }: ViewerToolbarProps) => {
+  const screenSize = useScreenSize();
+  const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
+  const isTablet = screenSize === 'tablet';
+  
+  const buttonSize = isMobile ? 'h-11 w-11' : isTablet ? 'h-10 w-10' : 'h-8 w-8';
+  const iconSize = isMobile ? 'h-5 w-5' : isTablet ? 'h-4.5 w-4.5' : 'h-4 w-4';
+  
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-3'} flex-wrap ${isMobile ? 'justify-center' : ''}`}>
         {/* Back Button - Floating */}
         {onBack && (
           <Tooltip>
@@ -38,9 +46,9 @@ export const ViewerToolbar = ({
                 variant="ghost"
                 size="icon"
                 onClick={onBack}
-                className="bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 h-8 w-8 rounded-full"
+                className={`bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 ${buttonSize} rounded-full`}
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Back to Project</TooltipContent>
@@ -48,20 +56,20 @@ export const ViewerToolbar = ({
         )}
         
         {/* Mode Selection - Floating */}
-        <div className="flex items-center gap-1 p-1 bg-white/80 backdrop-blur-xl border border-border/30 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300">
+        <div className={`flex items-center gap-1 ${isMobile ? 'p-1.5' : 'p-1'} bg-white/80 backdrop-blur-xl border border-border/30 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300`}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => onModeChange("select")}
-                className={`h-8 w-8 rounded-full ${
+                className={`${buttonSize} rounded-full ${
                   activeMode === "select"
                     ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
                     : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <MousePointer className="h-4 w-4" />
+                <MousePointer className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Select objects</TooltipContent>
@@ -73,13 +81,13 @@ export const ViewerToolbar = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => onModeChange("pan")}
-                className={`h-8 w-8 rounded-full ${
+                className={`${buttonSize} rounded-full ${
                   activeMode === "pan"
                     ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
                     : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Hand className="h-4 w-4" />
+                <Hand className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Pan view</TooltipContent>
@@ -94,13 +102,13 @@ export const ViewerToolbar = ({
                   onModeChange("measure");
                   onMeasure();
                 }}
-                className={`h-8 w-8 rounded-full ${
+                className={`${buttonSize} rounded-full ${
                   activeMode === "measure"
                     ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
                     : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Ruler className="h-4 w-4" />
+                <Ruler className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Measure distance</TooltipContent>
@@ -112,13 +120,13 @@ export const ViewerToolbar = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => onModeChange("comment")}
-                className={`h-8 w-8 rounded-full ${
+                className={`${buttonSize} rounded-full ${
                   activeMode === "comment"
                     ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
                     : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <MessageSquare className="h-4 w-4" />
+                <MessageSquare className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -130,16 +138,16 @@ export const ViewerToolbar = ({
         </div>
 
         {/* Zoom Controls - Floating */}
-        <div className="flex items-center gap-1 p-1 bg-white/80 backdrop-blur-xl border border-border/30 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300">
+        <div className={`flex items-center gap-1 ${isMobile ? 'p-1.5' : 'p-1'} bg-white/80 backdrop-blur-xl border border-border/30 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300`}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="icon"
                 onClick={onZoomIn} 
-                className="hover:bg-accent/30 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
+                className={`hover:bg-accent/30 ${buttonSize} rounded-full text-muted-foreground hover:text-foreground transition-all duration-200`}
               >
-                <ZoomIn className="h-4 w-4" />
+                <ZoomIn className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Zoom In</TooltipContent>
@@ -151,9 +159,9 @@ export const ViewerToolbar = ({
                 variant="ghost" 
                 size="icon"
                 onClick={onZoomOut} 
-                className="hover:bg-accent/30 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
+                className={`hover:bg-accent/30 ${buttonSize} rounded-full text-muted-foreground hover:text-foreground transition-all duration-200`}
               >
-                <ZoomOut className="h-4 w-4" />
+                <ZoomOut className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Zoom Out</TooltipContent>
@@ -165,9 +173,9 @@ export const ViewerToolbar = ({
                 variant="ghost" 
                 size="icon"
                 onClick={onFitView} 
-                className="hover:bg-accent/30 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
+                className={`hover:bg-accent/30 ${buttonSize} rounded-full text-muted-foreground hover:text-foreground transition-all duration-200`}
               >
-                <Maximize className="h-4 w-4" />
+                <Maximize className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Fit View</TooltipContent>
@@ -182,9 +190,9 @@ export const ViewerToolbar = ({
                 variant="ghost"
                 size="icon"
                 onClick={onClearMeasurements}
-                className="bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+                className={`bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 ${buttonSize} rounded-full text-muted-foreground hover:text-foreground`}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Clear All Measurements</TooltipContent>
@@ -199,9 +207,9 @@ export const ViewerToolbar = ({
                 variant="ghost"
                 size="icon"
                 onClick={onShare}
-                className="ml-auto bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+                className={`${isMobile ? '' : 'ml-auto'} bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 ${buttonSize} rounded-full text-muted-foreground hover:text-foreground`}
               >
-                <Share2 className="h-4 w-4" />
+                <Share2 className={iconSize} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Share Project</TooltipContent>
@@ -209,19 +217,21 @@ export const ViewerToolbar = ({
         )}
 
         {/* Upload Button - Floating */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onUpload}
-              className="bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
-            >
-              <Upload className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Upload IFC File</TooltipContent>
-        </Tooltip>
+        {onUpload && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onUpload}
+                className={`bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 ${buttonSize} rounded-full text-muted-foreground hover:text-foreground`}
+              >
+                <Upload className={iconSize} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Upload IFC File</TooltipContent>
+          </Tooltip>
+        )}
       </div>
     </TooltipProvider>
   );

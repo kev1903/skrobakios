@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCompany } from "@/contexts/CompanyContext";
+import { useScreenSize } from "@/hooks/use-mobile";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,10 +44,14 @@ interface ProjectBIMPageProps {
 export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => {
   const { currentCompany } = useCompany();
   const { user } = useAuth();
+  const screenSize = useScreenSize();
   
   // Check if this is a public view (read-only mode)
   // Only treat as public if: project allows public access AND user is NOT logged in
   const isPublicView = (project as any)?.allow_public_bim_access === true && !user;
+  
+  const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
+  const isTablet = screenSize === 'tablet';
   
   console.log('🔍 ProjectBIMPage - isPublicView:', isPublicView, 'user:', !!user, 'allow_public_bim_access:', (project as any)?.allow_public_bim_access);
   
@@ -863,7 +868,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   };
 
   return (
-    <div className={`fixed inset-0 w-full flex overflow-hidden bg-background ${isPublicView ? '' : 'top-[var(--header-height)]'}`}>
+    <div className={`fixed inset-0 w-full flex overflow-hidden bg-background ${isPublicView ? '' : isMobile ? 'top-0' : 'top-[var(--header-height)]'}`}>
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       <input ref={replaceFileInputRef} type="file" accept=".ifc" onChange={handleReplaceFileChange} className="hidden" />
       
@@ -999,7 +1004,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       
       {/* Main Viewer Area */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[100] flex-shrink-0">
+        <div className={`absolute ${isMobile ? 'bottom-4 left-1/2 -translate-x-1/2' : 'top-4 left-1/2 -translate-x-1/2'} z-[100] flex-shrink-0`}>
           <ViewerToolbar
             onZoomIn={() => {
               if (viewer?.scene?.camera) {
@@ -1083,9 +1088,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         <div className="flex-1 flex overflow-hidden relative min-h-0">
           {/* Project Structure Panel */}
           <div 
-            className={`absolute left-0 top-0 bottom-0 glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
-              isStructureCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
-            }`}
+            className={`absolute ${
+              isMobile 
+                ? `left-0 right-0 bottom-0 ${isStructureCollapsed ? 'h-0 opacity-0' : 'h-[60vh] opacity-100'}`
+                : isTablet
+                ? `left-0 top-0 bottom-0 ${isStructureCollapsed ? 'w-0 opacity-0' : 'w-64 opacity-100'}`
+                : `left-0 top-0 bottom-0 ${isStructureCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'}`
+            } glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300`}
           >
             <ObjectTree 
               loadedModels={loadedModels}
@@ -1144,16 +1153,22 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           {/* Toggle Button for Project Structure */}
           <button
             onClick={() => setIsStructureCollapsed(!isStructureCollapsed)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full p-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
+            className={`absolute z-20 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300 ${
+              isMobile 
+                ? 'left-4 bottom-20 p-3'
+                : isTablet
+                ? 'left-3 top-1/2 -translate-y-1/2 p-2.5'
+                : 'left-4 top-1/2 -translate-y-1/2 p-2'
+            }`}
             title={isStructureCollapsed ? "Show Project Structure" : "Hide Project Structure"}
           >
             {isStructureCollapsed ? (
-              <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg className={`${isMobile ? 'h-6 w-6' : isTablet ? 'h-5 w-5' : 'h-5 w-5'} text-luxury-gold`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobile ? "M5 15l7-7 7 7" : "M9 5l7 7-7 7"} />
               </svg>
             ) : (
-              <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <svg className={`${isMobile ? 'h-6 w-6' : isTablet ? 'h-5 w-5' : 'h-5 w-5'} text-luxury-gold`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobile ? "M19 9l-7 7-7-7" : "M15 19l-7-7 7-7"} />
               </svg>
             )}
           </button>
@@ -1194,7 +1209,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           
           {/* Comments List Panel (shows when comment mode is active) */}
           {activeMode === "comment" && (
-            <div className="absolute right-0 top-0 bottom-0 w-80 flex-shrink-0 z-10">
+            <div className={`absolute ${
+              isMobile 
+                ? 'left-0 right-0 bottom-0 h-[60vh]'
+                : isTablet
+                ? 'right-0 top-0 bottom-0 w-64'
+                : 'right-0 top-0 bottom-0 w-80'
+            } flex-shrink-0 z-10`}>
               <CommentsList
                 comments={comments}
                 onCommentSelect={(comment) => {
@@ -1228,9 +1249,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           {/* Properties Panel (shows when not in comment mode) */}
           {activeMode !== "comment" && (
             <div 
-              className={`absolute right-0 top-0 bottom-0 glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
-                isPropertiesCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
-              }`}
+              className={`absolute ${
+                isMobile 
+                  ? `left-0 right-0 bottom-0 ${isPropertiesCollapsed ? 'h-0 opacity-0' : 'h-[60vh] opacity-100'}`
+                  : isTablet
+                  ? `right-0 top-0 bottom-0 ${isPropertiesCollapsed ? 'w-0 opacity-0' : 'w-64 opacity-100'}`
+                  : `right-0 top-0 bottom-0 ${isPropertiesCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'}`
+              } glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300`}
             >
               <PropertiesPanel 
                 selectedObject={selectedObject}
@@ -1290,16 +1315,22 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           {activeMode !== "comment" && (
             <button
               onClick={() => setIsPropertiesCollapsed(!isPropertiesCollapsed)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full p-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
+              className={`absolute z-20 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300 ${
+                isMobile 
+                  ? 'right-4 bottom-20 p-3'
+                  : isTablet
+                  ? 'right-3 top-1/2 -translate-y-1/2 p-2.5'
+                  : 'right-4 top-1/2 -translate-y-1/2 p-2'
+              }`}
               title={isPropertiesCollapsed ? "Show Properties" : "Hide Properties"}
             >
               {isPropertiesCollapsed ? (
-                <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg className={`${isMobile ? 'h-6 w-6' : isTablet ? 'h-5 w-5' : 'h-5 w-5'} text-luxury-gold`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobile ? "M5 15l7-7 7 7" : "M15 19l-7-7 7-7"} />
                 </svg>
               ) : (
-                <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className={`${isMobile ? 'h-6 w-6' : isTablet ? 'h-5 w-5' : 'h-5 w-5'} text-luxury-gold`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobile ? "M19 9l-7 7-7-7" : "M9 5l7 7-7 7"} />
                 </svg>
               )}
             </button>
