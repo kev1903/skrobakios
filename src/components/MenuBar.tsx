@@ -28,7 +28,22 @@ import { VoiceInterface } from '@/components/VoiceInterface';
 import { useSkaiVoiceChat } from '@/hooks/useSkaiVoiceChat';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UpdateIndicator } from '@/components/UpdateIndicator';
-export const MenuBar = () => {
+
+interface MenuBarProps {
+  isPublicView?: boolean;
+  publicCompanyName?: string;
+  publicCompanyLogo?: string;
+  publicProjectName?: string;
+  publicProjectCode?: string;
+}
+
+export const MenuBar = ({ 
+  isPublicView = false,
+  publicCompanyName,
+  publicCompanyLogo,
+  publicProjectName,
+  publicProjectCode
+}: MenuBarProps = {}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -557,101 +572,139 @@ const barRef = useRef<HTMLDivElement>(null);
         <div className="flex items-center justify-between px-6 py-2.5">
           {/* Left side - Menu and Company Logo */}
           <div className="flex items-center gap-4">
-            {/* Redesigned Circular Hamburger Menu Button */}
-            <button 
-              onClick={toggleSidebar} 
-              className="group relative w-10 h-10 rounded-full bg-slate-50 hover:bg-slate-100 transition-all duration-200 flex items-center justify-center" 
-              aria-label="Toggle main navigation sidebar"
-            >
-              <div className="flex flex-col gap-[3px] w-5">
-                <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary group-hover:w-4"></span>
-                <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary"></span>
-                <span className="block h-[2px] w-4 bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary group-hover:w-full"></span>
-              </div>
-            </button>
-            
-            {/* Company Logo & Name */}
-            <div className="flex items-center gap-2">
-              <div 
-                className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity duration-200" 
-                onClick={() => {
-                  if (activeContext === 'company') {
-                    navigate('/?page=home');
-                  } else {
-                    navigate('/?page=profile');
-                  }
-                }}
-              >
-                <span className="text-background font-bold text-sm">
-                  {getCompanyDisplayText().charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <h1 
-                className="text-base font-semibold text-foreground cursor-pointer hover:text-primary transition-colors whitespace-nowrap" 
-                onClick={e => {
-                  e.stopPropagation();
-                  if (activeContext === 'company') {
-                    navigate('/?page=home');
-                  } else {
-                    navigate('/?page=profile');
-                  }
-                }}
-              >
-                {getCompanyDisplayText()}
-              </h1>
-            </div>
+            {/* Show public company/project info in public view */}
+            {isPublicView ? (
+              <>
+                {/* Company Logo & Name for Public View */}
+                <div className="flex items-center gap-2">
+                  {publicCompanyLogo ? (
+                    <div className="w-9 h-9 bg-background rounded-lg overflow-hidden flex items-center justify-center">
+                      <img src={publicCompanyLogo} alt={publicCompanyName || 'Company'} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center">
+                      <span className="text-background font-bold text-sm">
+                        {(publicCompanyName || 'C').charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <h1 className="text-base font-semibold text-foreground whitespace-nowrap">
+                    {publicCompanyName || 'Company'}
+                  </h1>
+                </div>
 
-            {/* Project Selector - Always visible */}
-            <Popover open={projectSwitcherOpen} onOpenChange={setProjectSwitcherOpen}>
-              <PopoverTrigger asChild>
-                <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2 hover:bg-slate-100 hover:shadow-sm cursor-pointer transition-all duration-200">
-                  <div className="flex flex-col flex-1">
-                    <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-                      {currentProject ? (
-                        `${currentProject.project_id} - ${currentProject.name}`
-                      ) : (
-                        "Select Project"
-                      )}
+                {/* Project Info for Public View */}
+                {(publicProjectCode || publicProjectName) && (
+                  <div className="flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2">
+                    <div className="flex flex-col flex-1">
+                      <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                        {publicProjectCode && publicProjectName ? (
+                          `${publicProjectCode} - ${publicProjectName}`
+                        ) : publicProjectCode || publicProjectName}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {/* Redesigned Circular Hamburger Menu Button */}
+                <button 
+                  onClick={toggleSidebar} 
+                  className="group relative w-10 h-10 rounded-full bg-slate-50 hover:bg-slate-100 transition-all duration-200 flex items-center justify-center" 
+                  aria-label="Toggle main navigation sidebar"
+                >
+                  <div className="flex flex-col gap-[3px] w-5">
+                    <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary group-hover:w-4"></span>
+                    <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary"></span>
+                    <span className="block h-[2px] w-4 bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary group-hover:w-full"></span>
+                  </div>
+                </button>
+                
+                {/* Company Logo & Name */}
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity duration-200" 
+                    onClick={() => {
+                      if (activeContext === 'company') {
+                        navigate('/?page=home');
+                      } else {
+                        navigate('/?page=profile');
+                      }
+                    }}
+                  >
+                    <span className="text-background font-bold text-sm">
+                      {getCompanyDisplayText().charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                  <h1 
+                    className="text-base font-semibold text-foreground cursor-pointer hover:text-primary transition-colors whitespace-nowrap" 
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (activeContext === 'company') {
+                        navigate('/?page=home');
+                      } else {
+                        navigate('/?page=profile');
+                      }
+                    }}
+                  >
+                    {getCompanyDisplayText()}
+                  </h1>
                 </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-[400px] p-0 bg-white/95 backdrop-blur-xl border border-border/30 shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-xl z-[12000]" align="start">
-                <Command shouldFilter={false}>
-                  <CommandInput 
-                    placeholder="Search projects..." 
-                    value={projectSearchQuery}
-                    onValueChange={setProjectSearchQuery}
-                  />
-                  <CommandList>
-                    <CommandEmpty>
-                      {loadingProjects ? "Loading projects..." : "No projects found."}
-                    </CommandEmpty>
-                    <CommandGroup>
-                      {filteredProjects.map((project) => (
-                        <CommandItem
-                          key={project.id}
-                          value={project.id}
-                          onSelect={() => handleProjectSwitch(project)}
-                          className="px-3 py-2 hover:bg-accent/30 rounded-md cursor-pointer"
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4 text-luxury-gold",
-                              currentProject?.id === project.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          <span className="text-sm">
-                            {project.project_id} - {project.name}
-                          </span>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+
+                {/* Project Selector - Always visible */}
+                <Popover open={projectSwitcherOpen} onOpenChange={setProjectSwitcherOpen}>
+                  <PopoverTrigger asChild>
+                    <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2 hover:bg-slate-100 hover:shadow-sm cursor-pointer transition-all duration-200">
+                      <div className="flex flex-col flex-1">
+                        <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                          {currentProject ? (
+                            `${currentProject.project_id} - ${currentProject.name}`
+                          ) : (
+                            "Select Project"
+                          )}
+                        </span>
+                      </div>
+                      <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0 bg-white/95 backdrop-blur-xl border border-border/30 shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-xl z-[12000]" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput 
+                        placeholder="Search projects..." 
+                        value={projectSearchQuery}
+                        onValueChange={setProjectSearchQuery}
+                      />
+                      <CommandList>
+                        <CommandEmpty>
+                          {loadingProjects ? "Loading projects..." : "No projects found."}
+                        </CommandEmpty>
+                        <CommandGroup>
+                          {filteredProjects.map((project) => (
+                            <CommandItem
+                              key={project.id}
+                              value={project.id}
+                              onSelect={() => handleProjectSwitch(project)}
+                              className="px-3 py-2 hover:bg-accent/30 rounded-md cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4 text-luxury-gold",
+                                  currentProject?.id === project.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <span className="text-sm">
+                                {project.project_id} - {project.name}
+                              </span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </>
+            )}
           </div>
 
           {/* Center - Active Timer Display with Controls (Engraved Effect) */}

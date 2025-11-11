@@ -346,6 +346,14 @@ const AppContent = () => {
   const [searchParams] = useSearchParams();
   const { isOpen: isSidebarOpen } = useGlobalSidebar();
   
+  // State for public BIM page data
+  const [publicBimData, setPublicBimData] = React.useState<{
+    companyName?: string;
+    companyLogo?: string;
+    projectName?: string;
+    projectCode?: string;
+  }>({});
+  
   // Check if we're specifically on the landing page (not authenticated home page)
   // Landing page is when we're on "/" and either no page param or page=landing, AND user is not authenticated
   const isLandingPage = location.pathname === "/" && (!searchParams.get('page') || searchParams.get('page') === 'landing') && !user;
@@ -380,7 +388,54 @@ const AppContent = () => {
 
   const isMobile = useIsMobile();
   const isAiChatPage = location.pathname === "/" && searchParams.get('page') === 'ai-chat';
-  const showMenuBar = user && !isLandingPage && !isAuthPage && !isSignUpPage && !(isMobile && isAiChatPage);
+  const isPublicBimPage = location.pathname === "/" && searchParams.get('page') === 'project-bim' && !user;
+  const showMenuBar = (user && !isLandingPage && !isAuthPage && !isSignUpPage && !(isMobile && isAiChatPage)) || isPublicBimPage;
+
+  // Fetch public BIM data when on public BIM page
+  React.useEffect(() => {
+    if (isPublicBimPage) {
+      const projectId = searchParams.get('projectId');
+      if (projectId) {
+        const fetchPublicBimData = async () => {
+          try {
+            // Fetch project data
+            const { data: projectData, error: projectError } = await supabase
+              .from('projects')
+              .select('name, project_id, company_id, allow_public_bim_access')
+              .eq('id', projectId)
+              .single();
+            
+            if (projectError || !projectData || !projectData.allow_public_bim_access) {
+              console.error('Error fetching public BIM project:', projectError);
+              return;
+            }
+
+            // Fetch company data
+            const { data: companyData, error: companyError } = await supabase
+              .from('companies')
+              .select('name, logo_url')
+              .eq('id', projectData.company_id)
+              .single();
+
+            if (!companyError && companyData) {
+              setPublicBimData({
+                companyName: companyData.name,
+                companyLogo: companyData.logo_url || undefined,
+                projectName: projectData.name,
+                projectCode: projectData.project_id,
+              });
+            }
+          } catch (error) {
+            console.error('Error fetching public BIM data:', error);
+          }
+        };
+
+        fetchPublicBimData();
+      }
+    } else {
+      setPublicBimData({});
+    }
+  }, [isPublicBimPage, searchParams]);
 
   return (
     <AppContextProvider>
@@ -389,7 +444,15 @@ const AppContent = () => {
           {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
             <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
           )}
-          {showMenuBar ? <MenuBar /> : null}
+          {showMenuBar ? (
+            <MenuBar 
+              isPublicView={isPublicBimPage}
+              publicCompanyName={publicBimData.companyName}
+              publicCompanyLogo={publicBimData.companyLogo}
+              publicProjectName={publicBimData.projectName}
+              publicProjectCode={publicBimData.projectCode}
+            />
+          ) : null}
           <div className="transition-all duration-300">
             <Routes>
         <Route path="/" element={
