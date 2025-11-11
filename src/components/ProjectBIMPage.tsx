@@ -45,7 +45,6 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const { currentCompany } = useCompany();
   const { user } = useAuth();
   const screenSize = useScreenSize();
-  const [publicCompanyData, setPublicCompanyData] = useState<any>(null);
   
   // Check if this is a public view (read-only mode)
   // Only treat as public if: project allows public access AND user is NOT logged in
@@ -427,27 +426,6 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       camera.off('viewMatrix', handleCameraChange);
     };
   }, [viewer, saveViewState, viewStateLoaded]);
-
-  // Fetch company data for public view
-  useEffect(() => {
-    const fetchPublicCompanyData = async () => {
-      if (isPublicView && project?.company_id && !publicCompanyData) {
-        try {
-          const { data, error } = await supabase
-            .from('companies')
-            .select('id, name, logo_url')
-            .eq('id', project.company_id)
-            .single();
-          
-          if (error) throw error;
-          setPublicCompanyData(data);
-        } catch (error) {
-          console.error('Error fetching company data:', error);
-        }
-      }
-    };
-    fetchPublicCompanyData();
-  }, [isPublicView, project?.company_id, publicCompanyData]);
 
   // Load saved IFC models on mount
   useEffect(() => {
@@ -1030,42 +1008,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         </AlertDialogContent>
       </AlertDialog>
       
-      {/* Project Header */}
-      <div className="absolute top-0 left-0 right-0 z-[90] px-6 py-4 bg-white/80 backdrop-blur-xl border-b border-border/30">
-        <div className="flex items-center gap-4">
-          {(isPublicView ? publicCompanyData?.logo_url : currentCompany?.logo_url) && (
-            <img 
-              src={isPublicView ? publicCompanyData.logo_url : currentCompany.logo_url} 
-              alt="Company logo" 
-              className="h-10 w-10 object-contain rounded"
-            />
-          )}
-          <div className="flex-1">
-            <h2 className="text-sm font-semibold text-foreground">
-              {isPublicView ? publicCompanyData?.name : currentCompany?.name}
-            </h2>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="font-medium">{project?.name}</span>
-              {project?.project_code && (
-                <>
-                  <span>•</span>
-                  <span>{project.project_code}</span>
-                </>
-              )}
-              {project?.address && (
-                <>
-                  <span>•</span>
-                  <span className="truncate">{project.address}</span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-      
       {/* Main Viewer Area */}
-      <div className="flex-1 flex flex-col overflow-hidden relative mt-[72px]">
-        <div className={`absolute ${isMobile ? 'bottom-4 left-1/2 -translate-x-1/2' : 'top-8 left-1/2 -translate-x-1/2'} z-[100] flex-shrink-0`}>
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+        <div className={`absolute ${isMobile ? 'bottom-4 left-1/2 -translate-x-1/2' : 'top-4 left-1/2 -translate-x-1/2'} z-[100] flex-shrink-0`}>
           <ViewerToolbar
             onZoomIn={() => {
               if (viewer?.scene?.camera) {
