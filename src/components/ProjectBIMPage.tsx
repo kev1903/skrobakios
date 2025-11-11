@@ -1010,7 +1010,32 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       
       {/* Main Viewer Area */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        <div className={`absolute ${isMobile ? 'bottom-4 left-1/2 -translate-x-1/2' : 'top-4 left-1/2 -translate-x-1/2'} z-[100] flex-shrink-0`}>
+        {/* BIM Page Header */}
+        <div className="absolute top-0 left-0 right-0 z-[90] flex items-center gap-4 px-6 py-3 bg-white/80 backdrop-blur-xl border-b border-border/30">
+          {/* Company Name */}
+          {currentCompany?.name && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-luxury-gold/10 border border-luxury-gold/30 rounded-lg">
+              <div className="flex items-center justify-center h-8 w-8 bg-luxury-gold text-white rounded-md font-semibold text-sm">
+                {currentCompany.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-sm font-semibold text-luxury-gold">
+                {currentCompany.name}
+              </span>
+            </div>
+          )}
+          
+          {/* Project Name */}
+          {project && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border border-border/30 rounded-lg flex-1 min-w-0">
+              <span className="text-sm font-medium text-foreground truncate">
+                {project.name || project.project_code || 'Untitled Project'}
+                {project.address && ` - ${project.address}`}
+              </span>
+            </div>
+          )}
+        </div>
+        
+        <div className={`absolute ${isMobile ? 'bottom-4 left-1/2 -translate-x-1/2' : 'top-20 left-1/2 -translate-x-1/2'} z-[100] flex-shrink-0`}>
           <ViewerToolbar
             onZoomIn={() => {
               if (viewer?.scene?.camera) {
