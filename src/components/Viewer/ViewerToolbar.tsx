@@ -7,13 +7,14 @@ interface ViewerToolbarProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onFitView: () => void;
-  onUpload: () => void;
+  onUpload?: () => void;
   onMeasure: () => void;
   onClearMeasurements: () => void;
   activeMode: "select" | "measure" | "pan" | "comment";
   onModeChange: (mode: "select" | "measure" | "pan" | "comment") => void;
   onBack?: () => void;
   onShare?: () => void;
+  isPublicView?: boolean;
 }
 
 export const ViewerToolbar = ({
@@ -27,6 +28,7 @@ export const ViewerToolbar = ({
   onModeChange,
   onBack,
   onShare,
+  isPublicView = false,
 }: ViewerToolbarProps) => {
   const screenSize = useScreenSize();
   const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
@@ -114,27 +116,29 @@ export const ViewerToolbar = ({
             <TooltipContent>Measure distance</TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onModeChange("comment")}
-                className={`${buttonSize} rounded-full ${
-                  activeMode === "comment"
-                    ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
-                    : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <MessageSquare className={iconSize} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {activeMode === "comment" 
-                ? "Click on model to add comment" 
-                : "Add comment"}
-            </TooltipContent>
-          </Tooltip>
+          {!isPublicView && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onModeChange("comment")}
+                  className={`${buttonSize} rounded-full ${
+                    activeMode === "comment"
+                      ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
+                      : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <MessageSquare className={iconSize} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {activeMode === "comment" 
+                  ? "Click on model to add comment" 
+                  : "Add comment"}
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
 
         {/* Zoom Controls - Floating */}

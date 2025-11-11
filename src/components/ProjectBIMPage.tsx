@@ -218,6 +218,10 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
 
       // Check if we're in comment mode
       if (activeModeRef.current === "comment") {
+        // Prevent comment creation for public viewers
+        if (isPublicView) {
+          return;
+        }
         if (hit && hit.worldPos) {
           // Store the clicked position and object for comment
           const commentData = {
@@ -1078,12 +1082,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                 measureControl.deactivate();
               }
               
-              if (mode === "comment") {
+              if (mode === "comment" && !isPublicView) {
                 toast.info("Click on the model to place your comment");
               }
             }}
             onBack={isPublicView ? undefined : () => onNavigate(`project-detail?projectId=${project?.id}`)}
             onShare={isPublicView ? undefined : () => setShareDialogOpen(true)}
+            isPublicView={isPublicView}
           />
         </div>
 
@@ -1186,7 +1191,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                 key={comment.id}
                 comment={comment}
                 viewer={viewer}
-                onDelete={async (commentId) => {
+                onDelete={isPublicView ? undefined : async (commentId) => {
                   try {
                     await deleteComment(commentId);
                     toast.success('Comment deleted');
