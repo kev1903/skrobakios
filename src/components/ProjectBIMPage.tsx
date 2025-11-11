@@ -1146,9 +1146,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                   toast.error('Failed to toggle model visibility');
                 }
               }}
-              onModelRename={handleModelRename}
-              onModelReplace={handleModelReplace}
-              onModelDelete={handleModelDelete}
+              onModelRename={isPublicView ? undefined : handleModelRename}
+              onModelReplace={isPublicView ? undefined : handleModelReplace}
+              onModelDelete={isPublicView ? undefined : handleModelDelete}
             />
           </div>
           
