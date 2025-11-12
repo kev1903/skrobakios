@@ -27,10 +27,7 @@ export const useIfcComments = (projectId: string, modelId?: string) => {
     try {
       let query = supabase
         .from('ifc_comments')
-        .select(`
-          *,
-          profiles(avatar_url)
-        `)
+        .select('*')
         .eq('project_id', projectId)
         .order('created_at', { ascending: true });
 
@@ -43,14 +40,7 @@ export const useIfcComments = (projectId: string, modelId?: string) => {
 
       if (error) throw error;
       
-      // Map the data to include avatar_url from the joined profiles table
-      const commentsWithAvatars = (data || []).map((comment: any) => ({
-        ...comment,
-        avatar_url: comment.profiles?.avatar_url || null,
-        profiles: undefined // Remove the nested profiles object
-      }));
-      
-      setComments(commentsWithAvatars as IfcComment[]);
+      setComments(data as IfcComment[] || []);
     } catch (error) {
       console.error('Error loading IFC comments:', error);
     } finally {
