@@ -256,121 +256,151 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
 
   // Initialize map only once when token and container are available
   useEffect(() => {
-    // Add a small delay to ensure the container is fully mounted in the DOM
+    let retryCount = 0;
+    const maxRetries = 5;
+    let initTimeout: NodeJS.Timeout | null = null;
+    
     const initMap = () => {
       console.log('🗺️ Map initialization check:', {
         hasContainer: !!mapContainer.current, 
         hasToken: !!mapboxToken,
         hasMap: !!map.current,
-        containerInDOM: mapContainer.current?.isConnected
+        containerInDOM: mapContainer.current?.isConnected,
+        retryCount
       });
       
-      if (!mapContainer.current || !mapboxToken || map.current) {
-        console.log('❌ Skipping map initialization - requirements not met or map already exists');
+      // Don't initialize if already exists
+      if (map.current) {
+        console.log('✅ Map already exists, skipping initialization');
+        return;
+      }
+      
+      // Check if we have requirements
+      if (!mapContainer.current || !mapboxToken) {
+        console.log('❌ Missing requirements for map initialization');
         return;
       }
 
       // Extra safety check: ensure container is in the DOM
       if (!mapContainer.current.isConnected) {
-        console.log('⏳ Container not yet in DOM, retrying...');
-        setTimeout(initMap, 50);
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.log(`⏳ Container not yet in DOM, retry ${retryCount}/${maxRetries}...`);
+          initTimeout = setTimeout(initMap, 100);
+          return;
+        } else {
+          console.error('❌ Container never mounted after max retries');
+          return;
+        }
+      }
+
+      try {
+        console.log('✅ Initializing new map instance');
+        mapboxgl.accessToken = mapboxToken;
+      
+        map.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: 'mapbox://styles/mapbox/light-v11',
+          center: [144.9631, -37.8136], // Melbourne, Australia
+          zoom: 10,
+          pitch: 45,
+          bearing: -17.6,
+          antialias: true
+        });
+
+        // Add navigation controls (hidden on mobile)
+        if (window.innerWidth >= 768) {
+          map.current.addControl(
+            new mapboxgl.NavigationControl({
+              visualizePitch: true,
+            }),
+            'top-right'
+          );
+
+          // Add geolocate control
+          map.current.addControl(
+            new mapboxgl.GeolocateControl({
+              positionOptions: {
+                enableHighAccuracy: true
+              },
+              trackUserLocation: true,
+              showUserHeading: true
+            }),
+            'top-right'
+          );
+
+          // Add fullscreen control
+          map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+        }
+
+        // Add 3D buildings layer
+        map.current.on('style.load', () => {
+          if (!map.current) return;
+          
+          const layers = map.current.getStyle().layers;
+          const labelLayerId = layers?.find(
+            (layer) => layer.type === 'symbol' && layer.layout?.['text-field']
+          )?.id;
+
+          map.current.addLayer(
+            {
+              id: 'add-3d-buildings',
+              source: 'composite',
+              'source-layer': 'building',
+              filter: ['==', 'extrude', 'true'],
+              type: 'fill-extrusion',
+              minzoom: 15,
+              paint: {
+                'fill-extrusion-color': '#aaa',
+                'fill-extrusion-height': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  15,
+                  0,
+                  15.05,
+                  ['get', 'height']
+                ],
+                'fill-extrusion-base': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  15,
+                  0,
+                  15.05,
+                  ['get', 'min_height']
+                ],
+                'fill-extrusion-opacity': 0.6
+              }
+            },
+            labelLayerId
+          );
+        });
+
+        // Signal readiness when map fully loads
+        map.current.on('load', () => {
+          console.log('✅ Mapbox map loaded');
+          setMapReady(true);
+        });
+      } catch (error) {
+        console.error('❌ Error initializing map:', error);
+        map.current = null;
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.log(`🔄 Retrying map initialization ${retryCount}/${maxRetries}...`);
+          initTimeout = setTimeout(initMap, 200);
+        }
         return;
       }
-
-      console.log('✅ Initializing new map instance');
-      mapboxgl.accessToken = mapboxToken;
-    
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        center: [144.9631, -37.8136], // Melbourne, Australia
-        zoom: 10,
-        pitch: 45,
-        bearing: -17.6,
-        antialias: true
-      });
-
-      // Add navigation controls (hidden on mobile)
-      if (window.innerWidth >= 768) {
-        map.current.addControl(
-          new mapboxgl.NavigationControl({
-            visualizePitch: true,
-          }),
-          'top-right'
-        );
-
-        // Add geolocate control
-        map.current.addControl(
-          new mapboxgl.GeolocateControl({
-            positionOptions: {
-              enableHighAccuracy: true
-            },
-            trackUserLocation: true,
-            showUserHeading: true
-          }),
-          'top-right'
-        );
-
-        // Add fullscreen control
-        map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
-      }
-
-      // Add 3D buildings layer
-      map.current.on('style.load', () => {
-        if (!map.current) return;
-        
-        const layers = map.current.getStyle().layers;
-        const labelLayerId = layers?.find(
-          (layer) => layer.type === 'symbol' && layer.layout?.['text-field']
-        )?.id;
-
-        map.current.addLayer(
-          {
-            id: 'add-3d-buildings',
-            source: 'composite',
-            'source-layer': 'building',
-            filter: ['==', 'extrude', 'true'],
-            type: 'fill-extrusion',
-            minzoom: 15,
-            paint: {
-              'fill-extrusion-color': '#aaa',
-              'fill-extrusion-height': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                15,
-                0,
-                15.05,
-                ['get', 'height']
-              ],
-              'fill-extrusion-base': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                15,
-                0,
-                15.05,
-                ['get', 'min_height']
-              ],
-              'fill-extrusion-opacity': 0.6
-            }
-          },
-          labelLayerId
-        );
-      });
-
-      // Signal readiness when map fully loads
-      map.current.on('load', () => {
-        console.log('✅ Mapbox map loaded');
-        setMapReady(true);
-      });
     };
     
     // Start initialization with a small delay to ensure container is ready
-    const timeoutId = setTimeout(initMap, 10);
+    initTimeout = setTimeout(initMap, 100);
     
     return () => {
-      clearTimeout(timeoutId);
+      if (initTimeout) {
+        clearTimeout(initTimeout);
+      }
       console.log('🧹 Cleaning up map instance');
       if (map.current) {
         map.current.remove();
