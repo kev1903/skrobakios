@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { BoardView } from './tasks/BoardView';
 import { MyTasksLoadingState } from './my-tasks/MyTasksLoadingState';
 import { TaskEditContent } from './tasks/TaskEditContent';
+import { CreateTaskDialog } from './my-tasks/CreateTaskDialog';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
@@ -30,6 +31,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   const [isDragOverBacklog, setIsDragOverBacklog] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { userProfile } = useUser();
   const { currentCompany } = useCompany();
@@ -296,6 +298,13 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
 
   return (
     <div>
+      {/* Create Task Dialog */}
+      <CreateTaskDialog 
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onTaskCreated={refreshTasks}
+      />
+
       {/* Task Detail Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
         <DialogContent className="max-w-[95vw] w-full h-[calc(100vh-80px)] top-[80px] left-[50%] translate-x-[-50%] translate-y-0 overflow-y-auto rounded-lg p-0" hideCloseButton={true}>
@@ -440,7 +449,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
                 <h3 className="font-bold text-foreground text-base font-inter">Task Backlog</h3>
                 <div className="flex items-center gap-2">
                   <button 
-                    onClick={() => onNavigate('task-edit&from=my-tasks')}
+                    onClick={() => setIsCreateDialogOpen(true)}
                     className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors font-inter"
                   >
                     ADD TASK
