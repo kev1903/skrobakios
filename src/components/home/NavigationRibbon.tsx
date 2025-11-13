@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare, Users } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare, Users, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { ModuleWrapper } from '@/components/ModuleWrapper';
@@ -79,13 +79,14 @@ export const NavigationRibbon = ({
     { id: "projects", label: "Projects", icon: Briefcase, requiredFeature: "projects" },
     { id: "sales", label: "Sales", icon: TrendingUp, requiredFeature: "sales_management" },
     { id: "system", label: "SYSTEM", icon: Database }, // System should always be available
+    { id: "sop", label: "SOP", icon: FileText }, // SOP should always be available
     { id: "settings", label: "Settings", icon: Settings }, // Settings should always be available
   ];
 
   // Filter business navigation based on subscription features (from SidebarMainContent)
   const businessNavigation = businessNavigationItems.filter(item => {
-    // Settings and System should always be visible regardless of subscription
-    if (item.id === "settings" || item.id === "system") {
+    // Settings, System, and SOP should always be visible regardless of subscription
+    if (item.id === "settings" || item.id === "system" || item.id === "sop") {
       return true;
     }
     
