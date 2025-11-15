@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronRight, ChevronDown, Plus, Trash2, GripVertical } from 'lucide-react';
+import { EstimationSummaryCard } from './EstimationSummaryCard';
 
 interface EstimationItem {
   id: string;
@@ -287,6 +288,13 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
     return visibleItems.reduce((sum, item) => sum + (item.totalCost || 0), 0);
   };
 
+  const getItemCount = () => {
+    return visibleItems.filter(item => 
+      item.name.trim() !== '' || 
+      (item.quantity && item.quantity > 0)
+    ).length;
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
@@ -303,7 +311,9 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
 
       {/* Split View */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden gap-4 p-4">
+          {/* Table Container */}
+          <div className="flex-1 flex overflow-hidden rounded-2xl border border-border/30 bg-white/80 backdrop-blur-xl shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
           {/* Left Panel - WBS & Name */}
           <div className="w-[400px] shrink-0 border-r border-border/20 bg-background overflow-hidden">
             <div 
@@ -536,6 +546,16 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 )}
               </Droppable>
             </div>
+          </div>
+          </div>
+
+          {/* Summary Card */}
+          <div className="w-80 shrink-0">
+            <EstimationSummaryCard 
+              subtotal={calculateGrandTotal()}
+              taxRate={10}
+              itemCount={getItemCount()}
+            />
           </div>
         </div>
       </DragDropContext>
