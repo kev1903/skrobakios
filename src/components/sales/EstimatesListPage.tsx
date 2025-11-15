@@ -9,7 +9,7 @@ import { Search, Plus, Eye, Edit, MoreVertical, Calculator, FileText, DollarSign
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
-import { PageShell } from '@/components/layout/PageShell';
+
 interface Estimate {
   id: string;
   estimate_number: string;
@@ -115,14 +115,20 @@ export const EstimatesListPage = ({
     }
   };
   if (loading) {
-    return <div className="flex items-center justify-center h-64">
-        
-      </div>;
+    return (
+      <div className="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 relative">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    );
   }
-  return <PageShell withPattern>
-    <div className="space-y-8 px-6 pb-6">
-      {/* Header Section */}
-      <div className="flex items-start justify-between">
+  
+  return (
+    <div className="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 relative">
+      <div className="relative z-10 p-6 space-y-6">
+        {/* Header Section */}
+        <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           <Button variant="ghost" size="sm" onClick={handleBackToSales} className="flex items-center gap-2 mt-1 hover:bg-muted">
               <ArrowLeft className="w-4 h-4" />
@@ -329,6 +335,7 @@ export const EstimatesListPage = ({
           </Table>
         </CardContent>
       </Card>
+      </div>
     </div>
-  </PageShell>;
+  );
 };
