@@ -8,12 +8,20 @@ export class WBSService {
   static async loadWBSItems(projectId: string, companyId: string): Promise<WBSItem[]> {
     console.log('🔍 Loading WBS items for project:', projectId);
     
-    const { data, error } = await supabase
+    // Create a timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout - please try again')), 15000); // 15 second timeout
+    });
+    
+    // Race between the query and timeout
+    const queryPromise = supabase
       .from('wbs_items')
       .select('*')
       .eq('project_id', projectId)
       .order('sort_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: true });
+
+    const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
 
     if (error) throw error;
 

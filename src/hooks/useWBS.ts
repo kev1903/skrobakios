@@ -18,8 +18,8 @@ export const useWBS = (projectId: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load WBS items for a project
-  const loadWBSItems = async () => {
+  // Load WBS items for a project with retry logic
+  const loadWBSItems = async (retryCount = 0) => {
     if (!projectId || !currentCompany?.id) return;
     
     setLoading(true);
@@ -28,10 +28,20 @@ export const useWBS = (projectId: string) => {
     try {
       const items = await WBSService.loadWBSItems(projectId, currentCompany.id);
       setWBSItems(items);
+      setError(null); // Clear any previous errors on success
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load WBS items';
-      setError(errorMessage);
       console.error('Error loading WBS items:', err);
+      
+      // Retry logic: attempt up to 2 retries with exponential backoff
+      if (retryCount < 2) {
+        const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s
+        console.log(`Retrying WBS load in ${delay}ms (attempt ${retryCount + 1}/2)...`);
+        setTimeout(() => loadWBSItems(retryCount + 1), delay);
+      } else {
+        // Only set error after all retries exhausted
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
