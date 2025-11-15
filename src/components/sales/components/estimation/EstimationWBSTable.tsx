@@ -299,14 +299,6 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
 
   return (
     <div className="flex flex-col h-full">
-      {/* Toolbar */}
-      <div className="shrink-0 h-11 px-4 border-b border-border/20 bg-muted/30 flex items-center gap-2">
-        <div className="flex-1" />
-        <div className="text-sm font-semibold text-foreground">
-          Total: ${calculateGrandTotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </div>
-      </div>
-
       {/* Split View */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="flex-1 flex overflow-hidden gap-4 p-4">
