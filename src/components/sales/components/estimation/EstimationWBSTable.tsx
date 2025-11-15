@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronRight, ChevronDown, Plus, Trash2, GripVertical } from 'lucide-react';
 import { EstimationSummaryCard } from './EstimationSummaryCard';
+import { useEstimateContext } from '../../context/EstimateContext';
 
 interface EstimationItem {
   id: string;
@@ -41,6 +42,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { estimationSettings, updateEstimationSettings } = useEstimateContext();
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
   const isSyncingRef = useRef(false);
@@ -553,8 +555,14 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
           <div className="w-80 shrink-0">
             <EstimationSummaryCard 
               subtotal={calculateGrandTotal()}
-              taxRate={10}
               itemCount={getItemCount()}
+              projectDuration={estimationSettings.projectDuration}
+              escalationRate={estimationSettings.escalationRate}
+              preliminariesPercentage={estimationSettings.preliminariesPercentage}
+              contingencyPercentage={estimationSettings.contingencyPercentage}
+              buildersMarginPercentage={estimationSettings.buildersMarginPercentage}
+              gstRate={estimationSettings.gstRate}
+              onUpdateSettings={updateEstimationSettings}
             />
           </div>
         </div>
