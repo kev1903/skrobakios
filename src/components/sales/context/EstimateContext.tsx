@@ -5,6 +5,15 @@ import type { EstimateData } from '../hooks/useEstimate';
 import type { Trade } from '../hooks/useTrades';
 import type { DrawingFile } from '../hooks/useMultiplePDFUpload';
 
+interface EstimationSettings {
+  projectDuration: number;
+  escalationRate: number;
+  preliminariesPercentage: number;
+  contingencyPercentage: number;
+  buildersMarginPercentage: number;
+  gstRate: number;
+}
+
 interface EstimateContextType {
   estimate: EstimateData | null;
   trades: Trade[];
@@ -13,9 +22,11 @@ interface EstimateContextType {
   projectType: string;
   isLoading: boolean;
   estimateId: string | undefined;
+  estimationSettings: EstimationSettings;
   loadEstimateData: (id: string) => Promise<void>;
   updateEstimateTitle: (title: string) => void;
   updateProjectType: (type: string) => void;
+  updateEstimationSettings: (settings: Partial<EstimationSettings>) => void;
 }
 
 const EstimateContext = createContext<EstimateContextType | null>(null);
@@ -35,6 +46,14 @@ export const EstimateProvider = ({ children, estimateId: propEstimateId }: Estim
   const [estimateTitle, setEstimateTitle] = useState('');
   const [projectType, setProjectType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [estimationSettings, setEstimationSettings] = useState<EstimationSettings>({
+    projectDuration: 12,
+    escalationRate: 3,
+    preliminariesPercentage: 10,
+    contingencyPercentage: 10,
+    buildersMarginPercentage: 15,
+    gstRate: 10,
+  });
   
   const { loadEstimate } = useEstimate();
 
@@ -64,6 +83,10 @@ export const EstimateProvider = ({ children, estimateId: propEstimateId }: Estim
     setProjectType(type);
   };
 
+  const updateEstimationSettings = (settings: Partial<EstimationSettings>) => {
+    setEstimationSettings(prev => ({ ...prev, ...settings }));
+  };
+
   useEffect(() => {
     if (estimateId && !estimate) {
       loadEstimateData(estimateId);
@@ -78,9 +101,11 @@ export const EstimateProvider = ({ children, estimateId: propEstimateId }: Estim
     projectType,
     isLoading,
     estimateId,
+    estimationSettings,
     loadEstimateData,
     updateEstimateTitle,
     updateProjectType,
+    updateEstimationSettings,
   };
 
   return (
