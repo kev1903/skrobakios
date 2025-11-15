@@ -3,8 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { Save, ArrowLeft, MoreVertical } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -18,8 +16,6 @@ import { useEstimate } from '../hooks/useEstimate';
 import { useTakeoffMeasurements } from '../hooks/useTakeoffMeasurements';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageShell } from '@/components/layout/PageShell';
-import { ProjectAttributesTab } from '../components/structuring/ProjectAttributesTab';
-import { WBSElementMappingTab } from '../components/structuring/WBSElementMappingTab';
   
 import { toast } from 'sonner';
 import { useEstimateContext } from '../context/EstimateContext';
@@ -37,11 +33,6 @@ export const InputDataPage = ({
   const currentId = (estimateId || estimateIdParam) ?? '';
   const [estimateTitle, setEstimateTitle] = useState('');
   const [projectType, setProjectType] = useState('');
-  const [activeTab, setActiveTab] = useState('drawings');
-  const [structuringData, setStructuringData] = useState({
-    projectAttributes: {},
-    wbsMapping: {}
-  });
 
   // Drawing and measurement state
   const [currentTool, setCurrentTool] = useState<'pointer' | 'area' | 'linear' | 'count'>('pointer');
@@ -193,14 +184,6 @@ const [estimateNumber, setEstimateNumber] = useState('');
   ];
   const [currentStep, setCurrentStep] = useState<number>(1);
 
-  // Sync step with tabs roughly
-  useEffect(() => {
-    // All InputDataPage tabs are part of step 1
-    if (['drawings', 'attributes', 'wbs'].includes(activeTab)) {
-      setCurrentStep(1);
-    }
-  }, [activeTab]);
-
   // Use context data instead of loading separately
   const { estimateTitle: contextTitle, projectType: contextProjectType, estimate, drawings: contextDrawings } = useEstimateContext();
   
@@ -243,13 +226,6 @@ const [estimateNumber, setEstimateNumber] = useState('');
       default:
         break;
     }
-  };
-
-  const handleTabDataChange = (tabName: string, data: any) => {
-    setStructuringData(prev => ({
-      ...prev,
-      [tabName]: data
-    }));
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -338,21 +314,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
-            <TabsList className="ml-6 mt-4 grid w-fit grid-cols-3 mb-0">
-              <TabsTrigger value="drawings">
-                Documents
-              </TabsTrigger>
-              <TabsTrigger value="attributes">
-                Project Attributes
-              </TabsTrigger>
-              <TabsTrigger value="wbs">
-                WBS & Element Mapping
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="drawings" className="flex-1 overflow-hidden mt-0">
-              <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6">
+          <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6">
             {/* Red section: Uploaded PDFs table */}
             <div className="overflow-auto">
               <div className="rounded-lg border">
@@ -432,33 +394,8 @@ const [estimateNumber, setEstimateNumber] = useState('');
                 <p className="text-sm text-muted-foreground mb-4">or</p>
                 <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>Browse files</Button>
               </div>
-
             </div>
           </div>
-        </TabsContent>
-
-            <TabsContent value="attributes" className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="p-6">
-                  <ProjectAttributesTab
-              onDataChange={(data) => handleTabDataChange('projectAttributes', data)}
-              uploadedPDFs={drawings}
-              estimateId={currentId}
-                />
-                </div>
-              </ScrollArea>
-            </TabsContent>
-
-            <TabsContent value="wbs" className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="p-6">
-                  <WBSElementMappingTab
-              onDataChange={(data) => handleTabDataChange('wbsMapping', data)}
-                />
-                </div>
-              </ScrollArea>
-            </TabsContent>
-          </Tabs>
         </div>
       </div>
 
