@@ -183,6 +183,13 @@ export const EstimationSummaryCard = ({
             </span>
           </div>
           
+          {/* Actual Margin */}
+          <div className="grid grid-cols-[1fr_60px_90px] gap-2 items-center -mt-1">
+            <span className="text-[10px] text-muted-foreground ml-4">
+              Actual Margin: {((marginAmount / subtotalBeforeGST) * 100).toFixed(2)}%
+            </span>
+          </div>
+          
           {/* Cost Escalation */}
           <div className="grid grid-cols-[1fr_60px_90px] gap-2 items-center py-1">
             <span className="text-xs text-foreground">Cost Escalation</span>
