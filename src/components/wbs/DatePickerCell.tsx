@@ -72,12 +72,13 @@ export const DatePickerCell = ({
     
     setDate(undefined);
     if (onUpdate) {
-      onUpdate(id, field, '');
+      // Pass null instead of empty string for database compatibility
+      onUpdate(id, field, null as any);
     }
     
     // Auto-calculate logic for clearing
     if (onCalculate && currentItem) {
-      onCalculate(id, field, '', currentItem);
+      onCalculate(id, field, null as any, currentItem);
     }
   };
 
