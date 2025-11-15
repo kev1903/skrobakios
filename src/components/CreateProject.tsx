@@ -33,7 +33,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
   const [location, setLocation] = useState("");
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | undefined>();
 
-  const { createProject, loading, error } = useProjects();
+  const { createProject, loading } = useProjects();
   const { toast } = useToast();
   const { navigateBack } = useNavigationWithHistory({ onNavigate, currentPage: 'create-project' });
 
@@ -84,18 +84,16 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
     const result = await createProject(projectData);
     
-    if (result) {
+    if (result.success && result.project) {
       toast({
         title: "Success",
         description: "Project created successfully",
       });
       navigateBack();
     } else {
-      // Show more specific error message
-      const errorMessage = error || "Failed to create project. Please check your permissions or contact support.";
       toast({
         title: "Error",
-        description: errorMessage,
+        description: result.error || "Failed to create project. Please check your permissions or contact support.",
         variant: "destructive",
       });
     }
