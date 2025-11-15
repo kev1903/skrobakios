@@ -73,22 +73,22 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   // Full-screen mode for estimates
   if (activeTab === 'estimates') {
     return (
-      <div className="bg-background mt-[var(--header-height)] min-h-[calc(100vh-var(--header-height))] h-[calc(100vh-var(--header-height))]">
+      <div className="bg-background min-h-screen">
         {renderContent()}
       </div>
     );
   }
 
   return (
-    <div className="bg-background relative">
-      <div className="relative z-10 flex mt-[var(--header-height)] h-[calc(100vh-var(--header-height))]">
+    <div className="bg-background min-h-screen">
+      <div className="flex h-screen">
         {/* Sales Ribbon - Fixed sidebar */}
-        <div className="fixed left-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] z-50">
+        <div className="fixed left-0 top-0 h-screen w-64 z-50 pt-[var(--header-height)]">
           <SalesRibbon activeTab={activeTab} onTabChange={handleTabChange} onBack={handleBack} />
         </div>
         
         {/* Main Content Area - Offset by sidebar width */}
-        <div className="flex-1 ml-64 overflow-y-auto">
+        <div className="flex-1 ml-64 overflow-y-auto pt-[var(--header-height)]">
           <div className="p-6 space-y-6 max-w-7xl mx-auto">
             {renderContent()}
           </div>
