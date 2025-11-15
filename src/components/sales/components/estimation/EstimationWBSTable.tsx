@@ -260,15 +260,8 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 onMouseLeave={handleHoverLeave}
                 onClick={() => handleSelectRow(item.id)}
               >
-                <div className="px-2 flex items-center">
-                  <Input
-                    ref={(el) => setInputRef(item.id, 'wbsNumber', el)}
-                    value={item.wbsNumber}
-                    onChange={(e) => updateItemValue(item.id, 'wbsNumber', e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(e, item.id, 'wbsNumber')}
-                    className="h-6 text-xs bg-background border-border/40 px-2 font-mono"
-                    onClick={(e) => e.stopPropagation()}
-                  />
+                <div className="px-3 flex items-center text-xs text-muted-foreground font-mono tracking-tight">
+                  {item.wbsNumber}
                 </div>
                 <div className="px-2 flex items-center border-l border-border/10">
                   <div 
