@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useLeads } from '@/hooks/useLeads';
+import { Loader2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -41,119 +43,47 @@ import {
 export const LeadsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const { leads: dbLeads, isLoading, error } = useLeads();
 
-  const leads = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      company: "Tech Innovations Ltd",
-      email: "sarah@techinnovations.com",
-      phone: "+61 412 345 678",
-      location: "Melbourne, VIC",
-      value: 180000,
-      status: "New",
-      source: "Website",
-      lastContact: "2024-11-13",
-      assignedTo: "John Smith"
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      company: "Urban Developments",
-      email: "michael@urbandev.com",
-      phone: "+61 423 456 789",
-      location: "Sydney, NSW",
-      value: 350000,
-      status: "Contacted",
-      source: "Referral",
-      lastContact: "2024-11-10",
-      assignedTo: "Jane Doe"
-    },
-    {
-      id: 3,
-      name: "Emma Williams",
-      company: "Green Living Spaces",
-      email: "emma@greenliving.com",
-      phone: "+61 434 567 890",
-      location: "Brisbane, QLD",
-      value: 220000,
-      status: "Qualified",
-      source: "Social Media",
-      lastContact: "2024-11-08",
-      assignedTo: "John Smith"
-    },
-    {
-      id: 4,
-      name: "James Thompson",
-      company: "Modern Build Co",
-      email: "james@modernbuild.com",
-      phone: "+61 445 678 901",
-      location: "Perth, WA",
-      value: 420000,
-      status: "Proposal Sent",
-      source: "LinkedIn",
-      lastContact: "2024-11-12",
-      assignedTo: "Jane Doe"
-    },
-    {
-      id: 5,
-      name: "Olivia Martinez",
-      company: "Sustainable Homes",
-      email: "olivia@sustainhomes.com",
-      phone: "+61 456 789 012",
-      location: "Adelaide, SA",
-      value: 295000,
-      status: "Negotiation",
-      source: "Trade Show",
-      lastContact: "2024-11-14",
-      assignedTo: "John Smith"
-    },
-    {
-      id: 6,
-      name: "David Park",
-      company: "Elite Properties",
-      email: "david@eliteprops.com",
-      phone: "+61 467 890 123",
-      location: "Gold Coast, QLD",
-      value: 510000,
-      status: "Qualified",
-      source: "Website",
-      lastContact: "2024-11-09",
-      assignedTo: "Jane Doe"
-    },
-    {
-      id: 7,
-      name: "Sophie Anderson",
-      company: "Coastal Construction",
-      email: "sophie@coastal.com",
-      phone: "+61 478 901 234",
-      location: "Newcastle, NSW",
-      value: 175000,
-      status: "New",
-      source: "Email Campaign",
-      lastContact: "2024-11-15",
-      assignedTo: "John Smith"
-    },
-    {
-      id: 8,
-      name: "Ryan Foster",
-      company: "Heritage Builders",
-      email: "ryan@heritage.com",
-      phone: "+61 489 012 345",
-      location: "Hobart, TAS",
-      value: 380000,
-      status: "Contacted",
-      source: "Google Ads",
-      lastContact: "2024-11-11",
-      assignedTo: "Jane Doe"
-    }
-  ];
+  // Map database stage to UI status
+  const mapStageToStatus = (stage: string) => {
+    const stageMap: Record<string, string> = {
+      'Lead': 'New',
+      'Contacted': 'Contacted',
+      'Qualified': 'Qualified',
+      'Proposal made': 'Proposal Sent',
+      'Won': 'Closed Won',
+      'Lost': 'Lost'
+    };
+    return stageMap[stage] || stage;
+  };
+
+  // Transform database leads to UI format
+  const leads = dbLeads.map(lead => ({
+    id: lead.id,
+    name: lead.contact_name,
+    company: lead.company,
+    email: lead.contact_email || '',
+    phone: lead.contact_phone || '',
+    location: lead.location || '',
+    value: lead.value,
+    status: mapStageToStatus(lead.stage),
+    source: lead.source,
+    lastContact: lead.last_activity || lead.updated_at,
+    assignedTo: 'Unassigned' // TODO: Add assigned_to field to database
+  }));
+
+  // Calculate stats from actual data
+  const totalLeads = leads.length;
+  const qualified = leads.filter(l => l.status === 'Qualified').length;
+  const inNegotiation = leads.filter(l => l.status === 'Negotiation').length;
+  const closedWon = leads.filter(l => l.status === 'Closed Won').length;
 
   const stats = [
-    { label: "Total Leads", value: "247", change: "+12%", color: "text-primary" },
-    { label: "Qualified", value: "89", change: "+8%", color: "text-emerald-600" },
-    { label: "In Negotiation", value: "34", change: "+15%", color: "text-amber-600" },
-    { label: "Closed Won", value: "23", change: "+23%", color: "text-emerald-600" }
+    { label: "Total Leads", value: totalLeads.toString(), change: "+12%", color: "text-primary" },
+    { label: "Qualified", value: qualified.toString(), change: "+8%", color: "text-emerald-600" },
+    { label: "In Negotiation", value: inNegotiation.toString(), change: "+15%", color: "text-amber-600" },
+    { label: "Closed Won", value: closedWon.toString(), change: "+23%", color: "text-emerald-600" }
   ];
 
   const getStatusBadge = (status: string) => {
@@ -174,6 +104,22 @@ export const LeadsPage = () => {
     const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <p className="text-destructive">Error loading leads: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
