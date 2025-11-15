@@ -1,7 +1,8 @@
 import React, { useState, useRef, useCallback, forwardRef, useImperativeHandle, memo, useEffect } from 'react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ChevronRight, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, Trash2, GripVertical } from 'lucide-react';
 
 interface EstimationItem {
   id: string;
@@ -90,6 +91,27 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
       }
     }
   };
+
+  const handleDragEnd = useCallback((result: DropResult) => {
+    if (!result.destination) return;
+    
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+    
+    if (sourceIndex === destinationIndex) return;
+    
+    const newItems = Array.from(items);
+    const [removed] = newItems.splice(sourceIndex, 1);
+    newItems.splice(destinationIndex, 0, removed);
+    
+    // Update WBS numbers
+    const updatedItems = newItems.map((item, index) => ({
+      ...item,
+      wbsNumber: `${index + 1}`
+    }));
+    
+    setItems(updatedItems);
+  }, [items]);
 
   const handleSelectRow = useCallback((itemId: string) => {
     setSelectedId(itemId);
@@ -231,38 +253,56 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
       </div>
 
       {/* Split View */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel - WBS & Name */}
-        <div className="w-[400px] shrink-0 border-r border-border/20 bg-background overflow-hidden">
-          <div 
-            ref={leftScrollRef}
-            onScroll={handleLeftScroll}
-            className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin pl-4"
-          >
-            {/* Header */}
-            <div className="sticky top-0 z-10 grid grid-cols-[90px_1fr] h-9 bg-muted/40 border-b border-border/20">
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground">
-                WBS
-              </div>
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
-                Description
-              </div>
-            </div>
-
-            {/* Rows */}
-            {visibleItems.map((item) => (
-              <div
-                key={item.id}
-                className={`grid grid-cols-[90px_1fr] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors cursor-pointer ${
-                  hoveredId === item.id ? 'bg-accent/10' : ''
-                } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''}`}
-                onMouseEnter={() => handleHoverEnter(item.id)}
-                onMouseLeave={handleHoverLeave}
-                onClick={() => handleSelectRow(item.id)}
-              >
-                <div className="px-3 flex items-center text-xs text-muted-foreground font-mono tracking-tight">
-                  {item.wbsNumber}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Panel - WBS & Name */}
+          <div className="w-[400px] shrink-0 border-r border-border/20 bg-background overflow-hidden">
+            <div 
+              ref={leftScrollRef}
+              onScroll={handleLeftScroll}
+              className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin pl-4"
+            >
+              {/* Header */}
+              <div className="sticky top-0 z-10 grid grid-cols-[30px_90px_1fr] h-9 bg-muted/40 border-b border-border/20">
+                <div className="px-1 flex items-center">
+                  {/* Drag handle header */}
                 </div>
+                <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground">
+                  WBS
+                </div>
+                <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
+                  Description
+                </div>
+              </div>
+
+              {/* Rows */}
+              <Droppable droppableId="estimation-rows">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                    {visibleItems.map((item, index) => (
+                      <Draggable key={item.id} draggableId={item.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className={`grid grid-cols-[30px_90px_1fr] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors ${
+                              hoveredId === item.id ? 'bg-accent/10' : ''
+                            } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''} ${
+                              snapshot.isDragging ? 'shadow-lg bg-background' : ''
+                            }`}
+                            onMouseEnter={() => handleHoverEnter(item.id)}
+                            onMouseLeave={handleHoverLeave}
+                            onClick={() => handleSelectRow(item.id)}
+                          >
+                            <div 
+                              {...provided.dragHandleProps}
+                              className="px-1 flex items-center justify-center cursor-grab active:cursor-grabbing"
+                            >
+                              <GripVertical className="w-4 h-4 text-muted-foreground/40" />
+                            </div>
+                            <div className="px-3 flex items-center text-xs text-muted-foreground font-mono tracking-tight">
+                              {item.wbsNumber}
+                            </div>
                 <div className="px-2 flex items-center border-l border-border/10">
                   <div 
                     className="flex items-center gap-1 w-full"
@@ -293,50 +333,64 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                       onClick={(e) => e.stopPropagation()}
                       placeholder="Description"
                     />
+                            </div>
+                          </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
                   </div>
+                )}
+              </Droppable>
+            </div>
+          </div>
+
+          {/* Right Panel - Estimation Details */}
+          <div className="flex-1 overflow-hidden bg-background">
+            <div 
+              ref={rightScrollRef}
+              onScroll={handleRightScroll}
+              className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
+            >
+              {/* Header */}
+              <div className="sticky top-0 z-10 grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 bg-muted/40 border-b border-border/20">
+                <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
+                  Quantity
+                </div>
+                <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
+                  Unit
+                </div>
+                <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
+                  Unit Rate
+                </div>
+                <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
+                  Total Cost
+                </div>
+                <div className="px-3 flex items-center justify-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
+                  Actions
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Right Panel - Estimation Details */}
-        <div className="flex-1 overflow-hidden bg-background">
-          <div 
-            ref={rightScrollRef}
-            onScroll={handleRightScroll}
-            className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
-          >
-            {/* Header */}
-            <div className="sticky top-0 z-10 grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 bg-muted/40 border-b border-border/20">
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
-                Quantity
-              </div>
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
-                Unit
-              </div>
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
-                Unit Rate
-              </div>
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
-                Total Cost
-              </div>
-              <div className="px-3 flex items-center justify-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
-                Actions
-              </div>
-            </div>
-
-            {/* Rows */}
-            {visibleItems.map((item) => (
-              <div
-                key={item.id}
-                className={`grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors cursor-pointer ${
-                  hoveredId === item.id ? 'bg-accent/10' : ''
-                } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''}`}
-                onMouseEnter={() => handleHoverEnter(item.id)}
-                onMouseLeave={handleHoverLeave}
-                onClick={() => handleSelectRow(item.id)}
-              >
+              {/* Rows */}
+              <Droppable droppableId="estimation-rows-right">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                    {visibleItems.map((item, index) => (
+                      <Draggable key={item.id} draggableId={`${item.id}-right`} index={index} isDragDisabled={true}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className={`grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors ${
+                              hoveredId === item.id ? 'bg-accent/10' : ''
+                            } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''} ${
+                              snapshot.isDragging ? 'shadow-lg bg-background' : ''
+                            }`}
+                            onMouseEnter={() => handleHoverEnter(item.id)}
+                            onMouseLeave={handleHoverLeave}
+                            onClick={() => handleSelectRow(item.id)}
+                          >
                 <div className="px-2 flex items-center border-l border-border/10">
                   <Input
                     ref={(el) => setInputRef(item.id, 'quantity', el)}
@@ -385,13 +439,20 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     disabled={item.level === 0}
                   >
                     <Trash2 className="w-3 h-3 text-muted-foreground" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+                            </Button>
+                          </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
           </div>
         </div>
-      </div>
+      </DragDropContext>
     </div>
   );
 });
