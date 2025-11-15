@@ -135,8 +135,9 @@ export const EstimatesListPage = ({
   }
   
   return (
-    <div className="bg-white min-h-screen">
-      <div className="p-6 pt-24 space-y-6 max-w-7xl mx-auto">
+    <div className="fixed inset-0 top-[73px] bg-white overflow-hidden">
+      <div className="h-full overflow-y-auto">
+        <div className="p-6 space-y-6 max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -352,6 +353,7 @@ export const EstimatesListPage = ({
             </TableBody>
           </Table>
         </div>
+      </div>
       </div>
       </div>
     </div>
