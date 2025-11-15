@@ -80,23 +80,17 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
-      
-      <div className="relative z-10 flex min-h-screen mt-[var(--header-height)] h-[calc(100vh-var(--header-height))]">
+    <div className="bg-background relative">
+      <div className="relative z-10 flex mt-[var(--header-height)] h-[calc(100vh-var(--header-height))]">
         {/* Sales Ribbon - Fixed sidebar */}
         <div className="fixed left-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] z-50">
           <SalesRibbon activeTab={activeTab} onTabChange={handleTabChange} onBack={handleBack} />
         </div>
         
         {/* Main Content Area - Offset by sidebar width */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden ml-64">
-          {/* Content Area */}
-          <div className="flex-1 h-full overflow-y-auto">
-            <div className="p-6 space-y-6 max-w-7xl mx-auto">
-              {renderContent()}
-            </div>
+        <div className="flex-1 ml-64 overflow-y-auto">
+          <div className="p-6 space-y-6 max-w-7xl mx-auto">
+            {renderContent()}
           </div>
         </div>
       </div>
