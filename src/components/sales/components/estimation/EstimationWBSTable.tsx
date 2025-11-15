@@ -413,9 +413,9 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
               className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
             >
               {/* Header */}
-              <div className="sticky top-0 z-10 grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 bg-muted/40 border-b border-border/20">
+              <div className="sticky top-0 z-10 grid grid-cols-[80px_100px_110px_130px_70px] min-w-[600px] h-9 bg-muted/40 border-b border-border/20">
                 <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
-                  Quantity
+                  Qty
                 </div>
                 <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                   Unit
@@ -451,7 +451,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                                 pointerEvents: 'none'
                               })
                             }}
-                            className={`grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-10 border-b border-border/10 hover:bg-accent/10 transition-colors ${
+                            className={`grid grid-cols-[80px_100px_110px_130px_70px] min-w-[600px] h-10 border-b border-border/10 hover:bg-accent/10 transition-colors ${
                               hoveredId === item.id ? 'bg-accent/10' : ''
                             } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''} ${
                               snapshot.isDragging ? 'shadow-lg bg-background/95 backdrop-blur-sm' : ''
