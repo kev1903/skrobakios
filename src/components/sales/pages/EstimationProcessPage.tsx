@@ -32,30 +32,47 @@ export const EstimationProcessPage = () => {
   };
   return (
     <PageShell withPattern>
-      {/* Header */}
-      <div className="px-4 py-2 border-b border-border bg-background">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="shrink-0">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Back</span>
-          </Button>
-          <div className="flex-1">
-            <div className="text-lg font-semibold text-foreground">{estimateTitle || 'Estimate title'}</div>
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b border-border bg-background">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="shrink-0">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Back</span>
+            </Button>
+            <div className="flex-1">
+              <div className="text-lg font-semibold text-foreground">{estimateTitle || 'Estimate title'}</div>
+            </div>
+            <Button variant="default" size="sm">
+              <Save className="w-4 h-4 mr-2" />
+              Save
+            </Button>
           </div>
-          <Button variant="default" size="sm">
-            <Save className="w-4 h-4 mr-2" />
-            Save
-          </Button>
+        </div>
+
+        {/* Progressive Step Timeline */}
+        <StepTimeline steps={steps} current={4} onChange={handleStepChange} />
+
+        {/* Main Content */}
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6 pt-4">
+            {/* Content area */}
+            <div className="overflow-auto">
+              <div className="rounded-lg border">
+                <div className="p-6 text-sm text-muted-foreground">Estimation Process content coming soon...</div>
+              </div>
+            </div>
+
+            {/* Side panel */}
+            <div>
+              <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center">
+                <p className="font-medium mb-2">Additional Tools</p>
+                <p className="text-sm text-muted-foreground">Estimation tools will appear here</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Steps */}
-      <div>
-        <StepTimeline steps={steps} current={4} onChange={handleStepChange} />
-      </div>
-
-      {/* Body */}
-      <div className="p-6 text-sm text-muted-foreground">Estimation Process page</div>
     </PageShell>
   );
 };
