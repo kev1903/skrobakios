@@ -321,9 +321,9 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
-      <div className="shrink-0 h-12 px-6 border-b border-border/30 bg-white/80 backdrop-blur-xl flex items-center gap-2">
-        <Button size="sm" variant="outline">
-          <Plus className="w-4 h-4 mr-2" />
+      <div className="shrink-0 h-11 px-4 border-b border-border/20 bg-muted/30 flex items-center gap-2">
+        <Button size="sm" variant="outline" className="h-8">
+          <Plus className="w-3.5 h-3.5 mr-1.5" />
           Add Item
         </Button>
         <div className="flex-1" />
@@ -335,18 +335,18 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
       {/* Split View */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Panel - WBS & Name */}
-        <div className="w-[420px] shrink-0 border-r border-border/30 bg-white overflow-hidden">
+        <div className="w-[400px] shrink-0 border-r border-border/20 bg-background overflow-hidden">
           <div 
             ref={leftScrollRef}
             onScroll={handleLeftScroll}
             className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 grid grid-cols-[100px_1fr] h-9 bg-muted/50 border-b border-border/30">
-              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+            <div className="sticky top-0 z-10 grid grid-cols-[90px_1fr] h-9 bg-muted/40 border-b border-border/20">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground">
                 WBS
               </div>
-              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                 Description
               </div>
             </div>
@@ -355,35 +355,38 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className={`grid grid-cols-[100px_1fr] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 cursor-pointer ${
-                  hoveredId === item.id ? 'bg-accent/20' : ''
-                } ${selectedId === item.id ? 'bg-primary/10 ring-2 ring-primary/20' : ''}`}
+                className={`grid grid-cols-[90px_1fr] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors cursor-pointer ${
+                  hoveredId === item.id ? 'bg-accent/10' : ''
+                } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''}`}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 onClick={() => setSelectedId(item.id)}
               >
-                <div className="px-4 flex items-center text-xs text-muted-foreground font-mono">
+                <div className="px-3 flex items-center text-[11px] text-muted-foreground font-mono tracking-tight">
                   {item.wbsNumber}
                 </div>
-                <div className="px-4 flex items-center border-l border-border/10">
+                <div className="px-3 flex items-center border-l border-border/10">
                   <div 
-                    className="flex items-center gap-1.5 w-full"
-                    style={{ paddingLeft: `${item.level * 20}px` }}
+                    className="flex items-center gap-1 w-full"
+                    style={{ paddingLeft: `${item.level * 16}px` }}
                   >
                     {item.children && item.children.length > 0 && (
                       <button
-                        onClick={() => toggleExpanded(item.id)}
-                        className="shrink-0 w-5 h-5 flex items-center justify-center hover:bg-accent/50 rounded transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExpanded(item.id);
+                        }}
+                        className="shrink-0 w-4 h-4 flex items-center justify-center hover:bg-accent/50 rounded-sm transition-colors"
                       >
                         {item.isExpanded ? (
-                          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                          <ChevronDown className="w-3 h-3 text-muted-foreground" />
                         ) : (
-                          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                          <ChevronRight className="w-3 h-3 text-muted-foreground" />
                         )}
                       </button>
                     )}
-                    {!item.children && <div className="w-5" />}
-                    <span className={`text-xs ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground'}`}>
+                    {!item.children && <div className="w-4" />}
+                    <span className={`text-[11px] ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
                       {item.name}
                     </span>
                   </div>
@@ -394,27 +397,27 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
         </div>
 
         {/* Right Panel - Estimation Details */}
-        <div className="flex-1 overflow-hidden bg-white">
+        <div className="flex-1 overflow-hidden bg-background">
           <div 
             ref={rightScrollRef}
             onScroll={handleRightScroll}
             className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 grid grid-cols-[130px_80px_120px_140px_80px] min-w-[650px] h-9 bg-muted/50 border-b border-border/30">
-              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+            <div className="sticky top-0 z-10 grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 bg-muted/40 border-b border-border/20">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                 Quantity
               </div>
-              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                 Unit
               </div>
-              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                 Unit Rate
               </div>
-              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                 Total Cost
               </div>
-              <div className="px-4 flex items-center justify-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-3 flex items-center justify-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                 Actions
               </div>
             </div>
@@ -423,19 +426,19 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className={`grid grid-cols-[130px_80px_120px_140px_80px] min-w-[650px] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 cursor-pointer ${
-                  hoveredId === item.id ? 'bg-accent/20' : ''
-                } ${selectedId === item.id ? 'bg-primary/10 ring-2 ring-primary/20' : ''}`}
+                className={`grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors cursor-pointer ${
+                  hoveredId === item.id ? 'bg-accent/10' : ''
+                } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''}`}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 onClick={() => setSelectedId(item.id)}
               >
-                <div className="px-3 flex items-center border-l border-border/10">
+                <div className="px-2 flex items-center border-l border-border/10">
                   <Input
                     type="number"
                     value={item.quantity || ''}
                     onChange={(e) => updateItemValue(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                    className="h-7 text-xs bg-background/60 border-border/30 px-2"
+                    className="h-6 text-[11px] bg-background border-border/40 px-2"
                     disabled={item.level === 0}
                   />
                 </div>
@@ -443,21 +446,21 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                   <Input
                     value={item.unit || ''}
                     onChange={(e) => updateItemValue(item.id, 'unit', e.target.value)}
-                    className="h-7 text-xs bg-background/60 border-border/30 px-2"
+                    className="h-6 text-[11px] bg-background border-border/40 px-2"
                     disabled={item.level === 0}
                   />
                 </div>
-                <div className="px-3 flex items-center border-l border-border/10">
+                <div className="px-2 flex items-center border-l border-border/10">
                   <Input
                     type="number"
                     value={item.unitRate || ''}
                     onChange={(e) => updateItemValue(item.id, 'unitRate', parseFloat(e.target.value) || 0)}
-                    className="h-7 text-xs bg-background/60 border-border/30 px-2"
+                    className="h-6 text-[11px] bg-background border-border/40 px-2"
                     disabled={item.level === 0}
                   />
                 </div>
-                <div className="px-4 flex items-center border-l border-border/10">
-                  <span className={`text-xs ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground'}`}>
+                <div className="px-3 flex items-center border-l border-border/10">
+                  <span className={`text-[11px] font-mono ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
                     ${(item.totalCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -465,10 +468,10 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-7 p-0 hover:bg-accent/50"
+                    className="h-6 w-6 p-0 hover:bg-accent/50"
                     disabled={item.level === 0}
                   >
-                    <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+                    <Trash2 className="w-3 h-3 text-muted-foreground" />
                   </Button>
                 </div>
               </div>
