@@ -99,16 +99,19 @@ export const useProjects = () => {
   const { currentCompany } = useCompany();
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const createProject = async (projectData: CreateProjectData): Promise<Project | null> => {
+  const createProject = async (projectData: CreateProjectData): Promise<{ success: boolean; project?: Project; error?: string }> => {
     if (!currentCompany?.id) {
-      setError('No company selected. Please select a company first.');
-      return null;
+      const errorMsg = 'No company selected. Please select a company first.';
+      setError(errorMsg);
+      return { success: false, error: errorMsg };
     }
 
     setLoading(true);
     setError(null);
     
     try {
+      console.log('Creating project with data:', { ...projectData, company_id: currentCompany.id });
+      
       const { data, error } = await supabase
         .from('projects')
         .insert([{
@@ -126,18 +129,23 @@ export const useProjects = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error creating project:', error);
+        throw error;
+      }
       
       // Invalidate cache
       globalCache.data = null;
       globalCache.timestamp = 0;
       
-      return convertDbRowToProject(data);
+      const project = convertDbRowToProject(data);
+      console.log('Project created successfully:', project.id);
+      return { success: true, project };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create project';
       setError(errorMessage);
       console.error('Error creating project:', err);
-      return null;
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
