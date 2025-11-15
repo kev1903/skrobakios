@@ -232,48 +232,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       return result;
     };
 
-    // Helper function to create empty rows
-    const createEmptyRows = (count: number, startIndex: number = 0): any[] => {
-      return Array.from({ length: count }, (_, index) => ({
-        id: `empty-${startIndex + index + 1}`,
-        name: '',
-        description: '',
-        status: 'Not Started',
-        progress: 0,
-        assignedTo: '',
-        level: 0,
-        wbsNumber: '',
-        isExpanded: false,
-        hasChildren: false,
-        parent_id: null,
-        wbs_id: `${startIndex + index + 1}`,
-        title: '',
-        start_date: null,
-        end_date: null,
-        duration: 0,
-        linked_tasks: [],
-        predecessors: [],
-        isEmptyRow: true // Flag to identify empty rows
-      }));
-    };
-
-    // Always maintain a minimum of 50 total rows
-    const MINIMUM_TOTAL_ROWS = 50;
-    
-    // Use the actual WBS items from the database
+    // Use the actual WBS items from the database - only show rows with data
     if (wbsItems && wbsItems.length > 0) {
       const actualItems = flattenWBSItems(wbsItems);
-      const actualCount = actualItems.length;
-      
-      // Calculate how many empty rows we need to reach the minimum
-      const emptyRowsNeeded = Math.max(MINIMUM_TOTAL_ROWS - actualCount, 20); // Always show at least 20 empty rows
-      
-      // Append empty rows after actual items
-      return [...actualItems, ...createEmptyRows(emptyRowsNeeded, actualCount)];
+      return actualItems;
     }
 
-    // Show 50 empty rows by default when no data exists
-    return createEmptyRows(MINIMUM_TOTAL_ROWS);
+    // Return empty array if no WBS items exist
+    return [];
 
     // Fallback to scope data if no WBS items (for backward compatibility)
     const items: any[] = [];
