@@ -1969,20 +1969,20 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                          <div className="text-sm text-muted-foreground">Loading WBS...</div>
                        </div>
                      </div>
-                   ) : error ? (
-                     <div className="flex items-center justify-center h-64">
-                        <div className="text-center">
-                          <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                          <div className="flex gap-2 justify-center">
-                            <Button variant="outline" size="sm" onClick={clearError}>
-                              Clear Error
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                              Retry
-                            </Button>
-                          </div>
-                        </div>
-                     </div>
+                  ) : error ? (
+                    <div className="flex items-center justify-center h-64">
+                       <div className="text-center">
+                         <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                         <div className="flex gap-2 justify-center">
+                           <Button variant="outline" size="sm" onClick={() => {
+                             clearError();
+                             loadWBSItems();
+                           }}>
+                             Retry
+                           </Button>
+                         </div>
+                       </div>
+                    </div>
                     ) : flatWBSItems.length === 0 ? (
                       <div className="flex items-center justify-center h-full">
                         <div className="text-center max-w-md px-4">
@@ -2035,20 +2035,20 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         <div className="text-sm text-muted-foreground">Loading WBS...</div>
                       </div>
                     </div>
-                  ) : error ? (
-                    <div className="flex items-center justify-center h-64">
-                     <div className="text-center">
-                       <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                       <div className="flex gap-2 justify-center">
-                         <Button variant="outline" size="sm" onClick={clearError}>
-                           Clear Error
-                         </Button>
-                         <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                           Retry
-                         </Button>
-                       </div>
-                     </div>
+                 ) : error ? (
+                   <div className="flex items-center justify-center h-64">
+                    <div className="text-center">
+                      <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                      <div className="flex gap-2 justify-center">
+                        <Button variant="outline" size="sm" onClick={() => {
+                          clearError();
+                          loadWBSItems();
+                        }}>
+                          Retry
+                        </Button>
+                      </div>
                     </div>
+                   </div>
                   ) : flatWBSItems.length === 0 ? (
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center max-w-md px-4">
@@ -2097,20 +2097,20 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                            <div className="text-sm text-muted-foreground">Loading WBS...</div>
                          </div>
                        </div>
-                     ) : error ? (
-                       <div className="flex items-center justify-center h-64">
-                          <div className="text-center">
-                            <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                            <div className="flex gap-2 justify-center">
-                              <Button variant="outline" size="sm" onClick={clearError}>
-                                Clear Error
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                                Retry
-                              </Button>
-                            </div>
-                          </div>
-                       </div>
+                    ) : error ? (
+                      <div className="flex items-center justify-center h-64">
+                         <div className="text-center">
+                           <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                           <div className="flex gap-2 justify-center">
+                             <Button variant="outline" size="sm" onClick={() => {
+                               clearError();
+                               loadWBSItems();
+                             }}>
+                               Retry
+                             </Button>
+                           </div>
+                         </div>
+                      </div>
                       ) : flatWBSItems.length === 0 ? (
                         <div className="flex items-center justify-center h-full">
                           <div className="text-center max-w-md px-4">
