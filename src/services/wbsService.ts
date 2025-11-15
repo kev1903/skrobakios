@@ -161,6 +161,10 @@ export class WBSService {
             dbUpdates[key] = null;
           }
         }
+        // Handle date fields - ensure null is passed for clearing, not empty strings
+        else if ((key === 'start_date' || key === 'end_date') && (value === '' || value === null || value === undefined)) {
+          dbUpdates[key] = null;
+        }
         // Handle predecessors field specially - ensure it's properly formatted as JSON
         else if (key === 'predecessors' && Array.isArray(value)) {
           dbUpdates[key] = value as any;
