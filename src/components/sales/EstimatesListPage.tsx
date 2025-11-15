@@ -8,6 +8,7 @@ import { Search, Plus, Eye, Edit, MoreVertical, Calculator, FileText, DollarSign
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { useCompany } from '@/contexts/CompanyContext';
 
 interface Estimate {
   id: string;
@@ -36,18 +37,30 @@ export const EstimatesListPage = ({
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const { currentCompany } = useCompany();
   useEffect(() => {
-    console.log('EstimatesListPage: useEffect triggered, fetching estimates...');
-    fetchEstimates();
-  }, []);
+    console.log('EstimatesListPage: useEffect triggered, currentCompany:', currentCompany);
+    if (currentCompany) {
+      fetchEstimates();
+    } else {
+      console.log('EstimatesListPage: No current company, setting loading to false');
+      setLoading(false);
+    }
+  }, [currentCompany]);
   
   const fetchEstimates = async () => {
-    console.log('EstimatesListPage: fetchEstimates called');
+    if (!currentCompany) {
+      console.log('EstimatesListPage: Cannot fetch - no current company');
+      return;
+    }
+    
+    console.log('EstimatesListPage: fetchEstimates called for company:', currentCompany.id);
     try {
       console.log('EstimatesListPage: Starting Supabase query...');
       const { data, error } = await supabase
         .from('estimates')
         .select('*')
+        .eq('company_id', currentCompany.id)
         .order('created_at', { ascending: false });
       
       console.log('EstimatesListPage: Query result:', { data, error });
@@ -122,11 +135,13 @@ export const EstimatesListPage = ({
       navigate('/?page=sales');
     }
   };
-  if (loading) {
+  if (loading || !currentCompany) {
     return (
       <div className="h-full bg-white">
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">
+            {!currentCompany ? 'Please select a company...' : 'Loading...'}
+          </div>
         </div>
       </div>
     );
