@@ -157,6 +157,21 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     setProject(updatedProject);
   };
 
+  const { updateProject } = useProjects();
+
+  const handleStatusUpdate = async (newStatus: string) => {
+    if (!project) return;
+    
+    try {
+      const updatedProject = await updateProject(project.id, { status: newStatus });
+      if (updatedProject) {
+        setProject(updatedProject);
+      }
+    } catch (error) {
+      console.error('Failed to update project status:', error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -282,6 +297,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
             project={project}
             getStatusText={getStatusText}
             formatDate={formatDate}
+            onStatusUpdate={handleStatusUpdate}
           />
 
           <ProjectProgress progress={progress} wbsCount={wbsCount} />
