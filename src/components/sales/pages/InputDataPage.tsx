@@ -307,10 +307,9 @@ const [estimateNumber, setEstimateNumber] = useState('');
       {/* Main Content Area */}
       <div className="flex flex-col h-[calc(100vh-var(--header-height,64px))]">
         {/* Header */}
-        {/* Combined Toolbar: Back button + Steps + Form fields + Action button */}
+        {/* Combined Toolbar: Back button + Steps + Action button */}
         <div className="shrink-0 px-6 py-3 border-b border-border/30 bg-white/80 backdrop-blur-xl">
-          {/* Top Row: Back + Steps */}
-          <div className="flex items-center gap-4 w-full mb-3">
+          <div className="flex items-center gap-4 w-full">
             {onBack && (
               <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -320,9 +319,21 @@ const [estimateNumber, setEstimateNumber] = useState('');
             <div className="flex-1 min-w-0">
               <StepTimeline steps={steps} current={currentStep} onChange={handleStepChange} />
             </div>
+            <Button 
+              onClick={handleSaveEstimate} 
+              disabled={isSaving}
+              variant="default"
+              size="sm"
+              className="shrink-0"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {isSaving ? 'Saving...' : 'Save'}
+            </Button>
           </div>
-          
-          {/* Bottom Row: Title + Project Type + Save */}
+        </div>
+
+        {/* Estimate Details Row */}
+        <div className="shrink-0 px-6 py-3 bg-muted/30 border-b border-border/30">
           <div className="flex items-center gap-4 w-full">
             <div className="flex-1 min-w-0">
               <Input 
@@ -349,16 +360,6 @@ const [estimateNumber, setEstimateNumber] = useState('');
                 </SelectContent>
               </Select>
             </div>
-            <Button 
-              onClick={handleSaveEstimate} 
-              disabled={isSaving}
-              variant="default"
-              size="sm"
-              className="shrink-0"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              {isSaving ? 'Saving...' : 'Save'}
-            </Button>
             {estimateNumber && (
               <span className="text-sm text-muted-foreground shrink-0">
                 #{estimateNumber}
