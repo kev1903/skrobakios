@@ -82,7 +82,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   return (
     <div className="flex w-full h-full">
       {/* Sales Ribbon - Fixed sidebar */}
-      <div className="w-64 flex-shrink-0 border-r border-border overflow-y-auto">
+      <div className="w-64 flex-shrink-0 border-r border-border h-full">
         <SalesRibbon activeTab={activeTab} onTabChange={handleTabChange} onBack={handleBack} />
       </div>
       
