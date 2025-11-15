@@ -278,11 +278,11 @@ export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) =>
             className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 grid grid-cols-[80px_1fr] h-11 bg-muted/30 border-b border-border/20">
-              <div className="px-4 flex items-center text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+            <div className="sticky top-0 z-10 grid grid-cols-[80px_1fr] h-9 bg-muted/50 border-b border-border/30">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
                 WBS
               </div>
-              <div className="px-4 flex items-center text-[11px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/20">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Description
               </div>
             </div>
@@ -291,33 +291,34 @@ export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) =>
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className={`grid grid-cols-[80px_1fr] h-14 border-b border-border/20 hover:bg-accent/30 transition-colors ${
-                  hoveredId === item.id ? 'bg-accent/30' : ''
+                className={`grid grid-cols-[80px_1fr] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 ${
+                  hoveredId === item.id ? 'bg-accent/20' : ''
                 }`}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
-                <div className="px-4 flex items-center text-sm text-muted-foreground">
+                <div className="px-3 flex items-center text-xs text-muted-foreground font-mono">
                   {item.wbsNumber}
                 </div>
-                <div className="px-4 flex items-center border-l border-border/20">
+                <div className="px-3 flex items-center border-l border-border/10">
                   <div 
-                    className="flex items-center gap-2 w-full"
-                    style={{ paddingLeft: `${item.level * 24}px` }}
+                    className="flex items-center gap-1.5 w-full"
+                    style={{ paddingLeft: `${item.level * 20}px` }}
                   >
                     {item.children && item.children.length > 0 && (
                       <button
                         onClick={() => toggleExpanded(item.id)}
-                        className="shrink-0 w-4 h-4 flex items-center justify-center hover:bg-accent/50 rounded transition-colors"
+                        className="shrink-0 w-5 h-5 flex items-center justify-center hover:bg-accent/50 rounded transition-colors"
                       >
                         {item.isExpanded ? (
-                          <ChevronDown className="w-3 h-3" />
+                          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                         ) : (
-                          <ChevronRight className="w-3 h-3" />
+                          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                         )}
                       </button>
                     )}
-                    <span className={`text-sm ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground'}`}>
+                    {!item.children && <div className="w-5" />}
+                    <span className={`text-xs ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground'}`}>
                       {item.name}
                     </span>
                   </div>
@@ -335,20 +336,20 @@ export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) =>
             className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 grid grid-cols-[120px_80px_120px_140px_80px] min-w-[640px] h-11 bg-muted/30 border-b border-border/20">
-              <div className="px-4 flex items-center text-[11px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/20">
+            <div className="sticky top-0 z-10 grid grid-cols-[110px_70px_110px_130px_70px] min-w-[600px] h-9 bg-muted/50 border-b border-border/30">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Quantity
               </div>
-              <div className="px-4 flex items-center text-[11px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/20">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Unit
               </div>
-              <div className="px-4 flex items-center text-[11px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/20">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Unit Rate
               </div>
-              <div className="px-4 flex items-center text-[11px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/20">
+              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Total Cost
               </div>
-              <div className="px-4 flex items-center text-[11px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/20">
+              <div className="px-3 flex items-center justify-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Actions
               </div>
             </div>
@@ -357,51 +358,51 @@ export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) =>
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className={`grid grid-cols-[120px_80px_120px_140px_80px] min-w-[640px] h-14 border-b border-border/20 hover:bg-accent/30 transition-colors ${
-                  hoveredId === item.id ? 'bg-accent/30' : ''
+                className={`grid grid-cols-[110px_70px_110px_130px_70px] min-w-[600px] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 ${
+                  hoveredId === item.id ? 'bg-accent/20' : ''
                 }`}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
-                <div className="px-4 flex items-center border-l border-border/20">
+                <div className="px-2 flex items-center border-l border-border/10">
                   <Input
                     type="number"
                     value={item.quantity || ''}
                     onChange={(e) => updateItemValue(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                    className="h-8 text-sm bg-background/60 border-border/30"
+                    className="h-7 text-xs bg-background/60 border-border/30 px-2"
                     disabled={item.level === 0}
                   />
                 </div>
-                <div className="px-4 flex items-center border-l border-border/20">
+                <div className="px-2 flex items-center border-l border-border/10">
                   <Input
                     value={item.unit || ''}
                     onChange={(e) => updateItemValue(item.id, 'unit', e.target.value)}
-                    className="h-8 text-sm bg-background/60 border-border/30"
+                    className="h-7 text-xs bg-background/60 border-border/30 px-2"
                     disabled={item.level === 0}
                   />
                 </div>
-                <div className="px-4 flex items-center border-l border-border/20">
+                <div className="px-2 flex items-center border-l border-border/10">
                   <Input
                     type="number"
                     value={item.unitRate || ''}
                     onChange={(e) => updateItemValue(item.id, 'unitRate', parseFloat(e.target.value) || 0)}
-                    className="h-8 text-sm bg-background/60 border-border/30"
+                    className="h-7 text-xs bg-background/60 border-border/30 px-2"
                     disabled={item.level === 0}
                   />
                 </div>
-                <div className="px-4 flex items-center border-l border-border/20">
-                  <span className={`text-sm ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground'}`}>
+                <div className="px-3 flex items-center border-l border-border/10">
+                  <span className={`text-xs ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground'}`}>
                     ${(item.totalCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
-                <div className="px-4 flex items-center justify-center border-l border-border/20">
+                <div className="px-2 flex items-center justify-center border-l border-border/10">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0"
+                    className="h-7 w-7 p-0 hover:bg-accent/50"
                     disabled={item.level === 0}
                   >
-                    <Trash2 className="w-4 h-4 text-muted-foreground" />
+                    <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
                   </Button>
                 </div>
               </div>
