@@ -23,11 +23,6 @@ export const SalesRibbon = ({
     icon: Users,
     badge: null
   }, {
-    id: 'clients',
-    label: 'All Clients',
-    icon: Building2,
-    badge: null
-  }, {
     id: 'projects',
     label: 'Projects',
     icon: Target,

@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { SalesDashboard } from './sales/SalesDashboard';
 import { LeadsPage } from './sales/LeadsPage';
-import { ClientProfilePage } from './sales/ClientProfilePage';
 import { ProjectsDashboard } from './sales/ProjectsDashboard';
 import { ProjectDetailPage } from './sales/ProjectDetailPage';
 import { EstimatesListPage } from './sales/EstimatesListPage';
@@ -49,8 +48,6 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
         return <SalesDashboard />;
       case 'leads':
         return <LeadsPage />;
-      case 'clients':
-        return <ClientProfilePage />;
       case 'projects':
         return <ProjectsDashboard />;
       case 'project-detail':
