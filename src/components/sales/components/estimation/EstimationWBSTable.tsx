@@ -344,7 +344,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                                 pointerEvents: 'none'
                               })
                             }}
-                            className={`grid grid-cols-[30px_90px_1fr] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors ${
+                            className={`grid grid-cols-[30px_90px_1fr] h-10 border-b border-border/10 hover:bg-accent/10 transition-colors ${
                               hoveredId === item.id ? 'bg-accent/10' : ''
                             } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''} ${
                               snapshot.isDragging ? 'shadow-lg bg-background/95 backdrop-blur-sm' : ''
@@ -359,7 +359,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                             >
                               <GripVertical className="w-4 h-4 text-muted-foreground/60 hover:text-muted-foreground" />
                             </div>
-                            <div className="px-3 flex items-center text-xs text-muted-foreground font-mono tracking-tight">
+                            <div className="px-3 flex items-center text-sm text-muted-foreground font-mono">
                               {item.wbsNumber}
                             </div>
                 <div className="px-2 flex items-center border-l border-border/10">
@@ -388,7 +388,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                       value={item.name}
                       onChange={(e) => updateItemValue(item.id, 'name', e.target.value)}
                       onKeyDown={(e) => handleKeyDown(e, item.id, 'name')}
-                      className={`h-6 text-xs bg-background border-border/40 px-2 flex-1 ${item.level === 0 ? 'font-semibold' : ''}`}
+                      className={`h-7 text-sm bg-background border-border/40 px-2 flex-1 ${item.level === 0 ? 'font-semibold' : ''}`}
                       onClick={(e) => e.stopPropagation()}
                       placeholder="Description"
                     />
@@ -451,7 +451,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                                 pointerEvents: 'none'
                               })
                             }}
-                            className={`grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors ${
+                            className={`grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-10 border-b border-border/10 hover:bg-accent/10 transition-colors ${
                               hoveredId === item.id ? 'bg-accent/10' : ''
                             } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''} ${
                               snapshot.isDragging ? 'shadow-lg bg-background/95 backdrop-blur-sm' : ''
@@ -467,7 +467,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     value={item.quantity || ''}
                     onChange={(e) => updateItemValue(item.id, 'quantity', parseFloat(e.target.value) || 0)}
                     onKeyDown={(e) => handleKeyDown(e, item.id, 'quantity')}
-                    className="h-6 text-xs bg-background border-border/40 px-2"
+                    className="h-7 text-sm bg-background border-border/40 px-2 text-right"
                     onClick={(e) => e.stopPropagation()}
                     placeholder="0"
                   />
@@ -478,7 +478,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     onValueChange={(value) => updateItemValue(item.id, 'unit', value)}
                   >
                     <SelectTrigger 
-                      className="h-6 text-xs bg-background border-border/40 px-2"
+                      className="h-7 text-sm bg-background border-border/40 px-2"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <SelectValue placeholder="Unit" />
@@ -501,13 +501,13 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     value={item.unitRate || ''}
                     onChange={(e) => updateItemValue(item.id, 'unitRate', parseFloat(e.target.value) || 0)}
                     onKeyDown={(e) => handleKeyDown(e, item.id, 'unitRate')}
-                    className="h-6 text-xs bg-background border-border/40 px-2"
+                    className="h-7 text-sm bg-background border-border/40 px-2 text-right"
                     onClick={(e) => e.stopPropagation()}
                     placeholder="0.00"
                   />
                 </div>
                 <div className="px-3 flex items-center border-l border-border/10">
-                  <span className={`text-xs font-mono ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
+                  <span className={`text-sm font-mono ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
                     ${(item.totalCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
