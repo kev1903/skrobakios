@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { Save, ArrowLeft, MoreVertical } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -16,6 +17,9 @@ import { useEstimate } from '../hooks/useEstimate';
 import { useTakeoffMeasurements } from '../hooks/useTakeoffMeasurements';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageShell } from '@/components/layout/PageShell';
+import { ProjectAttributesTab } from '../components/structuring/ProjectAttributesTab';
+import { WBSElementMappingTab } from '../components/structuring/WBSElementMappingTab';
+import { AutoTakeOffTab } from '../components/structuring/AutoTakeOffTab';
   
 import { toast } from 'sonner';
 import { useEstimateContext } from '../context/EstimateContext';
@@ -34,6 +38,11 @@ export const InputDataPage = ({
   const [estimateTitle, setEstimateTitle] = useState('');
   const [projectType, setProjectType] = useState('');
   const [activeTab, setActiveTab] = useState('drawings');
+  const [structuringData, setStructuringData] = useState({
+    projectAttributes: {},
+    wbsMapping: {},
+    takeOffQuantities: {}
+  });
 
   // Drawing and measurement state
   const [currentTool, setCurrentTool] = useState<'pointer' | 'area' | 'linear' | 'count'>('pointer');
@@ -178,20 +187,18 @@ const [estimateNumber, setEstimateNumber] = useState('');
   };
   // Progressive steps definition
   const steps = [
-    { id: 1, title: 'Step 1: Input Data' },
-    { id: 2, title: 'Step 2: Structuring' },
-    { id: 3, title: 'Step 3: Cost Database' },
-    { id: 4, title: 'Step 4: Estimation Process' },
-    { id: 5, title: 'Step 5: Output & Integration' },
+    { id: 1, title: 'Step 1: Upload & AI Analysis' },
+    { id: 2, title: 'Step 2: Estimation Process' },
+    { id: 3, title: 'Step 3: Output & Integration' },
   ];
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Sync step with tabs roughly
   useEffect(() => {
-    // Map tab to a step index for visual context only
-    if (activeTab === 'drawings') setCurrentStep((prev) => (prev < 3 ? prev : 1));
-    if (activeTab === 'quantities') setCurrentStep((prev) => (prev < 5 && prev >= 3 ? prev : 4));
-    if (activeTab === 'summary') setCurrentStep(5);
+    // All InputDataPage tabs are part of step 1
+    if (['drawings', 'attributes', 'wbs', 'takeoff'].includes(activeTab)) {
+      setCurrentStep(1);
+    }
   }, [activeTab]);
 
   // Use context data instead of loading separately
@@ -225,20 +232,21 @@ const [estimateNumber, setEstimateNumber] = useState('');
         navigate(`/estimates/edit/${id}`);
         break;
       case 2:
-        navigate(`/estimates/edit/${id}/take-off`);
-        break;
-      case 3:
-        navigate(`/estimates/edit/${id}/cost-db`);
-        break;
-      case 4:
         navigate(`/estimates/edit/${id}/estimation`);
         break;
-      case 5:
+      case 3:
         navigate(`/estimates/edit/${id}/output`);
         break;
       default:
         break;
     }
+  };
+
+  const handleTabDataChange = (tabName: string, data: any) => {
+    setStructuringData(prev => ({
+      ...prev,
+      [tabName]: data
+    }));
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -327,7 +335,24 @@ const [estimateNumber, setEstimateNumber] = useState('');
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
-          <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
+            <TabsList className="ml-6 mt-4 grid w-fit grid-cols-4 mb-0">
+              <TabsTrigger value="drawings">
+                Documents
+              </TabsTrigger>
+              <TabsTrigger value="attributes">
+                Project Attributes
+              </TabsTrigger>
+              <TabsTrigger value="wbs">
+                WBS & Element Mapping
+              </TabsTrigger>
+              <TabsTrigger value="takeoff">
+                Auto-Take-Off + Manual
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="drawings" className="flex-1 overflow-hidden mt-0">
+              <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6">
             {/* Red section: Uploaded PDFs table */}
             <div className="overflow-auto">
               <div className="rounded-lg border">
@@ -410,6 +435,34 @@ const [estimateNumber, setEstimateNumber] = useState('');
 
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="attributes" className="flex-1 overflow-auto">
+          <div className="p-6">
+            <ProjectAttributesTab 
+              onDataChange={(data) => handleTabDataChange('projectAttributes', data)}
+              uploadedPDFs={drawings}
+              estimateId={currentId}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="wbs" className="flex-1 overflow-auto">
+          <div className="p-6">
+            <WBSElementMappingTab 
+              onDataChange={(data) => handleTabDataChange('wbsMapping', data)}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="takeoff" className="flex-1 overflow-auto">
+          <div className="p-6">
+            <AutoTakeOffTab 
+              onDataChange={(data) => handleTabDataChange('takeOffQuantities', data)}
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
         </div>
       </div>
 

@@ -66,8 +66,6 @@ import { GlobalSidebarProvider } from "./contexts/GlobalSidebarContext";
 import { GlobalSidebar } from "./components/GlobalSidebar";
 import { useGlobalSidebar } from "./contexts/GlobalSidebarContext";
 import { InputDataPage } from "./components/sales/pages/InputDataPage";
-import { TakeOffPage } from "./components/sales/pages/TakeOffPage";
-import { CostDatabasePage } from "./components/sales/pages/CostDatabasePage";
 import { EstimationProcessPage } from "./components/sales/pages/EstimationProcessPage";
 import { OutputIntegrationPage } from "./components/sales/pages/OutputIntegrationPage";
 import { EstimateProvider } from "./components/sales/context/EstimateContext";
@@ -502,16 +500,6 @@ const AppContent = () => {
 <Route path="/estimates/edit/:estimateId" element={
   <EstimateProvider>
     <EstimateEditPageWrapper />
-  </EstimateProvider>
-} />
-<Route path="/estimates/edit/:estimateId/take-off" element={
-  <EstimateProvider>
-    <TakeOffPage />
-  </EstimateProvider>
-} />
-<Route path="/estimates/edit/:estimateId/cost-db" element={
-  <EstimateProvider>
-    <CostDatabasePage />
   </EstimateProvider>
 } />
 <Route path="/estimates/edit/:estimateId/estimation" element={

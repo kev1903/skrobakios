@@ -10,11 +10,9 @@ import { useEstimateContext } from '../context/EstimateContext';
 
 export const EstimationProcessPage = () => {
   const steps = [
-    { id: 1, title: 'Step 1: Input Data' },
-    { id: 2, title: 'Step 2: Structuring' },
-    { id: 3, title: 'Step 3: Cost Database' },
-    { id: 4, title: 'Step 4: Estimation Process' },
-    { id: 5, title: 'Step 5: Output & Integration' },
+    { id: 1, title: 'Step 1: Upload & AI Analysis' },
+    { id: 2, title: 'Step 2: Estimation Process' },
+    { id: 3, title: 'Step 3: Output & Integration' },
   ];
   const navigate = useNavigate();
   const { estimateId } = useParams<{ estimateId: string }>();
@@ -24,10 +22,8 @@ export const EstimationProcessPage = () => {
     if (!id) return;
     switch (s) {
       case 1: navigate(`/estimates/edit/${id}`); break;
-      case 2: navigate(`/estimates/edit/${id}/take-off`); break;
-      case 3: navigate(`/estimates/edit/${id}/cost-db`); break;
-      case 4: navigate(`/estimates/edit/${id}/estimation`); break;
-      case 5: navigate(`/estimates/edit/${id}/output`); break;
+      case 2: navigate(`/estimates/edit/${id}/estimation`); break;
+      case 3: navigate(`/estimates/edit/${id}/output`); break;
     }
   };
   return (
@@ -51,7 +47,7 @@ export const EstimationProcessPage = () => {
         </div>
 
         {/* Progressive Step Timeline */}
-        <StepTimeline steps={steps} current={4} onChange={handleStepChange} />
+        <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
