@@ -118,7 +118,12 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
     }));
     
     setItems(updatedItems);
-  }, [items]);
+    
+    // Trigger data change callback
+    if (onDataChange) {
+      onDataChange(updatedItems);
+    }
+  }, [items, onDataChange]);
 
   const handleSelectRow = useCallback((itemId: string) => {
     setSelectedId(itemId);
@@ -166,7 +171,13 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
       });
     };
     
-    setItems(updateItem(items));
+    const updatedItems = updateItem(items);
+    setItems(updatedItems);
+    
+    // Trigger data change callback
+    if (onDataChange) {
+      onDataChange(updatedItems);
+    }
   };
 
   const indentItem = (itemId: string) => {
@@ -193,7 +204,13 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
       }
       return result;
     };
-    setItems(findAndIndent(items));
+    const updatedItems = findAndIndent(items);
+    setItems(updatedItems);
+    
+    // Trigger data change callback
+    if (onDataChange) {
+      onDataChange(updatedItems);
+    }
   };
 
   const outdentItem = (itemId: string) => {
@@ -220,7 +237,13 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
       }
       return result;
     };
-    setItems(findAndOutdent(items));
+    const updatedItems = findAndOutdent(items);
+    setItems(updatedItems);
+    
+    // Trigger data change callback
+    if (onDataChange) {
+      onDataChange(updatedItems);
+    }
   };
 
   // Synchronized scrolling
