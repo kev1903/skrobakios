@@ -321,7 +321,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
-      <div className="shrink-0 h-12 px-4 border-b border-border/30 bg-white/80 backdrop-blur-xl flex items-center gap-2">
+      <div className="shrink-0 h-12 px-6 border-b border-border/30 bg-white/80 backdrop-blur-xl flex items-center gap-2">
         <Button size="sm" variant="outline">
           <Plus className="w-4 h-4 mr-2" />
           Add Item
@@ -342,11 +342,11 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
             className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 grid grid-cols-[80px_1fr] h-9 bg-muted/50 border-b border-border/30">
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+            <div className="sticky top-0 z-10 grid grid-cols-[100px_1fr] h-9 bg-muted/50 border-b border-border/30">
+              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
                 WBS
               </div>
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Description
               </div>
             </div>
@@ -355,17 +355,17 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className={`grid grid-cols-[80px_1fr] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 cursor-pointer ${
+                className={`grid grid-cols-[100px_1fr] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 cursor-pointer ${
                   hoveredId === item.id ? 'bg-accent/20' : ''
                 } ${selectedId === item.id ? 'bg-primary/10 ring-2 ring-primary/20' : ''}`}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 onClick={() => setSelectedId(item.id)}
               >
-                <div className="px-3 flex items-center text-xs text-muted-foreground font-mono">
+                <div className="px-4 flex items-center text-xs text-muted-foreground font-mono">
                   {item.wbsNumber}
                 </div>
-                <div className="px-3 flex items-center border-l border-border/10">
+                <div className="px-4 flex items-center border-l border-border/10">
                   <div 
                     className="flex items-center gap-1.5 w-full"
                     style={{ paddingLeft: `${item.level * 20}px` }}
@@ -401,20 +401,20 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
             className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 grid grid-cols-[110px_70px_110px_130px_70px] min-w-[600px] h-9 bg-muted/50 border-b border-border/30">
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+            <div className="sticky top-0 z-10 grid grid-cols-[130px_80px_120px_140px_80px] min-w-[650px] h-9 bg-muted/50 border-b border-border/30">
+              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Quantity
               </div>
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Unit
               </div>
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Unit Rate
               </div>
-              <div className="px-3 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-4 flex items-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Total Cost
               </div>
-              <div className="px-3 flex items-center justify-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
+              <div className="px-4 flex items-center justify-center text-[10px] uppercase tracking-wider font-semibold text-muted-foreground border-l border-border/30">
                 Actions
               </div>
             </div>
@@ -423,14 +423,14 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className={`grid grid-cols-[110px_70px_110px_130px_70px] min-w-[600px] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 cursor-pointer ${
+                className={`grid grid-cols-[130px_80px_120px_140px_80px] min-w-[650px] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 cursor-pointer ${
                   hoveredId === item.id ? 'bg-accent/20' : ''
                 } ${selectedId === item.id ? 'bg-primary/10 ring-2 ring-primary/20' : ''}`}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 onClick={() => setSelectedId(item.id)}
               >
-                <div className="px-2 flex items-center border-l border-border/10">
+                <div className="px-3 flex items-center border-l border-border/10">
                   <Input
                     type="number"
                     value={item.quantity || ''}
@@ -447,7 +447,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     disabled={item.level === 0}
                   />
                 </div>
-                <div className="px-2 flex items-center border-l border-border/10">
+                <div className="px-3 flex items-center border-l border-border/10">
                   <Input
                     type="number"
                     value={item.unitRate || ''}
@@ -456,7 +456,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     disabled={item.level === 0}
                   />
                 </div>
-                <div className="px-3 flex items-center border-l border-border/10">
+                <div className="px-4 flex items-center border-l border-border/10">
                   <span className={`text-xs ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground'}`}>
                     ${(item.totalCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
