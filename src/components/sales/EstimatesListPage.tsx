@@ -39,28 +39,17 @@ export const EstimatesListPage = ({
   const navigate = useNavigate();
   const { currentCompany } = useCompany();
   useEffect(() => {
-    console.log('EstimatesListPage: useEffect triggered, currentCompany:', currentCompany);
-    if (currentCompany) {
-      fetchEstimates();
-    } else {
-      console.log('EstimatesListPage: No current company, setting loading to false');
-      setLoading(false);
-    }
-  }, [currentCompany]);
+    console.log('EstimatesListPage: useEffect triggered - fetching all estimates');
+    fetchEstimates();
+  }, []);
   
   const fetchEstimates = async () => {
-    if (!currentCompany) {
-      console.log('EstimatesListPage: Cannot fetch - no current company');
-      return;
-    }
-    
-    console.log('EstimatesListPage: fetchEstimates called for company:', currentCompany.id);
+    console.log('EstimatesListPage: fetchEstimates called - fetching ALL estimates');
     try {
       console.log('EstimatesListPage: Starting Supabase query...');
       const { data, error } = await supabase
         .from('estimates')
         .select('*')
-        .eq('company_id', currentCompany.id)
         .order('created_at', { ascending: false });
       
       console.log('EstimatesListPage: Query result:', { data, error });
@@ -135,13 +124,11 @@ export const EstimatesListPage = ({
       navigate('/?page=sales');
     }
   };
-  if (loading || !currentCompany) {
+  if (loading) {
     return (
       <div className="bg-white p-6">
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">
-            {!currentCompany ? 'Please select a company...' : 'Loading...'}
-          </div>
+          <div className="text-muted-foreground">Loading...</div>
         </div>
       </div>
     );
@@ -167,11 +154,6 @@ export const EstimatesListPage = ({
               <h2 className="text-2xl font-semibold text-foreground">Estimates</h2>
               <p className="text-sm text-muted-foreground">
                 Manage your project estimates and client quotes
-                {currentCompany && (
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                    {currentCompany.name}
-                  </span>
-                )}
               </p>
             </div>
           </div>
