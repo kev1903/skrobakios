@@ -29,7 +29,7 @@ export const EstimationSummaryCard = ({
   escalationRate = 3,
   preliminariesPercentage = 10,
   contingencyPercentage = 10,
-  buildersMarginPercentage = 15,
+  buildersMarginPercentage = 30,
   gstRate = 10,
   onUpdateSettings
 }: EstimationSummaryCardProps) => {
@@ -163,9 +163,9 @@ export const EstimationSummaryCard = ({
             </span>
           </div>
           
-          {/* Builder's Margin */}
+          {/* Markup */}
           <div className="grid grid-cols-[1fr_60px_90px] gap-2 items-center py-1">
-            <span className="text-xs text-foreground">Builder's Margin</span>
+            <span className="text-xs text-foreground">Markup</span>
             <div className="flex items-center justify-center">
               <Input
                 type="number"

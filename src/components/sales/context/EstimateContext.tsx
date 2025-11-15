@@ -51,7 +51,7 @@ export const EstimateProvider = ({ children, estimateId: propEstimateId }: Estim
     escalationRate: 3,
     preliminariesPercentage: 10,
     contingencyPercentage: 10,
-    buildersMarginPercentage: 15,
+    buildersMarginPercentage: 30,
     gstRate: 10,
   });
   
