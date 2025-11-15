@@ -237,10 +237,15 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 onMouseLeave={handleHoverLeave}
                 onClick={() => handleSelectRow(item.id)}
               >
-                <div className="px-3 flex items-center text-xs text-muted-foreground font-mono tracking-tight">
-                  {item.wbsNumber}
+                <div className="px-2 flex items-center">
+                  <Input
+                    value={item.wbsNumber}
+                    onChange={(e) => updateItemValue(item.id, 'wbsNumber', e.target.value)}
+                    className="h-6 text-xs bg-background border-border/40 px-2 font-mono"
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </div>
-                <div className="px-3 flex items-center border-l border-border/10">
+                <div className="px-2 flex items-center border-l border-border/10">
                   <div 
                     className="flex items-center gap-1 w-full"
                     style={{ paddingLeft: `${item.level * 16}px` }}
@@ -261,9 +266,13 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                       </button>
                     )}
                     {!item.children && <div className="w-4" />}
-                    <span className={`text-xs ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
-                      {item.name}
-                    </span>
+                    <Input
+                      value={item.name}
+                      onChange={(e) => updateItemValue(item.id, 'name', e.target.value)}
+                      className={`h-6 text-xs bg-background border-border/40 px-2 flex-1 ${item.level === 0 ? 'font-semibold' : ''}`}
+                      onClick={(e) => e.stopPropagation()}
+                      placeholder="Description"
+                    />
                   </div>
                 </div>
               </div>
@@ -314,7 +323,8 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     value={item.quantity || ''}
                     onChange={(e) => updateItemValue(item.id, 'quantity', parseFloat(e.target.value) || 0)}
                     className="h-6 text-xs bg-background border-border/40 px-2"
-                    disabled={item.level === 0}
+                    onClick={(e) => e.stopPropagation()}
+                    placeholder="0"
                   />
                 </div>
                 <div className="px-2 flex items-center border-l border-border/10">
@@ -322,7 +332,8 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     value={item.unit || ''}
                     onChange={(e) => updateItemValue(item.id, 'unit', e.target.value)}
                     className="h-6 text-xs bg-background border-border/40 px-2"
-                    disabled={item.level === 0}
+                    onClick={(e) => e.stopPropagation()}
+                    placeholder="Unit"
                   />
                 </div>
                 <div className="px-2 flex items-center border-l border-border/10">
@@ -331,7 +342,8 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     value={item.unitRate || ''}
                     onChange={(e) => updateItemValue(item.id, 'unitRate', parseFloat(e.target.value) || 0)}
                     className="h-6 text-xs bg-background border-border/40 px-2"
-                    disabled={item.level === 0}
+                    onClick={(e) => e.stopPropagation()}
+                    placeholder="0.00"
                   />
                 </div>
                 <div className="px-3 flex items-center border-l border-border/10">
