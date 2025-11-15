@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Indent, Outdent } from 'lucide-react';
 import { useEstimateContext } from '../context/EstimateContext';
 import { EstimationWBSTable } from '../components/estimation/EstimationWBSTable';
 
@@ -17,6 +17,16 @@ export const EstimationProcessPage = () => {
   const navigate = useNavigate();
   const { estimateId } = useParams<{ estimateId: string }>();
   const { estimateTitle, projectType } = useEstimateContext();
+  const tableRef = useRef<any>(null);
+  
+  const handleIndent = () => {
+    tableRef.current?.indentSelected();
+  };
+
+  const handleOutdent = () => {
+    tableRef.current?.outdentSelected();
+  };
+
   const handleStepChange = (s: number) => {
     const id = estimateId;
     if (!id) return;
@@ -40,10 +50,20 @@ export const EstimationProcessPage = () => {
             <div className="flex-1 min-w-0">
               <h1 className="text-lg font-semibold text-foreground truncate">{estimateTitle || 'Estimate title'}</h1>
             </div>
-            <Button variant="default" size="sm" className="shrink-0">
-              <Save className="w-4 h-4 mr-2" />
-              Save
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="outline" size="sm" onClick={handleOutdent}>
+                <Outdent className="w-4 h-4 mr-2" />
+                Outdent
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleIndent}>
+                <Indent className="w-4 h-4 mr-2" />
+                Indent
+              </Button>
+              <Button variant="default" size="sm">
+                <Save className="w-4 h-4 mr-2" />
+                Save
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -55,6 +75,7 @@ export const EstimationProcessPage = () => {
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
           <EstimationWBSTable 
+            ref={tableRef}
             onDataChange={(data) => console.log('Estimation data:', data)}
           />
         </div>
