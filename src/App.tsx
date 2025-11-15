@@ -34,7 +34,7 @@ import { useCompany } from "@/contexts/CompanyContext";
 
 
 import { InvoicesPage } from "./components/InvoicesPage";
-import { EstimatesPage } from "./components/EstimatesPage";
+import { EstimatesListPage } from "./components/sales/EstimatesListPage";
 import { EstimationLibraryPage } from "./components/EstimationLibraryPage";
 import { EstimateCreationPage } from "./components/EstimateCreationPage";
 import { InvoiceDetailsPage } from "./components/InvoiceDetailsPage";
@@ -89,7 +89,7 @@ const InvoicesPageWrapper = () => {
   );
 };
 
-// Wrapper component for EstimatesPage with proper navigation
+// Wrapper component for EstimatesListPage with proper navigation
 const EstimatesPageWrapper = () => {
   const navigate = useNavigate();
   
@@ -101,8 +101,20 @@ const EstimatesPageWrapper = () => {
     }
   };
 
+  const handleCreateEstimate = () => {
+    navigate('/estimates/new');
+  };
+
+  const handleBackToDashboard = () => {
+    navigate('/?page=sales');
+  };
+
   return (
-    <EstimatesPage onNavigate={handleNavigate} />
+    <EstimatesListPage 
+      onNavigate={handleNavigate}
+      onCreateEstimate={handleCreateEstimate}
+      onBackToDashboard={handleBackToDashboard}
+    />
   );
 };
 
