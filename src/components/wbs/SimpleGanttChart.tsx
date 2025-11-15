@@ -123,7 +123,7 @@ export const SimpleGanttChart = ({
       path: string;
     }> = [];
 
-    const ROW_HEIGHT = 28;
+    const ROW_HEIGHT = 36;
     const BAR_TOP_OFFSET = 4; // Offset from top of row to top of bar
 
     tasks.forEach((task, toIndex) => {
@@ -171,7 +171,7 @@ export const SimpleGanttChart = ({
     );
   }
 
-  const ROW_HEIGHT = 28;
+  const ROW_HEIGHT = 36;
   const HEADER_HEIGHT = 48;
 
   return (

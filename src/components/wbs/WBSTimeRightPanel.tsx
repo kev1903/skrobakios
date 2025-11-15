@@ -166,7 +166,7 @@ export const WBSTimeRightPanel = ({
   const content = (
     <div className="h-full bg-white overflow-hidden" style={{ minWidth: '800px' }}>
       {items.map((item) => (
-        <div
+        <div 
           key={item.id}
           className={`grid items-center w-full border-b border-slate-100 cursor-pointer transition-colors duration-150 ${
             selectedItems.includes(item.id) 
@@ -177,7 +177,7 @@ export const WBSTimeRightPanel = ({
           }`}
           style={{
             gridTemplateColumns: '140px 140px 100px 160px 140px 80px',
-            height: '28px',
+            height: '36px',
           }}
           onMouseEnter={() => onRowHover?.(item.id)}
           onMouseLeave={() => onRowHover?.(null)}
