@@ -33,9 +33,10 @@ export const useLeads = () => {
   const fetchLeads = async () => {
     try {
       setIsLoading(true);
-      // Use secure function that masks contact info for unauthorized users
+      // Query leads table directly with RLS
       const { data, error } = await supabase
-        .rpc('get_leads_with_masked_contact')
+        .from('leads')
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
