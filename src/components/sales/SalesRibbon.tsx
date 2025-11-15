@@ -19,7 +19,7 @@ export const SalesRibbon = ({
     badge: '1236'
   }, {
     id: 'leads',
-    label: 'Lead Contacts',
+    label: 'Leads',
     icon: Users,
     badge: null
   }, {
