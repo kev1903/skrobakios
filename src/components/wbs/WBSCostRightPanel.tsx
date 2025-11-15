@@ -107,7 +107,7 @@ export const WBSCostRightPanel = ({
               }`}
             style={{
               gridTemplateColumns: '100px 100px 100px 100px 100px 100px 120px 100px 1fr',
-              height: '28px',
+              height: '36px',
             }}
             onMouseEnter={() => onRowHover?.(item.id)}
             onMouseLeave={() => onRowHover?.(null)}
