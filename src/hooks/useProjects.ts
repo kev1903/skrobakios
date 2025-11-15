@@ -76,7 +76,20 @@ const saveToLocalStorage = (data: Project[]) => {
       timestamp: Date.now()
     }));
   } catch (error) {
-    console.error('Error saving to localStorage:', error);
+    // If quota exceeded, try to clear old data and retry once
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      try {
+        localStorage.removeItem(CACHE_KEY);
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          data,
+          timestamp: Date.now()
+        }));
+      } catch (retryError) {
+        console.warn('localStorage quota exceeded, using memory cache only');
+      }
+    } else {
+      console.error('Error saving to localStorage:', error);
+    }
   }
 };
 
