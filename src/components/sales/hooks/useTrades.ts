@@ -16,43 +16,7 @@ export interface Trade {
 }
 
 export const useTrades = () => {
-  const [trades, setTrades] = useState<Trade[]>([{
-    id: '1',
-    name: 'Concrete Works',
-    measurements: [{
-      id: '1',
-      type: 'M3',
-      description: 'Foundation concrete',
-      quantity: 45.5,
-      rate: 350,
-      amount: 15925
-    }, {
-      id: '2',
-      type: 'M2',
-      description: 'Floor slab',
-      quantity: 120,
-      rate: 85,
-      amount: 10200
-    }]
-  }, {
-    id: '2',
-    name: 'Framing',
-    measurements: [{
-      id: '3',
-      type: 'linear',
-      description: 'Wall framing',
-      quantity: 180,
-      rate: 25,
-      amount: 4500
-    }, {
-      id: '4',
-      type: 'number',
-      description: 'Doors',
-      quantity: 8,
-      rate: 450,
-      amount: 3600
-    }]
-  }]);
+  const [trades, setTrades] = useState<Trade[]>([]);
 
   const addTrade = () => {
     const newTrade = {
