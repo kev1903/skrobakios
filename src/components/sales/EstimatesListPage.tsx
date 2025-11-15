@@ -137,9 +137,9 @@ export const EstimatesListPage = ({
   return (
     <div className="fixed inset-0 top-[73px] bg-white overflow-hidden">
       <div className="h-full overflow-y-auto">
-        <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        <div className="px-6 pb-6 space-y-6 max-w-7xl mx-auto pt-0">
         {/* Header Section */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between py-6">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
