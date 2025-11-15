@@ -285,10 +285,20 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
+                            style={{
+                              ...provided.draggableProps.style,
+                              ...(snapshot.isDragging && {
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                pointerEvents: 'none'
+                              })
+                            }}
                             className={`grid grid-cols-[30px_90px_1fr] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors ${
                               hoveredId === item.id ? 'bg-accent/10' : ''
                             } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''} ${
-                              snapshot.isDragging ? 'shadow-lg bg-background' : ''
+                              snapshot.isDragging ? 'shadow-lg bg-background/95 backdrop-blur-sm' : ''
                             }`}
                             onMouseEnter={() => handleHoverEnter(item.id)}
                             onMouseLeave={handleHoverLeave}
@@ -296,9 +306,9 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                           >
                             <div 
                               {...provided.dragHandleProps}
-                              className="px-1 flex items-center justify-center cursor-grab active:cursor-grabbing"
+                              className="px-1 flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-accent/20 transition-colors"
                             >
-                              <GripVertical className="w-4 h-4 text-muted-foreground/40" />
+                              <GripVertical className="w-4 h-4 text-muted-foreground/60 hover:text-muted-foreground" />
                             </div>
                             <div className="px-3 flex items-center text-xs text-muted-foreground font-mono tracking-tight">
                               {item.wbsNumber}
@@ -382,10 +392,20 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
+                            style={{
+                              ...provided.draggableProps.style,
+                              ...(snapshot.isDragging && {
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                pointerEvents: 'none'
+                              })
+                            }}
                             className={`grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors ${
                               hoveredId === item.id ? 'bg-accent/10' : ''
                             } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''} ${
-                              snapshot.isDragging ? 'shadow-lg bg-background' : ''
+                              snapshot.isDragging ? 'shadow-lg bg-background/95 backdrop-blur-sm' : ''
                             }`}
                             onMouseEnter={() => handleHoverEnter(item.id)}
                             onMouseLeave={handleHoverLeave}
