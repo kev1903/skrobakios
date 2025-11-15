@@ -5,9 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { Calculator, Lock, Unlock, Eye, Settings, Plus, Edit } from 'lucide-react';
+import { Calculator, Lock, Unlock, Eye, Plus, Play, Table2 } from 'lucide-react';
 
 interface TakeOffItem {
   id: string;
@@ -112,7 +110,6 @@ export const AutoTakeOffTab = ({ onDataChange }: AutoTakeOffTabProps) => {
 
   const handleAutoTakeOff = async () => {
     setIsAutoRunning(true);
-    // Simulate auto take-off process
     setTimeout(() => {
       setIsAutoRunning(false);
     }, 4000);
@@ -141,7 +138,7 @@ export const AutoTakeOffTab = ({ onDataChange }: AutoTakeOffTabProps) => {
       type: 'area',
       quantity: 0,
       unit: 'm²',
-      wbsElement: '1.0 - Substructure',
+      wbsElement: 'Select WBS',
       source: 'manual',
       locked: false,
       drawing: 'Manual Entry',
@@ -160,29 +157,41 @@ export const AutoTakeOffTab = ({ onDataChange }: AutoTakeOffTabProps) => {
     }
   };
 
-  const getConfidenceColor = (confidence?: number) => {
-    if (!confidence) return 'bg-gray-100 text-gray-800';
-    if (confidence >= 90) return 'bg-green-100 text-green-800';
-    if (confidence >= 80) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-red-100 text-red-800';
+  const getConfidenceBadge = (confidence?: number) => {
+    if (!confidence) return null;
+    const variant = confidence >= 90 ? 'default' : confidence >= 80 ? 'secondary' : 'destructive';
+    return (
+      <Badge variant={variant} className="text-xs">
+        {confidence}%
+      </Badge>
+    );
+  };
+
+  const stats = {
+    total: takeOffItems.length,
+    auto: takeOffItems.filter(i => i.source === 'auto').length,
+    manual: takeOffItems.filter(i => i.source === 'manual').length,
+    locked: takeOffItems.filter(i => i.locked).length
   };
 
   return (
     <div className="space-y-6">
       {/* Auto Take-Off Controls */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="w-5 h-5" />
+      <Card className="bg-white/80 backdrop-blur-xl border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)] rounded-2xl">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <Calculator className="w-5 h-5 text-primary" />
             Automated Take-Off
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="flex items-center gap-2">
-              <Label htmlFor="drawing-select">Target Drawing:</Label>
+        <CardContent className="space-y-4">
+          <div className="flex items-end gap-4">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="drawing-select" className="text-sm font-medium text-foreground">
+                Target Drawing
+              </Label>
               <Select value={selectedDrawing} onValueChange={setSelectedDrawing}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="h-10 bg-background/60 backdrop-blur-md border-border/30">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -198,153 +207,147 @@ export const AutoTakeOffTab = ({ onDataChange }: AutoTakeOffTabProps) => {
             <Button 
               onClick={handleAutoTakeOff}
               disabled={isAutoRunning}
-              className="flex items-center gap-2"
+              className="h-10 px-6"
+              size="default"
             >
-              <Calculator className="w-4 h-4" />
-              {isAutoRunning ? 'Running Auto Take-Off...' : 'Run Auto Take-Off'}
+              <Play className="w-4 h-4 mr-2" />
+              {isAutoRunning ? 'Processing...' : 'Run Auto Take-Off'}
             </Button>
           </div>
 
-          <div className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Automatically extract floor areas, wall areas, window counts, and roof areas from plan drawings. 
             Quantities will be linked to their corresponding WBS elements.
-          </div>
+          </p>
         </CardContent>
       </Card>
 
-      {/* Take-Off Results */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Take-Off Quantities</span>
-            <div className="flex gap-2">
-              <Button onClick={addManualTakeOff} size="sm" variant="outline">
-                <Plus className="w-4 h-4 mr-1" />
-                Add Manual
-              </Button>
-              <Button size="sm" variant="outline">
-                <Settings className="w-4 h-4 mr-1" />
-                Settings
-              </Button>
-            </div>
-          </CardTitle>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="bg-white/80 backdrop-blur-xl border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)] rounded-2xl">
+          <CardContent className="pt-6">
+            <div className="text-2xl font-semibold text-foreground">{stats.total}</div>
+            <div className="text-sm text-muted-foreground">Total Items</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/80 backdrop-blur-xl border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)] rounded-2xl">
+          <CardContent className="pt-6">
+            <div className="text-2xl font-semibold text-primary">{stats.auto}</div>
+            <div className="text-sm text-muted-foreground">Automated</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/80 backdrop-blur-xl border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)] rounded-2xl">
+          <CardContent className="pt-6">
+            <div className="text-2xl font-semibold text-secondary-foreground">{stats.manual}</div>
+            <div className="text-sm text-muted-foreground">Manual</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/80 backdrop-blur-xl border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)] rounded-2xl">
+          <CardContent className="pt-6">
+            <div className="text-2xl font-semibold text-accent-foreground">{stats.locked}</div>
+            <div className="text-sm text-muted-foreground">Locked</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Take-Off Table */}
+      <Card className="bg-white/80 backdrop-blur-xl border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)] rounded-2xl">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <Table2 className="w-5 h-5 text-primary" />
+              Take-Off Quantities
+            </CardTitle>
+            <Button onClick={addManualTakeOff} size="sm" variant="outline">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Manual
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {takeOffItems.map((item, index) => (
-              <div key={item.id} className="border border-border rounded-lg p-4 hover:bg-muted/30 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="text-lg">{getTypeIcon(item.type)}</div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium">{item.name}</span>
-                        <Badge variant={item.source === 'auto' ? 'default' : 'secondary'}>
-                          {item.source}
-                        </Badge>
-                        {item.confidence && (
-                          <Badge variant="outline" className={getConfidenceColor(item.confidence)}>
-                            {item.confidence}%
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <div className="text-sm text-muted-foreground">
-                        WBS: {item.wbsElement} • {item.drawing} • Layer: {item.layer}
-                      </div>
-                    </div>
-                  </div>
+          <div className="space-y-2">
+            {/* Table Header */}
+            <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-muted/30 rounded-xl border border-border/20">
+              <div className="col-span-3 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                Item
+              </div>
+              <div className="col-span-2 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                WBS Element
+              </div>
+              <div className="col-span-2 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                Drawing
+              </div>
+              <div className="col-span-2 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                Quantity
+              </div>
+              <div className="col-span-2 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                Source
+              </div>
+              <div className="col-span-1 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground text-right">
+                Actions
+              </div>
+            </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) => updateQuantity(item.id, parseFloat(e.target.value) || 0)}
-                        className="w-24 text-right"
-                        disabled={item.locked}
-                        step="0.1"
-                      />
-                      <span className="text-sm text-muted-foreground min-w-8">{item.unit}</span>
-                    </div>
-
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => toggleLock(item.id)}
-                      className="p-2"
-                    >
-                      {item.locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-                    </Button>
-
-                    <Button size="sm" variant="ghost" className="p-2">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                  </div>
+            {/* Table Rows */}
+            {takeOffItems.map((item) => (
+              <div 
+                key={item.id} 
+                className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-accent/30 rounded-xl border border-border/20 transition-all duration-200 group"
+              >
+                <div className="col-span-3 flex items-center gap-2">
+                  <span className="text-lg">{getTypeIcon(item.type)}</span>
+                  <span className="font-medium text-sm text-foreground">{item.name}</span>
+                </div>
+                
+                <div className="col-span-2 flex items-center">
+                  <span className="text-sm text-muted-foreground">{item.wbsElement}</span>
+                </div>
+                
+                <div className="col-span-2 flex items-center">
+                  <span className="text-sm text-muted-foreground">{item.drawing}</span>
+                </div>
+                
+                <div className="col-span-2 flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => updateQuantity(item.id, parseFloat(e.target.value) || 0)}
+                    disabled={item.locked}
+                    className="h-8 text-sm bg-background/60 border-border/30"
+                  />
+                  <span className="text-sm text-muted-foreground shrink-0">{item.unit}</span>
+                </div>
+                
+                <div className="col-span-2 flex items-center gap-2">
+                  <Badge variant={item.source === 'auto' ? 'default' : 'secondary'} className="text-xs">
+                    {item.source}
+                  </Badge>
+                  {getConfidenceBadge(item.confidence)}
+                </div>
+                
+                <div className="col-span-1 flex items-center justify-end gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleLock(item.id)}
+                    className="h-8 w-8 p-0"
+                  >
+                    {item.locked ? (
+                      <Lock className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <Unlock className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                  >
+                    <Eye className="w-4 h-4 text-muted-foreground" />
+                  </Button>
                 </div>
               </div>
             ))}
-          </div>
-
-          <Separator className="my-4" />
-
-          {/* Summary */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-lg font-semibold text-blue-600">
-                {takeOffItems.filter(item => item.type === 'area').length}
-              </div>
-              <div className="text-sm text-blue-700">Areas</div>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-lg font-semibold text-green-600">
-                {takeOffItems.filter(item => item.type === 'length').length}
-              </div>
-              <div className="text-sm text-green-700">Lengths</div>
-            </div>
-            <div className="text-center p-3 bg-yellow-50 rounded-lg">
-              <div className="text-lg font-semibold text-yellow-600">
-                {takeOffItems.filter(item => item.type === 'count').length}
-              </div>
-              <div className="text-sm text-yellow-700">Counts</div>
-            </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className="text-lg font-semibold text-purple-600">
-                {takeOffItems.filter(item => item.locked).length}
-              </div>
-              <div className="text-sm text-purple-700">Locked</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Traceability Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quantity Traceability</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-blue-600" />
-              <span><strong>Locked quantities</strong> are protected from automatic updates and maintain traceability to original drawings.</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calculator className="w-4 h-4 text-green-600" />
-              <span><strong>Auto-detected quantities</strong> are extracted directly from drawing geometry and can be re-calculated.</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Edit className="w-4 h-4 text-orange-600" />
-              <span><strong>Manual quantities</strong> are user-entered values that will be preserved across updates.</span>
-            </div>
-          </div>
-          
-          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-sm text-amber-800">
-              <strong>Note:</strong> All quantities are automatically linked to their corresponding WBS elements. 
-              Changes here will flow through to Step 3 (Cost Database) for rate application and Step 4 (Estimation Process) for final calculations.
-            </p>
           </div>
         </CardContent>
       </Card>
