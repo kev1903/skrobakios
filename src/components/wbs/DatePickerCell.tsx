@@ -140,6 +140,21 @@ export const DatePickerCell = ({
             initialFocus
             className={cn("p-3 pointer-events-auto")}
           />
+          <div className="p-3 pt-0 border-t border-border/30">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDateClear();
+                setIsOpen(false);
+              }}
+            >
+              Clear Date
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
     </div>
