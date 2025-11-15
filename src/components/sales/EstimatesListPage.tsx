@@ -165,7 +165,14 @@ export const EstimatesListPage = ({
             <div className="h-6 w-px bg-border" />
             <div>
               <h2 className="text-2xl font-semibold text-foreground">Estimates</h2>
-              <p className="text-sm text-muted-foreground">Manage your project estimates and client quotes</p>
+              <p className="text-sm text-muted-foreground">
+                Manage your project estimates and client quotes
+                {currentCompany && (
+                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                    {currentCompany.name}
+                  </span>
+                )}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
