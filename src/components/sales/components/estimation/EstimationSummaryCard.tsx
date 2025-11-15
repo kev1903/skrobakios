@@ -94,10 +94,10 @@ export const EstimationSummaryCard = ({
 
         <Separator className="bg-border/30" />
 
-        {/* Additional Costs - Table Format */}
+        {/* 1. Preliminaries and Generals */}
         <div className="space-y-2">
-          <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Additional Costs
+          <div className="text-[11px] font-bold text-foreground uppercase tracking-wider mb-3">
+            1. Preliminaries and Generals
           </div>
           
           {/* Header Row */}
@@ -126,6 +126,22 @@ export const EstimationSummaryCard = ({
               {formatCurrency(preliminariesAmount)}
             </span>
           </div>
+        </div>
+
+        <Separator className="bg-border/30" />
+
+        {/* 2. Overheads & Profit */}
+        <div className="space-y-2">
+          <div className="text-[11px] font-bold text-foreground uppercase tracking-wider mb-3">
+            2. Overheads & Profit
+          </div>
+          
+          {/* Header Row */}
+          <div className="grid grid-cols-[1fr_60px_90px] gap-2 pb-1 border-b border-border/20">
+            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Description</div>
+            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide text-center">Rate</div>
+            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide text-right">Amount</div>
+          </div>
           
           {/* Contingency */}
           <div className="grid grid-cols-[1fr_60px_90px] gap-2 items-center py-1">
@@ -145,29 +161,6 @@ export const EstimationSummaryCard = ({
             <span className="text-xs font-medium text-foreground text-right">
               {formatCurrency(contingencyAmount)}
             </span>
-          </div>
-          
-          <div className="flex justify-between items-center pt-2 mt-2 border-t border-border/20">
-            <span className="text-xs font-semibold text-foreground">Subtotal Before Margin</span>
-            <span className="text-xs font-bold text-foreground">
-              {formatCurrency(subtotalBeforeMargin)}
-            </span>
-          </div>
-        </div>
-
-        <Separator className="bg-border/30" />
-
-        {/* Margin & Escalation - Table Format */}
-        <div className="space-y-2">
-          <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Margin & Escalation
-          </div>
-          
-          {/* Header Row */}
-          <div className="grid grid-cols-[1fr_60px_90px] gap-2 pb-1 border-b border-border/20">
-            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Description</div>
-            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide text-center">Rate</div>
-            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide text-right">Amount</div>
           </div>
           
           {/* Builder's Margin */}
@@ -219,10 +212,15 @@ export const EstimationSummaryCard = ({
               {formatCurrency(escalationAmount)}
             </span>
           </div>
-          
-          <div className="flex justify-between items-center pt-2 mt-2 border-t border-border/20">
-            <span className="text-xs font-semibold text-foreground">Subtotal Before GST</span>
-            <span className="text-xs font-bold text-foreground">
+        </div>
+
+        <Separator className="bg-border/30" />
+
+        {/* Project Cost */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-center py-2 bg-accent/10 -mx-6 px-6 rounded-lg">
+            <span className="text-sm font-bold text-foreground">Project Cost</span>
+            <span className="text-sm font-bold text-foreground">
               {formatCurrency(subtotalBeforeGST)}
             </span>
           </div>
@@ -230,9 +228,8 @@ export const EstimationSummaryCard = ({
 
         <Separator className="bg-border/30" />
 
-        {/* Tax - Table Format */}
+        {/* GST */}
         <div className="space-y-2">
-          {/* GST */}
           <div className="grid grid-cols-[1fr_60px_90px] gap-2 items-center py-1">
             <span className="text-xs font-semibold text-foreground">GST</span>
             <div className="flex items-center justify-center">
@@ -255,9 +252,9 @@ export const EstimationSummaryCard = ({
 
         <Separator className="bg-border/30" />
         
-        {/* Grand Total */}
+        {/* Contract Amount */}
         <div className="flex justify-between items-center pt-2 bg-primary/5 -mx-6 px-6 py-3 -mb-6 rounded-b-xl">
-          <span className="text-base font-bold text-foreground">Grand Total</span>
+          <span className="text-base font-bold text-foreground">Contract Amount</span>
           <span className="text-base font-bold text-primary">
             {formatCurrency(grandTotal)}
           </span>
