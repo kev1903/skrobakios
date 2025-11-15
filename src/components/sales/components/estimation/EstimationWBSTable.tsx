@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, forwardRef, useImperativeHandle, memo } from 'react';
+import React, { useState, useRef, useCallback, forwardRef, useImperativeHandle, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ChevronRight, ChevronDown, Plus, Trash2 } from 'lucide-react';
@@ -41,6 +41,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
   const isSyncingRef = useRef(false);
+  const inputRefsMap = useRef<Map<string, Map<string, HTMLInputElement>>>(new Map());
 
   useImperativeHandle(ref, () => ({
     indentSelected: () => {
@@ -67,6 +68,28 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
   };
 
   const visibleItems = flattenItems(items);
+
+  const setInputRef = (itemId: string, fieldName: string, element: HTMLInputElement | null) => {
+    if (!inputRefsMap.current.has(itemId)) {
+      inputRefsMap.current.set(itemId, new Map());
+    }
+    if (element) {
+      inputRefsMap.current.get(itemId)?.set(fieldName, element);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, itemId: string, fieldName: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const currentIndex = visibleItems.findIndex(item => item.id === itemId);
+      if (currentIndex < visibleItems.length - 1) {
+        const nextItem = visibleItems[currentIndex + 1];
+        const nextInput = inputRefsMap.current.get(nextItem.id)?.get(fieldName);
+        nextInput?.focus();
+        nextInput?.select();
+      }
+    }
+  };
 
   const handleSelectRow = useCallback((itemId: string) => {
     setSelectedId(itemId);
@@ -239,8 +262,10 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
               >
                 <div className="px-2 flex items-center">
                   <Input
+                    ref={(el) => setInputRef(item.id, 'wbsNumber', el)}
                     value={item.wbsNumber}
                     onChange={(e) => updateItemValue(item.id, 'wbsNumber', e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, item.id, 'wbsNumber')}
                     className="h-6 text-xs bg-background border-border/40 px-2 font-mono"
                     onClick={(e) => e.stopPropagation()}
                   />
@@ -267,8 +292,10 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     )}
                     {!item.children && <div className="w-4" />}
                     <Input
+                      ref={(el) => setInputRef(item.id, 'name', el)}
                       value={item.name}
                       onChange={(e) => updateItemValue(item.id, 'name', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, item.id, 'name')}
                       className={`h-6 text-xs bg-background border-border/40 px-2 flex-1 ${item.level === 0 ? 'font-semibold' : ''}`}
                       onClick={(e) => e.stopPropagation()}
                       placeholder="Description"
@@ -319,9 +346,11 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
               >
                 <div className="px-2 flex items-center border-l border-border/10">
                   <Input
+                    ref={(el) => setInputRef(item.id, 'quantity', el)}
                     type="number"
                     value={item.quantity || ''}
                     onChange={(e) => updateItemValue(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                    onKeyDown={(e) => handleKeyDown(e, item.id, 'quantity')}
                     className="h-6 text-xs bg-background border-border/40 px-2"
                     onClick={(e) => e.stopPropagation()}
                     placeholder="0"
@@ -329,8 +358,10 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 </div>
                 <div className="px-2 flex items-center border-l border-border/10">
                   <Input
+                    ref={(el) => setInputRef(item.id, 'unit', el)}
                     value={item.unit || ''}
                     onChange={(e) => updateItemValue(item.id, 'unit', e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, item.id, 'unit')}
                     className="h-6 text-xs bg-background border-border/40 px-2"
                     onClick={(e) => e.stopPropagation()}
                     placeholder="Unit"
@@ -338,9 +369,11 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 </div>
                 <div className="px-2 flex items-center border-l border-border/10">
                   <Input
+                    ref={(el) => setInputRef(item.id, 'unitRate', el)}
                     type="number"
                     value={item.unitRate || ''}
                     onChange={(e) => updateItemValue(item.id, 'unitRate', parseFloat(e.target.value) || 0)}
+                    onKeyDown={(e) => handleKeyDown(e, item.id, 'unitRate')}
                     className="h-6 text-xs bg-background border-border/40 px-2"
                     onClick={(e) => e.stopPropagation()}
                     placeholder="0.00"
