@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
 import { StepTimeline } from '@/components/ui/step-timeline';
@@ -22,6 +22,8 @@ export const EstimationProcessPage = () => {
   const tableRef = useRef<any>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Load existing estimation data on mount
   useEffect(() => {
@@ -82,7 +84,6 @@ export const EstimationProcessPage = () => {
       const data = tableRef.current?.getData();
       
       if (!data || data.length === 0) {
-        toast.error('No data to save');
         setIsSaving(false);
         return;
       }
@@ -116,6 +117,7 @@ export const EstimationProcessPage = () => {
 
       if (insertError) throw insertError;
 
+      setLastSaved(new Date());
       toast.success('Estimation data saved successfully');
     } catch (error) {
       console.error('Error saving estimation data:', error);
@@ -124,6 +126,72 @@ export const EstimationProcessPage = () => {
       setIsSaving(false);
     }
   };
+
+  // Auto-save function with debouncing
+  const handleAutoSave = useCallback(async () => {
+    if (!estimateId || isSaving) return;
+
+    try {
+      const data = tableRef.current?.getData();
+      
+      if (!data || data.length === 0) return;
+
+      // Delete existing line items for this estimate
+      const { error: deleteError } = await supabase
+        .from('estimate_line_items')
+        .delete()
+        .eq('estimate_id', estimateId);
+
+      if (deleteError) throw deleteError;
+
+      // Prepare line items for insertion
+      const lineItems = data.map((item: any, index: number) => ({
+        estimate_id: estimateId,
+        wbs_number: item.wbsNumber,
+        item_description: item.name,
+        quantity: item.quantity || 0,
+        unit: item.unit || '',
+        unit_price: item.unitRate || 0,
+        line_total: item.totalCost || 0,
+        level: item.level || 0,
+        is_expanded: item.isExpanded || false,
+        sort_order: index
+      }));
+
+      // Insert new line items
+      const { error: insertError } = await supabase
+        .from('estimate_line_items')
+        .insert(lineItems);
+
+      if (insertError) throw insertError;
+
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error('Auto-save error:', error);
+    }
+  }, [estimateId, isSaving]);
+
+  // Handle data changes with debounced auto-save
+  const handleDataChange = useCallback((data: any) => {
+    // Clear existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    // Set new timeout for auto-save (2 seconds after user stops typing)
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      handleAutoSave();
+    }, 2000);
+  }, [handleAutoSave]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleStepChange = (s: number) => {
     const id = estimateId;
@@ -174,9 +242,16 @@ export const EstimationProcessPage = () => {
         <div className="flex-1 overflow-hidden">
           <EstimationWBSTable 
             ref={tableRef}
-            onDataChange={(data) => console.log('Estimation data:', data)}
+            onDataChange={handleDataChange}
           />
         </div>
+        
+        {/* Auto-save indicator */}
+        {lastSaved && (
+          <div className="absolute bottom-4 right-4 text-xs text-muted-foreground bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-border/30">
+            Last saved: {lastSaved.toLocaleTimeString()}
+          </div>
+        )}
       </div>
     </PageShell>
   );
