@@ -33,6 +33,7 @@ export const InputDataPage = ({
   const currentId = (estimateId || estimateIdParam) ?? '';
   const [estimateTitle, setEstimateTitle] = useState('');
   const [projectType, setProjectType] = useState('');
+  const titleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Drawing and measurement state
   const [currentTool, setCurrentTool] = useState<'pointer' | 'area' | 'linear' | 'count'>('pointer');
@@ -151,6 +152,51 @@ const [estimateNumber, setEstimateNumber] = useState('');
       console.error('Save error:', error);
     }
   };
+
+  // Auto-save title changes
+  const handleTitleChange = (newTitle: string) => {
+    setEstimateTitle(newTitle);
+    
+    // Clear existing timeout
+    if (titleTimeoutRef.current) {
+      clearTimeout(titleTimeoutRef.current);
+    }
+
+    // Only auto-save if there's an existing estimate
+    if (currentEstimateId || estimateId) {
+      titleTimeoutRef.current = setTimeout(async () => {
+        if (newTitle.trim()) {
+          try {
+            const estimateData = {
+              estimate_name: newTitle,
+              estimate_number: estimateNumber || generateEstimateNumber(),
+              project_type: projectType,
+              notes: projectType,
+              status: 'draft' as const,
+              estimate_date: new Date().toISOString().split('T')[0]
+            };
+
+            const targetId = currentEstimateId || estimateId || null;
+            if (targetId) {
+              await updateEstimate(targetId, estimateData, trades, drawings);
+              toast.success('Title saved', { duration: 1500 });
+            }
+          } catch (error) {
+            console.error('Auto-save error:', error);
+          }
+        }
+      }, 1500); // Wait 1.5 seconds after user stops typing
+    }
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (titleTimeoutRef.current) {
+        clearTimeout(titleTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleLoadEstimate = async (estimateId: string) => {
     try {
@@ -273,7 +319,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
               <Input 
                 id="estimateTitle" 
                 value={estimateTitle} 
-                onChange={e => setEstimateTitle(e.target.value)} 
+                onChange={e => handleTitleChange(e.target.value)} 
                 placeholder="Enter estimate title..." 
                 className="text-lg font-semibold border-0 bg-transparent focus-visible:ring-0 px-0" 
               />
