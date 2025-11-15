@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, useCallback, forwardRef, useImperativeHandle, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ChevronRight, ChevronDown, Plus, Trash2 } from 'lucide-react';
@@ -68,7 +68,19 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
 
   const visibleItems = flattenItems(items);
 
-  const toggleExpanded = (itemId: string) => {
+  const handleSelectRow = useCallback((itemId: string) => {
+    setSelectedId(itemId);
+  }, []);
+
+  const handleHoverEnter = useCallback((itemId: string) => {
+    setHoveredId(itemId);
+  }, []);
+
+  const handleHoverLeave = useCallback(() => {
+    setHoveredId(null);
+  }, []);
+
+  const toggleExpanded = useCallback((itemId: string) => {
     const updateItem = (items: EstimationItem[]): EstimationItem[] => {
       return items.map(item => {
         if (item.id === itemId) {
@@ -82,7 +94,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
     };
     
     setItems(updateItem(items));
-  };
+  }, [items]);
 
   const updateItemValue = (itemId: string, field: keyof EstimationItem, value: any) => {
     const updateItem = (items: EstimationItem[]): EstimationItem[] => {
@@ -221,9 +233,9 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 className={`grid grid-cols-[90px_1fr] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors cursor-pointer ${
                   hoveredId === item.id ? 'bg-accent/10' : ''
                 } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''}`}
-                onMouseEnter={() => setHoveredId(item.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                onClick={() => setSelectedId(item.id)}
+                onMouseEnter={() => handleHoverEnter(item.id)}
+                onMouseLeave={handleHoverLeave}
+                onClick={() => handleSelectRow(item.id)}
               >
                 <div className="px-3 flex items-center text-xs text-muted-foreground font-mono tracking-tight">
                   {item.wbsNumber}
@@ -292,9 +304,9 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 className={`grid grid-cols-[120px_70px_110px_130px_70px] min-w-[600px] h-9 border-b border-border/10 hover:bg-accent/10 transition-colors cursor-pointer ${
                   hoveredId === item.id ? 'bg-accent/10' : ''
                 } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''}`}
-                onMouseEnter={() => setHoveredId(item.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                onClick={() => setSelectedId(item.id)}
+                onMouseEnter={() => handleHoverEnter(item.id)}
+                onMouseLeave={handleHoverLeave}
+                onClick={() => handleSelectRow(item.id)}
               >
                 <div className="px-2 flex items-center border-l border-border/10">
                   <Input
