@@ -257,25 +257,30 @@ const [estimateNumber, setEstimateNumber] = useState('');
         style={{ display: 'none' }}
         onChange={handleFileUpload}
       />
-      
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-col h-[calc(100vh-var(--header-height,64px))]">
         {/* Header */}
-        <div className="p-4 border-b border-border bg-background">
-          <div className="flex items-center gap-4">
+        <div className="shrink-0 h-[73px] px-6 border-b border-border/30 bg-white/80 backdrop-blur-xl flex items-center">
+          <div className="flex items-center gap-4 w-full">
             {onBack && (
               <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Back</span>
+                Back
               </Button>
             )}
-            <div className="flex-1">
-              <Input id="estimateTitle" value={estimateTitle} onChange={e => setEstimateTitle(e.target.value)} placeholder="Enter estimate title..." className="text-lg font-semibold" />
+            <div className="flex-1 min-w-0">
+              <Input 
+                id="estimateTitle" 
+                value={estimateTitle} 
+                onChange={e => setEstimateTitle(e.target.value)} 
+                placeholder="Enter estimate title..." 
+                className="text-lg font-semibold border-0 bg-transparent focus-visible:ring-0 px-0" 
+              />
             </div>
-            <div className="w-64">
+            <div className="w-64 shrink-0">
               <Select value={projectType} onValueChange={setProjectType}>
-                <SelectTrigger id="projectType">
+                <SelectTrigger id="projectType" className="h-10 bg-background/60 backdrop-blur-md border-border/30">
                   <SelectValue placeholder="Select project type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -289,31 +294,31 @@ const [estimateNumber, setEstimateNumber] = useState('');
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-2">
-              <Button 
-                onClick={handleSaveEstimate} 
-                disabled={isSaving}
-                variant="default"
-                size="sm"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save'}
-              </Button>
-              {estimateNumber && (
-                <span className="text-sm text-muted-foreground self-center">
-                  #{estimateNumber}
-                </span>
-              )}
-            </div>
+            <Button 
+              onClick={handleSaveEstimate} 
+              disabled={isSaving}
+              variant="default"
+              size="sm"
+              className="shrink-0"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {isSaving ? 'Saving...' : 'Save'}
+            </Button>
+            {estimateNumber && (
+              <span className="text-sm text-muted-foreground shrink-0">
+                #{estimateNumber}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Progressive Step Timeline */}
-        <StepTimeline steps={steps} current={currentStep} onChange={handleStepChange} />
-
+        <div className="shrink-0">
+          <StepTimeline steps={steps} current={currentStep} onChange={handleStepChange} />
+        </div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-auto">
           <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6">
             {/* Red section: Uploaded PDFs table */}
             <div className="overflow-auto">
