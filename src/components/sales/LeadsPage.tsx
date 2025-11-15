@@ -126,7 +126,7 @@ export const LeadsPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground font-playfair">Leads</h1>
+          <h1 className="text-3xl font-bold text-foreground">Leads</h1>
           <p className="text-muted-foreground mt-1">Manage and track your sales pipeline</p>
         </div>
         <div className="flex gap-3">
