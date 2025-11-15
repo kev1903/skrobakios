@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AiChatSidebar } from '@/components/AiChatSidebar';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
 import { StepTimeline } from '@/components/ui/step-timeline';
@@ -22,7 +21,6 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
   const { estimateId: paramEstimateId } = useParams<{ estimateId: string }>();
   const currentId = paramEstimateId;
   const { estimateTitle, projectType, drawings } = useEstimateContext();
-  const [isChatCollapsed, setIsChatCollapsed] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('attributes');
   const [structuringData, setStructuringData] = useState({
@@ -74,7 +72,7 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
   return (
     <PageShell withPattern>
       {/* Header */}
-      <div className={`px-3 py-1.5 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-20' : 'pr-[25rem]'}`}>
+      <div className="px-3 py-1.5 border-b border-border bg-background">
         <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => (onBack ? onBack() : navigate(-1))} className="shrink-0 h-7 px-2">
               <ArrowLeft className="w-3 h-3 mr-1" />
@@ -90,12 +88,12 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
         </div>
       </div>
 
-      <div className={`py-2 transition-[padding] ${isChatCollapsed ? 'pr-20' : 'pr-[25rem]'}`}>
+      <div className="py-2">
         <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
       </div>
 
       {/* Tabbed Content */}
-      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-20' : 'pr-[25rem]'}`}>
+      <div>
         <div className="px-4 py-3">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-4 h-8">
@@ -133,7 +131,6 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
         </div>
       </div>
 
-      <AiChatSidebar isCollapsed={isChatCollapsed} onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} />
     </PageShell>
   );
 };

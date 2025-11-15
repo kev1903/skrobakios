@@ -16,7 +16,6 @@ import { useEstimate } from '../hooks/useEstimate';
 import { useTakeoffMeasurements } from '../hooks/useTakeoffMeasurements';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageShell } from '@/components/layout/PageShell';
-import { AiChatSidebar } from '@/components/AiChatSidebar';
   
 import { toast } from 'sonner';
 import { useEstimateContext } from '../context/EstimateContext';
@@ -35,7 +34,6 @@ export const InputDataPage = ({
   const [estimateTitle, setEstimateTitle] = useState('');
   const [projectType, setProjectType] = useState('');
   const [activeTab, setActiveTab] = useState('drawings');
-  const [isChatCollapsed, setIsChatCollapsed] = useState(true);
 
   // Drawing and measurement state
   const [currentTool, setCurrentTool] = useState<'pointer' | 'area' | 'linear' | 'count'>('pointer');
@@ -275,9 +273,9 @@ const [estimateNumber, setEstimateNumber] = useState('');
       
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col transition-[padding] ${isChatCollapsed ? 'pr-0' : 'pr-[26rem]'}`}>
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className={`p-4 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-0' : 'pr-[26rem]'}`}>
+        <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center gap-4">
             {onBack && (
               <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">
@@ -428,6 +426,5 @@ const [estimateNumber, setEstimateNumber] = useState('');
           </div>
         </DialogContent>
       </Dialog>
-      <AiChatSidebar isCollapsed={isChatCollapsed} onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} />
     </PageShell>;
 };
