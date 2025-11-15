@@ -21,7 +21,20 @@ interface EstimationWBSTableProps {
 }
 
 export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTableProps, ref) => {
-  const [items, setItems] = useState<EstimationItem[]>([]);
+  // Initialize with empty rows for Excel-like grid
+  const [items, setItems] = useState<EstimationItem[]>(
+    Array.from({ length: 15 }, (_, i) => ({
+      id: `row-${i + 1}`,
+      wbsNumber: `${i + 1}`,
+      name: '',
+      level: 0,
+      isExpanded: false,
+      quantity: 0,
+      unit: '',
+      unitRate: 0,
+      totalCost: 0
+    }))
+  );
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
