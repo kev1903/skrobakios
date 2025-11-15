@@ -80,14 +80,14 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   }
 
   return (
-    <div className="flex w-full h-full">
+    <div className="flex w-full h-full bg-white">
       {/* Sales Ribbon - Fixed sidebar */}
       <div className="w-64 flex-shrink-0 border-r border-border h-full">
         <SalesRibbon activeTab={activeTab} onTabChange={handleTabChange} onBack={handleBack} />
       </div>
       
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto bg-white">
         <div className="p-6 space-y-6 max-w-7xl mx-auto">
           {renderContent()}
         </div>
