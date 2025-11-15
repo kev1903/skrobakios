@@ -26,10 +26,12 @@ interface Estimate {
 interface EstimatesListPageProps {
   onNavigate?: (page: string) => void;
   onCreateEstimate?: () => void;
+  onBackToDashboard?: () => void;
 }
 export const EstimatesListPage = ({
   onNavigate,
-  onCreateEstimate
+  onCreateEstimate,
+  onBackToDashboard
 }: EstimatesListPageProps) => {
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,7 +108,11 @@ export const EstimatesListPage = ({
     }
   };
   const handleBackToSales = () => {
-    navigate('/?page=sales');
+    if (onBackToDashboard) {
+      onBackToDashboard();
+    } else {
+      navigate('/?page=sales');
+    }
   };
   if (loading) {
     return <div className="flex items-center justify-center h-64">
