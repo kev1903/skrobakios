@@ -432,10 +432,10 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                   Unit
                 </div>
-                <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
+                <div className="px-3 flex items-center justify-end text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                   Unit Rate
                 </div>
-                <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
+                <div className="px-3 flex items-center justify-end text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                   Total Cost
                 </div>
                 <div className="px-3 flex items-center justify-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
@@ -524,7 +524,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     placeholder="0.00"
                   />
                 </div>
-                <div className="px-3 flex items-center border-l border-border/10">
+                <div className="px-3 flex items-center justify-end border-l border-border/10">
                   <span className={`text-sm ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
                     ${(item.totalCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
