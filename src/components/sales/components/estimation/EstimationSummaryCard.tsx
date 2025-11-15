@@ -85,7 +85,7 @@ export const EstimationSummaryCard = ({
           </div>
           
           <div className="flex justify-between items-center">
-            <span className="text-sm font-semibold text-foreground">Base Subtotal</span>
+            <span className="text-sm font-semibold text-foreground">Construction Cost</span>
             <span className="text-sm font-bold text-foreground">
               {formatCurrency(baseSubtotal)}
             </span>
