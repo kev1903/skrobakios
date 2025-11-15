@@ -52,7 +52,11 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
       case 'estimates':
         return showEstimationWorkspace 
           ? <EstimateProvider><InputDataPage onBack={handleBackToEstimatesList} /></EstimateProvider>
-          : <EstimatesListPage onCreateEstimate={handleCreateEstimate} onNavigate={onNavigate} />;
+          : <EstimatesListPage 
+              onCreateEstimate={handleCreateEstimate} 
+              onNavigate={onNavigate}
+              onBackToDashboard={() => setActiveTab('dashboard')}
+            />;
       case 'submittals':
         return <SubmittalsPage />;
       case 'portal':
