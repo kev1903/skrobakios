@@ -48,7 +48,7 @@ export const SalesRibbon = ({
     icon: Settings,
     badge: null
   }];
-  return <div className="w-64 glass-sidebar border-r border-white/20 h-screen flex flex-col">
+  return <div className="w-64 glass-sidebar border-r border-white/20 h-full flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-white/20">
         <div className="flex items-center gap-3 mb-4">
