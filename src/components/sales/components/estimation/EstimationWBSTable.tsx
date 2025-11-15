@@ -359,7 +359,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                             >
                               <GripVertical className="w-4 h-4 text-muted-foreground/60 hover:text-muted-foreground" />
                             </div>
-                            <div className="px-3 flex items-center text-sm text-muted-foreground font-mono">
+                            <div className="px-3 flex items-center text-sm text-muted-foreground">
                               {item.wbsNumber}
                             </div>
                 <div className="px-2 flex items-center border-l border-border/10">
@@ -507,7 +507,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                   />
                 </div>
                 <div className="px-3 flex items-center border-l border-border/10">
-                  <span className={`text-sm font-mono ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
+                  <span className={`text-sm ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
                     ${(item.totalCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
