@@ -17,6 +17,7 @@ interface WBSItem {
   progress: number;
   assignedTo?: string;
   level: number;
+  parent_id?: string | null;
   hasChildren?: boolean;
   start_date?: string | Date | null;
   end_date?: string | Date | null;
@@ -80,20 +81,64 @@ export const WBSCostRightPanel = ({
     }).format(num);
   };
 
+  // Helper function to calculate parent rollup values
+  const getItemCostValues = (item: WBSItem) => {
+    const children = items.filter(i => i.parent_id === item.id);
+    const hasChildren = children.length > 0;
+
+    if (!hasChildren) {
+      // Leaf item - use direct values
+      return {
+        budget: parseFloat(item.budgeted_cost?.toString() || '0') || 0,
+        variations: parseFloat(item.variations?.toString() || '0') || 0,
+        revisedBudget: parseFloat(item.revised_budget?.toString() || '0') || 0,
+        committed: parseFloat(item.committed_cost?.toString() || '0') || 0,
+        paid: parseFloat(item.paid_cost?.toString() || '0') || 0,
+        forecast: parseFloat(item.forecast_cost?.toString() || '0') || 0,
+      };
+    }
+
+    // Parent item - sum up children's values
+    const childValues = children.reduce((acc, child) => {
+      const childData = getItemCostValues(child);
+      return {
+        budget: acc.budget + childData.budget,
+        variations: acc.variations + childData.variations,
+        revisedBudget: acc.revisedBudget + childData.revisedBudget,
+        committed: acc.committed + childData.committed,
+        paid: acc.paid + childData.paid,
+        forecast: acc.forecast + childData.forecast,
+      };
+    }, {
+      budget: 0,
+      variations: 0,
+      revisedBudget: 0,
+      committed: 0,
+      paid: 0,
+      forecast: 0,
+    });
+
+    return childValues;
+  };
+
   // Determine if we're in unified scroll mode
   const useUnifiedScroll = true; // Enable unified scrolling for Cost tab
 
   const content = (
     <div style={{ minWidth: '820px' }}> {/* Reasonable minimum width for cost columns */}
       {items.map((item) => {
-        const budget = parseFloat(item.budgeted_cost?.toString() || '0') || 0;
-        const variations = parseFloat(item.variations?.toString() || '0') || 0;
-        const revisedBudget = parseFloat(item.revised_budget?.toString() || '0') || (budget + variations);
-        const committed = parseFloat(item.committed_cost?.toString() || '0') || 0;
-        const paid = parseFloat(item.paid_cost?.toString() || '0') || 0;
-        const forecast = parseFloat(item.forecast_cost?.toString() || '0') || budget;
+        const costValues = getItemCostValues(item);
+        const budget = costValues.budget;
+        const variations = costValues.variations;
+        const revisedBudget = costValues.revisedBudget || (budget + variations);
+        const committed = costValues.committed;
+        const paid = costValues.paid;
+        const forecast = costValues.forecast || budget;
         const remaining = calculateRemaining(budget, paid);
         const variance = calculateVariance(budget, forecast);
+        
+        // Check if this item has children (is a parent row)
+        const hasChildren = items.some(i => i.parent_id === item.id);
         
         return (
           <div
@@ -115,62 +160,92 @@ export const WBSCostRightPanel = ({
         >
             {/* Budget */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="budgeted_cost"
-                value={budget > 0 ? formatCurrency(budget) : ''}
-                placeholder="$0.00"
-                className="text-xs text-foreground text-right w-full font-medium"
-              />
+              {hasChildren ? (
+                <span className="text-xs text-foreground text-right w-full font-semibold">
+                  {budget > 0 ? formatCurrency(budget) : ''}
+                </span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="budgeted_cost"
+                  value={budget > 0 ? formatCurrency(budget) : ''}
+                  placeholder="$0.00"
+                  className="text-xs text-foreground text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Variations */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="variations"
-                value={variations !== 0 ? formatCurrency(variations) : ''}
-                placeholder="$0.00"
-                className="text-xs text-orange-600 text-right w-full font-medium"
-              />
+              {hasChildren ? (
+                <span className="text-xs text-orange-600 text-right w-full font-semibold">
+                  {variations !== 0 ? formatCurrency(variations) : ''}
+                </span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="variations"
+                  value={variations !== 0 ? formatCurrency(variations) : ''}
+                  placeholder="$0.00"
+                  className="text-xs text-orange-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* New Budget (Revised Budget) - Editable */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="revised_budget"
-                value={revisedBudget > 0 ? formatCurrency(revisedBudget) : ''}
-                placeholder="$0.00"
-                className="text-xs text-indigo-600 text-right w-full font-medium"
-              />
+              {hasChildren ? (
+                <span className="text-xs text-indigo-600 text-right w-full font-semibold">
+                  {revisedBudget > 0 ? formatCurrency(revisedBudget) : ''}
+                </span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="revised_budget"
+                  value={revisedBudget > 0 ? formatCurrency(revisedBudget) : ''}
+                  placeholder="$0.00"
+                  className="text-xs text-indigo-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Committed */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="committed_cost"
-                value={committed > 0 ? formatCurrency(committed) : ''}
-                placeholder="$0.00"
-                className="text-xs text-amber-600 text-right w-full font-medium"
-              />
+              {hasChildren ? (
+                <span className="text-xs text-amber-600 text-right w-full font-semibold">
+                  {committed > 0 ? formatCurrency(committed) : ''}
+                </span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="committed_cost"
+                  value={committed > 0 ? formatCurrency(committed) : ''}
+                  placeholder="$0.00"
+                  className="text-xs text-amber-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Paid */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="paid_cost"
-                value={paid > 0 ? formatCurrency(paid) : ''}
-                placeholder="$0.00"
-                className="text-xs text-green-600 text-right w-full font-medium"
-              />
+              {hasChildren ? (
+                <span className="text-xs text-green-600 text-right w-full font-semibold">
+                  {paid > 0 ? formatCurrency(paid) : ''}
+                </span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="paid_cost"
+                  value={paid > 0 ? formatCurrency(paid) : ''}
+                  placeholder="$0.00"
+                  className="text-xs text-green-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Remaining - Calculated */}
@@ -180,14 +255,20 @@ export const WBSCostRightPanel = ({
 
             {/* Forecast Final Cost */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="forecast_cost"
-                value={forecast > 0 ? formatCurrency(forecast) : ''}
-                placeholder="$0.00"
-                className="text-xs text-purple-600 text-right w-full font-medium"
-              />
+              {hasChildren ? (
+                <span className="text-xs text-purple-600 text-right w-full font-semibold">
+                  {forecast > 0 ? formatCurrency(forecast) : ''}
+                </span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="forecast_cost"
+                  value={forecast > 0 ? formatCurrency(forecast) : ''}
+                  placeholder="$0.00"
+                  className="text-xs text-purple-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Variance - Calculated */}
