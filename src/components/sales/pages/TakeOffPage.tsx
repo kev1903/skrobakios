@@ -5,7 +5,6 @@ import { StepTimeline } from '@/components/ui/step-timeline';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useEstimateContext } from '../context/EstimateContext';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { AutoTakeOffTab } from '../components/structuring/AutoTakeOffTab';
 
 export const TakeOffPage = () => {
@@ -32,7 +31,7 @@ export const TakeOffPage = () => {
   
   return (
     <PageShell withPattern>
-      <div className="flex-1 flex flex-col h-full">
+      <div className="flex flex-col h-[calc(100vh-var(--header-height,64px))]">
         {/* Header */}
         <div className="shrink-0 h-[73px] px-6 border-b border-border/30 bg-white/80 backdrop-blur-xl flex items-center">
           <div className="flex items-center gap-4 w-full">
@@ -51,17 +50,17 @@ export const TakeOffPage = () => {
         </div>
 
         {/* Progressive Step Timeline */}
-        <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
+        <div className="shrink-0">
+          <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
+        </div>
 
-        {/* Main Content */}
-        <div className="flex-1 min-h-0">
-          <ScrollArea className="h-full">
-            <div className="p-6 max-w-[1600px] mx-auto space-y-6">
-              <AutoTakeOffTab 
-                onDataChange={(data) => console.log('Take-off data:', data)}
-              />
-            </div>
-          </ScrollArea>
+        {/* Main Content - Scrollable */}
+        <div className="flex-1 overflow-auto">
+          <div className="p-6 max-w-[1600px] mx-auto">
+            <AutoTakeOffTab 
+              onDataChange={(data) => console.log('Take-off data:', data)}
+            />
+          </div>
         </div>
       </div>
     </PageShell>
