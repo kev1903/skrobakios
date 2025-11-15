@@ -71,66 +71,66 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
 
   return (
     <PageShell withPattern>
-      {/* Header */}
-      <div className="px-3 py-1.5 border-b border-border bg-background">
-        <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => (onBack ? onBack() : navigate(-1))} className="shrink-0 h-7 px-2">
-              <ArrowLeft className="w-3 h-3 mr-1" />
-              <span className="hidden sm:inline text-xs">Back</span>
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b border-border bg-background">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => (onBack ? onBack() : navigate(-1))} className="shrink-0">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Back</span>
             </Button>
-          <div className="flex-1">
-            <div className="text-sm font-medium text-foreground">{estimateTitle || 'Estimate title'}</div>
+            <div className="flex-1">
+              <div className="text-lg font-semibold text-foreground">{estimateTitle || 'Estimate title'}</div>
+            </div>
+            <Button variant="default" size="sm" disabled={isSaving} onClick={handleSave}>
+              <Save className="w-4 h-4 mr-2" />
+              {isSaving ? 'Saving...' : 'Save'}
+            </Button>
           </div>
-          <Button variant="default" size="sm" disabled={isSaving} onClick={handleSave} className="h-7 px-3 text-xs">
-            <Save className="w-3 h-3 mr-1" />
-            {isSaving ? 'Saving...' : 'Save'}
-          </Button>
         </div>
-      </div>
 
-      <div className="py-2">
+        {/* Progressive Step Timeline */}
         <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
-      </div>
 
-      {/* Tabbed Content */}
-      <div>
-        <div className="px-4 py-3">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-4 h-8">
-              <TabsTrigger value="attributes" className="text-xs px-2 py-1">
-                Project Attributes
-              </TabsTrigger>
-              <TabsTrigger value="wbs" className="text-xs px-2 py-1">
-                WBS & Element Mapping
-              </TabsTrigger>
-              <TabsTrigger value="takeoff" className="text-xs px-2 py-1">
-                Auto-Take-Off + Manual
-              </TabsTrigger>
-            </TabsList>
+        {/* Main Content */}
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full p-6 pt-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
+              <TabsList className="grid w-full grid-cols-3 mb-4">
+                <TabsTrigger value="attributes">
+                  Project Attributes
+                </TabsTrigger>
+                <TabsTrigger value="wbs">
+                  WBS & Element Mapping
+                </TabsTrigger>
+                <TabsTrigger value="takeoff">
+                  Auto-Take-Off + Manual
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="attributes" className="mt-0">
-              <ProjectAttributesTab 
-                onDataChange={(data) => handleTabDataChange('projectAttributes', data)}
-                uploadedPDFs={drawings}
-                estimateId={currentId}
-              />
-            </TabsContent>
+              <TabsContent value="attributes" className="flex-1 overflow-auto">
+                <ProjectAttributesTab 
+                  onDataChange={(data) => handleTabDataChange('projectAttributes', data)}
+                  uploadedPDFs={drawings}
+                  estimateId={currentId}
+                />
+              </TabsContent>
 
-            <TabsContent value="wbs" className="mt-0">
-              <WBSElementMappingTab 
-                onDataChange={(data) => handleTabDataChange('wbsMapping', data)}
-              />
-            </TabsContent>
+              <TabsContent value="wbs" className="flex-1 overflow-auto">
+                <WBSElementMappingTab 
+                  onDataChange={(data) => handleTabDataChange('wbsMapping', data)}
+                />
+              </TabsContent>
 
-            <TabsContent value="takeoff" className="mt-0">
-              <AutoTakeOffTab 
-                onDataChange={(data) => handleTabDataChange('takeOffQuantities', data)}
-              />
-            </TabsContent>
-          </Tabs>
+              <TabsContent value="takeoff" className="flex-1 overflow-auto">
+                <AutoTakeOffTab 
+                  onDataChange={(data) => handleTabDataChange('takeOffQuantities', data)}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
-
     </PageShell>
   );
 };
