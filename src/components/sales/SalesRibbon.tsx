@@ -14,7 +14,7 @@ export const SalesRibbon = ({
 }: SalesRibbonProps) => {
   const menuItems = [{
     id: 'dashboard',
-    label: 'Opportunities',
+    label: 'Dashboard',
     icon: BarChart3,
     badge: '1236'
   }, {
