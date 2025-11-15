@@ -137,7 +137,7 @@ export const EstimatesListPage = ({
   };
   if (loading || !currentCompany) {
     return (
-      <div className="h-full bg-white">
+      <div className="bg-white p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-muted-foreground">
             {!currentCompany ? 'Please select a company...' : 'Loading...'}
@@ -148,7 +148,7 @@ export const EstimatesListPage = ({
   }
   
   return (
-    <div className="h-full bg-white overflow-y-auto">
+    <div className="bg-white">
       <div className="p-6 space-y-6 max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="flex items-center justify-between">
