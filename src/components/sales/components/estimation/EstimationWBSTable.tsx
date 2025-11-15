@@ -297,6 +297,38 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
     ).length;
   };
 
+  // Calculate total overhead percentage distributed across all line items
+  const calculateOverheadPercentage = () => {
+    const { 
+      preliminariesPercentage = 10,
+      contingencyPercentage = 10,
+      buildersMarginPercentage = 15,
+      projectDuration = 12,
+      escalationRate = 3
+    } = estimationSettings;
+    
+    // Base is 100 for percentage calculation
+    const base = 100;
+    
+    // 1. Preliminaries and Generals
+    const preliminariesAmount = (base * preliminariesPercentage) / 100;
+    const afterPrelims = base + preliminariesAmount;
+    
+    // 2. Overheads & Profit
+    const contingencyAmount = (afterPrelims * contingencyPercentage) / 100;
+    const afterContingency = afterPrelims + contingencyAmount;
+    
+    const marginAmount = (afterContingency * buildersMarginPercentage) / 100;
+    
+    // Escalation calculation
+    const monthlyRate = escalationRate / 12 / 100;
+    const escalationAmount = afterContingency * (projectDuration / 2) * monthlyRate;
+    
+    // Total overhead as percentage of base construction cost
+    const totalOverhead = preliminariesAmount + contingencyAmount + marginAmount + escalationAmount;
+    return totalOverhead / base; // Return as decimal (e.g., 0.39 for 39%)
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Split View */}
@@ -525,7 +557,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 </div>
                 <div className="px-3 flex items-center justify-end border-l border-border/10">
                   <span className={`text-sm ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
-                    ${((item.totalCost || 0) * 0.15).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${((item.totalCost || 0) * calculateOverheadPercentage()).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="px-3 flex items-center justify-end border-l border-border/10">
