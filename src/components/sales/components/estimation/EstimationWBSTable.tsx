@@ -53,10 +53,29 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
       if (selectedId) outdentItem(selectedId);
     },
     getData: () => {
-      return items.filter(item => item.name.trim() !== '' || item.quantity !== 0);
+      // Return items that have any data in them
+      return items.filter(item => 
+        item.name.trim() !== '' || 
+        (item.quantity && item.quantity > 0) || 
+        item.unit?.trim() !== '' || 
+        (item.unitRate && item.unitRate > 0)
+      );
     },
     setData: (data: EstimationItem[]) => {
-      setItems(data);
+      // Keep loaded data and add empty rows for new entries
+      const emptyRowsNeeded = Math.max(5, 15 - data.length);
+      const emptyRows = Array.from({ length: emptyRowsNeeded }, (_, i) => ({
+        id: `row-${data.length + i + 1}`,
+        wbsNumber: `${data.length + i + 1}`,
+        name: '',
+        level: 0,
+        isExpanded: false,
+        quantity: 0,
+        unit: '',
+        unitRate: 0,
+        totalCost: 0
+      }));
+      setItems([...data, ...emptyRows]);
     }
   }));
 

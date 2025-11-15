@@ -134,7 +134,8 @@ export const EstimationProcessPage = () => {
     try {
       const data = tableRef.current?.getData();
       
-      if (!data || data.length === 0) return;
+      // Only skip save if explicitly no data (not just empty array from initial load)
+      if (!data) return;
 
       // Delete existing line items for this estimate
       const { error: deleteError } = await supabase
