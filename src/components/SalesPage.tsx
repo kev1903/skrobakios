@@ -80,18 +80,16 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   }
 
   return (
-    <div className="bg-background min-h-screen">
-      <div className="flex h-screen">
-        {/* Sales Ribbon - Fixed sidebar */}
-        <div className="fixed left-0 top-0 h-screen w-64 z-50 pt-[var(--header-height)]">
-          <SalesRibbon activeTab={activeTab} onTabChange={handleTabChange} onBack={handleBack} />
-        </div>
-        
-        {/* Main Content Area - Offset by sidebar width */}
-        <div className="flex-1 ml-64 overflow-y-auto pt-[var(--header-height)]">
-          <div className="p-6 space-y-6 max-w-7xl mx-auto">
-            {renderContent()}
-          </div>
+    <div className="bg-background h-screen overflow-hidden flex">
+      {/* Sales Ribbon - Fixed sidebar */}
+      <div className="w-64 flex-shrink-0 pt-[var(--header-height)] h-screen">
+        <SalesRibbon activeTab={activeTab} onTabChange={handleTabChange} onBack={handleBack} />
+      </div>
+      
+      {/* Main Content Area - Scrollable */}
+      <div className="flex-1 overflow-y-auto pt-[var(--header-height)] h-screen">
+        <div className="p-6 space-y-6 max-w-7xl mx-auto">
+          {renderContent()}
         </div>
       </div>
     </div>
