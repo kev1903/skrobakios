@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, Indent, Outdent } from 'lucide-react';
+import { ArrowLeft, Save, Indent, Outdent, Plus } from 'lucide-react';
 import { useEstimateContext } from '../context/EstimateContext';
 import { EstimationWBSTable } from '../components/estimation/EstimationWBSTable';
 import { supabase } from '@/integrations/supabase/client';
@@ -224,6 +224,10 @@ export const EstimationProcessPage = () => {
               <Button variant="outline" size="sm" onClick={handleOutdent}>
                 <Outdent className="w-4 h-4 mr-2" />
                 Outdent
+              </Button>
+              <Button variant="outline" size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Item
               </Button>
               <Button variant="outline" size="sm" onClick={handleIndent}>
                 <Indent className="w-4 h-4 mr-2" />
