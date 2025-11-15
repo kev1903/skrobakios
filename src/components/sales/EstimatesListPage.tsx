@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Plus, Eye, Edit, MoreVertical, Calculator, FileText, DollarSign, MapPin, ArrowLeft, BookOpen, Trash } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
@@ -116,7 +115,7 @@ export const EstimatesListPage = ({
   };
   if (loading) {
     return (
-      <div className="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 relative">
+      <div className="min-h-screen bg-white">
         <div className="flex items-center justify-center h-64">
           <div className="text-muted-foreground">Loading...</div>
         </div>
@@ -125,106 +124,112 @@ export const EstimatesListPage = ({
   }
   
   return (
-    <div className="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 relative">
-      <div className="relative z-10 p-6 space-y-6">
+    <div className="min-h-screen bg-white">
+      <div className="p-6 space-y-6 max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <Button variant="ghost" size="sm" onClick={handleBackToSales} className="flex items-center gap-2 mt-1 hover:bg-muted">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleBackToSales} 
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-accent"
+            >
               <ArrowLeft className="w-4 h-4" />
               Back to Sales
             </Button>
-          <div className="space-y-1">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">Estimates</h2>
-            <p className="text-lg text-muted-foreground">Manage your project estimates and client quotes</p>
+            <div className="h-6 w-px bg-border" />
+            <div>
+              <h2 className="text-2xl font-semibold text-foreground">Estimates</h2>
+              <p className="text-sm text-muted-foreground">Manage your project estimates and client quotes</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 bg-white shadow-sm border-border"
+              onClick={() => navigate('/estimates/library')}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Library</span>
+            </Button>
+            <Button 
+              onClick={handleNewEstimate} 
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Estimate</span>
+            </Button>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 bg-background shadow-sm"
-            onClick={() => navigate('/estimates/library')}
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>Library</span>
-          </Button>
-          <Button onClick={handleNewEstimate} className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm">
-            <Plus className="w-4 h-4" />
-            <span>New Estimate</span>
-          </Button>
+
+      {/* Quick Stats Cards - Match Sales Dashboard styling */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="group relative bg-white rounded-2xl p-4 shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 border border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-medium text-muted-foreground mb-1 tracking-wide">Total Estimates</p>
+              <p className="text-2xl font-semibold text-foreground">{estimates.length}</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <FileText className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-blue-100/50">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-500 rounded-xl shadow-sm">
-                <FileText className="w-6 h-6 text-white" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Total Estimates</p>
-                <p className="text-2xl font-bold text-foreground">{estimates.length}</p>
-              </div>
+        <div className="group relative bg-white rounded-2xl p-4 shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 border border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-medium text-muted-foreground mb-1 tracking-wide">Accepted</p>
+              <p className="text-2xl font-semibold text-foreground">{estimates.filter(e => e.status === 'accepted').length}</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Calculator className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+        </div>
 
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-green-50 to-green-100/50">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-500 rounded-xl shadow-sm">
-                <Calculator className="w-6 h-6 text-white" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Accepted</p>
-                <p className="text-2xl font-bold text-foreground">{estimates.filter(e => e.status === 'accepted').length}</p>
-              </div>
+        <div className="group relative bg-white rounded-2xl p-4 shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 border border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-medium text-muted-foreground mb-1 tracking-wide">Pending</p>
+              <p className="text-2xl font-semibold text-foreground">{estimates.filter(e => e.status === 'sent').length}</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Eye className="w-5 h-5 text-yellow-600" />
+            </div>
+          </div>
+        </div>
 
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-yellow-50 to-yellow-100/50">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-yellow-500 rounded-xl shadow-sm">
-                <Eye className="w-6 h-6 text-white" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Pending</p>
-                <p className="text-2xl font-bold text-foreground">{estimates.filter(e => e.status === 'sent').length}</p>
-              </div>
+        <div className="group relative bg-white rounded-2xl p-4 shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 border border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-medium text-muted-foreground mb-1 tracking-wide">Total Value</p>
+              <p className="text-2xl font-semibold text-foreground">
+                ${estimates.reduce((sum, e) => sum + (e.total_amount || 0), 0).toLocaleString()}
+              </p>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-purple-50 to-purple-100/50">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-500 rounded-xl shadow-sm">
-                <DollarSign className="w-6 h-6 text-white" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Total Value</p>
-                <p className="text-2xl font-bold text-foreground">
-                  ${estimates.reduce((sum, e) => sum + (e.total_amount || 0), 0).toLocaleString()}
-                </p>
-              </div>
+            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <DollarSign className="w-5 h-5 text-purple-600" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Search and Actions Bar */}
-      <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-xl border">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input placeholder="Search by estimate name, number, or client..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 border-0 bg-background shadow-sm" />
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="bg-background shadow-sm">
+      <div className="bg-white rounded-2xl p-4 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-border">
+        <div className="flex items-center justify-between gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input 
+              placeholder="Search by estimate name, number, or client..." 
+              value={searchTerm} 
+              onChange={e => setSearchTerm(e.target.value)} 
+              className="pl-10 bg-muted/30 border-0" 
+            />
+          </div>
+          <Button variant="outline" size="sm" className="bg-white shadow-sm border-border">
             <FileText className="w-4 h-4 mr-2" />
             Export PDF
           </Button>
@@ -232,20 +237,20 @@ export const EstimatesListPage = ({
       </div>
 
       {/* Estimates Table */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-0">
+      <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-border overflow-hidden">
+        <div className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="border-b bg-muted/30">
-                <TableHead className="h-12 px-6 font-semibold">Estimate #</TableHead>
-                <TableHead className="h-12 px-6 font-semibold">Estimate Name</TableHead>
-                <TableHead className="h-12 px-6 font-semibold">Client</TableHead>
-                <TableHead className="h-12 px-6 font-semibold">Project Address</TableHead>
-                <TableHead className="h-12 px-6 font-semibold">Date</TableHead>
-                <TableHead className="h-12 px-6 font-semibold">Expiry</TableHead>
-                <TableHead className="h-12 px-6 font-semibold">Status</TableHead>
-                <TableHead className="h-12 px-6 font-semibold text-right">Amount</TableHead>
-                <TableHead className="h-12 px-6 font-semibold text-center">Actions</TableHead>
+              <TableRow className="border-b bg-muted/30 hover:bg-muted/30">
+                <TableHead className="h-11 px-6 text-[11px] uppercase font-semibold tracking-wider text-muted-foreground">Estimate #</TableHead>
+                <TableHead className="h-11 px-6 text-[11px] uppercase font-semibold tracking-wider text-muted-foreground">Estimate Name</TableHead>
+                <TableHead className="h-11 px-6 text-[11px] uppercase font-semibold tracking-wider text-muted-foreground">Client</TableHead>
+                <TableHead className="h-11 px-6 text-[11px] uppercase font-semibold tracking-wider text-muted-foreground">Project Address</TableHead>
+                <TableHead className="h-11 px-6 text-[11px] uppercase font-semibold tracking-wider text-muted-foreground">Date</TableHead>
+                <TableHead className="h-11 px-6 text-[11px] uppercase font-semibold tracking-wider text-muted-foreground">Expiry</TableHead>
+                <TableHead className="h-11 px-6 text-[11px] uppercase font-semibold tracking-wider text-muted-foreground">Status</TableHead>
+                <TableHead className="h-11 px-6 text-[11px] uppercase font-semibold tracking-wider text-muted-foreground text-right">Amount</TableHead>
+                <TableHead className="h-11 px-6 text-[11px] uppercase font-semibold tracking-wider text-muted-foreground text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -265,7 +270,7 @@ export const EstimatesListPage = ({
                       </Button>
                     </div>
                   </TableCell>
-                </TableRow> : filteredEstimates.map(estimate => <TableRow key={estimate.id} className="hover:bg-muted/50 transition-colors">
+                </TableRow> : filteredEstimates.map(estimate => <TableRow key={estimate.id} className="h-14 border-b border-border/30 hover:bg-accent/30 transition-colors">
                     <TableCell className="px-6 py-4">
                       <span className="font-mono font-medium text-primary">
                         {estimate.estimate_number}
@@ -333,8 +338,8 @@ export const EstimatesListPage = ({
                   </TableRow>)}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       </div>
     </div>
   );
