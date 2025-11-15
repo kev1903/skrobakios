@@ -456,7 +456,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                   Unit Rate
                 </div>
                 <div className="px-3 flex items-center justify-end text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
-                  Sub Total
+                  Construction Cost
                 </div>
                 <div className="px-3 flex items-center justify-end text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                   Overheads
