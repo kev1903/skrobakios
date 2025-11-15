@@ -445,7 +445,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
               className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
             >
               {/* Header */}
-              <div className="sticky top-0 z-10 grid grid-cols-[80px_100px_110px_130px_110px_130px_70px] min-w-[800px] h-9 bg-muted/40 border-b border-border/20">
+              <div className="sticky top-0 z-10 grid grid-cols-[80px_100px_110px_110px_130px_70px] min-w-[800px] h-9 bg-muted/40 border-b border-border/20">
                 <div className="px-3 flex items-center text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                   Qty
                 </div>
@@ -454,9 +454,6 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 </div>
                 <div className="px-3 flex items-center justify-end text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                   Unit Rate
-                </div>
-                <div className="px-3 flex items-center justify-end text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
-                  Construction Cost
                 </div>
                 <div className="px-3 flex items-center justify-end text-[10px] uppercase tracking-wide font-semibold text-muted-foreground border-l border-border/20">
                   Overheads
@@ -489,7 +486,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                                 pointerEvents: 'none'
                               })
                             }}
-                            className={`grid grid-cols-[80px_100px_110px_130px_110px_130px_70px] min-w-[800px] h-10 border-b border-border/10 hover:bg-accent/10 transition-colors ${
+                            className={`grid grid-cols-[80px_100px_110px_110px_130px_70px] min-w-[800px] h-10 border-b border-border/10 hover:bg-accent/10 transition-colors ${
                               hoveredId === item.id ? 'bg-accent/10' : ''
                             } ${selectedId === item.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/30' : ''} ${
                               snapshot.isDragging ? 'shadow-lg bg-background/95 backdrop-blur-sm' : ''
@@ -549,11 +546,6 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     onClick={(e) => e.stopPropagation()}
                     placeholder="0.00"
                   />
-                </div>
-                <div className="px-3 flex items-center justify-end border-l border-border/10">
-                  <span className={`text-sm ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
-                    ${(item.totalCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
                 </div>
                 <div className="px-3 flex items-center justify-end border-l border-border/10">
                   <span className={`text-sm ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
