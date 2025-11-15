@@ -23,11 +23,6 @@ export const SalesRibbon = ({
     icon: Users,
     badge: null
   }, {
-    id: 'projects',
-    label: 'Projects',
-    icon: Target,
-    badge: null
-  }, {
     id: 'estimates',
     label: 'Estimates',
     icon: FileText,
