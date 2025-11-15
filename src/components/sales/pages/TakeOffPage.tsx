@@ -94,7 +94,7 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
-          <div className="h-full p-6 pt-4">
+          <div className="h-full p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
               <TabsList className="grid w-full grid-cols-3 mb-4">
                 <TabsTrigger value="attributes">

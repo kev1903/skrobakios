@@ -327,7 +327,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
-          <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6 pt-4">
+          <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6">
             {/* Red section: Uploaded PDFs table */}
             <div className="overflow-auto">
               <div className="rounded-lg border">
