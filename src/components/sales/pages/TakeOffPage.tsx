@@ -32,18 +32,18 @@ export const TakeOffPage = () => {
   
   return (
     <PageShell withPattern>
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-border bg-background">
-          <div className="flex items-center gap-4">
+        <div className="shrink-0 h-[73px] px-6 border-b border-border/30 bg-white/80 backdrop-blur-xl flex items-center">
+          <div className="flex items-center gap-4 w-full">
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="shrink-0">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Back</span>
+              Back
             </Button>
-            <div className="flex-1">
-              <div className="text-lg font-semibold text-foreground">{estimateTitle || 'Estimate title'}</div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-semibold text-foreground truncate">{estimateTitle || 'Estimate title'}</h1>
             </div>
-            <Button variant="default" size="sm">
+            <Button variant="default" size="sm" className="shrink-0">
               <Save className="w-4 h-4 mr-2" />
               Save
             </Button>
@@ -54,9 +54,9 @@ export const TakeOffPage = () => {
         <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
 
         {/* Main Content */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-h-0">
           <ScrollArea className="h-full">
-            <div className="p-6">
+            <div className="p-6 max-w-[1600px] mx-auto">
               <AutoTakeOffTab 
                 onDataChange={(data) => console.log('Take-off data:', data)}
               />
