@@ -18,12 +18,9 @@ export const StepTimeline: React.FC<StepTimelineProps> = ({ steps, current, onCh
   return (
     <nav
       aria-label="Estimation steps"
-      className={cn(
-        'w-full border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70',
-        className
-      )}
+      className={cn('w-full', className)}
     >
-      <ol className="w-full px-3 sm:px-4 lg:px-6 py-2 flex items-center gap-2 overflow-hidden">
+      <ol className="w-full flex items-center gap-2 overflow-hidden">
         {steps.map((step, idx) => {
           const stepIndex = idx + 1;
           const isCompleted = stepIndex < current;
@@ -34,7 +31,7 @@ export const StepTimeline: React.FC<StepTimelineProps> = ({ steps, current, onCh
               <button
                 onClick={() => onChange?.(stepIndex)}
                 className={cn(
-                  'relative inline-flex items-center gap-1.5 rounded-full px-2 py-1 border transition-colors shrink-0',
+                  'relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border transition-colors shrink-0',
                   isActive && 'bg-primary text-primary-foreground border-transparent shadow-sm',
                   !isActive && 'bg-muted text-foreground border-border hover:bg-muted/70'
                 )}
@@ -42,7 +39,7 @@ export const StepTimeline: React.FC<StepTimelineProps> = ({ steps, current, onCh
               >
                 <span
                   className={cn(
-                    'flex h-4 w-4 items-center justify-center rounded-full text-xs font-semibold border',
+                    'flex h-5 w-5 items-center justify-center rounded-full text-xs font-semibold border',
                     isActive ? 'bg-primary-foreground/20 border-primary-foreground/30' : 'bg-background border-border'
                   )}
                 >

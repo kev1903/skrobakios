@@ -31,26 +31,26 @@ export const OutputIntegrationPage = () => {
   return (
     <PageShell withPattern>
       <div className="flex flex-col h-[calc(100vh-var(--header-height,64px))]">
-        {/* Header */}
-        <div className="shrink-0 h-[73px] px-6 border-b border-border/30 bg-white/80 backdrop-blur-xl flex items-center">
+        {/* Combined Toolbar: Back button + Steps + Action button */}
+        <div className="shrink-0 px-6 py-3 border-b border-border/30 bg-white/80 backdrop-blur-xl">
           <div className="flex items-center gap-4 w-full">
+            {/* Left: Back button */}
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="shrink-0">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
+
+            {/* Center: Step Timeline */}
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-semibold text-foreground truncate">{estimateTitle || 'Estimate title'}</h1>
+              <StepTimeline steps={steps} current={4} onChange={handleStepChange} />
             </div>
+
+            {/* Right: Action button */}
             <Button variant="default" size="sm" className="shrink-0">
               <Save className="w-4 h-4 mr-2" />
               Save
             </Button>
           </div>
-        </div>
-
-        {/* Progressive Step Timeline */}
-        <div className="shrink-0">
-          <StepTimeline steps={steps} current={4} onChange={handleStepChange} />
         </div>
 
         {/* Main Content */}
