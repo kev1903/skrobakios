@@ -20,7 +20,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { PageShell } from '@/components/layout/PageShell';
 import { ProjectAttributesTab } from '../components/structuring/ProjectAttributesTab';
 import { WBSElementMappingTab } from '../components/structuring/WBSElementMappingTab';
-import { AutoTakeOffTab } from '../components/structuring/AutoTakeOffTab';
   
 import { toast } from 'sonner';
 import { useEstimateContext } from '../context/EstimateContext';
@@ -41,8 +40,7 @@ export const InputDataPage = ({
   const [activeTab, setActiveTab] = useState('drawings');
   const [structuringData, setStructuringData] = useState({
     projectAttributes: {},
-    wbsMapping: {},
-    takeOffQuantities: {}
+    wbsMapping: {}
   });
 
   // Drawing and measurement state
@@ -198,7 +196,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
   // Sync step with tabs roughly
   useEffect(() => {
     // All InputDataPage tabs are part of step 1
-    if (['drawings', 'attributes', 'wbs', 'takeoff'].includes(activeTab)) {
+    if (['drawings', 'attributes', 'wbs'].includes(activeTab)) {
       setCurrentStep(1);
     }
   }, [activeTab]);
@@ -341,7 +339,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
-            <TabsList className="ml-6 mt-4 grid w-fit grid-cols-4 mb-0">
+            <TabsList className="ml-6 mt-4 grid w-fit grid-cols-3 mb-0">
               <TabsTrigger value="drawings">
                 Documents
               </TabsTrigger>
@@ -350,9 +348,6 @@ const [estimateNumber, setEstimateNumber] = useState('');
               </TabsTrigger>
               <TabsTrigger value="wbs">
                 WBS & Element Mapping
-              </TabsTrigger>
-              <TabsTrigger value="takeoff">
-                Auto-Take-Off + Manual
               </TabsTrigger>
             </TabsList>
 
@@ -463,17 +458,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
                 </div>
               </ScrollArea>
             </TabsContent>
-
-            <TabsContent value="takeoff" className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="p-6">
-                  <AutoTakeOffTab
-              onDataChange={(data) => handleTabDataChange('takeOffQuantities', data)}
-                />
-                </div>
-              </ScrollArea>
-            </TabsContent>
-      </Tabs>
+          </Tabs>
         </div>
       </div>
 
