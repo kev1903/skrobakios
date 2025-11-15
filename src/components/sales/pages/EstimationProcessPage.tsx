@@ -205,16 +205,21 @@ export const EstimationProcessPage = () => {
   return (
     <PageShell withPattern>
       <div className="flex flex-col h-[calc(100vh-var(--header-height,64px))]">
-        {/* Header */}
-        <div className="shrink-0 h-[73px] px-6 border-b border-border/30 bg-white/80 backdrop-blur-xl flex items-center">
+        {/* Combined Toolbar: Back button + Steps + Action buttons */}
+        <div className="shrink-0 px-6 py-3 border-b border-border/30 bg-white/80 backdrop-blur-xl">
           <div className="flex items-center gap-4 w-full">
+            {/* Left: Back button */}
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="shrink-0">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
+
+            {/* Center: Step Timeline */}
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-semibold text-foreground truncate">{estimateTitle || 'Estimate title'}</h1>
+              <StepTimeline steps={steps} current={3} onChange={handleStepChange} />
             </div>
+
+            {/* Right: Action buttons */}
             <div className="flex items-center gap-2 shrink-0">
               <Button variant="outline" size="sm" onClick={handleOutdent}>
                 <Outdent className="w-4 h-4 mr-2" />
@@ -230,11 +235,6 @@ export const EstimationProcessPage = () => {
               </Button>
             </div>
           </div>
-        </div>
-
-        {/* Progressive Step Timeline */}
-        <div className="shrink-0">
-          <StepTimeline steps={steps} current={3} onChange={handleStepChange} />
         </div>
 
         {/* Main Content */}

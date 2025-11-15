@@ -307,14 +307,23 @@ const [estimateNumber, setEstimateNumber] = useState('');
       {/* Main Content Area */}
       <div className="flex flex-col h-[calc(100vh-var(--header-height,64px))]">
         {/* Header */}
-        <div className="shrink-0 h-[73px] px-6 border-b border-border/30 bg-white/80 backdrop-blur-xl flex items-center">
-          <div className="flex items-center gap-4 w-full">
+        {/* Combined Toolbar: Back button + Steps + Form fields + Action button */}
+        <div className="shrink-0 px-6 py-3 border-b border-border/30 bg-white/80 backdrop-blur-xl">
+          {/* Top Row: Back + Steps */}
+          <div className="flex items-center gap-4 w-full mb-3">
             {onBack && (
               <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
             )}
+            <div className="flex-1 min-w-0">
+              <StepTimeline steps={steps} current={currentStep} onChange={handleStepChange} />
+            </div>
+          </div>
+          
+          {/* Bottom Row: Title + Project Type + Save */}
+          <div className="flex items-center gap-4 w-full">
             <div className="flex-1 min-w-0">
               <Input 
                 id="estimateTitle" 
@@ -356,11 +365,6 @@ const [estimateNumber, setEstimateNumber] = useState('');
               </span>
             )}
           </div>
-        </div>
-
-        {/* Progressive Step Timeline */}
-        <div className="shrink-0">
-          <StepTimeline steps={steps} current={currentStep} onChange={handleStepChange} />
         </div>
 
         {/* Main Content */}
