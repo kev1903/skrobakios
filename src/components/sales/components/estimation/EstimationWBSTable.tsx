@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ChevronRight, ChevronDown, Plus, Trash2 } from 'lucide-react';
@@ -20,7 +20,7 @@ interface EstimationWBSTableProps {
   onDataChange?: (data: any) => void;
 }
 
-export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) => {
+export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTableProps, ref) => {
   const [items, setItems] = useState<EstimationItem[]>([
     {
       id: '1',
@@ -174,9 +174,19 @@ export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) =>
   ]);
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
   const isSyncingRef = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    indentSelected: () => {
+      if (selectedId) indentItem(selectedId);
+    },
+    outdentSelected: () => {
+      if (selectedId) outdentItem(selectedId);
+    }
+  }));
 
   // Flatten items for rendering
   const flattenItems = (items: EstimationItem[]): EstimationItem[] => {
@@ -230,6 +240,60 @@ export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) =>
     };
     
     setItems(updateItem(items));
+  };
+
+  const indentItem = (itemId: string) => {
+    // Find previous sibling and make selected item its child
+    const findAndIndent = (items: EstimationItem[], parentLevel: number = -1): EstimationItem[] => {
+      const result: EstimationItem[] = [];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.id === itemId && i > 0) {
+          const prevSibling = result[result.length - 1];
+          if (prevSibling) {
+            const newItem = { ...item, level: prevSibling.level + 1 };
+            prevSibling.children = [...(prevSibling.children || []), newItem];
+            prevSibling.isExpanded = true;
+          } else {
+            result.push(item);
+          }
+        } else {
+          result.push({
+            ...item,
+            children: item.children ? findAndIndent(item.children, item.level) : item.children
+          });
+        }
+      }
+      return result;
+    };
+    setItems(findAndIndent(items));
+  };
+
+  const outdentItem = (itemId: string) => {
+    // Move item up one level in hierarchy
+    const findAndOutdent = (items: EstimationItem[], parent: EstimationItem[] | null = null): EstimationItem[] => {
+      const result: EstimationItem[] = [];
+      for (const item of items) {
+        if (item.children) {
+          const childIndex = item.children.findIndex(c => c.id === itemId);
+          if (childIndex !== -1) {
+            const childItem = { ...item.children[childIndex], level: Math.max(0, item.level) };
+            result.push({
+              ...item,
+              children: item.children.filter((_, i) => i !== childIndex)
+            });
+            result.push(childItem);
+            continue;
+          }
+        }
+        result.push({
+          ...item,
+          children: item.children ? findAndOutdent(item.children, items) : item.children
+        });
+      }
+      return result;
+    };
+    setItems(findAndOutdent(items));
   };
 
   // Synchronized scrolling
@@ -291,11 +355,12 @@ export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) =>
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className={`grid grid-cols-[80px_1fr] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 ${
+                className={`grid grid-cols-[80px_1fr] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 cursor-pointer ${
                   hoveredId === item.id ? 'bg-accent/20' : ''
-                }`}
+                } ${selectedId === item.id ? 'bg-primary/10 ring-2 ring-primary/20' : ''}`}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
+                onClick={() => setSelectedId(item.id)}
               >
                 <div className="px-3 flex items-center text-xs text-muted-foreground font-mono">
                   {item.wbsNumber}
@@ -358,11 +423,12 @@ export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) =>
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className={`grid grid-cols-[110px_70px_110px_130px_70px] min-w-[600px] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 ${
+                className={`grid grid-cols-[110px_70px_110px_130px_70px] min-w-[600px] h-10 border-b border-border/10 hover:bg-accent/20 transition-all duration-150 cursor-pointer ${
                   hoveredId === item.id ? 'bg-accent/20' : ''
-                }`}
+                } ${selectedId === item.id ? 'bg-primary/10 ring-2 ring-primary/20' : ''}`}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
+                onClick={() => setSelectedId(item.id)}
               >
                 <div className="px-2 flex items-center border-l border-border/10">
                   <Input
@@ -412,4 +478,4 @@ export const EstimationWBSTable = ({ onDataChange }: EstimationWBSTableProps) =>
       </div>
     </div>
   );
-};
+});
