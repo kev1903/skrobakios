@@ -136,9 +136,14 @@ const barRef = useRef<HTMLDivElement>(null);
   const [searchResults, setSearchResults] = useState<SearchResults>({ projects: [], tasks: [] });
   const [isSearching, setIsSearching] = useState(false);
   const [currentProject, setCurrentProject] = useState<{ id: string; name: string; project_id: string } | null>(null);
+  const [currentEstimate, setCurrentEstimate] = useState<{ id: string; estimate_name: string; estimate_number: string } | null>(null);
   const [projectSwitcherOpen, setProjectSwitcherOpen] = useState(false);
   const [projectSearchQuery, setProjectSearchQuery] = useState("");
   const [availableProjects, setAvailableProjects] = useState<Array<{ id: string; name: string; project_id: string }>>([]);
+  const [availableEstimates, setAvailableEstimates] = useState<Array<{ id: string; estimate_name: string; estimate_number: string }>>([]);
+  
+  // Determine if we're on an estimate page
+  const isEstimatePage = location.pathname.includes('/estimates/');
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -158,36 +163,75 @@ const barRef = useRef<HTMLDivElement>(null);
     };
   }, []);
 
-  // Load available projects for project switcher
+  // Load available projects or estimates based on current module
   useEffect(() => {
-    const loadAvailableProjects = async () => {
+    const loadAvailableItems = async () => {
       if (currentCompany) {
         try {
-          const { data, error } = await supabase
-            .from('projects')
-            .select('id, name, project_id')
-            .eq('company_id', currentCompany.id)
-            .order('name');
-          
-          if (!error && data) {
-            setAvailableProjects(data);
+          if (isEstimatePage) {
+            // Load estimates
+            const { data, error } = await supabase
+              .from('estimates')
+              .select('id, estimate_name, estimate_number')
+              .eq('company_id', currentCompany.id)
+              .order('estimate_name');
+            
+            if (!error && data) {
+              setAvailableEstimates(data);
+            }
+          } else {
+            // Load projects
+            const { data, error } = await supabase
+              .from('projects')
+              .select('id, name, project_id')
+              .eq('company_id', currentCompany.id)
+              .order('name');
+            
+            if (!error && data) {
+              setAvailableProjects(data);
+            }
           }
         } catch (err) {
-          console.error('Error loading projects:', err);
+          console.error('Error loading items:', err);
         }
       }
     };
-    loadAvailableProjects();
-  }, [currentCompany]);
+    loadAvailableItems();
+  }, [currentCompany, isEstimatePage]);
 
-  // Fetch current project from URL (supports both projectId and taskId)
+  // Fetch current project or estimate from URL
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const projectId = searchParams.get('projectId');
     const taskId = searchParams.get('taskId');
     const page = searchParams.get('page');
     
-    if (projectId) {
+    // Check if we're on an estimate edit page
+    const estimateIdMatch = location.pathname.match(/\/estimates\/edit\/([^/]+)/);
+    const estimateId = estimateIdMatch ? estimateIdMatch[1] : null;
+    
+    if (estimateId && isEstimatePage) {
+      const fetchEstimate = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('estimates')
+            .select('id, estimate_name, estimate_number')
+            .eq('id', estimateId)
+            .single();
+          
+          if (!error && data) {
+            setCurrentEstimate(data);
+            setCurrentProject(null);
+          } else {
+            setCurrentEstimate(null);
+          }
+        } catch (err) {
+          console.error('Error fetching estimate:', err);
+          setCurrentEstimate(null);
+        }
+      };
+      fetchEstimate();
+    } else if (projectId) {
       const fetchProject = async () => {
         try {
           const { data, error } = await supabase
@@ -198,6 +242,7 @@ const barRef = useRef<HTMLDivElement>(null);
           
           if (!error && data) {
             setCurrentProject(data);
+            setCurrentEstimate(null);
           } else {
             setCurrentProject(null);
           }
@@ -243,8 +288,9 @@ const barRef = useRef<HTMLDivElement>(null);
       fetchProjectFromTask();
     } else {
       setCurrentProject(null);
+      setCurrentEstimate(null);
     }
-  }, [location.search]);
+  }, [location.search, location.pathname, isEstimatePage]);
 
   // Debounced search function
   useEffect(() => {
@@ -523,6 +569,12 @@ const barRef = useRef<HTMLDivElement>(null);
     project.name.toLowerCase().includes(projectSearchQuery.toLowerCase())
   );
 
+  // Filter estimates based on search query
+  const filteredEstimates = availableEstimates.filter(estimate => 
+    estimate.estimate_number.toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
+    estimate.estimate_name.toLowerCase().includes(projectSearchQuery.toLowerCase())
+  );
+
   // Handle project switch
   const handleProjectSwitch = (project: { id: string; name: string; project_id: string }) => {
     setProjectSwitcherOpen(false);
@@ -531,6 +583,17 @@ const barRef = useRef<HTMLDivElement>(null);
     toast({
       title: "Project switched",
       description: `Switched to ${project.project_id} - ${project.name}`,
+    });
+  };
+
+  // Handle estimate switch
+  const handleEstimateSwitch = (estimate: { id: string; estimate_name: string; estimate_number: string }) => {
+    setProjectSwitcherOpen(false);
+    setProjectSearchQuery("");
+    navigate(`/estimates/edit/${estimate.id}/input`);
+    toast({
+      title: "Estimate switched",
+      description: `Switched to ${estimate.estimate_number} - ${estimate.estimate_name}`,
     });
   };
 
@@ -665,16 +728,24 @@ const barRef = useRef<HTMLDivElement>(null);
                   </h1>
                 </div>
 
-                {/* Project Selector - Always visible */}
+                {/* Project/Estimate Selector - Always visible */}
                 <Popover open={projectSwitcherOpen} onOpenChange={setProjectSwitcherOpen}>
                   <PopoverTrigger asChild>
                     <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2 hover:bg-slate-100 hover:shadow-sm cursor-pointer transition-all duration-200">
                       <div className="flex flex-col flex-1">
                         <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-                          {currentProject ? (
-                            `${currentProject.project_id} - ${currentProject.name}`
+                          {isEstimatePage ? (
+                            currentEstimate ? (
+                              `${currentEstimate.estimate_number} - ${currentEstimate.estimate_name}`
+                            ) : (
+                              "Select Estimate"
+                            )
                           ) : (
-                            "Select Project"
+                            currentProject ? (
+                              `${currentProject.project_id} - ${currentProject.name}`
+                            ) : (
+                              "Select Project"
+                            )
                           )}
                         </span>
                       </div>
@@ -684,33 +755,57 @@ const barRef = useRef<HTMLDivElement>(null);
                   <PopoverContent className="w-[400px] p-0 bg-white/95 backdrop-blur-xl border border-border/30 shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-xl z-[12000]" align="start">
                     <Command shouldFilter={false}>
                       <CommandInput 
-                        placeholder="Search projects..." 
+                        placeholder={isEstimatePage ? "Search estimates..." : "Search projects..."} 
                         value={projectSearchQuery}
                         onValueChange={setProjectSearchQuery}
                       />
                       <CommandList>
                         <CommandEmpty>
-                          {loadingProjects ? "Loading projects..." : "No projects found."}
+                          {isEstimatePage 
+                            ? "No estimates found." 
+                            : (loadingProjects ? "Loading projects..." : "No projects found.")
+                          }
                         </CommandEmpty>
                         <CommandGroup>
-                          {filteredProjects.map((project) => (
-                            <CommandItem
-                              key={project.id}
-                              value={project.id}
-                              onSelect={() => handleProjectSwitch(project)}
-                              className="px-3 py-2 hover:bg-accent/30 rounded-md cursor-pointer"
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4 text-luxury-gold",
-                                  currentProject?.id === project.id ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              <span className="text-sm">
-                                {project.project_id} - {project.name}
-                              </span>
-                            </CommandItem>
-                          ))}
+                          {isEstimatePage ? (
+                            filteredEstimates.map((estimate) => (
+                              <CommandItem
+                                key={estimate.id}
+                                value={estimate.id}
+                                onSelect={() => handleEstimateSwitch(estimate)}
+                                className="px-3 py-2 hover:bg-accent/30 rounded-md cursor-pointer"
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4 text-luxury-gold",
+                                    currentEstimate?.id === estimate.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <span className="text-sm">
+                                  {estimate.estimate_number} - {estimate.estimate_name}
+                                </span>
+                              </CommandItem>
+                            ))
+                          ) : (
+                            filteredProjects.map((project) => (
+                              <CommandItem
+                                key={project.id}
+                                value={project.id}
+                                onSelect={() => handleProjectSwitch(project)}
+                                className="px-3 py-2 hover:bg-accent/30 rounded-md cursor-pointer"
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4 text-luxury-gold",
+                                    currentProject?.id === project.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <span className="text-sm">
+                                  {project.project_id} - {project.name}
+                                </span>
+                              </CommandItem>
+                            ))
+                          )}
                         </CommandGroup>
                       </CommandList>
                     </Command>
