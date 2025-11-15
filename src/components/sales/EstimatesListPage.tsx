@@ -115,7 +115,7 @@ export const EstimatesListPage = ({
   };
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="h-full bg-white">
         <div className="flex items-center justify-center h-64">
           <div className="text-muted-foreground">Loading...</div>
         </div>
@@ -124,7 +124,7 @@ export const EstimatesListPage = ({
   }
   
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-full bg-white overflow-y-auto">
       <div className="p-6 space-y-6 max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="flex items-center justify-between">
