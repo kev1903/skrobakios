@@ -56,7 +56,7 @@ export const TakeOffPage = () => {
         {/* Main Content */}
         <div className="flex-1 min-h-0">
           <ScrollArea className="h-full">
-            <div className="p-6 max-w-[1600px] mx-auto">
+            <div className="p-6 max-w-[1600px] mx-auto space-y-6">
               <AutoTakeOffTab 
                 onDataChange={(data) => console.log('Take-off data:', data)}
               />
