@@ -159,9 +159,9 @@ export const WBSCostRightPanel = ({
             onClick={(e) => onRowClick?.(item.id, e.ctrlKey || e.metaKey)}
         >
             {/* Budget */}
-            <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
+            <div className={`px-2 flex items-center justify-end h-full text-xs ${hasChildren ? 'bg-muted/30' : 'bg-white'}`}>
               {hasChildren ? (
-                <span className="text-xs text-foreground text-right w-full font-semibold">
+                <span className="text-xs text-foreground text-right w-full font-bold">
                   {budget > 0 ? formatCurrency(budget) : ''}
                 </span>
               ) : (
@@ -177,9 +177,9 @@ export const WBSCostRightPanel = ({
             </div>
 
             {/* Variations */}
-            <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
+            <div className={`px-2 flex items-center justify-end h-full text-xs ${hasChildren ? 'bg-muted/30' : 'bg-white'}`}>
               {hasChildren ? (
-                <span className="text-xs text-orange-600 text-right w-full font-semibold">
+                <span className="text-xs text-orange-600 text-right w-full font-bold">
                   {variations !== 0 ? formatCurrency(variations) : ''}
                 </span>
               ) : (
@@ -195,9 +195,9 @@ export const WBSCostRightPanel = ({
             </div>
 
             {/* New Budget (Revised Budget) - Editable */}
-            <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
+            <div className={`px-2 flex items-center justify-end h-full text-xs ${hasChildren ? 'bg-muted/30' : 'bg-white'}`}>
               {hasChildren ? (
-                <span className="text-xs text-indigo-600 text-right w-full font-semibold">
+                <span className="text-xs text-indigo-600 text-right w-full font-bold">
                   {revisedBudget > 0 ? formatCurrency(revisedBudget) : ''}
                 </span>
               ) : (
@@ -213,9 +213,9 @@ export const WBSCostRightPanel = ({
             </div>
 
             {/* Committed */}
-            <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
+            <div className={`px-2 flex items-center justify-end h-full text-xs ${hasChildren ? 'bg-muted/30' : 'bg-white'}`}>
               {hasChildren ? (
-                <span className="text-xs text-amber-600 text-right w-full font-semibold">
+                <span className="text-xs text-amber-600 text-right w-full font-bold">
                   {committed > 0 ? formatCurrency(committed) : ''}
                 </span>
               ) : (
@@ -231,9 +231,9 @@ export const WBSCostRightPanel = ({
             </div>
 
             {/* Paid */}
-            <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
+            <div className={`px-2 flex items-center justify-end h-full text-xs ${hasChildren ? 'bg-muted/30' : 'bg-white'}`}>
               {hasChildren ? (
-                <span className="text-xs text-green-600 text-right w-full font-semibold">
+                <span className="text-xs text-green-600 text-right w-full font-bold">
                   {paid > 0 ? formatCurrency(paid) : ''}
                 </span>
               ) : (
@@ -249,14 +249,14 @@ export const WBSCostRightPanel = ({
             </div>
 
             {/* Remaining - Calculated */}
-            <div className="px-2 flex items-center justify-end h-full text-xs text-blue-600 font-medium bg-slate-50/50">
+            <div className={`px-2 flex items-center justify-end h-full text-xs font-medium ${hasChildren ? 'text-blue-700 bg-muted/40 font-bold' : 'text-blue-600 bg-slate-50/50'}`}>
               {formatCurrency(remaining)}
             </div>
 
             {/* Forecast Final Cost */}
-            <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
+            <div className={`px-2 flex items-center justify-end h-full text-xs ${hasChildren ? 'bg-muted/30' : 'bg-white'}`}>
               {hasChildren ? (
-                <span className="text-xs text-purple-600 text-right w-full font-semibold">
+                <span className="text-xs text-purple-600 text-right w-full font-bold">
                   {forecast > 0 ? formatCurrency(forecast) : ''}
                 </span>
               ) : (
@@ -272,7 +272,7 @@ export const WBSCostRightPanel = ({
             </div>
 
             {/* Variance - Calculated */}
-            <div className={`px-2 flex items-center justify-end h-full text-xs font-medium bg-slate-50/50 ${
+            <div className={`px-2 flex items-center justify-end h-full text-xs font-medium ${hasChildren ? 'bg-muted/40 font-bold' : 'bg-slate-50/50'} ${
               variance > 0 ? 'text-red-600' : variance < 0 ? 'text-green-600' : 'text-gray-600'
             }`}>
               {variance !== 0 && (variance > 0 ? '+' : '')}{formatCurrency(Math.abs(variance))}
