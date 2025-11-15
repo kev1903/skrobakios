@@ -1957,9 +1957,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </div>
             </div>
 
-              {/* Tab Contents */}
+              {/* Tab Contents - Conditionally render only active tab for performance */}
               <div className="flex-1 w-full" style={{ height: 'calc(100vh - 180px)' }}>
 
+              {activeTab === 'scope' && (
               <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex data-[state=active]:flex-col">
                 <div className="h-full w-full flex flex-col overflow-hidden">
                    {loading && wbsItems.length === 0 ? (
@@ -2025,7 +2026,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     )}
                  </div>
                </TabsContent>
+              )}
 
+              {activeTab === 'time' && (
               <TabsContent value="time" className="h-full w-full m-0 p-0 data-[state=active]:flex data-[state=active]:flex-col">
                 <div className="h-full w-full flex flex-col">
                   {loading && wbsItems.length === 0 ? (
@@ -2087,7 +2090,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   )}
                 </div>
               </TabsContent>
+              )}
 
+              {activeTab === 'cost' && (
                <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden">
                   <div className="h-full w-full flex flex-col overflow-hidden">
                      {loading && wbsItems.length === 0 ? (
@@ -2146,6 +2151,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       )}
                     </div>
                   </TabsContent>
+              )}
               </div>
             </Tabs>
           </div>
