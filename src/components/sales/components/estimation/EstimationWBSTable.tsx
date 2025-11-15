@@ -301,10 +301,6 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
     <div className="flex flex-col h-full">
       {/* Toolbar */}
       <div className="shrink-0 h-11 px-4 border-b border-border/20 bg-muted/30 flex items-center gap-2">
-        <Button size="sm" variant="outline" className="h-8">
-          <Plus className="w-3.5 h-3.5 mr-1.5" />
-          Add Item
-        </Button>
         <div className="flex-1" />
         <div className="text-sm font-semibold text-foreground">
           Total: ${calculateGrandTotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
