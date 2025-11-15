@@ -3,10 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useEstimateContext } from '../context/EstimateContext';
+import { EstimationWBSTable } from '../components/estimation/EstimationWBSTable';
 
 export const EstimationProcessPage = () => {
   const steps = [
@@ -54,25 +53,10 @@ export const EstimationProcessPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6">
-              {/* Content area */}
-              <div>
-                <div className="rounded-lg border">
-                  <div className="p-6 text-sm text-muted-foreground">Estimation Process content coming soon...</div>
-                </div>
-              </div>
-
-              {/* Side panel */}
-              <div>
-                <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center">
-                  <p className="font-medium mb-2">Additional Tools</p>
-                  <p className="text-sm text-muted-foreground">Estimation tools will appear here</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="flex-1 overflow-hidden">
+          <EstimationWBSTable 
+            onDataChange={(data) => console.log('Estimation data:', data)}
+          />
         </div>
       </div>
     </PageShell>
