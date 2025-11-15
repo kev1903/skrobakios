@@ -497,9 +497,15 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 <div className="px-2 flex items-center border-l border-border/10">
                   <Input
                     ref={(el) => setInputRef(item.id, 'unitRate', el)}
-                    type="number"
-                    value={item.unitRate || ''}
-                    onChange={(e) => updateItemValue(item.id, 'unitRate', parseFloat(e.target.value) || 0)}
+                    type="text"
+                    value={item.unitRate ? new Intl.NumberFormat('en-US', { 
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2 
+                    }).format(item.unitRate) : ''}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9.]/g, '');
+                      updateItemValue(item.id, 'unitRate', parseFloat(value) || 0);
+                    }}
                     onKeyDown={(e) => handleKeyDown(e, item.id, 'unitRate')}
                     className="h-7 text-sm bg-background border-border/40 px-2 text-right"
                     onClick={(e) => e.stopPropagation()}
