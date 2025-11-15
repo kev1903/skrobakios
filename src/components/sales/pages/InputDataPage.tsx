@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { Save, ArrowLeft, MoreVertical } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -437,31 +438,37 @@ const [estimateNumber, setEstimateNumber] = useState('');
           </div>
         </TabsContent>
 
-        <TabsContent value="attributes" className="flex-1 overflow-auto">
-          <div className="p-6">
-            <ProjectAttributesTab 
+            <TabsContent value="attributes" className="flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="p-6">
+                  <ProjectAttributesTab
               onDataChange={(data) => handleTabDataChange('projectAttributes', data)}
               uploadedPDFs={drawings}
               estimateId={currentId}
-            />
-          </div>
-        </TabsContent>
+                />
+                </div>
+              </ScrollArea>
+            </TabsContent>
 
-        <TabsContent value="wbs" className="flex-1 overflow-auto">
-          <div className="p-6">
-            <WBSElementMappingTab 
+            <TabsContent value="wbs" className="flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="p-6">
+                  <WBSElementMappingTab
               onDataChange={(data) => handleTabDataChange('wbsMapping', data)}
-            />
-          </div>
-        </TabsContent>
+                />
+                </div>
+              </ScrollArea>
+            </TabsContent>
 
-        <TabsContent value="takeoff" className="flex-1 overflow-auto">
-          <div className="p-6">
-            <AutoTakeOffTab 
+            <TabsContent value="takeoff" className="flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="p-6">
+                  <AutoTakeOffTab
               onDataChange={(data) => handleTabDataChange('takeOffQuantities', data)}
-            />
-          </div>
-        </TabsContent>
+                />
+                </div>
+              </ScrollArea>
+            </TabsContent>
       </Tabs>
         </div>
       </div>
