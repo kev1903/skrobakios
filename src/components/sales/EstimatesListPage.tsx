@@ -120,7 +120,7 @@ export const EstimatesListPage = ({
       </div>;
   }
   return <PageShell withPattern>
-    <div className="space-y-8 p-6">
+    <div className="space-y-8 px-6 pb-6">
       {/* Header Section */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
