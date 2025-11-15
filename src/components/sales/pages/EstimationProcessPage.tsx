@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
 import { StepTimeline } from '@/components/ui/step-timeline';
@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save, Indent, Outdent } from 'lucide-react';
 import { useEstimateContext } from '../context/EstimateContext';
 import { EstimationWBSTable } from '../components/estimation/EstimationWBSTable';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const EstimationProcessPage = () => {
   const steps = [
@@ -18,6 +20,48 @@ export const EstimationProcessPage = () => {
   const { estimateId } = useParams<{ estimateId: string }>();
   const { estimateTitle, projectType } = useEstimateContext();
   const tableRef = useRef<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load existing estimation data on mount
+  useEffect(() => {
+    const loadEstimationData = async () => {
+      if (!estimateId) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('estimate_line_items')
+          .select('*')
+          .eq('estimate_id', estimateId)
+          .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const loadedItems = data.map((item) => ({
+            id: item.id,
+            wbsNumber: item.wbs_number || '',
+            name: item.item_description || '',
+            level: item.level || 0,
+            isExpanded: item.is_expanded || false,
+            quantity: item.quantity || 0,
+            unit: item.unit || '',
+            unitRate: item.unit_price || 0,
+            totalCost: item.line_total || 0
+          }));
+          
+          tableRef.current?.setData(loadedItems);
+        }
+      } catch (error) {
+        console.error('Error loading estimation data:', error);
+        toast.error('Failed to load estimation data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadEstimationData();
+  }, [estimateId]);
   
   const handleIndent = () => {
     tableRef.current?.indentSelected();
@@ -25,6 +69,60 @@ export const EstimationProcessPage = () => {
 
   const handleOutdent = () => {
     tableRef.current?.outdentSelected();
+  };
+
+  const handleSave = async () => {
+    if (!estimateId) {
+      toast.error('No estimate ID found');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const data = tableRef.current?.getData();
+      
+      if (!data || data.length === 0) {
+        toast.error('No data to save');
+        setIsSaving(false);
+        return;
+      }
+
+      // Delete existing line items for this estimate
+      const { error: deleteError } = await supabase
+        .from('estimate_line_items')
+        .delete()
+        .eq('estimate_id', estimateId);
+
+      if (deleteError) throw deleteError;
+
+      // Prepare line items for insertion
+      const lineItems = data.map((item: any, index: number) => ({
+        estimate_id: estimateId,
+        wbs_number: item.wbsNumber,
+        item_description: item.name,
+        quantity: item.quantity || 0,
+        unit: item.unit || '',
+        unit_price: item.unitRate || 0,
+        line_total: item.totalCost || 0,
+        level: item.level || 0,
+        is_expanded: item.isExpanded || false,
+        sort_order: index
+      }));
+
+      // Insert new line items
+      const { error: insertError } = await supabase
+        .from('estimate_line_items')
+        .insert(lineItems);
+
+      if (insertError) throw insertError;
+
+      toast.success('Estimation data saved successfully');
+    } catch (error) {
+      console.error('Error saving estimation data:', error);
+      toast.error('Failed to save estimation data');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleStepChange = (s: number) => {
@@ -59,9 +157,9 @@ export const EstimationProcessPage = () => {
                 <Indent className="w-4 h-4 mr-2" />
                 Indent
               </Button>
-              <Button variant="default" size="sm">
+              <Button variant="default" size="sm" onClick={handleSave} disabled={isSaving}>
                 <Save className="w-4 h-4 mr-2" />
-                Save
+                {isSaving ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </div>

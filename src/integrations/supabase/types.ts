@@ -1692,34 +1692,49 @@ export type Database = {
           created_at: string
           estimate_id: string
           id: string
+          is_expanded: boolean | null
           item_description: string
+          level: number | null
           line_total: number | null
+          parent_id: string | null
           quantity: number
           sort_order: number | null
+          unit: string | null
           unit_price: number
           updated_at: string
+          wbs_number: string | null
         }
         Insert: {
           created_at?: string
           estimate_id: string
           id?: string
+          is_expanded?: boolean | null
           item_description: string
+          level?: number | null
           line_total?: number | null
+          parent_id?: string | null
           quantity?: number
           sort_order?: number | null
+          unit?: string | null
           unit_price?: number
           updated_at?: string
+          wbs_number?: string | null
         }
         Update: {
           created_at?: string
           estimate_id?: string
           id?: string
+          is_expanded?: boolean | null
           item_description?: string
+          level?: number | null
           line_total?: number | null
+          parent_id?: string | null
           quantity?: number
           sort_order?: number | null
+          unit?: string | null
           unit_price?: number
           updated_at?: string
+          wbs_number?: string | null
         }
         Relationships: [
           {
@@ -1727,6 +1742,13 @@ export type Database = {
             columns: ["estimate_id"]
             isOneToOne: false
             referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimate_line_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "estimate_line_items"
             referencedColumns: ["id"]
           },
         ]
