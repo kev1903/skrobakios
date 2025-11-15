@@ -37,22 +37,31 @@ export const EstimatesListPage = ({
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   useEffect(() => {
+    console.log('EstimatesListPage: useEffect triggered, fetching estimates...');
     fetchEstimates();
   }, []);
+  
   const fetchEstimates = async () => {
+    console.log('EstimatesListPage: fetchEstimates called');
     try {
+      console.log('EstimatesListPage: Starting Supabase query...');
       const { data, error } = await supabase
         .from('estimates')
         .select('*')
         .order('created_at', { ascending: false });
+      
+      console.log('EstimatesListPage: Query result:', { data, error });
+      
       if (error) {
         console.error('Error fetching estimates:', error);
       } else {
+        console.log('EstimatesListPage: Setting estimates data:', data);
         setEstimates(data || []);
       }
     } catch (error) {
       console.error('Error:', error);
     } finally {
+      console.log('EstimatesListPage: Setting loading to false');
       setLoading(false);
     }
   };
