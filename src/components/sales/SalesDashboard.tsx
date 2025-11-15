@@ -1,321 +1,286 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LeadDetailsModal } from './LeadDetailsModal';
-import { CreateLeadModal } from './CreateLeadModal';
-import { useLeads, Lead } from '@/hooks/useLeads';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Users,
-  Building2,
   DollarSign,
-  Clock,
+  Building2,
+  Users,
   Calendar,
-  Phone,
-  Mail,
-  Loader2
+  TrendingUp
 } from 'lucide-react';
 
-interface Opportunity {
-  id: string;
-  company: string;
-  contact: string;
-  avatar: string;
-  description: string;
-  value: number;
-  priority: 'High' | 'Medium' | 'Low';
-  source: string;
-  lastActivity: string;
-}
-
-interface OpportunityWithStage extends Opportunity {
-  stage: string;
-}
-
-interface Stage {
-  id: string;
-  name: string;
-  color: string;
-  count: number;
-  totalValue: number;
-  opportunities: Opportunity[];
-}
-
 export const SalesDashboard = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedStage, setSelectedStage] = useState('');
-  const { leads, leadsByStage, isLoading, error, updateLead, createLead } = useLeads();
+  // Mock data for Sales & Marketing Dashboard
+  const dashboardStats = {
+    totalRevenue: 2847000,
+    monthlyGrowth: 18.5,
+    activeCampaigns: 12,
+    conversionRate: 24.8,
+    pipelineValue: 4250000,
+    dealsWon: 34,
+    avgDealSize: 83735,
+    marketingROI: 287
+  };
 
-  const stageConfig = [
-    { id: 'Lead', name: 'Lead', color: 'bg-blue-500' },
-    { id: 'Contacted', name: 'Contacted', color: 'bg-orange-500' },
-    { id: 'Qualified', name: 'Qualified', color: 'bg-purple-500' },
-    { id: 'Proposal made', name: 'Proposal made', color: 'bg-yellow-500' },
-    { id: 'Won', name: 'Won', color: 'bg-green-500' },
-    { id: 'Lost', name: 'Lost', color: 'bg-red-500' }
+  const salesPerformance = [
+    { month: 'Jan', revenue: 245000, target: 280000, deals: 8 },
+    { month: 'Feb', revenue: 298000, target: 290000, deals: 10 },
+    { month: 'Mar', revenue: 325000, target: 300000, deals: 11 },
+    { month: 'Apr', revenue: 412000, target: 350000, deals: 14 },
+    { month: 'May', revenue: 478000, target: 380000, deals: 16 },
+    { month: 'Jun', revenue: 523000, target: 420000, deals: 18 }
   ];
 
-  // Calculate stats from real data
-  const totalOpportunities = leads.length;
-  const totalValue = leads.reduce((sum, lead) => sum + Number(lead.value), 0);
-  const activeLeads = leadsByStage['Lead']?.length || 0;
-  const wonThisMonth = leadsByStage['Won']?.length || 0;
+  const topPerformers = [
+    { name: 'Sarah Johnson', deals: 28, revenue: 892000, avatar: 'SJ', trend: '+15%' },
+    { name: 'Michael Chen', deals: 24, revenue: 756000, avatar: 'MC', trend: '+12%' },
+    { name: 'Emma Williams', deals: 21, revenue: 678000, avatar: 'EW', trend: '+9%' },
+    { name: 'David Brown', deals: 18, revenue: 521000, avatar: 'DB', trend: '+7%' }
+  ];
 
-  const handleLeadClick = (lead: Lead) => {
-    setSelectedLead(lead);
-    setIsModalOpen(true);
+  const activeCampaigns = [
+    { name: 'Summer Renovation Campaign', budget: 45000, spent: 32500, leads: 248, status: 'Active' },
+    { name: 'Commercial Property Drive', budget: 65000, spent: 58900, leads: 412, status: 'Active' },
+    { name: 'Residential Upgrade Series', budget: 38000, spent: 28400, leads: 189, status: 'Active' },
+    { name: 'Green Building Initiative', budget: 52000, spent: 45600, leads: 325, status: 'Ending Soon' }
+  ];
+
+  const recentDeals = [
+    { client: 'Tech Innovations Ltd', value: 185000, stage: 'Negotiation', probability: 85 },
+    { client: 'Urban Developments', value: 342000, stage: 'Proposal', probability: 65 },
+    { client: 'Green Living Spaces', value: 228000, stage: 'Qualified', probability: 45 },
+    { client: 'Skyline Constructions', value: 495000, stage: 'Discovery', probability: 30 },
+    { client: 'Metro Housing Corp', value: 156000, stage: 'Negotiation', probability: 75 }
+  ];
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: 'AUD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
   };
 
-  const handleSaveLead = async (updatedLead: Lead) => {
-    await updateLead(updatedLead.id, updatedLead);
-  };
-
-  const handleCreateOpportunity = (stage: string) => {
-    setSelectedStage(stage);
-    setIsCreateModalOpen(true);
-  };
-
-  const handleCreateLead = async (leadData: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => {
-    await createLead(leadData);
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'High': return 'bg-destructive/20 text-destructive border-destructive/30';
-      case 'Medium': return 'bg-orange-500/20 text-orange-700 border-orange-500/30';
-      case 'Low': return 'bg-green-500/20 text-green-700 border-green-500/30';
-      default: return 'bg-muted text-muted-foreground border-border';
+  const getStageColor = (stage: string) => {
+    switch (stage) {
+      case 'Negotiation': return 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30';
+      case 'Proposal': return 'bg-blue-500/20 text-blue-700 border-blue-500/30';
+      case 'Qualified': return 'bg-amber-500/20 text-amber-700 border-amber-500/30';
+      case 'Discovery': return 'bg-purple-500/20 text-purple-700 border-purple-500/30';
+      default: return 'bg-muted/20 text-muted-foreground border-border';
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <span className="ml-2 text-muted-foreground font-inter">Loading leads...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-destructive font-inter">Error loading leads: {error}</p>
-      </div>
-    );
-  }
+  const getCampaignStatus = (status: string) => {
+    return status === 'Active' 
+      ? 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30'
+      : 'bg-amber-500/20 text-amber-700 border-amber-500/30';
+  };
 
   return (
-    <div className="space-y-6 h-full flex flex-col">
-      {/* Header Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="glass-card">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground font-inter">Total Opportunities</p>
-                <p className="text-2xl font-bold text-foreground font-poppins">{totalOpportunities}</p>
-              </div>
-              <Building2 className="w-8 h-8 text-primary" />
+    <div className="space-y-6">
+      {/* Hero Section */}
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-foreground mb-3 font-playfair">
+          Sales & Marketing <span className="text-primary">Dashboard</span>
+        </h2>
+        <p className="text-muted-foreground max-w-3xl mx-auto">
+          Monitor your sales pipeline, track marketing campaigns, and analyze performance metrics in real-time
+        </p>
+      </div>
+
+      {/* Key Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card className="glass-card hover:shadow-lg transition-all">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <DollarSign className="w-8 h-8 text-emerald-500" />
+              <Badge className="bg-emerald-500/20 text-emerald-700">+{dashboardStats.monthlyGrowth}%</Badge>
             </div>
+            <div className="text-3xl font-bold text-foreground mb-1">
+              {formatCurrency(dashboardStats.totalRevenue)}
+            </div>
+            <p className="text-sm text-muted-foreground">Total Revenue YTD</p>
           </CardContent>
         </Card>
-        
-        <Card className="glass-card">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground font-inter">Pipeline Value</p>
-                <p className="text-2xl font-bold text-foreground font-poppins">${totalValue.toLocaleString()}</p>
-              </div>
-              <DollarSign className="w-8 h-8 text-primary" />
+
+        <Card className="glass-card hover:shadow-lg transition-all">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <Building2 className="w-8 h-8 text-blue-500" />
+              <Badge className="bg-blue-500/20 text-blue-700">{dashboardStats.dealsWon} won</Badge>
             </div>
+            <div className="text-3xl font-bold text-foreground mb-1">
+              {formatCurrency(dashboardStats.pipelineValue)}
+            </div>
+            <p className="text-sm text-muted-foreground">Pipeline Value</p>
           </CardContent>
         </Card>
-        
-        <Card className="glass-card">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground font-inter">Active Leads</p>
-                <p className="text-2xl font-bold text-foreground font-poppins">{activeLeads}</p>
-              </div>
-              <Users className="w-8 h-8 text-primary" />
+
+        <Card className="glass-card hover:shadow-lg transition-all">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <Users className="w-8 h-8 text-amber-500" />
+              <Badge className="bg-amber-500/20 text-amber-700">{dashboardStats.conversionRate}%</Badge>
             </div>
+            <div className="text-3xl font-bold text-foreground mb-1">
+              {dashboardStats.activeCampaigns}
+            </div>
+            <p className="text-sm text-muted-foreground">Active Campaigns</p>
           </CardContent>
         </Card>
-        
-        <Card className="glass-card">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground font-inter">Won This Month</p>
-                <p className="text-2xl font-bold text-foreground font-poppins">{wonThisMonth}</p>
-              </div>
-              <Clock className="w-8 h-8 text-primary" />
+
+        <Card className="glass-card hover:shadow-lg transition-all">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <TrendingUp className="w-8 h-8 text-purple-500" />
+              <Badge className="bg-purple-500/20 text-purple-700">{dashboardStats.marketingROI}%</Badge>
             </div>
+            <div className="text-3xl font-bold text-foreground mb-1">
+              {formatCurrency(dashboardStats.avgDealSize)}
+            </div>
+            <p className="text-sm text-muted-foreground">Avg Deal Size</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search opportunities..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 glass-card border-border w-64 font-inter"
-            />
+      {/* Sales Performance Chart */}
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-primary" />
+            Sales Performance Trend
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {salesPerformance.map((month, idx) => (
+              <div key={idx} className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">{month.month}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-muted-foreground">{month.deals} deals</span>
+                    <span className={month.revenue >= month.target ? 'text-emerald-600 font-semibold' : 'text-amber-600'}>
+                      {formatCurrency(month.revenue)}
+                    </span>
+                  </div>
+                </div>
+                <div className="relative h-3 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className={`absolute inset-y-0 left-0 rounded-full ${
+                      month.revenue >= month.target ? 'bg-emerald-500' : 'bg-amber-500'
+                    }`}
+                    style={{ width: `${Math.min((month.revenue / month.target) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
-          <Select>
-            <SelectTrigger className="w-40 glass-card border-border font-inter">
-              <SelectValue placeholder="All Sources" />
-            </SelectTrigger>
-            <SelectContent className="glass-card border-border">
-              <SelectItem value="all">All Sources</SelectItem>
-              <SelectItem value="website">Website</SelectItem>
-              <SelectItem value="referral">Referral</SelectItem>
-              <SelectItem value="social">Social Media</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-inter">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Opportunity
-        </Button>
+        </CardContent>
+      </Card>
+
+      {/* Top Performers & Active Campaigns */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Top Performers */}
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              Top Performers
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {topPerformers.map((performer, idx) => (
+                <div key={idx} className="flex items-center gap-4 p-3 rounded-lg bg-background/50 hover:bg-accent/30 transition-colors">
+                  <Avatar className="w-12 h-12 border-2 border-primary/20">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                      {performer.avatar}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground">{performer.name}</p>
+                    <p className="text-sm text-muted-foreground">{performer.deals} deals • {formatCurrency(performer.revenue)}</p>
+                  </div>
+                  <Badge className="bg-emerald-500/20 text-emerald-700">{performer.trend}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Active Campaigns */}
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              Marketing Campaigns
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {activeCampaigns.map((campaign, idx) => (
+                <div key={idx} className="p-4 rounded-lg bg-background/50 hover:bg-accent/30 transition-colors">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground mb-1">{campaign.name}</p>
+                      <p className="text-sm text-muted-foreground">{campaign.leads} leads generated</p>
+                    </div>
+                    <Badge className={getCampaignStatus(campaign.status)}>
+                      {campaign.status}
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Budget</span>
+                      <span className="font-medium">{formatCurrency(campaign.spent)} / {formatCurrency(campaign.budget)}</span>
+                    </div>
+                    <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="absolute inset-y-0 left-0 bg-primary rounded-full"
+                        style={{ width: `${(campaign.spent / campaign.budget) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Kanban Board */}
-      <div className="flex-1 overflow-x-auto">
-        <div className="flex gap-6 min-w-max pb-6">
-          {stageConfig.map((stage) => {
-            const stageLeads = leadsByStage[stage.id] || [];
-            const stageValue = stageLeads.reduce((sum, lead) => sum + Number(lead.value), 0);
-            
-            return (
-              <div key={stage.id} className="flex-shrink-0 w-80">
-                <Card className="glass-card h-full flex flex-col">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full ${stage.color}`} />
-                        <CardTitle className="text-sm font-semibold text-foreground font-inter">
-                          {stage.name}
-                        </CardTitle>
-                        <Badge variant="secondary" className="text-xs bg-muted text-muted-foreground">
-                          {stageLeads.length}
-                        </Badge>
-                      </div>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      ${stageValue.toLocaleString()}
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="flex-1 space-y-3 pt-0">
-                    {stageLeads.map((lead) => (
-                      <Card 
-                        key={lead.id} 
-                        className="glass-card hover:glass-hover transition-colors cursor-pointer"
-                        onClick={() => handleLeadClick(lead)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="space-y-3">
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-center gap-2">
-                                <Avatar className="w-6 h-6">
-                                  <AvatarImage src={lead.avatar_url || ''} />
-                                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                                    {lead.contact_name.split(' ').map(n => n[0]).join('')}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <h4 className="font-semibold text-sm text-foreground font-poppins">{lead.company}</h4>
-                                  <p className="text-xs text-muted-foreground font-inter">{lead.contact_name}</p>
-                                </div>
-                              </div>
-                              <Badge variant="outline" className={`text-xs ${getPriorityColor(lead.priority)}`}>
-                                {lead.priority}
-                              </Badge>
-                            </div>
-                            
-                            <p className="text-sm text-muted-foreground font-inter">{lead.description}</p>
-                            
-                            <div className="flex items-center justify-between">
-                              <div className="text-lg font-bold text-primary font-poppins">
-                                ${Number(lead.value).toLocaleString()}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-muted">
-                                  <Phone className="w-3 h-3" />
-                                </Button>
-                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-muted">
-                                  <Mail className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center justify-between text-xs text-muted-foreground font-inter">
-                              <span>{lead.source}</span>
-                              <span>{lead.last_activity}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                    
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-center glass-card border-dashed hover:bg-muted font-inter"
-                      onClick={() => handleCreateOpportunity(stage.id)}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Opportunity
-                    </Button>
-                  </CardContent>
-                </Card>
+      {/* Recent Deals Pipeline */}
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-primary" />
+            Recent Deals in Pipeline
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {recentDeals.map((deal, idx) => (
+              <div key={idx} className="flex items-center gap-4 p-4 rounded-lg bg-background/50 hover:bg-accent/30 transition-colors">
+                <div className="flex-1">
+                  <p className="font-semibold text-foreground mb-1">{deal.client}</p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>{formatCurrency(deal.value)}</span>
+                    <Badge variant="outline" className={getStageColor(deal.stage)}>
+                      {deal.stage}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-foreground">{deal.probability}%</div>
+                  <p className="text-xs text-muted-foreground">Win probability</p>
+                </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Lead Details Modal */}
-      {selectedLead && (
-        <LeadDetailsModal
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedLead(null);
-          }}
-          lead={selectedLead}
-          onSave={handleSaveLead}
-        />
-      )}
-
-      {/* Create Lead Modal */}
-      <CreateLeadModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        initialStage={selectedStage}
-        onSave={handleCreateLead}
-      />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
