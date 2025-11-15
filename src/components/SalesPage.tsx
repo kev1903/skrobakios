@@ -92,16 +92,6 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
         
         {/* Main Content Area - Offset by sidebar width */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden ml-64">
-          {/* Header */}
-          <div className="glass-light border-b border-white/30 px-6 py-6 flex-shrink-0 backdrop-blur-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground font-poppins">Sales CRM</h1>
-                <p className="text-muted-foreground mt-1 font-inter">Manage your sales pipeline and customer relationships</p>
-              </div>
-            </div>
-          </div>
-
           {/* Content Area */}
           <div className="flex-1 h-full overflow-y-auto">
             <div className="p-6 space-y-6 max-w-7xl mx-auto">
