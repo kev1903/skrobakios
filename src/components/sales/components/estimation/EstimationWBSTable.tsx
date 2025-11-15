@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, forwardRef, useImperativeHandle, 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronRight, ChevronDown, Plus, Trash2, GripVertical } from 'lucide-react';
 
 interface EstimationItem {
@@ -424,15 +425,26 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                   />
                 </div>
                 <div className="px-2 flex items-center border-l border-border/10">
-                  <Input
-                    ref={(el) => setInputRef(item.id, 'unit', el)}
+                  <Select
                     value={item.unit || ''}
-                    onChange={(e) => updateItemValue(item.id, 'unit', e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(e, item.id, 'unit')}
-                    className="h-6 text-xs bg-background border-border/40 px-2"
-                    onClick={(e) => e.stopPropagation()}
-                    placeholder="Unit"
-                  />
+                    onValueChange={(value) => updateItemValue(item.id, 'unit', value)}
+                  >
+                    <SelectTrigger 
+                      className="h-6 text-xs bg-background border-border/40 px-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <SelectValue placeholder="Unit" />
+                    </SelectTrigger>
+                    <SelectContent className="z-50 bg-background">
+                      <SelectItem value="No.">No.</SelectItem>
+                      <SelectItem value="l/m">l/m</SelectItem>
+                      <SelectItem value="m2">m2</SelectItem>
+                      <SelectItem value="m3">m3</SelectItem>
+                      <SelectItem value="hr">hr</SelectItem>
+                      <SelectItem value="day">day</SelectItem>
+                      <SelectItem value="week">week</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="px-2 flex items-center border-l border-border/10">
                   <Input
