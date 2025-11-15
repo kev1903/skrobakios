@@ -51,6 +51,12 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
     },
     outdentSelected: () => {
       if (selectedId) outdentItem(selectedId);
+    },
+    getData: () => {
+      return items.filter(item => item.name.trim() !== '' || item.quantity !== 0);
+    },
+    setData: (data: EstimationItem[]) => {
+      setItems(data);
     }
   }));
 
