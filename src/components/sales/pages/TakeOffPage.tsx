@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useEstimateContext } from '../context/EstimateContext';
 
-export const OutputIntegrationPage = () => {
+export const TakeOffPage = () => {
   const steps = [
     { id: 1, title: 'Step 1: Upload & AI Analysis' },
     { id: 2, title: 'Step 2: Take-Off' },
@@ -17,7 +15,8 @@ export const OutputIntegrationPage = () => {
   ];
   const navigate = useNavigate();
   const { estimateId } = useParams<{ estimateId: string }>();
-  const { estimateTitle, projectType } = useEstimateContext();
+  const { estimateTitle } = useEstimateContext();
+  
   const handleStepChange = (s: number) => {
     const id = estimateId;
     if (!id) return;
@@ -28,6 +27,7 @@ export const OutputIntegrationPage = () => {
       case 4: navigate(`/estimates/edit/${id}/output`); break;
     }
   };
+  
   return (
     <PageShell withPattern>
       <div className="flex-1 flex flex-col">
@@ -49,7 +49,7 @@ export const OutputIntegrationPage = () => {
         </div>
 
         {/* Progressive Step Timeline */}
-        <StepTimeline steps={steps} current={4} onChange={handleStepChange} />
+        <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
@@ -57,15 +57,15 @@ export const OutputIntegrationPage = () => {
             {/* Content area */}
             <div className="overflow-auto">
               <div className="rounded-lg border">
-                <div className="p-6 text-sm text-muted-foreground">Output & Integration content coming soon...</div>
+                <div className="p-6 text-sm text-muted-foreground">Take-Off content coming soon...</div>
               </div>
             </div>
 
             {/* Side panel */}
             <div>
               <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center">
-                <p className="font-medium mb-2">Additional Tools</p>
-                <p className="text-sm text-muted-foreground">Output tools will appear here</p>
+                <p className="font-medium mb-2">Take-Off Tools</p>
+                <p className="text-sm text-muted-foreground">Measurement and quantity tools will appear here</p>
               </div>
             </div>
           </div>

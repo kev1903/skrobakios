@@ -189,8 +189,9 @@ const [estimateNumber, setEstimateNumber] = useState('');
   // Progressive steps definition
   const steps = [
     { id: 1, title: 'Step 1: Upload & AI Analysis' },
-    { id: 2, title: 'Step 2: Estimation Process' },
-    { id: 3, title: 'Step 3: Output & Integration' },
+    { id: 2, title: 'Step 2: Take-Off' },
+    { id: 3, title: 'Step 3: Estimation Process' },
+    { id: 4, title: 'Step 4: Output & Integration' },
   ];
   const [currentStep, setCurrentStep] = useState<number>(1);
 
@@ -233,9 +234,12 @@ const [estimateNumber, setEstimateNumber] = useState('');
         navigate(`/estimates/edit/${id}`);
         break;
       case 2:
-        navigate(`/estimates/edit/${id}/estimation`);
+        navigate(`/estimates/edit/${id}/take-off`);
         break;
       case 3:
+        navigate(`/estimates/edit/${id}/estimation`);
+        break;
+      case 4:
         navigate(`/estimates/edit/${id}/output`);
         break;
       default:
