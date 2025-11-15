@@ -339,7 +339,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
           <div 
             ref={leftScrollRef}
             onScroll={handleLeftScroll}
-            className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin"
+            className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin pl-4"
           >
             {/* Header */}
             <div className="sticky top-0 z-10 grid grid-cols-[90px_1fr] h-9 bg-muted/40 border-b border-border/20">
@@ -362,7 +362,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                 onMouseLeave={() => setHoveredId(null)}
                 onClick={() => setSelectedId(item.id)}
               >
-                <div className="px-3 flex items-center text-[11px] text-muted-foreground font-mono tracking-tight">
+                <div className="px-3 flex items-center text-xs text-muted-foreground font-mono tracking-tight">
                   {item.wbsNumber}
                 </div>
                 <div className="px-3 flex items-center border-l border-border/10">
@@ -386,7 +386,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                       </button>
                     )}
                     {!item.children && <div className="w-4" />}
-                    <span className={`text-[11px] ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
+                    <span className={`text-xs ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
                       {item.name}
                     </span>
                   </div>
@@ -438,7 +438,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     type="number"
                     value={item.quantity || ''}
                     onChange={(e) => updateItemValue(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                    className="h-6 text-[11px] bg-background border-border/40 px-2"
+                    className="h-6 text-xs bg-background border-border/40 px-2"
                     disabled={item.level === 0}
                   />
                 </div>
@@ -446,7 +446,7 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                   <Input
                     value={item.unit || ''}
                     onChange={(e) => updateItemValue(item.id, 'unit', e.target.value)}
-                    className="h-6 text-[11px] bg-background border-border/40 px-2"
+                    className="h-6 text-xs bg-background border-border/40 px-2"
                     disabled={item.level === 0}
                   />
                 </div>
@@ -455,12 +455,12 @@ export const EstimationWBSTable = forwardRef(({ onDataChange }: EstimationWBSTab
                     type="number"
                     value={item.unitRate || ''}
                     onChange={(e) => updateItemValue(item.id, 'unitRate', parseFloat(e.target.value) || 0)}
-                    className="h-6 text-[11px] bg-background border-border/40 px-2"
+                    className="h-6 text-xs bg-background border-border/40 px-2"
                     disabled={item.level === 0}
                   />
                 </div>
                 <div className="px-3 flex items-center border-l border-border/10">
-                  <span className={`text-[11px] font-mono ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
+                  <span className={`text-xs font-mono ${item.level === 0 ? 'font-semibold text-foreground' : 'text-foreground/90'}`}>
                     ${(item.totalCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
